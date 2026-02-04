@@ -1,0 +1,20 @@
+.DS_Store
+*.env
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Flutter standard
+/scout_os_app/build/
+/scout_os_app/.dart_tool/
+/scout_os_app/.flutter-plugins
+/scout_os_app/.flutter-plugins-dependencies
+
+# Backend standard
+/scout_os_backend/__pycache__/
+/scout_os_backend/.pytest_cache/
+postgres_data/
+
+# Deprecated data files (use modular JSON structure instead)
+scout_os_backend/scout_data.json

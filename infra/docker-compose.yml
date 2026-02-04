@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Database PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: scout_os_db
+    restart: always
+    environment:
+      POSTGRES_USER: scout_admin
+      POSTGRES_PASSWORD: scout_password_local
+      POSTGRES_DB: scout_os_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Cache Redis
+  redis:
+    image: redis:alpine
+    container_name: scout_os_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

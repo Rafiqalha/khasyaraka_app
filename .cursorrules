@@ -1,0 +1,37 @@
+# PROJECT CONTEXT: KHASYARAKA (SCOUT OS)
+
+## 1. ARCHITECTURE OVERVIEW
+- **Type:** Monorepo.
+- **Frontend:** Flutter (Mobile App) in `scout_os_app/`.
+- **Backend:** Python FastAPI in `scout_os_backend/`.
+- **Database:** PostgreSQL (via Docker/Railway).
+- **Cache:** Redis (via Docker/Railway).
+- **Authentication:** Custom JWT (No external provider).
+
+## 2. GENERAL RULES
+- **Language:** English for code comments, Indonesian for user explanations.
+- **Path Awareness:** Always check if you are in `scout_os_backend` or `scout_os_app` before running commands.
+- **Env Vars:** NEVER hardcode secrets. Use `os.getenv` (Python) or `dotenv` (Flutter).
+
+## 3. BACKEND RULES (FastAPI)
+- **Framework:** FastAPI (Async).
+- **ORM:** SQLAlchemy (Async) + Alembic for migrations.
+- **Validation:** Pydantic V2.
+- **Database Workflow (CRITICAL):**
+  1. Define model in `app/models.py`.
+  2. Run `alembic revision --autogenerate -m "message"`.
+  3. Run `alembic upgrade head`.
+  4. NEVER create tables using raw SQL or GUI tools.
+- **Caching:** Use Redis for high-traffic read data (Leaderboards, User XP).
+- **Structure:** Service/Repository pattern. Keep `routers` clean.
+
+## 4. FRONTEND RULES (Flutter)
+- **State Management:** Riverpod (Recommended) or Provider.
+- **Networking:** Dio (preferred over http).
+- **Model Sync:** Flutter models (`.fromJson`) must match Pydantic schemas exactly.
+- **Service Layer:** All API calls must go through `services/`, never call API directly in Widgets.
+
+## 5. SCALING & DEPLOYMENT
+- **Platform:** Railway.
+- **Optimization:** Minimise DB hits. Use Redis heavily.
+- **Docker:** The backend must be Docker-compatible.

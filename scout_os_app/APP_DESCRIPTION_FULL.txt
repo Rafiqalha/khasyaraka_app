@@ -1,0 +1,64 @@
+DESKRIPSI LENGKAP
+
+Khasyaraka adalah platform pembelajaran kepramukaan digital yang menggabungkan konsep gamifikasi dengan alat praktis untuk membantu anggota pramuka menguasai berbagai keterampilan kepramukaan. Aplikasi ini dirancang dengan antarmuka yang menarik dan mudah digunakan, mengadopsi pendekatan pembelajaran bertahap seperti aplikasi pembelajaran bahasa populer.
+
+FITUR UTAMA
+
+1. SISTEM PEMBELAJARAN INTERAKTIF
+Aplikasi menawarkan 5 bagian pelatihan utama yang dapat diakses secara gratis:
+- Pengetahuan Umum Kepramukaan PUK: Mencakup sejarah kepramukaan, lambang, dan kode kehormatan pramuka
+- Pertolongan Pertama PPGD: Pembelajaran tentang penanganan darurat medis dan penggunaan obat alami
+- Navigasi dan Survival NAV: Materi tentang penggunaan kompas, membaca peta, dan teknik bertahan hidup di alam
+- Tali Temali: Pembelajaran berbagai jenis simpul, ikatan, dan teknik membuat bangunan darurat
+- Sandi dan Isyarat: Materi tentang semaphore, kode morse, dan teknik pemecahan kode rahasia
+
+Setiap bagian dibagi menjadi unit dan level yang dapat diselesaikan secara bertahap. Pengguna akan mengikuti kuis interaktif untuk menguji pemahaman mereka dan mendapatkan poin pengalaman XP setelah menyelesaikan setiap level.
+
+2. SISTEM GAMIFIKASI
+- Sistem XP Experience Points: Pengguna mendapatkan XP setiap kali menyelesaikan kuis dengan benar. XP digunakan untuk mengukur kemajuan pembelajaran
+- Sistem Streak: Aplikasi melacak aktivitas harian pengguna dan memberikan streak untuk konsistensi belajar
+- Leaderboard: Sistem peringkat global yang menampilkan pengguna dengan XP tertinggi, mendorong kompetisi sehat antar anggota
+- Achievement System: Pengguna dapat mencapai berbagai level seperti Script Kiddie hingga tingkat yang lebih tinggi berdasarkan XP yang dikumpulkan
+
+3. MISSION DASHBOARD
+Dashboard misi menyediakan akses ke berbagai fitur praktis:
+- Daftar SKU Syarat Kecakapan Umum: Sistem untuk melacak dan memverifikasi kelengkapan syarat Bantara dan Laksana
+- Survival Tools Kit: Kumpulan alat praktis untuk kegiatan di alam bebas
+- SKK Syarat Kecakapan Khusus: Fitur untuk mengikuti ujian dan mendapatkan tanda kecakapan khusus
+- Cyber Scout: Modul pembelajaran tentang keamanan digital dan etika teknologi
+
+4. SURVIVAL TOOLS KIT
+Aplikasi menyediakan 6 alat survival praktis yang dapat digunakan langsung:
+- Compass Pro: Kompas digital menggunakan magnetometer perangkat untuk menentukan arah
+- Clinometer: Alat untuk mengukur sudut kemiringan dan tinggi objek menggunakan sensor accelerometer
+- GPS Tracker: Pelacak GPS real-time dengan fitur tracking perjalanan, penanda basecamp, dan penghitungan jarak tempuh
+- Leveler: Waterpass digital untuk mengukur kemiringan permukaan
+- Pedometer: Penghitung langkah menggunakan sensor gerak perangkat
+- Morse Torch: Senter dengan kemampuan mengirim kode morse menggunakan flash kamera
+
+5. SISTEM AUTENTIKASI
+- Login dengan Email dan Password: Sistem autentikasi tradisional dengan keamanan tinggi menggunakan hashing Argon2
+- Google Sign-In: Opsi masuk cepat menggunakan akun Google dengan verifikasi OAuth2
+- Manajemen Profil: Pengguna dapat melihat dan mengelola informasi profil, statistik pembelajaran, dan pencapaian
+
+6. FITUR TAMBAHAN
+- Progress Tracking: Sistem pelacakan kemajuan detail untuk setiap level yang telah diselesaikan
+- Offline Capability: Beberapa fitur dapat digunakan tanpa koneksi internet
+- Responsive Design: Antarmuka yang dioptimalkan untuk berbagai ukuran layar perangkat mobile
+- Real-time Updates: Data leaderboard dan progress diperbarui secara real-time menggunakan teknologi caching
+
+TEKNOLOGI
+
+Aplikasi dibangun menggunakan Flutter untuk antarmuka pengguna yang responsif dan performa tinggi. Backend menggunakan FastAPI dengan database PostgreSQL untuk menyimpan data pengguna dan progress pembelajaran. Sistem caching menggunakan Redis untuk meningkatkan performa leaderboard dan data yang sering diakses. Aplikasi juga terintegrasi dengan layanan Google untuk autentikasi dan OpenStreetMap untuk fitur pemetaan GPS Tracker.
+
+TUJUAN APLIKASI
+
+Khasyaraka bertujuan untuk memodernisasi pembelajaran kepramukaan dengan memanfaatkan teknologi digital. Aplikasi ini membantu anggota pramuka belajar secara mandiri, melacak kemajuan mereka, dan menguasai berbagai keterampilan kepramukaan melalui pendekatan yang menyenangkan dan interaktif. Dengan kombinasi pembelajaran teori dan alat praktis, aplikasi ini menjadi pendamping yang sempurna untuk kegiatan kepramukaan baik di dalam maupun di luar ruangan.
+
+TARGET PENGGUNA
+
+Aplikasi ini dirancang untuk semua anggota pramuka mulai dari tingkat Siaga, Penggalang, Penegak, hingga Pandega. Aplikasi juga dapat digunakan oleh pembina pramuka sebagai alat bantu pembelajaran dan evaluasi kemajuan anggota. Fitur survival tools membuat aplikasi berguna untuk kegiatan di alam bebas dan perkemahan.
+
+PERKEMBANGAN BERKELANJUTAN
+
+Aplikasi terus dikembangkan dengan penambahan konten pembelajaran baru, fitur tambahan, dan perbaikan berdasarkan feedback pengguna. Tim pengembang berkomitmen untuk memberikan pengalaman pembelajaran kepramukaan yang terbaik melalui teknologi modern.

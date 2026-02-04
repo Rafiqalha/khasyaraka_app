@@ -1,0 +1,3 @@
+DESKRIPSI SINGKAT
+
+Khasyaraka adalah aplikasi pembelajaran kepramukaan interaktif yang menggabungkan sistem pembelajaran gamifikasi dengan alat survival praktis. Aplikasi ini dirancang untuk membantu anggota pramuka belajar pengetahuan kepramukaan melalui sistem kuis interaktif, melacak kemajuan dengan sistem XP dan streak, serta menggunakan berbagai alat survival seperti GPS Tracker, Kompas, dan Clinometer. Fitur utama meliputi 5 bagian pelatihan utama yaitu Pengetahuan Umum Kepramukaan, Pertolongan Pertama, Navigasi dan Survival, Tali Temali, serta Sandi dan Isyarat. Aplikasi juga menyediakan sistem leaderboard untuk kompetisi sehat antar pengguna, manajemen SKU untuk melacak syarat kecakapan umum, dan profil pengguna untuk melihat statistik dan pencapaian.
