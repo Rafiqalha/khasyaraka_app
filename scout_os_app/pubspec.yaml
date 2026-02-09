@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: ^3.10.4
@@ -55,6 +55,13 @@ dependencies:
   geolocator: ^12.0.0
   permission_handler: ^11.3.1
   vibration: ^3.1.5
+  # SWR Loading Architecture
+  hive_flutter: ^1.1.0
+  shimmer: ^3.0.0
+  image_picker: ^1.2.1
+  pedometer: ^4.1.1
+  torch_light: ^1.1.0
+
 
 dev_dependencies:
   flutter_test:
@@ -82,10 +89,15 @@ flutter:
   assets:
     - assets/images/logo/wosm_logo.svg
     - assets/icons/cyber/cyber_logo.png
+    - assets/icons/production/
+    - assets/icons/google/
     - assets/images/logo.png
+    - assets/images/icon-khasyaraka.png
     - assets/images/tunas_kelapa.png
     - assets/audio/morse/beep_short.wav
     - assets/audio/morse/beep_long.wav
+    - assets/audio/morse/sos/dot.wav
+    - assets/audio/morse/sos/dash.wav
     - assets/audio/semaphore/flag_flap.wav
 
   # To add assets to your application, add an assets section, like this:
@@ -99,9 +111,13 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
+  fonts:
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
+          weight: 600
   # list giving the asset and other descriptors for the font. For
   # example:
   # fonts:
@@ -120,7 +136,9 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/images/logo.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
+  image_path: "assets/icons/production/logo-bunga.png"
+  min_sdk_android: 21 
+  adaptive_icon_background: "assets/icons/production/logo-bg.png"
+  adaptive_icon_foreground: "assets/icons/production/logo-bunga.png"

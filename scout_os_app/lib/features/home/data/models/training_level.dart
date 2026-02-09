@@ -113,4 +113,15 @@ class PathLevel {
       status: json['status'] as String? ?? 'locked',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'level_id': levelId,
+      'title': title,
+      'level_number': levelNumber,
+      'difficulty': difficulty,
+      'xp_reward': xpReward,
+      'status': status,
+    };
+  }
 }

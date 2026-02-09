@@ -1,19 +1,21 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scout_os_app/core/config/environment.dart';
 
 /// Centralized Dio instance with JWT interceptor.
+/// 
+/// ✅ HARD RESET: Memory-only token storage
+/// Token is cleared when app is killed (no local persistence).
 /// 
 /// Handles:
 /// - Adding Bearer token to all requests
 /// - Handling 401 errors (logout and redirect)
 class ApiDioProvider {
-  static const String _tokenKey = 'jwt_access_token';
-  static const String _tokenTypeKey = 'jwt_token_type';
+  // ✅ Memory-only token storage (cleared on app kill)
+  static String? _token;
+  static String _tokenType = 'bearer';
   
   static Dio? _dioInstance;
-  static SharedPreferences? _prefs;
 
   /// Get or create singleton Dio instance with JWT interceptor.
   static Dio getDio() {
@@ -34,9 +36,8 @@ class ApiDioProvider {
     _dioInstance!.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Load token from SharedPreferences
-          _prefs ??= await SharedPreferences.getInstance();
-          final token = _prefs?.getString(_tokenKey);
+          // ✅ Use memory-only token
+          final token = _token;
           
           // ✅ CRITICAL DEBUG: Log request details
           debugPrint('🔍 [DIO_INTERCEPTOR] Request: ${options.method} ${options.baseUrl}${options.path}');
@@ -73,24 +74,24 @@ class ApiDioProvider {
     return _dioInstance!;
   }
 
-  /// Save JWT token to SharedPreferences.
+  /// Save JWT token to memory only.
+  /// ✅ HARD RESET: No longer persists to SharedPreferences.
   static Future<void> saveToken(String token, {String tokenType = 'bearer'}) async {
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs?.setString(_tokenKey, token);
-    await _prefs?.setString(_tokenTypeKey, tokenType);
+    _token = token;
+    _tokenType = tokenType;
+    debugPrint('✅ [AUTH] Token saved to memory (not persisted to disk)');
   }
 
-  /// Get saved JWT token.
+  /// Get saved JWT token from memory.
   static Future<String?> getToken() async {
-    _prefs ??= await SharedPreferences.getInstance();
-    return _prefs?.getString(_tokenKey);
+    return _token;
   }
 
-  /// Clear token (logout).
+  /// Clear token from memory (logout).
   static Future<void> clearToken() async {
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs?.remove(_tokenKey);
-    await _prefs?.remove(_tokenTypeKey);
+    _token = null;
+    _tokenType = 'bearer';
+    debugPrint('🧹 [AUTH] Token cleared from memory');
   }
 
   /// Handle 401 error: Clear token and redirect to login.

@@ -26,6 +26,14 @@ class LearningPathResponse {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'section_id': sectionId,
+      'section_title': sectionTitle,
+      'units': units.map((e) => e.toJson()).toList(),
+    };
+  }
 }
 
 /// Path Unit Schema (for Learning Path)
@@ -52,4 +60,14 @@ class PathUnit {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'unit_id': unitId,
+      'unit_title': unitTitle,
+      'order': order,
+      'levels': levels.map((e) => e.toJson()).toList(),
+    };
+  }
 }
+

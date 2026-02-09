@@ -12,10 +12,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:scout_os_app/core/network/api_dio_provider.dart';
 import '../data/services/training_api_service.dart';
 import '../data/models/learning_path.dart';
 import '../data/models/progress_state.dart';
 import 'package:scout_os_app/core/config/environment.dart';
+import 'package:scout_os_app/core/services/local_cache_service.dart'; // ✅ Added Cache Service
 
 class TrainingControllerV2 extends ChangeNotifier {
   // ==================== DEPENDENCIES ====================
@@ -57,19 +59,8 @@ class TrainingControllerV2 extends ChangeNotifier {
 
   // ==================== CONSTRUCTOR ====================
   TrainingControllerV2() {
-    // Initialize Dio with base configuration
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: Environment.apiBaseUrl,
-        connectTimeout: Duration(milliseconds: Environment.connectTimeout),
-        receiveTimeout: Duration(milliseconds: Environment.connectTimeout),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
-
-    _apiService = TrainingApiService(dio: dio);
+    // Initialize API Service with centralized Dio provider (handles JWT)
+    _apiService = TrainingApiService(dio: ApiDioProvider.getDio());
     
     // Load initial data
     loadInitialData();
@@ -106,12 +97,43 @@ class TrainingControllerV2 extends ChangeNotifier {
   /// NO local computation or transformation.
   Future<void> fetchPath(String sectionId) async {
     try {
-      _learningPath = await _apiService.getLearningPath(sectionId);
+      // ✅ 1. CACHE FIRST (Instant Load)
+      final cachedJson = await LocalCacheService.get('learning_path_$sectionId');
+      if (cachedJson != null) {
+        final cachedPath = LearningPathResponse.fromJson(cachedJson);
+        _applySorting(cachedPath); // ✅ SORTING WAJIB
+        _learningPath = cachedPath;
+        notifyListeners(); // Update UI immediately with cache
+      }
+
+      // ✅ 2. NETWORK FETCH (Background Revalidation)
+      final apiPath = await _apiService.getLearningPath(sectionId);
+      
+      // ✅ 3. SORTING WAJIB (Ascending)
+      _applySorting(apiPath);
+      
+      // ✅ 4. UPDATE CACHE & STATE
+      // Only notify if data changed or was null
+      _learningPath = apiPath;
+      await LocalCacheService.put('learning_path_$sectionId', apiPath.toJson()); // Need toJson()
+      
       errorMessage = null;
-      notifyListeners();
+      notifyListeners(); // Rebuild UI with fresh data
     } catch (e) {
       errorMessage = _formatError(e);
-      rethrow;
+      // If network fails but we have cache, don't throw, just show cache
+      if (_learningPath == null) rethrow;
+    }
+  }
+
+  // ✅ HELPER: Sorting Logic
+  void _applySorting(LearningPathResponse path) {
+    // 1. Sort Units by Order
+    path.units.sort((a, b) => a.order.compareTo(b.order));
+    
+    // 2. Sort Levels within Units by LevelNumber
+    for (var unit in path.units) {
+      unit.levels.sort((a, b) => a.levelNumber.compareTo(b.levelNumber));
     }
   }
 
@@ -123,19 +145,32 @@ class TrainingControllerV2 extends ChangeNotifier {
   /// NO local computation.
   Future<void> fetchProgress() async {
     try {
-      // TODO: Uncomment when backend endpoint is ready
-      // final json = await _apiService.getProgressState();
-      // _progressState = ProgressStateResponse.fromJson(json);
+      // ✅ 1. CACHE FIRST
+      final sectionId = _learningPath?.sectionId ?? 'puk'; // Default to loaded section
+      final cacheKey = 'progress_$sectionId';
       
-      // TEMPORARY: Return empty progress (all locked) until backend ready
-      _progressState = ProgressStateResponse(sections: []);
+      final cachedJson = await LocalCacheService.get(cacheKey);
+      if (cachedJson != null) {
+        _progressState = ProgressStateResponse.fromJson(cachedJson);
+        notifyListeners();
+      }
+
+      // ✅ 2. NETWORK FETCH
+      final json = await _apiService.getProgressState();
+      
+      // ✅ 3. UPDATE CACHE & STATE
+      _progressState = ProgressStateResponse.fromJson(json);
+      await LocalCacheService.put(cacheKey, json);
       
       errorMessage = null;
-      notifyListeners();
+      notifyListeners(); // ✅ Update UI Realtime
     } catch (e) {
       // Don't fail if progress endpoint not ready yet
       debugPrint("⚠️ Progress endpoint not available: $e");
-      _progressState = ProgressStateResponse(sections: []);
+      // Keep cached state if available
+      if (_progressState == null) {
+         _progressState = ProgressStateResponse(sections: []);
+      }
     }
   }
 

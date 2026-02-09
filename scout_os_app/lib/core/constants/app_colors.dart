@@ -39,4 +39,24 @@ class AppColors {
   static const Color scoutKhaki = Color(0xFFC9B037); // Khaki pramuka
   static const Color alertRed = hasdukRed; // Alias untuk error/alert
   static const Color wosmPurple = Color(0xFF6A1B9A); // Ungu WOSM (World Organization of the Scout Movement)
+  
+  // --- 3. DUOLINGO-STYLE GAMIFIED UI COLORS ---
+  
+  // Success (Correct Answer)
+  static const Color duoSuccess = Color(0xFF58CC02);       // Hijau Duolingo
+  static const Color duoSuccessShadow = Color(0xFF46A302); // Shadow hijau
+  static const Color duoSuccessLight = Color(0xFFD7FFB8);  // Background hijau muda
+  
+  // Error (Wrong Answer)
+  static const Color duoError = Color(0xFFFF4B4B);         // Merah Duolingo
+  static const Color duoErrorShadow = Color(0xFFEA2B2B);   // Shadow merah
+  static const Color duoErrorLight = Color(0xFFFFDFE0);    // Background merah muda
+  
+  // Neutral & Selection
+  static const Color duoNeutralBorder = Color(0xFFE5E5E5); // Border abu-abu default
+  static const Color duoSelectedBorder = Color(0xFF84D8FF); // Border biru selected
+  static const Color duoSelectedBg = Color(0xFFDDF4FF);     // Background biru muda
+  
+  // Button Effects
+  static const Color duoButtonShadow = Color(0xFFCECECE);  // Shadow 3D button
 }

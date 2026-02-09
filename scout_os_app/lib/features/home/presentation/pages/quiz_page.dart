@@ -3,14 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 import '../../logic/lesson_controller.dart';
 import '../widgets/lesson_progress_header.dart';
-import '../widgets/option_button.dart';
+import '../widgets/duolingo_option_button.dart';
 import '../widgets/arrange_words_widget.dart';
 import '../widgets/listening_widget.dart';
 import '../widgets/input_text_widget.dart';
 import '../widgets/sorting_widget.dart';
 import '../widgets/matching_widget.dart';
-import '../widgets/feedback_card_widget.dart';
 import 'lesson_result_page.dart';
+import '../widgets/shake_animation.dart'; // ✅ NEW
+import 'package:scout_os_app/core/services/quiz_haptic_service.dart'; // ✅ NEW
 
 class QuizPage extends StatefulWidget {
   final String? levelId; // Optional: for level-based quiz
@@ -31,6 +32,7 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   late LessonController _controller;
+  final GlobalKey<ShakeAnimationState> _shakeKey = GlobalKey<ShakeAnimationState>(); // ✅ NEW
 
   @override
   void initState() {
@@ -315,14 +317,17 @@ class _QuizPageState extends State<QuizPage> {
                       children: [
                         _buildQuestionCard(controller),
                         const SizedBox(height: 24),
-                        _buildAnswerSection(controller),
-                        if (controller.showFeedback)
-                          _buildFeedbackSection(controller),
+                        // ✅ WRAP ANSWER SECTION WITH SHAKE ANIMATION
+                        ShakeAnimation(
+                          key: _shakeKey,
+                          child: _buildAnswerSection(controller),
+                        ),
                       ],
                     ),
                   ),
                 ),
-                if (!controller.showFeedback) _buildCheckButton(controller),
+                // Show Check button OR Continue button based on state
+                _buildBottomButton(controller),
               ],
             ),
           );
@@ -461,20 +466,25 @@ class _QuizPageState extends State<QuizPage> {
     switch (question.type) {
       case 'multiple_choice': {
         final options = question.getMultipleChoiceOptions() ?? [];
+        final correctAnswer = question.payload['correct_answer'] as String?;
+        // Check if user answered wrong (to highlight correct)
+        final userAnsweredWrong = controller.isChecked && 
+            controller.selectedOptionIndex != null &&
+            options[controller.selectedOptionIndex!] != correctAnswer;
+        
         return Column(
           children: options.asMap().entries.map((entry) {
             final index = entry.key;
             final option = entry.value;
-            // Check if this is correct answer (from payload)
-            final correctAnswer = question.payload['correct_answer'] as String?;
             final isCorrect = correctAnswer != null && option == correctAnswer;
             
-            return OptionButton(
+            return DuolingoOptionButton(
               text: option,
               index: index,
               isSelected: controller.selectedOptionIndex == index,
               isChecked: controller.isChecked,
               isCorrectAnswer: isCorrect,
+              showCorrectHighlight: userAnsweredWrong,
               onTap: () => controller.selectOption(index),
             );
           }).toList(),
@@ -556,6 +566,9 @@ class _QuizPageState extends State<QuizPage> {
                            ?.map((e) => e.toString())
                            .toList() ?? [];
         final correctAnswer = question.payload['correct_answer'] as String?;
+        final userAnsweredWrong = controller.isChecked && 
+            controller.selectedOptionIndex != null &&
+            options[controller.selectedOptionIndex!] != correctAnswer;
         
         return Column(
           children: options.asMap().entries.map((entry) {
@@ -563,12 +576,13 @@ class _QuizPageState extends State<QuizPage> {
             final option = entry.value;
             final isCorrect = correctAnswer != null && option == correctAnswer;
             
-            return OptionButton(
+            return DuolingoOptionButton(
               text: option,
               index: index,
               isSelected: controller.selectedOptionIndex == index,
               isChecked: controller.isChecked,
               isCorrectAnswer: isCorrect,
+              showCorrectHighlight: userAnsweredWrong,
               onTap: () => controller.selectOption(index),
             );
           }).toList(),
@@ -578,6 +592,11 @@ class _QuizPageState extends State<QuizPage> {
       case 'true_false': {
         final options = ['Benar', 'Salah'];
         final correctAnswer = question.payload['correct_answer'] as bool?;
+        // Check if user answered wrong
+        final correctIndex = correctAnswer == true ? 0 : 1;
+        final userAnsweredWrong = controller.isChecked && 
+            controller.selectedOptionIndex != null &&
+            controller.selectedOptionIndex != correctIndex;
         
         return Column(
           children: options.asMap().entries.map((entry) {
@@ -587,12 +606,13 @@ class _QuizPageState extends State<QuizPage> {
             final isCorrect = (correctAnswer == true && option == 'Benar') ||
                             (correctAnswer == false && option == 'Salah');
             
-            return OptionButton(
+            return DuolingoOptionButton(
               text: option,
               index: index,
               isSelected: controller.selectedOptionIndex == index,
               isChecked: controller.isChecked,
               isCorrectAnswer: isCorrect,
+              showCorrectHighlight: userAnsweredWrong,
               onTap: () => controller.selectOption(index),
             );
           }).toList(),
@@ -604,19 +624,8 @@ class _QuizPageState extends State<QuizPage> {
     }
   }
 
-  Widget _buildFeedbackSection(LessonController controller) {
-    // Explanation is not in frontend model (backend only for security)
-    // Can be added to payload if needed in future
-    final explanation = controller.currentQuestion?.payload['explanation'] as String?;
-    
-    return FeedbackCardWidget(
-      isCorrect: controller.isCorrect,
-      explanation: explanation,
-      onContinue: () => controller.nextQuestion(),
-    );
-  }
-
-  Widget _buildCheckButton(LessonController controller) {
+  /// Bottom button: "Periksa" before check, "Lanjutkan" after check
+  Widget _buildBottomButton(LessonController controller) {
     final hasAnswer = controller.selectedOptionIndex != null ||
         (controller.userAnswerString != null &&
             controller.userAnswerString!.isNotEmpty) ||
@@ -625,13 +634,48 @@ class _QuizPageState extends State<QuizPage> {
         (controller.userMatchingPairs != null &&
             controller.userMatchingPairs!.isNotEmpty);
 
+    // Determine button state
+    final bool isChecked = controller.showFeedback;
+    final bool isCorrect = controller.isCorrect;
+    
+    // Button colors based on state
+    Color buttonColor;
+    Color shadowColor;
+    String buttonText;
+    VoidCallback? onPressed;
+    
+    if (isChecked) {
+      // After answer checked: show "Lanjutkan" button
+      buttonColor = isCorrect ? AppColors.duoSuccess : AppColors.duoError;
+      shadowColor = isCorrect ? AppColors.duoSuccessShadow : AppColors.duoErrorShadow;
+      buttonText = "Lanjutkan";
+      onPressed = () => controller.nextQuestion();
+    } else {
+      // Before check: show "Periksa" button
+      buttonColor = AppColors.duoSuccess;
+      shadowColor = AppColors.duoSuccessShadow;
+      buttonText = "Periksa";
+      onPressed = hasAnswer && controller.canAnswer && controller.hasHearts
+          ? () {
+             // ✅ CRITICAL: Inline Feedback Logic
+             controller.checkAnswer();
+             if (controller.isCorrect) {
+               QuizHapticService.correctFeedback();
+             } else {
+               QuizHapticService.wrongFeedback();
+               _shakeKey.currentState?.shake(); // 📳 Shake input
+             }
+            }
+          : null;
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.hasdukWhite,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -639,25 +683,37 @@ class _QuizPageState extends State<QuizPage> {
       ),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton(
-          onPressed: hasAnswer && controller.canAnswer && controller.hasHearts
-              ? () => controller.checkAnswer()
-              : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.forestGreen,
-            disabledBackgroundColor: Colors.grey.shade300,
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 4,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: onPressed != null ? [
+              BoxShadow(
+                color: shadowColor,
+                offset: const Offset(0, 4),
+                blurRadius: 0,
+              ),
+            ] : null,
           ),
-          child: const Text(
-            "Periksa",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: onPressed != null ? buttonColor : Colors.grey.shade300,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.grey.shade300,
+              disabledForegroundColor: Colors.grey.shade500,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 0, // We use custom shadow instead
+            ),
+            child: Text(
+              buttonText,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
         ),

@@ -1,23 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:scout_os_app/core/network/api_dio_provider.dart';
-import 'package:scout_os_app/core/auth/local_auth_service.dart';
 import 'package:scout_os_app/features/auth/data/auth_exception.dart';
 
 /// AuthRepository - Online authentication via FastAPI backend.
 /// 
+/// ✅ Google login only - uses JWT token stored via ApiDioProvider
+/// 
 /// Endpoints:
-/// - POST /api/v1/auth/login
-/// - POST /api/v1/auth/register
+/// - POST /api/v1/auth/google (Google Sign-In)
 /// - GET /api/v1/users/me
 class AuthRepository {
   final Dio _dio;
-  final LocalAuthService _localAuth;
 
-  AuthRepository({
-    Dio? dio,
-    LocalAuthService? localAuth,
-  })  : _dio = dio ?? ApiDioProvider.getDio(),
-        _localAuth = localAuth ?? LocalAuthService();
+  AuthRepository({Dio? dio})
+      : _dio = dio ?? ApiDioProvider.getDio();
 
   /// Login via API.
   /// 
@@ -244,10 +240,25 @@ class AuthRepository {
     return 'Data tidak valid. Periksa kembali.';
   }
 
+  // ✅ Memory Cache for User Profile
+  static ApiUser? _cachedUser;
+  static DateTime? _lastUserFetch;
+  static const Duration _userCacheTtl = Duration(minutes: 10); // 10 minutes cache
+
   /// Get current user profile from API.
   /// 
   /// GET /api/v1/users/me
-  Future<ApiUser> getCurrentUser() async {
+  Future<ApiUser> getCurrentUser({bool forceRefresh = false}) async {
+    // ✅ 1. MEMORY CACHE (Instant)
+    if (!forceRefresh && _cachedUser != null) {
+      final isExpired = _lastUserFetch != null && 
+          DateTime.now().difference(_lastUserFetch!) > _userCacheTtl;
+      
+      if (!isExpired) {
+        return _cachedUser!;
+      }
+    }
+
     try {
       final response = await _dio.get('/users/me');
       
@@ -255,17 +266,27 @@ class AuthRepository {
       final responseData = response.data as Map<String, dynamic>;
       final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
       
-      return ApiUser.fromJson(data);
+      final user = ApiUser.fromJson(data);
+      
+      // Update cache
+      _cachedUser = user;
+      _lastUserFetch = DateTime.now();
+      
+      return user;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        await ApiDioProvider.clearToken();
+        await logout(); // Change to logout() to clear cache
         throw AuthException('Sesi habis, silakan login kembali.', statusCode: 401);
       }
+      // Offline resilience
+      if (_cachedUser != null) return _cachedUser!;
+      
       throw AuthException('Gagal memuat profil: ${e.message ?? "Terjadi kesalahan"}', statusCode: e.response?.statusCode);
     } catch (e) {
       if (e is AuthException) {
         rethrow;
       }
+      if (_cachedUser != null) return _cachedUser!;
       throw AuthException('Gagal memuat profil: ${e.toString()}');
     }
   }
@@ -341,10 +362,11 @@ class AuthRepository {
     }
   }
 
-  /// Logout: Clear token locally.
+  /// Logout: Clear JWT token and memory caches.
   Future<void> logout() async {
+    _cachedUser = null;
+    _lastUserFetch = null;
     await ApiDioProvider.clearToken();
-    await _localAuth.logout();
   }
 }
 

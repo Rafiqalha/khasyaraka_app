@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
+import 'package:scout_os_app/core/services/local_cache_service.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
+import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 
 /// Login Page - Google Sign-In Only
 /// 
@@ -27,10 +30,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   // Professional Enterprise Color Palette
-  static const _primaryColor = Color(0xFF2E7D32); // Forest Green - Scout OS Primary
-  static const _textSecondary = Color(0xFF757575); // Medium grey for secondary text
-  static const _backgroundWhite = Color(0xFFFFFFFF);
-  static const _backgroundOffWhite = Color(0xFFFAFAFA);
+  // constants removed in favor of AppColors
   
   // Google OAuth Web Client ID
   // Get it from: https://console.cloud.google.com/apis/credentials
@@ -126,6 +126,10 @@ class _LoginPageState extends State<LoginPage> {
 
       debugPrint('✅ [LOGIN_PAGE] Backend authentication successful');
       
+      // ✅ HARD RESET: Clear stale cache to prevent type errors
+      await LocalCacheService.clear();
+      debugPrint('🧹 [LOGIN_PAGE] Cleared stale cache');
+      
       // Load user stats
       debugPrint('🔵 [LOGIN_PAGE] Loading user stats...');
       await context.read<TrainingController>().loadUserStats();
@@ -212,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundWhite,
+      backgroundColor: AppColors.surfaceLight,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -236,25 +240,21 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 32),
                     
                     // Welcome Text Section
-                    Text(
-                      'Selamat Datang',
-                      style: GoogleFonts.poppins(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: _primaryColor,
-                        height: 1.2,
-                      ),
+                      Text(
+                        'Selamat Datang',
+                        style: AppTextStyles.h1.copyWith(
+                          color: AppColors.primary,
+                          height: 1.2,
+                        ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      'Satu akun untuk semua kegiatan Pramuka',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: _textSecondary,
-                        height: 1.4,
-                      ),
+                      Text(
+                        'Satu akun untuk semua kegiatan Pramuka',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.grey[700], // Using grey for secondary text
+                          height: 1.4,
+                        ),
                       textAlign: TextAlign.center,
                     ),
                     
@@ -268,10 +268,10 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _googleSignIn,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _backgroundWhite,
-                          foregroundColor: _primaryColor,
-                          disabledBackgroundColor: _backgroundOffWhite,
-                          disabledForegroundColor: _textSecondary,
+                          backgroundColor: AppColors.surfaceLight,
+                          foregroundColor: AppColors.primary,
+                          disabledBackgroundColor: AppColors.backgroundLight,
+                          disabledForegroundColor: Colors.grey,
                           elevation: 2,
                           shadowColor: Colors.black.withValues(alpha: 0.1),
                           shape: RoundedRectangleBorder(
@@ -289,7 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    _primaryColor,
+                                    AppColors.primary,
                                   ),
                                 ),
                               )
@@ -300,15 +300,15 @@ class _LoginPageState extends State<LoginPage> {
                                   Icon(
                                     Icons.g_mobiledata,
                                     size: 24,
-                                    color: _primaryColor,
+                                    color: AppColors.primary,
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
                                     'Lanjutkan dengan Google',
-                                    style: GoogleFonts.poppins(
+                                    style: AppTextStyles.button.copyWith(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
-                                      color: _primaryColor,
+                                      color: AppColors.primary,
                                       letterSpacing: 0.3,
                                     ),
                                   ),

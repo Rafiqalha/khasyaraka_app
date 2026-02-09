@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:scout_os_app/features/home/presentation/pages/training_map_page.dart';
+import 'package:scout_os_app/features/home/presentation/pages/training_path_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_map_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
 
@@ -16,7 +16,7 @@ class AppPages {
   static final List<GetPage> pages = [
     GetPage(
       name: trainingMap,
-      page: () => const TrainingMapPage(),
+      page: () => const TrainingPathPage(),
     ),
     GetPage(
       name: skuMap,

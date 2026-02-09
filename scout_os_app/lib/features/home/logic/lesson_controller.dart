@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
-import 'package:scout_os_app/core/auth/local_auth_service.dart';
 import 'package:scout_os_app/features/home/data/models/training_question.dart';
 import 'package:scout_os_app/features/home/data/datasources/training_service.dart';
 import 'package:scout_os_app/features/home/data/repositories/training_repository.dart';
-import 'package:scout_os_app/features/profile/data/repositories/profile_repository.dart';
 
 class LessonController extends ChangeNotifier {
   // Gunakan Service, bukan Repository (sesuai struktur sebelumnya)
   final TrainingService _service = TrainingService();
-  final TrainingRepository _repository = TrainingRepository();
   final AuthRepository _authRepo = AuthRepository();
-  final LocalAuthService _localAuthService = LocalAuthService();
-  final ProfileRepository _profileRepo = ProfileRepository();
   
   List<TrainingQuestion> questions = [];
   int currentQuestionIndex = 0;
@@ -48,6 +43,9 @@ class LessonController extends ChangeNotifier {
   bool get canAnswer => _lastAnswerTime == null || 
       DateTime.now().difference(_lastAnswerTime!) >= _answerDelay;
 
+  // ✅ Deduplication lock - prevents double submit
+  bool _isSubmitting = false;
+
   bool get hasHearts => userHearts > 0;
   
   double get progress => questions.isEmpty 
@@ -56,6 +54,9 @@ class LessonController extends ChangeNotifier {
 
   TrainingQuestion? get currentQuestion =>
       questions.isNotEmpty ? questions[currentQuestionIndex] : null;
+
+  // ✅ Public getter for currentLevelId (used by UI for optimistic unlocking)
+  String? get currentLevelId => _resolveCurrentLevelId();
 
   // ==========================================
   // 1. FETCH DATA (REAL API)
@@ -358,69 +359,29 @@ class LessonController extends ChangeNotifier {
       // Selesai Level
       isCompleted = true;
       
-      // Submit progress to backend
-      _submitProgressToBackend();
+      // ✅ REMOVED: _submitProgressToBackend() - finishLesson will handle it
+      // Progress submission is done in finishLesson() which is called by UI
       
       notifyListeners();
     }
-  }
-
-  /// Calculate new streak based on last active date
-  /// 
-  /// Rules:
-  /// - Case A: Already played today -> Keep current streak
-  /// - Case B: Played yesterday -> Streak + 1
-  /// - Case C: Broken streak or first time -> Set streak = 1
-  int _calculateNewStreak(int currentStreak, DateTime? lastActiveDate) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    
-    if (lastActiveDate == null) {
-      // First time playing
-      debugPrint('🔥 [STREAK] First time playing - Setting streak to 1');
-      return 1;
-    }
-    
-    // Normalize lastActiveDate to remove time component
-    final lastActive = DateTime(
-      lastActiveDate.year,
-      lastActiveDate.month,
-      lastActiveDate.day,
-    );
-    
-    // Case A: Already played today
-    if (lastActive.year == today.year && 
-        lastActive.month == today.month && 
-        lastActive.day == today.day) {
-      debugPrint('🔥 [STREAK] Already played today - Keeping streak: $currentStreak');
-      return currentStreak;
-    }
-    
-    // Case B: Played yesterday
-    final yesterday = today.subtract(const Duration(days: 1));
-    if (lastActive.year == yesterday.year && 
-        lastActive.month == yesterday.month && 
-        lastActive.day == yesterday.day) {
-      final newStreak = currentStreak + 1;
-      debugPrint('🔥 [STREAK] Played yesterday - Incrementing streak: $currentStreak -> $newStreak');
-      return newStreak;
-    }
-    
-    // Case C: Broken streak (last active is older than yesterday)
-    debugPrint('🔥 [STREAK] Streak broken (last active: ${lastActive.toIso8601String().split('T')[0]}) - Resetting to 1');
-    return 1;
   }
 
   /// Finish lesson and calculate XP reward
   /// 
   /// Returns: XP earned (0 if level was previously completed, otherwise level's xpReward)
   /// 
-  /// **Anti-Farming Logic:**
-  /// - Checks previous status BEFORE saving
-  /// - XP is ONLY awarded if previous status != 'completed'
-  /// - Updates user stats (XP + Streak) via LocalAuthService
+  /// **Single API Architecture:**
+  /// - ONLY calls submitProgress (backend handles streak + XP)
+  /// - NO getUserStats, NO updateUserXp, NO loadPathData
   Future<int> finishLesson({required bool isSuccess}) async {
-    int xpEarned = 0; // Default: no XP if failed or already completed
+    // ✅ Deduplication guard - prevent double submit
+    if (_isSubmitting) {
+      debugPrint('⚠️ [FINISH] Already submitting, skipping duplicate call');
+      return 0;
+    }
+    
+    int xpEarned = 0;
+    _isSubmitting = true;
     
     try {
       if (!isSuccess || questions.isEmpty) {
@@ -436,284 +397,73 @@ class LessonController extends ChangeNotifier {
         debugPrint('✅ [FINISH] Got userId from JWT: $userId');
       } catch (e) {
         debugPrint('❌ [FINISH] Failed to get userId from JWT: $e');
-        debugPrint('   User might not be logged in or token expired');
-        return 0; // Don't throw, just return 0 XP
+        return 0;
       }
 
       if (userId.isEmpty) {
         debugPrint('❌ [FINISH] Empty userId, cannot save progress');
-        return 0; // Don't throw, just return 0 XP
+        return 0;
       }
 
       final currentLevelId = _resolveCurrentLevelId();
       if (currentLevelId == null) {
         debugPrint('❌ [FINISH] Could not resolve currentLevelId');
-        return 0; // Don't throw, just return 0 XP
+        return 0;
       }
 
-      debugPrint('🎯 [FINISH] Starting finishLesson for level: $currentLevelId (userId: $userId)');
+      debugPrint('🎯 [FINISH] Starting finishLesson for level: $currentLevelId');
 
-      // CRITICAL: Check previous status BEFORE saving (Anti-Farming)
-      String? previousStatus;
+      // ✅ Step 1: SINGLE API CALL - submitProgress returns EVERYTHING
+      // Backend handles: XP, streak calculation, last_active_date update, AND unlocking next level
       try {
-        previousStatus = await _repository.getLevelStatus(userId, currentLevelId);
-        debugPrint('📊 [FINISH] Previous status for $currentLevelId: $previousStatus');
-      } catch (e) {
-        debugPrint('⚠️ [FINISH] Could not fetch previous status: $e (assuming not completed)');
-        previousStatus = null; // Assume not completed if we can't fetch
-      }
-
-      final isFirstClear = previousStatus != 'completed';
-      debugPrint('🎮 [FINISH] Is first clear: $isFirstClear (previousStatus: $previousStatus)');
-
-      // ✅ REMOVED: XP calculation - Backend calculates XP from level.xp_reward
-      // XP will be returned in submit_progress response
-
-      // Step 1: Save current level as completed
-      try {
-        await _repository.saveLevelStatus(
-          userId: userId,
-          levelId: currentLevelId,
-          status: 'completed',
-        );
-        debugPrint('✅ [FINISH] Level $currentLevelId marked as completed');
-        
-        // CRITICAL: Add small delay to ensure SharedPreferences is written
-        await Future.delayed(Duration(milliseconds: 100));
-      } catch (e) {
-        debugPrint('❌ [FINISH] Error saving level status: $e');
-        // Don't throw - continue to unlock next level even if save fails
-      }
-
-      // Step 2: Submit progress to backend and get total_xp from response
-      // ✅ CRITICAL: XP must ONLY come from backend response, NOT calculated client-side
-      try {
-        // Calculate score and correct answers
         final correctAnswers = score;
         final totalQuestions = questions.length;
         
         debugPrint('📊 [FINISH] Submitting progress: level=$currentLevelId, score=$score/$totalQuestions');
-        debugPrint('📊 [FINISH] Correct question IDs: $correctQuestionIds');
         
-        // ✅ CRITICAL: Submit progress to backend with correct_question_ids
+        // Note: Using TrainingService (Datasources) here. Ideally should use TrainingApiService, 
+        // but LessonController uses TrainingService currently.
+        // Assuming TrainingService.submitProgress is correctly implemented.
         final response = await _service.submitProgress(
           levelId: currentLevelId,
           score: score,
           totalQuestions: totalQuestions,
           correctAnswers: correctAnswers,
-          correctQuestionIds: correctQuestionIds, // ✅ Send list of correct question IDs
-          timeSpentSeconds: 0, // TODO: Track time spent
+          correctQuestionIds: correctQuestionIds,
+          timeSpentSeconds: 0,
         );
         
-        // ✅ Get total_xp and xp_earned from backend response (NOT calculated)
-        final responseTotalXp = response['total_xp'] as int?;
-        final responseXpEarned = response['xp_earned'] as int? ?? 0;
+        // ✅ Get ALL data from response
+        xpEarned = response['xp_earned'] as int? ?? 0;
+        final totalXp = response['total_xp'] as int? ?? 0;
+        final streak = response['streak'] as int? ?? 0;
         
-        debugPrint('✅ [FINISH] Backend response: total_xp=$responseTotalXp, xp_earned=$responseXpEarned');
+        debugPrint('✅ [FINISH] Backend response: xp_earned=$xpEarned, total_xp=$totalXp, streak=$streak');
         
-        // ✅ Use xp_earned from backend response (not calculated)
-        xpEarned = responseXpEarned;
-        
-        // ✅ Fetch current server stats for streak calculation
-        final currentStats = await _profileRepo.getUserStats();
-        debugPrint('📊 [FINISH] Current server stats: XP=${currentStats.totalXp}, Streak=${currentStats.streak}, LastActive=${currentStats.lastActiveDate?.toIso8601String().split('T')[0] ?? 'null'}');
-        
-        // Calculate new streak based on last active date
-        final newStreak = _calculateNewStreak(currentStats.streak, currentStats.lastActiveDate);
-        final today = DateTime.now();
-        
-        // ✅ Update streak and last_active_date only (XP already updated by submit_progress)
-        try {
-          await _profileRepo.updateUserXp(
-            0, // ✅ Ignored - XP comes from submit_progress only, not from this call
-            newStreak: newStreak,
-            lastActiveDate: today,
-          );
-          debugPrint('✅ [FINISH] Streak and last_active_date updated: Streak=$newStreak, LastActive=${today.toIso8601String().split('T')[0]}');
-        } catch (e) {
-          debugPrint('⚠️ [FINISH] Error updating streak: $e');
-          // Don't throw - streak update is not critical
-        }
-        
-        // ✅ Update local stats (for backward compatibility) - Only update streak, not XP
-        await _localAuthService.init();
-        await _localAuthService.updateUserStats(
-          userId: userId,
-          xpEarned: 0, // ✅ Don't add XP - XP comes from backend only
-        );
-        debugPrint('✅ [FINISH] Local stats updated (streak only)');
+        // ✅ Update local stats for display (transient)
+        userXp = totalXp;
+        userStreak = streak;
         
       } catch (e) {
-        debugPrint('⚠️ [FINISH] Error submitting progress or updating stats: $e');
-        // Don't throw - continue with unlock next level
+        debugPrint('⚠️ [FINISH] Error submitting progress: $e');
       }
 
-      // Step 3: Find and unlock next level
-      try {
-        await _unlockNextLevel(currentLevelId, userId);
-        
-        // CRITICAL: Add delay after unlock to ensure SharedPreferences is written
-        await Future.delayed(Duration(milliseconds: 100));
-      } catch (e) {
-        debugPrint('❌ [FINISH] Error unlocking next level: $e');
-        // Don't throw - unlocking is not critical for lesson completion
-      }
+      // ✅ Step 2: No local unlocking needed. 
+      // When user returns to map, force-refresh will fetch new "unlocked" status from backend.
 
-      debugPrint('✅ [FINISH] finishLesson completed successfully. XP Earned: $xpEarned');
-      return xpEarned; // Return XP earned for UI display
+      debugPrint('✅ [FINISH] finishLesson completed. XP Earned: $xpEarned');
+      return xpEarned;
     } catch (e, stackTrace) {
-      debugPrint('❌ [FINISH] Unexpected error in finishLesson: $e');
+      debugPrint('❌ [FINISH] Unexpected error: $e');
       debugPrint('   Stack trace: $stackTrace');
-      return 0; // Return 0 XP on error
+      return 0;
+    } finally {
+      _isSubmitting = false;
     }
   }
 
-  /// Unlock the next level in the same unit after completing current level
-  /// 
-  /// ROBUST INDEX STRATEGY:
-  /// 1. Get unitId from current level (prefer unitId from level data, fallback to parsing)
-  /// 2. Fetch all levels in that unit from backend
-  /// 3. Sort levels by level_number (or order) to ensure correct sequence
-  /// 4. Find current level's index in the sorted list
-  /// 5. Get next level by index (currentIndex + 1)
-  /// 6. Unlock next level if status is 'locked'
-  Future<void> _unlockNextLevel(String currentLevelId, String userId) async {
-    try {
-      debugPrint('🔍 [UNLOCK] Starting unlock process for level: $currentLevelId');
-
-      // Step 1: Get unitId - Try to get from level data first, then parse from ID
-      String? unitId;
-      
-      // Option A: Try to get unitId from current level data if we have questions
-      if (questions.isNotEmpty) {
-        // Fetch current level details to get unit_id
-        try {
-          final currentLevelData = await _service.fetchLevelById(currentLevelId);
-          unitId = currentLevelData['unit_id'] as String?;
-          debugPrint('✅ [UNLOCK] Got unitId from level data: $unitId');
-        } catch (e) {
-          debugPrint('⚠️ [UNLOCK] Could not fetch level data: $e');
-        }
-      }
-      
-      // Option B: Fallback to parsing from level ID
-      if (unitId == null || unitId.isEmpty) {
-        unitId = _extractUnitId(currentLevelId);
-        if (unitId == null) {
-          debugPrint('❌ [UNLOCK] Could not extract unit ID from level ID: $currentLevelId');
-          return;
-        }
-        debugPrint('✅ [UNLOCK] Extracted unitId from level ID: $unitId');
-      }
-
-      // Step 2: Fetch all levels in the unit
-      debugPrint('📡 [UNLOCK] Fetching levels for unit: $unitId');
-      List<Map<String, dynamic>> levelsData = await _service.fetchLevelsByUnit(unitId);
-      
-      // Try alternative unit ID format if empty
-      if (levelsData.isEmpty) {
-        final altUnitId = _tryAlternativeUnitId(unitId);
-        if (altUnitId != null && altUnitId != unitId) {
-          debugPrint('🔄 [UNLOCK] Trying alternative unit ID format: $altUnitId');
-          levelsData = await _service.fetchLevelsByUnit(altUnitId);
-          if (levelsData.isNotEmpty) {
-            unitId = altUnitId; // Update unitId for consistency
-          }
-        }
-      }
-
-      // Step 3: Debug - Check if we got levels
-      debugPrint('📊 [UNLOCK] DEBUG: Found ${levelsData.length} levels for unit $unitId');
-      if (levelsData.isEmpty) {
-        debugPrint('❌ [UNLOCK] ERROR: No levels found for unit $unitId. Aborting unlock.');
-        return;
-      }
-
-      // Log all level IDs for debugging
-      final levelIds = levelsData.map((l) => '${l['id']} (level_number: ${l['level_number']})').join(', ');
-      debugPrint('📋 [UNLOCK] Available levels: $levelIds');
-
-      // Step 4: Sort levels by level_number to ensure correct sequence
-      // Note: Backend orders by level_number, so we use that instead of 'order' field
-      levelsData.sort((a, b) {
-        final aNum = (a['level_number'] as int?) ?? 0;
-        final bNum = (b['level_number'] as int?) ?? 0;
-        return aNum.compareTo(bNum);
-      });
-      debugPrint('✅ [UNLOCK] Sorted levels by level_number');
-
-      // CRITICAL: Defensive filter - ensure all levels belong to the correct unit
-      // This prevents bugs if backend returns levels from other units
-      final filteredLevels = levelsData.where((level) {
-        final levelUnitId = level['unit_id'] as String?;
-        return levelUnitId == unitId;
-      }).toList();
-
-      if (filteredLevels.length != levelsData.length) {
-        debugPrint('⚠️ [UNLOCK] WARNING: Backend returned ${levelsData.length} levels, but only ${filteredLevels.length} match unit $unitId');
-        debugPrint('   This indicates a backend data issue, but continuing with filtered list');
-      }
-
-      // Use filtered list if different, otherwise use original
-      final levelsToProcess = filteredLevels.isNotEmpty ? filteredLevels : levelsData;
-      debugPrint('📊 [UNLOCK] Processing ${levelsToProcess.length} levels for unit $unitId');
-
-      // Step 5: Find current level's index in sorted list
-      final currentIndex = levelsToProcess.indexWhere(
-        (level) => level['id'] == currentLevelId,
-      );
-
-      if (currentIndex == -1) {
-        debugPrint('❌ [UNLOCK] ERROR: Current level $currentLevelId not found in unit levels');
-        debugPrint('   Available level IDs: ${levelsToProcess.map((l) => l['id']).join(", ")}');
-        return;
-      }
-
-      debugPrint('✅ [UNLOCK] Found current level at index: $currentIndex (level_number: ${levelsToProcess[currentIndex]['level_number']})');
-
-      // Step 6: Check if there's a next level
-      if (currentIndex >= levelsToProcess.length - 1) {
-        debugPrint('ℹ️ [UNLOCK] Current level is the last level in unit. No next level to unlock.');
-        return;
-      }
-
-      // Step 7: Get next level by index
-      final nextLevelData = levelsToProcess[currentIndex + 1];
-      final nextLevelId = nextLevelData['id'] as String?;
-      final nextLevelNumber = nextLevelData['level_number'] as int?;
-
-      if (nextLevelId == null) {
-        debugPrint('❌ [UNLOCK] ERROR: Next level has no ID');
-        return;
-      }
-
-      debugPrint('🎯 [UNLOCK] Found next level: $nextLevelId (index: ${currentIndex + 1}, level_number: $nextLevelNumber)');
-
-      // Step 8: Check current status of next level
-      final currentStatus = await _repository.getLevelStatus(userId, nextLevelId);
-      debugPrint('📊 [UNLOCK] Next level $nextLevelId current status: $currentStatus');
-
-      // Step 9: Unlock if locked, active (default), or empty
-      // CRITICAL FIX: Force unlock if status is 'locked', 'active' (default), or empty
-      // This ensures consistency - 'active' should be converted to 'unlocked' for clarity
-      if (currentStatus == 'locked' || currentStatus == 'active' || currentStatus.isEmpty) {
-        await _repository.saveLevelStatus(
-          userId: userId,
-          levelId: nextLevelId,
-          status: 'unlocked', // Use 'unlocked' for consistency with UI expectations
-        );
-        debugPrint('🔓 [UNLOCK] SUCCESS: Next level $nextLevelId unlocked! Status changed: $currentStatus -> unlocked');
-      } else if (currentStatus == 'completed') {
-        debugPrint('ℹ️ [UNLOCK] Next level $nextLevelId already completed (skipping unlock)');
-      } else {
-        debugPrint('ℹ️ [UNLOCK] Next level $nextLevelId already has status: $currentStatus (assuming unlocked)');
-      }
-    } catch (e) {
-      debugPrint('❌ [UNLOCK] ERROR: Exception during unlock process: $e');
-      debugPrint('   Stack trace: ${StackTrace.current}');
-      // Don't throw - unlocking next level is not critical for lesson completion
-    }
-  }
+  // ✅ REMOVED: _unlockNextLevel
+  // Next level unlocking is handled by Backend (Redis Invalidation) + Frontend Force Refresh
 
   /// Try alternative unit ID format
   /// Example: "puk_u1" -> "puk_unit_1"
@@ -758,40 +508,6 @@ class LessonController extends ChangeNotifier {
 
     debugPrint('❌ [EXTRACT] Could not extract unit ID from level ID: $levelId');
     return null;
-  }
-
-  Future<void> _submitProgressToBackend() async {
-    if (questions.isEmpty || lessonId.isEmpty) return;
-    
-    try {
-      // Calculate correct answers
-      int correctAnswers = score;
-      int totalQuestions = questions.length;
-      
-      // Extract level_id from questions
-      // If lessonId is a unit_id, use the first question's level_id
-      String levelId = lessonId;
-      
-      // Check if lessonId is a unit_id (starts with unit pattern)
-      // If so, extract level_id from first question
-      if (questions.isNotEmpty) {
-        levelId = questions.first.levelId;
-      }
-      
-      await _service.submitProgress(
-        levelId: levelId,
-        score: score,
-        totalQuestions: totalQuestions,
-        correctAnswers: correctAnswers,
-        correctQuestionIds: correctQuestionIds, // ✅ Send list of correct question IDs
-        timeSpentSeconds: 0, // TODO: Track time spent
-      );
-      
-      debugPrint("✅ Progress submitted: Level $levelId, Score: $score/$totalQuestions");
-    } catch (e) {
-      debugPrint("❌ Failed to submit progress: $e");
-      // Don't show error to user, progress will be lost but quiz completion is still shown
-    }
   }
 
   String? _resolveCurrentLevelId() {

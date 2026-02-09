@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scout_os_app/features/home/presentation/pages/training_map_page.dart';
+import 'package:scout_os_app/features/home/presentation/pages/training_path_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_main_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_list_view.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/pages/cyber_boot_screen.dart';
@@ -7,8 +7,10 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/pag
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/survival_tools_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/clinometer_tool_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/compass_tool_page.dart';
-import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/gps_tracker_page.dart';
+import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/gps_tracker_tool_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/river_tool_page.dart';
+import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/pedometer_pro_screen.dart';
+import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/morse_touch_screen.dart';
 
 class AppRoutes {
   static const trainingMap = '/training-map';
@@ -24,12 +26,14 @@ class AppRoutes {
   static const survivalCompass = '/survival/compass';
   static const survivalGpsTracker = '/survival/gps';
   static const survivalRiver = '/survival/river';
+  static const survivalPedometer = '/survival/pedometer';
+  static const survivalMorse = '/survival/morse';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case trainingMap:
         return MaterialPageRoute(
-          builder: (_) => const TrainingMapPage(),
+          builder: (_) => const TrainingPathPage(),
         );
       case skuMap:
         return MaterialPageRoute(
@@ -63,11 +67,19 @@ class AppRoutes {
         );
       case survivalGpsTracker:
         return MaterialPageRoute(
-          builder: (_) => const GpsTrackerPage(),
+          builder: (_) => const GpsTrackerToolPage(),
         );
       case survivalRiver:
         return MaterialPageRoute(
           builder: (_) => const RiverToolPage(),
+        );
+      case survivalPedometer:
+        return MaterialPageRoute(
+          builder: (_) => const PedometerProScreen(),
+        );
+      case survivalMorse:
+        return MaterialPageRoute(
+          builder: (_) => const MorseTouchScreen(),
         );
       default:
         return MaterialPageRoute(

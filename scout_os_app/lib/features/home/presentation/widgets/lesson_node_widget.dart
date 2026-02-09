@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 import '../../data/models/training_path.dart';
 
 class LessonNodeWidget extends StatefulWidget {
@@ -50,10 +51,10 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
   }
 
   void _updatePulseAnimation() {
-    final status = widget.lesson.status;
-    final isActive = status == 'active' || 
-                     status == 'unlocked' ||
-                     (status != 'locked' && status != 'completed' && status.isNotEmpty);
+    final status = widget.lesson.status; // Already uppercase from model
+    final isActive = status == 'ACTIVE' || 
+                     status == 'UNLOCKED' ||
+                     (status != 'LOCKED' && status != 'COMPLETED' && status.isNotEmpty);
     
     if (isActive) {
       _pulseController.repeat(reverse: true);
@@ -71,53 +72,63 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    // CRITICAL FIX: Recognize 'active', 'unlocked', and 'completed' as playable states
-    // Only 'locked' (or empty) should be considered locked
-    final status = widget.lesson.status;
-    final isActive = status == 'active' || 
-                     status == 'unlocked' ||
-                     (status != 'locked' && status != 'completed' && status.isNotEmpty);
-    final isCompleted = status == 'completed';
-    final isLocked = status == 'locked' || status.isEmpty;
+    // CRITICAL: Strict 3-state logic (UPPERCASE)
+    final status = widget.lesson.status.toUpperCase(); // Double check normalization
+    final isPlayable = status == 'UNLOCKED' || status == 'COMPLETED';
+    final shouldAnimate = status == 'UNLOCKED'; // Only bounce current active level
 
     return GestureDetector(
-      onTap: isLocked ? null : widget.onTap,
+      onTap: isPlayable ? widget.onTap : null,
       child: AnimatedBuilder(
         animation: _pulseAnimation,
         builder: (context, child) {
           return Transform.scale(
-            scale: isActive ? _pulseAnimation.value : 1.0,
-            child: _buildNodeContent(isActive, isCompleted, isLocked),
+            scale: shouldAnimate ? _pulseAnimation.value : 1.0,
+            child: _buildNodeContent(status),
           );
         },
       ),
     );
   }
 
-  Widget _buildNodeContent(bool isActive, bool isCompleted, bool isLocked) {
+  Widget _buildNodeContent(String status) {
     const nodeSize = 72.0;
-
-    final node = isLocked
-        ? _buildLockedNode(size: nodeSize)
-        : isCompleted
-            ? _buildCompletedNode(size: nodeSize)
-            : _buildActiveNode(size: nodeSize, glow: isActive);
+    Widget node;
+    
+    // Strict Switch Case as requested (UPPERCASE)
+    switch (status) {
+      case 'COMPLETED':
+        node = _buildCompletedNode(size: nodeSize);
+        break;
+      case 'UNLOCKED':
+        node = _buildActiveNode(size: nodeSize, glow: true);
+        break;
+      case 'LOCKED':
+      default:
+        node = _buildLockedNode(size: nodeSize);
+        break;
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         node,
         const SizedBox(height: 6),
-        Text(
+        _buildLabel(),
+      ],
+    );
+  }
+
+  // Helper method to keep UI clean - old buildNodeContent removed
+  Widget _buildLabel() {
+     return Text(
           'Level ${widget.lesson.orderIndex}',
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: Colors.blueGrey.shade700,
           ),
-        ),
-      ],
-    );
+        );
   }
 
   Widget _buildLockedNode({required double size}) {
@@ -125,19 +136,19 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: const Color(0xFFB0BEC5).withValues(alpha: 0.5),
+        color: const Color(0xFFE5E5E5), // Light grey for locked
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF90A4AE), width: 2),
+        border: Border.all(color: const Color(0xFFBDBDBD), width: 4), // Thicker border
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: UnconstrainedBox(
-        child: Icon(Icons.lock_rounded, size: 30, color: Colors.blueGrey.shade700),
+      child: Center(
+        child: Icon(Icons.lock_rounded, size: 30, color: const Color(0xFF9E9E9E)),
       ),
     );
   }
@@ -147,25 +158,22 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF00695C), Color(0xFF00E5FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFF4CAF50), // ✅ Green for UNLOCKED (Active)
         shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 4),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00E5FF).withValues(alpha: glow ? 0.5 : 0.3),
-            blurRadius: glow ? 20 : 12,
-            spreadRadius: glow ? 2 : 1,
-            offset: const Offset(0, 6),
+            color: const Color(0xFF4CAF50).withValues(alpha: glow ? 0.6 : 0.3),
+            blurRadius: glow ? 16 : 8,
+            spreadRadius: glow ? 2 : 0,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: UnconstrainedBox(
+      child: Center(
         child: Icon(
-          Icons.park_rounded,
-          size: 34,
+          Icons.star_rounded, // ✅ Star icon for active
+          size: 38,
           color: Colors.white,
         ),
       ),
@@ -177,28 +185,32 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2E7D32), Color(0xFFFFD700)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFFFFD700), // Gold for completed
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF1B5E20), width: 2),
+        border: Border.all(color: const Color(0xFFFBC02D), width: 4),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFD700).withValues(alpha: 0.35),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: const Offset(0, 6),
+            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: UnconstrainedBox(
-        child: Icon(
-          Icons.check_circle,
-          size: 32,
-          color: Colors.white,
-        ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Optional: Star background or just simple gold circle
+          Icon(
+            Icons.check_rounded, // ✅ Checkmark for completed
+            size: 40,
+            color: Colors.white, // Or darker gold
+          ),
+          Positioned(
+            right: 12,
+            bottom: 12,
+            child: Icon(Icons.star, size: 10, color: Colors.white.withValues(alpha: 0.5)),
+          )
+        ],
       ),
     );
   }

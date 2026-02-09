@@ -2,12 +2,14 @@
 /// 
 /// Handles API calls for user profile and stats operations.
 /// Uses Dio with JWT authentication.
-/// NO local storage - purely API-driven.
+/// Implements SWR caching for performance.
 
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:scout_os_app/core/network/api_dio_provider.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
+import 'package:scout_os_app/core/services/local_cache_service.dart';
 
 /// User stats model from API
 class UserStatsModel {
@@ -57,15 +59,63 @@ class ProfileRepository {
   })  : _dio = dio ?? ApiDioProvider.getDio(),
         _authRepo = authRepo ?? AuthRepository();
 
-  /// Get current user stats from API
+  // ✅ Memory Cache (Singleton Pattern)
+  static UserStatsModel? _cachedStats;
+  static DateTime? _lastStatsFetch;
+  static const Duration _statsCacheTtl = Duration(minutes: 5); // 5 minutes cache
+
+  /// Clear memory cache (maintain static state)
+  static void clearMemoryCache() {
+    _cachedStats = null;
+    _lastStatsFetch = null;
+    debugPrint('🧹 [PROFILE] Memory cache cleared');
+  }
+
+  /// Get current user stats from API with SWR caching + Memory Cache
   /// 
   /// Endpoint: GET /api/v1/users/me
   /// Returns: UserStatsModel with totalXp and streak
   /// 
   /// Throws:
   ///   Exception if API call fails
-  Future<UserStatsModel> getUserStats() async {
+  Future<UserStatsModel> getUserStats({bool forceRefresh = false}) async {
+    const cacheKey = LocalCacheService.keyUserProfile;
+    
+    // ✅ 1. MEMORY CACHE (Level 1 - Instant)
+    if (!forceRefresh && _cachedStats != null) {
+      final isExpired = _lastStatsFetch != null && 
+          DateTime.now().difference(_lastStatsFetch!) > _statsCacheTtl;
+      
+      if (!isExpired) {
+        debugPrint('🧠 [PROFILE] Returning MEMORY cached stats (Instant)');
+        return _cachedStats!;
+      }
+    }
+    
     try {
+      // ✅ 2. DISK CACHE (Level 2 - SWR)
+      if (!forceRefresh) {
+        final cachedData = await LocalCacheService.get<dynamic>(cacheKey);
+        if (cachedData != null) {
+          debugPrint('📦 [SWR] Returning DISK cached user stats');
+          
+          final Map<String, dynamic> data = cachedData is String 
+              ? jsonDecode(cachedData) as Map<String, dynamic>
+              : cachedData as Map<String, dynamic>;
+          
+          final stats = UserStatsModel.fromJson(data);
+          
+          // Update memory cache
+          _cachedStats = stats;
+          _lastStatsFetch = DateTime.now(); // Optimistic update
+          
+          // Background revalidation
+          _runBackgroundRevalidation();
+          
+          return stats;
+        }
+      }
+      
       debugPrint('📊 [PROFILE] Fetching user stats from API...');
       
       final response = await _dio.get('/users/me');
@@ -96,7 +146,12 @@ class ProfileRepository {
               : null,
         );
         
-        debugPrint('✅ [PROFILE] Fetched user stats: XP=${stats.totalXp}, Streak=${stats.streak}, LastActive=${stats.lastActiveDate?.toIso8601String().split('T')[0] ?? 'null'}');
+        debugPrint('✅ [PROFILE] Fetched user stats: XP=${stats.totalXp}, Streak=${stats.streak}');
+        
+        // Update both caches
+        _cachedStats = stats;
+        _lastStatsFetch = DateTime.now();
+        await LocalCacheService.put(cacheKey, jsonEncode(data), ttl: LocalCacheService.shortTtl);
         
         return stats;
       } else {
@@ -104,10 +159,20 @@ class ProfileRepository {
       }
     } on DioException catch (e) {
       debugPrint('❌ [PROFILE] Dio error: ${e.message}');
+      
+      // ✅ Offline Resilience: Try everything to return something
+      if (_cachedStats != null) return _cachedStats!;
+      
+      final staleCache = await LocalCacheService.get<dynamic>(cacheKey);
+      if (staleCache != null) {
+        debugPrint('📦 [SWR] Returning stale stats (offline mode)');
+        final Map<String, dynamic> data = staleCache is String 
+            ? jsonDecode(staleCache) as Map<String, dynamic>
+            : staleCache as Map<String, dynamic>;
+        return UserStatsModel.fromJson(data);
+      }
+      
       if (e.response != null) {
-        debugPrint('   Status: ${e.response!.statusCode}');
-        debugPrint('   Body: ${e.response!.data}');
-        
         // Handle 401 Unauthorized
         if (e.response!.statusCode == 401) {
           throw Exception('Unauthorized: Please login again');
@@ -116,8 +181,37 @@ class ProfileRepository {
       throw Exception('Failed to fetch user stats: ${e.message}');
     } catch (e) {
       debugPrint('❌ [PROFILE] Unexpected error: $e');
+      if (_cachedStats != null) return _cachedStats!;
       throw Exception('Failed to fetch user stats: $e');
     }
+  }
+  
+  // Detached background fetch
+  void _runBackgroundRevalidation() {
+    Future(() async {
+      try {
+        debugPrint('🔄 [SWR] Background revalidating user stats...');
+        final response = await _dio.get('/users/me');
+        final responseData = response.data as Map<String, dynamic>;
+        if (responseData['success'] == true && responseData['data'] != null) {
+          final data = responseData['data'] as Map<String, dynamic>;
+          
+          await LocalCacheService.put(
+            LocalCacheService.keyUserProfile, 
+            jsonEncode(data), 
+            ttl: LocalCacheService.shortTtl,
+          );
+          
+          // Update memory cache silently
+           _cachedStats = UserStatsModel.fromJson(data);
+          _lastStatsFetch = DateTime.now();
+          
+          debugPrint('✅ [SWR] User stats revalidation complete');
+        }
+      } catch (e) {
+        debugPrint('⚠️ [SWR] User stats revalidation failed: $e');
+      }
+    });
   }
 
   /// Get current user profile from API
@@ -126,6 +220,8 @@ class ProfileRepository {
   /// Returns: ApiUser with full profile data
   Future<ApiUser> getCurrentUser() async {
     return await _authRepo.getCurrentUser();
+    // Note: AuthRepository should also implement caching if needed, 
+    // but usually stats are fetched more often than full profile.
   }
 
   /// Update user stats (streak and last_active_date) on the server

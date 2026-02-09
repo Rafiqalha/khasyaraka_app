@@ -1,10 +1,12 @@
-import 'dart:math';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
 import 'package:scout_os_app/features/profile/logic/profile_controller.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
+import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -12,7 +14,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Consumer<ProfileController>(
           builder: (context, controller, _) {
@@ -22,58 +24,46 @@ class ProfilePage extends StatelessWidget {
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                   // 1. Header Section (Duolingo Style)
                   _ProfileHeader(
                     displayName: controller.displayName,
                     rankTitle: controller.rankTitle,
-                    isPro: controller.isPro,
+                    photoUrl: controller.photoUrl,
+                    localPhotoPath: controller.localPhotoPath,
+                    onEditName: () => _showEditNameDialog(context, controller),
+                    onEditPhoto: () => controller.updatePhoto(),
                   ),
-                  const SizedBox(height: 20),
-                  _MembershipCard(
-                    isPro: controller.isPro,
-                    onAction: () {},
-                  ),
-                  const SizedBox(height: 20),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // 2. Statistics 3D Cards
                   _StatsRow(
                     streak: controller.streak,
                     totalXp: controller.totalXp,
                     rankBadge: controller.rankBadge,
                   ),
+                  
                   const SizedBox(height: 24),
+
+                  // 3. Premium Card (Scout Elite)
+                  _ScoutEliteCard(
+                    isPro: controller.isPro,
+                    onAction: () {},
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // 4. Heatmap Section (Wrapped)
                   _HeatmapSection(streak: controller.streak),
+                  
                   const SizedBox(height: 24),
+                  
+                  // 5. Menu / Settings
                   _MenuSection(
                     onLogout: () async {
-                      debugPrint('🚪 Logout initiated - Clearing all controller states');
-                      
-                      // CRITICAL: Clear all controllers to prevent data leak between users
-                      // This ensures User B doesn't see User A's data
-                      try {
-                        // Clear TrainingController state
-                        final trainingController = context.read<TrainingController>();
-                        trainingController.clearState();
-                        
-                        // Clear ProfileController state (will be done in logout method)
-                        // But we also clear it explicitly here to be safe
-                        controller.clearState();
-                        
-                        // Logout from auth service (clears token and current user)
-                        await controller.logout();
-                        
-                        // Note: CyberController and other controllers will be cleared
-                        // when they are re-initialized on next access, but ideally
-                        // we should clear them here if they're accessible via Provider
-                        
-                        debugPrint('✅ All controllers cleared, navigating to login');
-                      } catch (e) {
-                        debugPrint('⚠️ Error clearing controllers: $e');
-                        // Continue with logout even if clearing fails
-                        await controller.logout();
-                      }
-                      
-                      if (!context.mounted) return;
-                      Navigator.pushReplacementNamed(context, '/login');
+                      _handleLogout(context, controller);
                     },
                   ),
                 ],
@@ -84,104 +74,47 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
-}
 
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({
-    required this.displayName,
-    required this.rankTitle,
-    required this.isPro,
-  });
+  void _handleLogout(BuildContext context, ProfileController controller) async {
+    debugPrint('🚪 Logout initiated - Clearing all controller states');
+    try {
+      final trainingController = context.read<TrainingController>();
+      trainingController.clearState();
+      controller.clearState();
+      await controller.logout();
+      debugPrint('✅ All controllers cleared, navigating to login');
+    } catch (e) {
+      debugPrint('⚠️ Error clearing controllers: $e');
+      await controller.logout();
+    }
+    if (!context.mounted) return;
+    Navigator.pushReplacementNamed(context, '/login');
+  }
 
-  final String displayName;
-  final String rankTitle;
-  final bool isPro;
-
-  @override
-  Widget build(BuildContext context) {
-    final ringColor =
-        isPro ? const Color(0xFFD4AF37) : const Color(0xFF2E7D32);
-    return Center(
-      child: Column(
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: ringColor.withValues(alpha: 0.22),
-                      blurRadius: 28,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: ringColor, width: 4),
-                ),
-                child: CircleAvatar(
-                  radius: 65,
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundColor: const Color(0xFFE8F5E9),
-                    child: Icon(
-                      Icons.person,
-                      size: 64,
-                      color: ringColor,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 6,
-                right: 12,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 10,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.photo_camera),
-                    color: ringColor,
-                    onPressed: () {},
-                  ),
-                ),
-              ),
-            ],
+  void _showEditNameDialog(BuildContext context, ProfileController controller) {
+    final TextEditingController nameController = TextEditingController(text: controller.displayName);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ganti Nama'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            hintText: 'Nama Lengkap',
+            border: OutlineInputBorder(),
           ),
-          const SizedBox(height: 16),
-          Text(
-            displayName,
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1B5E20),
-            ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
           ),
-          const SizedBox(height: 4),
-          Text(
-            rankTitle,
-            style: GoogleFonts.poppins(
-              color: Colors.black54,
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-            ),
+          ElevatedButton(
+            onPressed: () {
+              controller.updateName(nameController.text);
+              Navigator.pop(context);
+            },
+            child: const Text('Simpan'),
           ),
         ],
       ),
@@ -189,80 +122,233 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-class _MembershipCard extends StatelessWidget {
-  const _MembershipCard({required this.isPro, required this.onAction});
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({
+    required this.displayName,
+    required this.rankTitle,
+    required this.photoUrl,
+    this.localPhotoPath,
+    required this.onEditName,
+    required this.onEditPhoto,
+  });
+
+  final String displayName;
+  final String rankTitle;
+  final String? photoUrl;
+  final String? localPhotoPath;
+  final VoidCallback onEditName;
+  final VoidCallback onEditPhoto;
+
+  @override
+  Widget build(BuildContext context) {
+    ImageProvider? imageProvider;
+    if (localPhotoPath != null) {
+      imageProvider = FileImage(File(localPhotoPath!));
+    } else if (photoUrl != null && photoUrl!.isNotEmpty) {
+      // Simple check to identify URL vs username/placeholder
+      if (photoUrl!.startsWith('http')) {
+        imageProvider = NetworkImage(photoUrl!);
+      }
+    }
+
+    return Row(
+      children: [
+        // Avatar Section (Right aligned in requirements, but typical UI puts it left. 
+        // Prompt said "Layout: Nama User di kiri... Avatar: Di sisi kanan atau tengah".
+        // Let's put Avatar Right as requested for "Eksklusif" look).
+        
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      displayName,
+                      style: AppTextStyles.h1.copyWith(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: onEditName,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.edit, size: 16, color: Colors.blueGrey),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                rankTitle,
+                style: AppTextStyles.h3.copyWith(
+                  color: Colors.grey.shade600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Avatar with Edit Button
+        Stack(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 4),
+                boxShadow: [
+                   BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 46,
+                backgroundColor: AppColors.primary.withOpacity(0.2),
+                backgroundImage: imageProvider,
+                child: imageProvider == null
+                    ? const Icon(Icons.person, size: 50, color: AppColors.primary)
+                    : null,
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: GestureDetector(
+                onTap: onEditPhoto,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                      ),
+                    ],
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: const Icon(Icons.camera_alt, size: 18, color: AppColors.primary),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ScoutEliteCard extends StatelessWidget {
+  const _ScoutEliteCard({required this.isPro, required this.onAction});
 
   final bool isPro;
   final VoidCallback onAction;
 
   @override
   Widget build(BuildContext context) {
-    final gradient = isPro
-        ? const LinearGradient(
-            colors: [Color(0xFFD4AF37), Color(0xFFFFD700)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
-        : null;
-    final backgroundColor = isPro ? Colors.black : Colors.white;
-    final borderColor = isPro ? Colors.transparent : const Color(0xFF2E7D32);
-
-    return InkWell(
-      onTap: onAction,
-      borderRadius: BorderRadius.circular(20),
-      child: Ink(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: (isPro ? Colors.orange : Colors.black)
-                  .withValues(alpha: isPro ? 0.3 : 0.08),
-              blurRadius: isPro ? 15 : 20,
-              spreadRadius: isPro ? 2 : 0,
-              offset: const Offset(0, 10),
-            ),
-          ],
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        // Dark Luxury Gradient
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2D1B4E), Color(0xFF000000)], // Deep Purple to Black
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Row(
-          children: [
-            Icon(
-              isPro ? Icons.workspace_premium : Icons.verified_user_outlined,
-              color: isPro ? Colors.black : const Color(0xFF2E7D32),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF4A3B69), width: 1), // Subtle lighter border
+         boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2D1B4E).withOpacity(0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Background decoration
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Icon(
+              Icons.stars,
+              size: 150,
+              color: Colors.white.withOpacity(0.05),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isPro ? 'SCOUT PRO MEMBER' : 'Member Biasa',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w700,
-                      color: isPro ? Colors.black : const Color(0xFF1B5E20),
-                      letterSpacing: isPro ? 1.1 : 0.0,
-                    ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'SCOUT ELITE',
+                            style: GoogleFonts.fredoka(
+                              color: const Color(0xFFFFD700), // Gold
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.verified, color: Color(0xFFFFD700), size: 20),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        isPro 
+                          ? 'Keanggotaan Aktif\nNikmati akses tanpa batas.'
+                          : 'Upgrade Sekarang\nDapatkan fitur eksklusif & lencana khusus.',
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white70,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    isPro ? 'Akses premium terbuka' : 'Upgrade untuk fitur elite',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: isPro ? Colors.black87 : Colors.black54,
+                ),
+                if (!isPro)
+                  ElevatedButton(
+                    onPressed: onAction,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFD700),
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
                     ),
+                    child: const Text('UPGRADE', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                ],
-              ),
+              ],
             ),
-            Icon(
-              isPro ? Icons.star : Icons.arrow_forward,
-              color: isPro ? Colors.black : const Color(0xFF2E7D32),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -281,74 +367,67 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          _StatItem(icon: Icons.local_fire_department, label: 'Streak', value: '$streak Hari'),
-          _VerticalDivider(),
-          _StatItem(icon: Icons.flash_on, label: 'Total XP', value: '$totalXp'),
-          _VerticalDivider(),
-          _StatItem(icon: Icons.emoji_events, label: 'Peringkat', value: rankBadge),
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(child: _Stat3DCard(icon: Icons.local_fire_department_rounded, label: 'Streak', value: streak.toString(), color: const Color(0xFFFF9600))),
+        const SizedBox(width: 12),
+        Expanded(child: _Stat3DCard(icon: Icons.flash_on_rounded, label: 'Total XP', value: totalXp.toString(), color: const Color(0xFFFFC800))),
+        const SizedBox(width: 12),
+        Expanded(child: _Stat3DCard(icon: Icons.emoji_events_rounded, label: 'Peringkat', value: rankBadge, color: const Color(0xFF2CB0FA))), // Shorten label for layout
+      ],
     );
   }
 }
 
-class _StatItem extends StatelessWidget {
-  const _StatItem({
+class _Stat3DCard extends StatelessWidget {
+  const _Stat3DCard({
     required this.icon,
     required this.label,
     required this.value,
+    required this.color,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final Color color;
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: const Color(0xFF2E7D32)),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1B5E20),
-            ),
-          ),
-          Text(
-            label,
-            style: GoogleFonts.poppins(fontSize: 11, color: Colors.black54),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VerticalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 1,
-      height: 48,
-      color: Colors.black.withValues(alpha: 0.08),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: const Offset(0, 4), // 3D Bottom effect
+            spreadRadius: 0,
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppTextStyles.h3.copyWith(fontSize: 18, color: Colors.black87),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(color: Colors.grey.shade500, fontSize: 11),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -360,116 +439,81 @@ class _HeatmapSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cells = _generateHeatmap();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Jejak Petualangan',
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1B5E20),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade300, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: const Offset(0, 4), // 3D Bottom effect
+            spreadRadius: 0,
+            blurRadius: 0,
           ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              _HeatmapGrid(colors: cells),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Text(
-                    'Less',
-                    style: GoogleFonts.poppins(fontSize: 11, color: Colors.black54),
-                  ),
-                  const SizedBox(width: 6),
-                  _legendDot(Colors.grey.shade200),
-                  const SizedBox(width: 4),
-                  _legendDot(const Color(0xFF2E7D32).withValues(alpha: 0.25)),
-                  const SizedBox(width: 4),
-                  _legendDot(const Color(0xFF2E7D32)),
-                  const SizedBox(width: 6),
-                  Text(
-                    'More',
-                    style: GoogleFonts.poppins(fontSize: 11, color: Colors.black54),
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Login $streak hari berturut-turut!',
-                    style: GoogleFonts.poppins(fontSize: 11, color: Colors.black54),
-                  ),
-                ],
+              Text(
+                'Jejak Petualangan',
+                style: AppTextStyles.h3.copyWith(color: Colors.black87),
               ),
+              const Spacer(),
+              const Icon(Icons.history, color: Colors.grey),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          // Use existing logic for grid drawing
+          _HeatmapGrid(colors: _generateHeatmap()),
+          const SizedBox(height: 12),
+          Text(
+            '🔥 Login $streak hari berturut-turut!',
+            style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 
   List<Color> _generateHeatmap() {
-    final random = Random(42);
-    return List.generate(7 * 12, (index) {
-      final roll = random.nextDouble();
-      if (roll < 0.2) return Colors.grey.shade200;
-      if (roll < 0.5) return const Color(0xFF2E7D32).withValues(alpha: 0.25);
-      if (roll < 0.8) return const Color(0xFF2E7D32).withValues(alpha: 0.5);
-      return const Color(0xFF2E7D32);
+    // Keeping simple mock logic for visual representation
+    final random = DateTime.now().millisecond; // Seed for some variance if needed, or constant
+    return List.generate(7 * 10, (index) {
+      if (index % 5 == 0 || index % 3 == 0) return AppColors.primary;
+      if (index % 2 == 0) return AppColors.primary.withOpacity(0.4);
+      return Colors.grey.shade100;
     });
   }
 }
 
-Widget _legendDot(Color color) {
-  return Container(
-    width: 12,
-    height: 12,
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(3),
-    ),
-  );
-}
-
 class _HeatmapGrid extends StatelessWidget {
-  const _HeatmapGrid({required this.colors});
-
   final List<Color> colors;
+  const _HeatmapGrid({required this.colors});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 110,
+      height: 100,
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 12,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
+          crossAxisCount: 14, // Denser grid
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
         ),
         itemCount: colors.length,
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              color: colors[index],
-              borderRadius: BorderRadius.circular(6),
-            ),
-          );
-        },
+        itemBuilder: (context, index) => Container(
+          decoration: BoxDecoration(
+            color: colors[index],
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
       ),
     );
   }
@@ -483,36 +527,22 @@ class _MenuSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Pengaturan',
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1B5E20),
-          ),
-        ),
-        const SizedBox(height: 12),
-        _MenuTile(
+         _MenuTile(
           icon: Icons.person_outline,
           title: 'Edit Profil',
           onTap: () {},
         ),
         _MenuTile(
-          icon: Icons.workspace_premium_outlined,
-          title: 'Sertifikat',
-          onTap: () {},
-        ),
-        _MenuTile(
-          icon: Icons.settings_outlined,
-          title: 'Pengaturan',
+          icon: Icons.shield_outlined,
+          title: 'Keamanan Akun',
           onTap: () {},
         ),
         _MenuTile(
           icon: Icons.logout,
-          title: 'Logout',
+          title: 'Keluar',
           onTap: onLogout,
+          isDestructive: true,
         ),
       ],
     );
@@ -524,34 +554,34 @@ class _MenuTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.onTap,
+    this.isDestructive = false,
   });
 
   final IconData icon;
   final String title;
   final VoidCallback onTap;
+  final bool isDestructive;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        border: Border.all(color: Colors.grey.shade200, width: 2),
+        // No 3D shadow for list items to keep it cleaner
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF2E7D32)),
+        leading: Icon(icon, color: isDestructive ? Colors.red : AppColors.primary),
         title: Text(
           title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+            color: isDestructive ? Colors.red : Colors.black87,
+          ),
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,
       ),
     );

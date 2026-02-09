@@ -1,10 +1,8 @@
 import 'dart:async';
-
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-
-import 'package:scout_os_app/features/mission/subfeatures/survival/logic/survival_mastery_controller.dart';
+import 'package:flutter_compass/flutter_compass.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 class RiverToolPage extends StatefulWidget {
   const RiverToolPage({super.key});
@@ -14,884 +12,446 @@ class RiverToolPage extends StatefulWidget {
 }
 
 class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProviderStateMixin {
-  static const _background = Color(0xFFF5F5F5);
-  static const _primaryGreen = Color(0xFF2E7D32);
-  static const _darkGreen = Color(0xFF1B5E20);
-  static const _gold = Color(0xFFFFD600);
-  static const _dangerRed = Color(0xFFD32F2F);
+  // --- DUO THEME ---
+  static const _riverBlue = Color(0xFF0091FF);
+  static const _grassGreen = Color(0xFF58CC02);
+  static const _grassShadow = Color(0xFF46A302);
+  static const _dangerRed = Color(0xFFFF4B4B);
+  static const _dangerShadow = Color(0xFFD93A3A);
+  static const _grey = Color(0xFFE5E5E5);
 
-  late final TabController _tabController;
+  late TabController _tabController;
 
-  final TextEditingController _stepLengthController =
-      TextEditingController(text: '65');
-  final TextEditingController _stepsController = TextEditingController();
-  final TextEditingController _targetWidthController = TextEditingController();
+  // --- SENSORS DATA ---
+  double _heading = 0.0;
+  double _pitch = 0.0; // Spirit Level
+  double _roll = 0.0; // Spirit Level
+  StreamSubscription? _compassSub;
+  StreamSubscription? _accelSub;
 
-  final TextEditingController _flowDistanceController =
-      TextEditingController(text: '5');
-  final TextEditingController _targetFlowController = TextEditingController();
+  // --- WIDTH TOOL STATE ---
+  double? _startHeading;
+  double? _endHeading;
+  final TextEditingController _distanceController = TextEditingController(text: "10");
+  double _calculatedWidth = 0.0;
 
-  double? _targetWidth;
-  double? _targetFlow;
-
-  double? _widthMeters;
-  double? _widthAccuracy;
-  int _widthXp = 0;
-  String? _widthRank;
-
-  bool _isRunning = false;
-  double _elapsedSeconds = 0;
+  // --- FLOW TOOL STATE ---
+  bool _isStopwatchRunning = false;
+  final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
-  double? _velocity;
-  double? _flowAccuracy;
-  int _flowXp = 0;
-  String? _flowRank;
+  String _formattedTime = "00:00.0";
+  final TextEditingController _flowDistanceController = TextEditingController(text: "10");
+  double _flowSpeed = 0.0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      setState(() {});
+    _initSensors();
+  }
+
+  void _initSensors() {
+    // Compass
+    _compassSub = FlutterCompass.events?.listen((event) {
+      if (mounted) {
+        setState(() {
+          _heading = event.heading ?? 0.0;
+        });
+      }
+    });
+
+    // Accelerometer for Spirit Level
+    _accelSub = accelerometerEventStream().listen((event) {
+      if (mounted) {
+        setState(() {
+          // Simple tilt calculation
+          _pitch = event.y; 
+          _roll = event.x;
+        });
+      }
     });
   }
 
   @override
   void dispose() {
+    _compassSub?.cancel();
+    _accelSub?.cancel();
     _tabController.dispose();
-    _stepLengthController.dispose();
-    _stepsController.dispose();
-    _targetWidthController.dispose();
-    _flowDistanceController.dispose();
-    _targetFlowController.dispose();
     _timer?.cancel();
+    _distanceController.dispose();
+    _flowDistanceController.dispose();
     super.dispose();
   }
 
-  double _parseInput(String value) {
-    return double.tryParse(value.replaceAll(',', '.')) ?? 0;
+  // --- LOGIC: WIDTH ---
+  void _setStartPoint() {
+    setState(() {
+      _startHeading = _heading;
+      _endHeading = null;
+      _calculatedWidth = 0.0;
+    });
+    _showSnack("TITIK AWAL DIKUNCI!", _grassGreen);
   }
 
-  Future<void> _calculateWidth() async {
-    final stepLengthCm = _parseInput(_stepLengthController.text);
-    final steps = _parseInput(_stepsController.text);
-    if (stepLengthCm <= 0 || steps <= 0) {
-      _showSnack('Masukkan panjang langkah dan jumlah langkah yang valid.');
+  void _calculateRiverWidth() {
+    if (_startHeading == null) return;
+    
+    double current = _heading;
+    double diff = (current - _startHeading!).abs();
+    if (diff > 180) diff = 360 - diff; // Handle wrap-around
+
+    double walkDist = double.tryParse(_distanceController.text) ?? 0.0;
+    
+    if (walkDist <= 0) {
+      _showSnack("MASUKKAN JARAK LANGKAH!", _dangerRed);
       return;
     }
 
-    final width = (steps * stepLengthCm) / 100;
-    setState(() {
-      _widthMeters = width;
-    });
-
-    if (_targetWidth == null) return;
-    final accuracy = _calculateAccuracy(_targetWidth!, width);
-    final xpGained = _xpFromAccuracy(accuracy);
-
-    final response = xpGained > 0
-        ? await context.read<SurvivalMasteryController>().recordAction(
-              toolType: 'leveler',
-              xpGained: xpGained,
-              metadata: {
-                'method': 'river_width',
-                'step_length_cm': stepLengthCm,
-                'steps': steps,
-                'width_m': width,
-                'target_width_m': _targetWidth,
-                'accuracy': accuracy,
-              },
-            )
-        : null;
+    // Width = Distance * tan(theta)
+    // Convert degrees to radians
+    double thetaRad = diff * (math.pi / 180);
+    double width = walkDist * math.tan(thetaRad);
 
     setState(() {
-      _widthAccuracy = accuracy;
-      _widthXp = xpGained;
-      _widthRank = response?.rankTitle ?? _rankFromAccuracy(accuracy);
+      _endHeading = current;
+      _calculatedWidth = width.abs();
     });
   }
 
+  // --- LOGIC: FLOW ---
   void _toggleStopwatch() {
-    if (_isRunning) {
+    if (_isStopwatchRunning) {
+      _stopwatch.stop();
       _timer?.cancel();
-      setState(() {
-        _isRunning = false;
-      });
-      _calculateFlowResult();
-      return;
+      _calculateFlowSpeed();
+    } else {
+      _stopwatch.reset();
+      _stopwatch.start();
+      _timer = Timer.periodic(const Duration(milliseconds: 100), _updateTime);
+      _flowSpeed = 0.0;
     }
+    setState(() => _isStopwatchRunning = !_isStopwatchRunning);
+  }
 
-    setState(() {
-      _elapsedSeconds = 0;
-      _isRunning = true;
-      _velocity = null;
-      _flowAccuracy = null;
-      _flowXp = 0;
-      _flowRank = null;
-    });
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+  void _updateTime(Timer timer) {
+    if (mounted) {
       setState(() {
-        _elapsedSeconds += 0.1;
+        _formattedTime = "${_stopwatch.elapsed.inMinutes.toString().padLeft(2, '0')}:${(_stopwatch.elapsed.inSeconds % 60).toString().padLeft(2, '0')}.${(_stopwatch.elapsed.inMilliseconds % 1000 ~/ 100)}";
       });
-    });
-  }
-
-  Future<void> _calculateFlowResult() async {
-    final distance = _parseInput(_flowDistanceController.text);
-    if (distance <= 0 || _elapsedSeconds <= 0.1) {
-      _showSnack('Jarak lintasan atau waktu belum valid.');
-      return;
     }
-
-    final velocity = distance / _elapsedSeconds;
-    setState(() {
-      _velocity = velocity;
-    });
-
-    if (_targetFlow == null) return;
-    final accuracy = _calculateAccuracy(_targetFlow!, velocity);
-    final xpGained = _xpFromAccuracy(accuracy);
-
-    final response = xpGained > 0
-        ? await context.read<SurvivalMasteryController>().recordAction(
-              toolType: 'leveler',
-              xpGained: xpGained,
-              metadata: {
-                'method': 'river_flow',
-                'distance_m': distance,
-                'time_s': _elapsedSeconds,
-                'velocity_ms': velocity,
-                'target_velocity_ms': _targetFlow,
-                'accuracy': accuracy,
-              },
-            )
-        : null;
-
-    setState(() {
-      _flowAccuracy = accuracy;
-      _flowXp = xpGained;
-      _flowRank = response?.rankTitle ?? _rankFromAccuracy(accuracy);
-    });
   }
 
-  double _calculateAccuracy(double target, double measured) {
-    final diff = (target - measured).abs();
-    return (100 - (diff / target * 100)).clamp(0.0, 100.0);
+  void _calculateFlowSpeed() {
+    double dist = double.tryParse(_flowDistanceController.text) ?? 10.0;
+    double timeSec = _stopwatch.elapsedMilliseconds / 1000.0;
+    if (timeSec > 0) {
+      setState(() {
+        _flowSpeed = dist / timeSec;
+      });
+    }
   }
 
-  int _xpFromAccuracy(double accuracy) {
-    if (accuracy >= 95) return 100;
-    if (accuracy >= 90) return 50;
-    if (accuracy >= 80) return 20;
-    return 0;
-  }
-
-  String _rankFromAccuracy(double accuracy) {
-    if (accuracy >= 95) return 'Master Surveyor';
-    if (accuracy >= 90) return 'Skilled';
-    if (accuracy >= 80) return 'Apprentice';
-    return 'Trainee';
-  }
-
-  void _showSnack(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  void _showSnack(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg, style: const TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isWidthTab = _tabController.index == 0;
-    final targetMissing = isWidthTab ? _targetWidth == null : _targetFlow == null;
-
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: _background,
+        title: const Text("Navigasi Arus 🌊", style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.bold, fontSize: 24, color: Color(0xFF4B4B4B))),
+        centerTitle: true,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          'RIVER TOOL',
-          style: GoogleFonts.cinzel(
-            color: _primaryGreen,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-          ),
+        iconTheme: const IconThemeData(color: Color(0xFF4B4B4B)),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: _riverBlue,
+          unselectedLabelColor: Colors.grey,
+          labelStyle: const TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.bold, fontSize: 16),
+          indicatorColor: _riverBlue,
+          indicatorWeight: 4,
+          tabs: const [
+            Tab(text: "LEBAR SUNGAI"),
+            Tab(text: "LAJU ARUS"),
+          ],
         ),
+        actions: [
+          _buildSpiritLevel(),
+          const SizedBox(width: 16),
+        ],
       ),
-      body: Stack(
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          Column(
-            children: [
-              TabBar(
-                controller: _tabController,
-                labelColor: _primaryGreen,
-                unselectedLabelColor: Colors.black54,
-                indicatorColor: _primaryGreen,
-                labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w700),
-                tabs: const [
-                  Tab(text: 'Lebar Sungai'),
-                  Tab(text: 'Kecepatan Arus'),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildWidthTab(),
-                    _buildFlowTab(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (targetMissing) _buildTargetOverlay(isWidthTab),
+          _buildWidthTab(),
+          _buildFlowTab(),
         ],
       ),
     );
   }
 
+  // --- TAB 1: WIDTH MEASUREMENT ---
   Widget _buildWidthTab() {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 220),
-            child: Column(
-              children: [
-                _DiagramCard(
-                  child: Column(
-                    children: [
-                      const _RiverDiagram(),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Metode Segitiga Sebangun 1:1. Jarak mundur = lebar sungai.',
-                        style: GoogleFonts.poppins(color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (_widthMeters != null)
-                  _WidthReportCard(
-                    widthMeters: _widthMeters!,
-                    accuracy: _widthAccuracy ?? 0,
-                    xpGained: _widthXp,
-                    rankTitle: _widthRank,
-                    targetMeters: _targetWidth ?? 0,
-                  ),
-              ],
-            ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildInfoCard(
+            title: "ESTIMASI LEBAR",
+            value: "${_calculatedWidth.toStringAsFixed(1)} m",
+            color: _riverBlue,
+            icon: Icons.straighten,
           ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _WidthControlPanel(
-            stepLengthController: _stepLengthController,
-            stepsController: _stepsController,
-            onCalculate: _calculateWidth,
+          const SizedBox(height: 24),
+          
+          Text("1. BIDIK & KUNCI SUDUT AWAL", style: _labelStyle()),
+          const SizedBox(height: 8),
+          _build3DButton(
+            text: _startHeading == null ? "SET TITIK AWAL" : "TITIK AWAL: ${_startHeading!.toStringAsFixed(0)}°",
+            color: _startHeading == null ? _grassGreen : Colors.grey,
+            shadowColor: _startHeading == null ? _grassShadow : Colors.grey.shade700,
+            onTap: _setStartPoint,
+            icon: Icons.gps_fixed,
           ),
-        ),
-      ],
+          
+          const SizedBox(height: 24),
+          Text("2. MASUKKAN JARAK GESER (METER)", style: _labelStyle()),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _distanceController,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(fontFamily: 'Fredoka', fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+            decoration: _inputDecoration("Contoh: 10"),
+          ),
+
+          const SizedBox(height: 24),
+          Text("3. BIDIK TITIK SEBERANG LAGI", style: _labelStyle()),
+          const SizedBox(height: 8),
+          _build3DButton(
+            text: "HITUNG LEBAR",
+            color: _riverBlue,
+            shadowColor: const Color(0xFF0070C9),
+            onTap: _calculateRiverWidth,
+            icon: Icons.calculate,
+          ),
+
+          const SizedBox(height: 24),
+          if (_endHeading != null)
+             Center(child: Text("Sudut Akhir: ${_endHeading!.toStringAsFixed(0)}° (Bedanya: ${(_heading - (_startHeading ?? 0)).abs().toStringAsFixed(1)}°)", style: const TextStyle(fontFamily: 'Fredoka', color: Colors.grey))),
+        
+          const SizedBox(height: 40),
+          _buildDisclaimer(),
+        ],
+      ),
     );
   }
 
+  // --- TAB 2: FLOW MEASUREMENT ---
   Widget _buildFlowTab() {
-    final velocity = _velocity;
-    final safetyText = velocity == null
-        ? 'Mulai pengukuran untuk melihat hasil.'
-        : velocity > 1.0
-            ? 'ARUS DERAS! BAHAYA!'
-            : velocity < 0.5
-                ? 'Arus Tenang'
-                : 'Arus Sedang';
-    final safetyColor = velocity == null
-        ? Colors.black54
-        : velocity > 1.0
-            ? _dangerRed
-            : velocity < 0.5
-                ? _primaryGreen
-                : _gold;
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 220),
-            child: Column(
-              children: [
-                _DiagramCard(
-                  child: Column(
-                    children: [
-                      Text(
-                        'Jarak Lintasan & Stopwatch',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: _darkGreen,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _elapsedSeconds.toStringAsFixed(1),
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w700,
-                          color: _darkGreen,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: _toggleStopwatch,
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _isRunning ? _dangerRed : _primaryGreen,
-                            boxShadow: [
-                              BoxShadow(
-                                color: (_isRunning ? _dangerRed : _primaryGreen)
-                                    .withValues(alpha: 0.4),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              _isRunning ? 'STOP' : 'START',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.4,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (velocity != null)
-                  _FlowReportCard(
-                    velocity: velocity,
-                    accuracy: _flowAccuracy ?? 0,
-                    xpGained: _flowXp,
-                    rankTitle: _flowRank,
-                    targetVelocity: _targetFlow ?? 0,
-                  ),
-                const SizedBox(height: 12),
-                Text(
-                  safetyText,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: safetyColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _FlowControlPanel(
-            distanceController: _flowDistanceController,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTargetOverlay(bool isWidthTab) {
-    final controller = isWidthTab ? _targetWidthController : _targetFlowController;
-    final label = isWidthTab ? 'TARGET LEBAR (m)' : 'TARGET ARUS (m/s)';
-
-    return Positioned.fill(
-      child: Container(
-        color: Colors.black.withValues(alpha: 0.35),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: _darkGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: controller,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700,
-                        color: _darkGreen,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: '0.0',
-                        filled: true,
-                        fillColor: Colors.black.withValues(alpha: 0.04),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _primaryGreen,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: const StadiumBorder(),
-                        ),
-                        onPressed: () {
-                          final value = _parseInput(controller.text);
-                          if (value <= 0) {
-                            _showSnack('Masukkan target yang valid.');
-                            return;
-                          }
-                          setState(() {
-                            if (isWidthTab) {
-                              _targetWidth = value;
-                            } else {
-                              _targetFlow = value;
-                            }
-                          });
-                        },
-                        child: const Text('MULAI SIMULASI'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DiagramCard extends StatelessWidget {
-  const _DiagramCard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
-class _RiverDiagram extends StatelessWidget {
-  const _RiverDiagram();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 180,
-      child: CustomPaint(
-        painter: _RiverDiagramPainter(),
-      ),
-    );
-  }
-}
-
-class _RiverDiagramPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF2E7D32)
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    final riverPaint = Paint()
-      ..color = const Color(0xFF2E7D32).withValues(alpha: 0.12)
-      ..style = PaintingStyle.fill;
-
-    final riverRect = Rect.fromLTWH(0, size.height * 0.35, size.width, size.height * 0.3);
-    canvas.drawRect(riverRect, riverPaint);
-
-    final a = Offset(size.width * 0.2, size.height * 0.2);
-    final b = Offset(size.width * 0.7, size.height * 0.5);
-    final c = Offset(size.width * 0.2, size.height * 0.8);
-    final d = Offset(size.width * 0.5, size.height * 0.9);
-
-    canvas.drawLine(a, b, paint);
-    canvas.drawLine(b, c, paint);
-    canvas.drawLine(c, d, paint);
-
-    final dotPaint = Paint()..color = const Color(0xFF1B5E20);
-    canvas.drawCircle(a, 4, dotPaint);
-    canvas.drawCircle(b, 4, dotPaint);
-    canvas.drawCircle(c, 4, dotPaint);
-    canvas.drawCircle(d, 4, dotPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _WidthControlPanel extends StatelessWidget {
-  const _WidthControlPanel({
-    required this.stepLengthController,
-    required this.stepsController,
-    required this.onCalculate,
-  });
-
-  final TextEditingController stepLengthController;
-  final TextEditingController stepsController;
-  final VoidCallback onCalculate;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, -6),
-          ),
-        ],
-      ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: stepLengthController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    hintText: 'Panjang Langkah (cm)',
-                    prefixIcon: const Icon(Icons.directions_walk),
-                    filled: true,
-                    fillColor: Colors.black.withValues(alpha: 0.04),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: stepsController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    hintText: 'Jumlah Langkah',
-                    prefixIcon: const Icon(Icons.north),
-                    filled: true,
-                    fillColor: Colors.black.withValues(alpha: 0.04),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          _buildInfoCard(
+            title: "LAJU ARUS",
+            value: "${_flowSpeed.toStringAsFixed(2)} m/s",
+            color: _riverBlue, // Use Blue for water context, or Orange as per user request? User asked for Orange in "Data Panel". Let's stick to Orange for Speed Result.
+            overrideColor: const Color(0xFFFF9600),
+            icon: Icons.speed,
           ),
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              _flowSpeed < 0.5 ? "ARUS TENANG" : (_flowSpeed < 1.0 ? "ARUS SEDANG" : "ARUS DERAS!"),
+              style: TextStyle(
+                fontFamily: 'Fredoka', 
+                fontWeight: FontWeight.bold, 
+                color: _flowSpeed < 1.0 ? _grassGreen : _dangerRed
+              )
+            )
+          ),
+
+          const SizedBox(height: 32),
+          Text("JARAK LINTASAN (METER)", style: _labelStyle()),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _flowDistanceController,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(fontFamily: 'Fredoka', fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+            decoration: _inputDecoration("Contoh: 10"),
+          ),
+
+          const SizedBox(height: 32),
+          Center(
+            child: Text(
+              _formattedTime,
+              style: const TextStyle(fontFamily: 'Fredoka', fontSize: 64, fontWeight: FontWeight.bold, color: Color(0xFF4B4B4B)),
+            ),
+          ),
+          
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                elevation: 8,
-                shadowColor: const Color(0xFF2E7D32).withValues(alpha: 0.35),
-              ),
-              onPressed: onCalculate,
-              child: Text(
-                'HITUNG LEBAR',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w700, letterSpacing: 1.1),
+          Center(
+            child: SizedBox(
+              width: 200,
+              height: 200,
+              child: _buildCircular3DButton(
+                text: _isStopwatchRunning ? "STOP" : "START",
+                color: _isStopwatchRunning ? _dangerRed : _grassGreen,
+                shadowColor: _isStopwatchRunning ? _dangerShadow : _grassShadow,
+                onTap: _toggleStopwatch,
               ),
             ),
           ),
+
+          const SizedBox(height: 40),
+          _buildDisclaimer(),
         ],
       ),
     );
   }
-}
 
-class _FlowControlPanel extends StatelessWidget {
-  const _FlowControlPanel({required this.distanceController});
-
-  final TextEditingController distanceController;
-
-  @override
-  Widget build(BuildContext context) {
+  // --- WIDGETS ---
+  
+  Widget _buildSpiritLevel() {
+    // Mini visualizer for tilt
+    bool isLevel = _pitch.abs() < 1.0 && _roll.abs() < 1.0;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      width: 40, height: 40,
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+        color: isLevel ? _grassGreen : Colors.grey.shade300,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))
+        ]
+      ),
+      child: const Icon(Icons.water_drop, color: Colors.white, size: 20),
+    );
+  }
+
+  Widget _buildInfoCard({required String title, required String value, required Color color, required IconData icon, Color? overrideColor}) {
+    final displayColor = overrideColor ?? color;
+    return Container(
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, -6),
-          ),
+        borderRadius: BorderRadius.circular(20),
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFFE5E5E5), width: 5), // 3D Effect
+          top: BorderSide(color: Color(0xFFE5E5E5), width: 2),
+          left: BorderSide(color: Color(0xFFE5E5E5), width: 2),
+          right: BorderSide(color: Color(0xFFE5E5E5), width: 2),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: displayColor, size: 32),
+          const SizedBox(height: 8),
+          Text(title, style: TextStyle(fontFamily: 'Fredoka', color: Colors.grey.shade600, fontWeight: FontWeight.bold, fontSize: 12)),
+          Text(value, style: TextStyle(fontFamily: 'Fredoka', color: displayColor, fontWeight: FontWeight.bold, fontSize: 32)),
         ],
       ),
-      child: TextField(
-        controller: distanceController,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          hintText: 'Jarak Lintasan (m)',
-          prefixIcon: const Icon(Icons.waves),
-          filled: true,
-          fillColor: Colors.black.withValues(alpha: 0.04),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
+    );
+  }
+
+  Widget _build3DButton({required String text, required Color color, required Color shadowColor, required VoidCallback onTap, required IconData icon}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(color: shadowColor, offset: const Offset(0, 4), blurRadius: 0),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 12),
+            Text(
+              text,
+              style: const TextStyle(fontFamily: 'Fredoka', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1.0),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircular3DButton({required String text, required Color color, required Color shadowColor, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(color: shadowColor, offset: const Offset(0, 10), blurRadius: 0),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(fontFamily: 'Fredoka', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 28, letterSpacing: 1.5),
           ),
         ),
       ),
     );
   }
-}
 
-class _WidthReportCard extends StatelessWidget {
-  const _WidthReportCard({
-    required this.widthMeters,
-    required this.accuracy,
-    required this.xpGained,
-    required this.rankTitle,
-    required this.targetMeters,
-  });
-
-  final double widthMeters;
-  final double accuracy;
-  final int xpGained;
-  final String? rankTitle;
-  final double targetMeters;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ReportCardBase(
-      title: 'Hasil Lebar Sungai',
-      accuracy: accuracy,
-      xpGained: xpGained,
-      rankTitle: rankTitle,
-      leftLabel: 'Target',
-      leftValue: '${targetMeters.toStringAsFixed(1)} m',
-      rightLabel: 'Hasil',
-      rightValue: '${widthMeters.toStringAsFixed(1)} m',
-    );
-  }
-}
-
-class _FlowReportCard extends StatelessWidget {
-  const _FlowReportCard({
-    required this.velocity,
-    required this.accuracy,
-    required this.xpGained,
-    required this.rankTitle,
-    required this.targetVelocity,
-  });
-
-  final double velocity;
-  final double accuracy;
-  final int xpGained;
-  final String? rankTitle;
-  final double targetVelocity;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ReportCardBase(
-      title: 'Hasil Kecepatan',
-      accuracy: accuracy,
-      xpGained: xpGained,
-      rankTitle: rankTitle,
-      leftLabel: 'Target',
-      leftValue: '${targetVelocity.toStringAsFixed(2)} m/s',
-      rightLabel: 'Hasil',
-      rightValue: '${velocity.toStringAsFixed(2)} m/s',
-    );
-  }
-}
-
-class _ReportCardBase extends StatelessWidget {
-  const _ReportCardBase({
-    required this.title,
-    required this.accuracy,
-    required this.xpGained,
-    required this.rankTitle,
-    required this.leftLabel,
-    required this.leftValue,
-    required this.rightLabel,
-    required this.rightValue,
-  });
-
-  final String title;
-  final double accuracy;
-  final int xpGained;
-  final String? rankTitle;
-  final String leftLabel;
-  final String leftValue;
-  final String rightLabel;
-  final String rightValue;
-
-  @override
-  Widget build(BuildContext context) {
-    final accuracyValue = (accuracy / 100).clamp(0.0, 1.0);
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1B5E20),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              SizedBox(
-                height: 78,
-                width: 78,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      value: accuracyValue,
-                      strokeWidth: 7,
-                      backgroundColor: Colors.black.withValues(alpha: 0.08),
-                      color: const Color(0xFF2E7D32),
-                    ),
-                    Text(
-                      '${accuracy.toStringAsFixed(0)}%',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1B5E20),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  rankTitle ?? 'Surveyor',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1B5E20),
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFD600).withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '+$xpGained XP',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1B5E20),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _StatChip(label: leftLabel, value: leftValue)),
-              const SizedBox(width: 12),
-              Expanded(child: _StatChip(label: rightLabel, value: rightValue)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  const _StatChip({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.04),
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(fontFamily: 'Fredoka', color: Colors.grey.shade400),
+      filled: true,
+      fillColor: const Color(0xFFF7F7F7),
+      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: _riverBlue, width: 2),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: _grey, width: 2),
+      ),
+    );
+  }
+
+  TextStyle _labelStyle() {
+    return const TextStyle(fontFamily: 'Fredoka', fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey);
+  }
+
+  Widget _buildDisclaimer() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.yellow.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade100),
+      ),
+      child: Row(
         children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(fontSize: 11, color: Colors.black54),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1B5E20),
+          const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Hasil adalah ESTIMASI. Jangan terlalu dekat dengan sunga yang deras!",
+              style: TextStyle(fontFamily: 'Fredoka', fontSize: 12, color: Colors.orange.shade800),
             ),
           ),
         ],

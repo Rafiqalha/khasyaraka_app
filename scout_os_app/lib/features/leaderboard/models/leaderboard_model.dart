@@ -121,8 +121,9 @@ class MyRank {
     }
     
     // ✅ CRITICAL: If rank is 0 but should not be, log warning
-    if (rankValue == 0 && json['rank'] != null) {
-      debugPrint('⚠️ [MY_RANK] WARNING: Parsed rank=0 but json[rank]=${json['rank']}');
+    // Only warn if rank is 0 but raw JSON was not null (meaning backend potential issue)
+    if (rankValue == 0 && json['rank'] != null && json['xp'] != null && (json['xp'] as int) > 0) {
+      debugPrint('⚠️ [MY_RANK] WARNING: Parsed rank=0 for user with XP!');
     }
 
     // Defensive type casting for xp (handle both 'xp' and 'total_xp')

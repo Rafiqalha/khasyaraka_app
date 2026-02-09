@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:scout_os_app/core/config/duo_theme.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
+import 'package:scout_os_app/shared/theme/app_text_styles.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // Import the main tab pages
-import 'package:scout_os_app/features/home/presentation/pages/training_map_page.dart';
+import 'package:scout_os_app/features/home/presentation/pages/training_path_page.dart';
 import 'package:scout_os_app/features/mission/presentation/mission_dashboard_page.dart';
 import 'package:scout_os_app/features/leaderboard/presentation/pages/rank_page.dart';
 import 'package:scout_os_app/features/profile/presentation/pages/profile_page.dart';
@@ -30,7 +32,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
 
   // List of pages (corresponds to bottom nav items)
   final List<Widget> _pages = [
-    const TrainingMapPage(),  // Tab 0: Learning Path (Scout-themed Duolingo style!)
+    const TrainingPathPage(),  // Tab 0: Learning Path (Duolingo Layout)
     const MissionDashboardPage(),    // Tab 1: Mission Dashboard
     const RankPage(),               // Tab 2: Leaderboard
     const ProfilePage(), // Tab 3: Profile
@@ -51,7 +53,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DuoTheme.duoSnow,
+      backgroundColor: AppColors.backgroundLight,
       
       // Use IndexedStack to preserve state when switching tabs
       body: IndexedStack(
@@ -64,118 +66,122 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
     );
   }
 
+  // Helper method to build a gradient icon
+  Widget _buildGradientIcon(IconData icon, List<Color> colors) {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+        ).createShader(bounds);
+      },
+      child: Icon(
+        icon,
+        size: 32,
+        color: Colors.white, // Color must be white for ShaderMask to work
+      ),
+    );
+  }
+
+  // Helper method to build a gradient SVG
+  Widget _buildGradientSvg(String assetPath, List<Color> colors) {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+        ).createShader(bounds);
+      },
+      child: SvgPicture.asset(
+        assetPath,
+        width: 32,
+        height: 32,
+        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), // Apply white base for shader
+      ),
+    );
+  }
+
   Widget _buildDuoBottomNav() {
     return Container(
+      height: 90, // Taller matching Duolingo
       decoration: BoxDecoration(
-        color: DuoTheme.duoWhite,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
+        color: AppColors.surfaceLight,
+        border: Border(
+          top: BorderSide(
+            color: Colors.grey.shade200, // Clean flat border
+            width: 2,
           ),
-        ],
+        ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: DuoTheme.spaceL,
-            vertical: DuoTheme.spaceS,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: Icons.home_rounded,
-                label: 'Peta',
-                index: 0,
-                color: DuoTheme.duoGreen,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(
+              iconWidget: _buildGradientIcon(
+                Icons.home_rounded,
+                [Colors.red, Colors.yellow, Colors.green],
               ),
-              _buildNavItem(
-                icon: Icons.explore_rounded,
-                label: 'Misi',
-                index: 1,
-                color: DuoTheme.duoOrange,
+              index: 0,
+              color: AppColors.primary, // Selection color
+            ),
+            _buildNavItem(
+              iconWidget: _buildGradientIcon(
+                Icons.hiking_rounded, // Changed to Hiking Icon
+                [const Color(0xFFE91E63), const Color(0xFF9C27B0), const Color(0xFFFF9800)], // Pink, Purple, Orange
               ),
-              _buildNavItem(
-                icon: Icons.emoji_events_rounded,
-                label: 'Rank',
-                index: 2,
-                color: DuoTheme.duoYellow,
+              index: 1,
+              color: AppColors.warning, // Selection color
+            ),
+            _buildNavItem(
+              iconWidget: _buildGradientIcon(
+                Icons.emoji_events_rounded,
+                [const Color(0xFFFFC107), const Color(0xFFFF9800), const Color(0xFFF44336)], // Gold, Orange, Red
               ),
-              _buildNavItem(
-                icon: Icons.person_rounded,
-                label: 'Profil',
-                index: 3,
-                color: DuoTheme.duoBlue,
+              index: 2,
+              color: AppColors.accent, // Selection color
+            ),
+            _buildNavItem(
+              iconWidget: _buildGradientIcon(
+                Icons.face_rounded,
+                [const Color(0xFF2196F3), const Color(0xFF00BCD4), const Color(0xFF673AB7)], // Blue, Cyan, Purple
               ),
-            ],
-          ),
+              index: 3,
+              color: AppColors.info, // Selection color
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildNavItem({
-    required IconData icon,
-    required String label,
+    required Widget iconWidget,
     required int index,
     required Color color,
   }) {
     final isSelected = _currentIndex == index;
     
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onTabSelected(index),
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: DuoTheme.spaceS),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon with animated scale
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                transform: Matrix4.identity()
-                  ..scaleByDouble(
-                    isSelected ? 1.1 : 1.0,
-                    isSelected ? 1.1 : 1.0,
-                    1.0,
-                    1.0,
-                  ),
-                child: Icon(
-                  icon,
-                  size: isSelected ? 30 : 26,
-                  color: isSelected ? color : DuoTheme.duoGreyDark,
-                ),
-              ),
-              const SizedBox(height: DuoTheme.spaceXS),
-              
-              // Label
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected ? color : DuoTheme.duoGreyDark,
-                ),
-              ),
-              
-              // Active indicator dot
-              const SizedBox(height: 2),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 4,
-                width: isSelected ? 20 : 0,
-                decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: () => _onTabSelected(index),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 70, // Fixed width for touch target and box
+        height: 50, // Fixed height for the box
+        alignment: Alignment.center,
+        decoration: isSelected
+            ? BoxDecoration(
+                color: color.withOpacity(0.15), // Light background
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
                   color: color,
-                  borderRadius: BorderRadius.circular(2),
+                  width: 2,
                 ),
-              ),
-            ],
-          ),
-        ),
+              )
+            : null, // No decoration when inactive
+        child: iconWidget,
       ),
     );
   }

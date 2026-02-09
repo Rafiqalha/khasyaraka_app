@@ -1,34 +1,18 @@
 import 'package:dio/dio.dart';
-import 'package:scout_os_app/core/config/environment.dart';
-import 'package:scout_os_app/core/auth/local_auth_service.dart';
+import 'package:scout_os_app/core/network/api_dio_provider.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/models/sku_model.dart';
+import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 
+/// SKU Repository - Handles all SKU-related API calls
+/// 
+/// ✅ Uses ApiDioProvider which automatically handles JWT token
+/// ✅ Google login only - no LocalAuthService needed
 class SkuRepository {
   SkuRepository({Dio? dio})
-      : _dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: Environment.apiBaseUrl,
-                connectTimeout: Duration(milliseconds: Environment.connectTimeout),
-                receiveTimeout: Duration(milliseconds: Environment.receiveTimeout),
-                headers: {'Content-Type': 'application/json'},
-              ),
-            ) {
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final userId = await _authService.getCurrentUserId();
-          if (userId != null && userId.isNotEmpty) {
-            options.headers['X-User-Id'] = userId;
-          }
-          handler.next(options);
-        },
-      ),
-    );
-  }
+      : _dio = dio ?? ApiDioProvider.getDio();
 
   final Dio _dio;
-  final LocalAuthService _authService = LocalAuthService();
+  final AuthRepository _authRepo = AuthRepository();
 
   Future<SkuOverviewModel> fetchOverview() async {
     final response = await _dio.get('/sku/overview');
@@ -51,7 +35,15 @@ class SkuRepository {
     required String pointId,
     required List<int> answers,
   }) async {
-    final userId = await _authService.getCurrentUserId();
+    // Get userId from JWT token (Google login)
+    String? userId;
+    try {
+      final currentUser = await _authRepo.getCurrentUser();
+      userId = currentUser.id;
+    } catch (e) {
+      throw Exception('User not authenticated. Please login again.');
+    }
+    
     final response = await _dio.post('/sku/submit', data: {
       'user_id': userId,
       'sku_point_id': pointId,

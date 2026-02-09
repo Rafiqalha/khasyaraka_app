@@ -1,3 +1,5 @@
+import 'training_path.dart';
+
 /// Training Section Model
 /// 
 /// 1:1 mapping with backend TrainingSectionResponse schema.
@@ -67,4 +69,27 @@ class SectionListResponse {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'sections': sections.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+
+/// Section with Units - for UI rendering
+/// Combines section metadata with its units
+class SectionWithUnits {
+  final TrainingSection section;
+  final List<UnitModel> units;
+
+  SectionWithUnits({
+    required this.section,
+    required this.units,
+  });
+
+  String get id => section.id;
+  String get title => section.title;
+  int get order => section.order;
 }

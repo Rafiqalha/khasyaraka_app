@@ -1,11 +1,8 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:scout_os_app/features/mission/subfeatures/survival/logic/survival_mastery_controller.dart';
 
 class CompassToolPage extends StatefulWidget {
   const CompassToolPage({super.key});
@@ -15,324 +12,316 @@ class CompassToolPage extends StatefulWidget {
 }
 
 class _CompassToolPageState extends State<CompassToolPage> {
-  static const _background = Color(0xFFF5F5F5);
-  static const _surface = Colors.white;
-  static const _primaryGreen = Color(0xFF2E7D32);
-  static const _gold = Color(0xFFFFD600);
-  static const _textDark = Color(0xFF1B5E20);
+  // Theme Colors (Tactical Cyan -> Deep Blue)
+  static const Color _cyanAccent = Colors.cyanAccent;
+  static const Color _deepBlue = Color(0xFF0D47A1); // Blue[900]
+  static const Color _glassWhite = Colors.white;
+  static const Color _tacticalRed = Color(0xFFFF5252);
 
-  double? _targetAzimuth;
+  // State
+  bool _isLocked = false;
+  double? _lockedHeading;
+  double? _currentHeading;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _background,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: _background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
         title: Text(
-          'AZIMUTH MASTER',
-          style: GoogleFonts.cinzel(
-            color: _primaryGreen,
+          'TACTICAL COMPASS',
+          style: GoogleFonts.fredoka(
+            color: Colors.white,
             fontWeight: FontWeight.w700,
+            fontSize: 20,
             letterSpacing: 1.2,
           ),
         ),
       ),
-      body: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            TabBar(
-              labelColor: _primaryGreen,
-              unselectedLabelColor: Colors.black54,
-              indicatorColor: _primaryGreen,
-              labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w700),
-              tabs: const [
-                Tab(text: 'Latihan'),
-                Tab(text: 'Teori'),
-              ],
-            ),
-            Expanded(
-              child: TabBarView(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [_cyanAccent, _deepBlue],
+          ),
+        ),
+        child: StreamBuilder<CompassEvent>(
+          stream: FlutterCompass.events,
+          builder: (context, snapshot) {
+            // Error / Loading State
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error reading sensors',
+                  style: GoogleFonts.fredoka(color: Colors.white),
+                ),
+              );
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              );
+            }
+
+            double? heading = snapshot.data?.heading;
+
+            // Handle Lock Logic
+            if (_isLocked && _lockedHeading != null) {
+              heading = _lockedHeading;
+            } else {
+              _currentHeading = heading;
+            }
+
+            if (heading == null) {
+               return Center(
+                child: Text(
+                  'Hardware unsupported',
+                  style: GoogleFonts.fredoka(color: Colors.white),
+                ),
+              );
+            }
+            
+            // Calculations
+            final normalizedHeading = (heading + 360) % 360;
+            final backAzimuth = (normalizedHeading + 180) % 360;
+            final direction = _cardinalDirection(normalizedHeading);
+
+            return SafeArea(
+              child: Column(
                 children: [
-                  _buildTrainingTab(),
-                  _buildTheoryTab(),
+                   const SizedBox(height: 20),
+                   
+                   // -----------------------------------------------------------
+                   // A. FLOATING DASHBOARD (Glassmorphism)
+                   // -----------------------------------------------------------
+                   Padding(
+                     padding: const EdgeInsets.symmetric(horizontal: 24),
+                     child: Container(
+                       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                       decoration: BoxDecoration(
+                         color: _glassWhite.withOpacity(0.9),
+                         borderRadius: BorderRadius.circular(24),
+                         boxShadow: [
+                           BoxShadow(
+                             color: Colors.black.withOpacity(0.2),
+                             blurRadius: 20,
+                             offset: const Offset(0, 10),
+                           ),
+                         ],
+                       ),
+                       child: Column(
+                         children: [
+                           // Row 1: Labels
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                             children: [
+                               Text(
+                                 'AZIMUTH',
+                                 style: GoogleFonts.fredoka(
+                                   color: Colors.grey[600],
+                                   fontSize: 12,
+                                   fontWeight: FontWeight.w600,
+                                 ),
+                               ),
+                               Text(
+                                 'BACK AZIMUTH',
+                                 style: GoogleFonts.fredoka(
+                                   color: Colors.grey[600],
+                                   fontSize: 12,
+                                   fontWeight: FontWeight.w600,
+                                 ),
+                               ),
+                             ],
+                           ),
+                           const SizedBox(height: 8),
+                           
+                           // Row 2: Values (The Big Numbers)
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                             crossAxisAlignment: CrossAxisAlignment.end,
+                             children: [
+                               // Azimuth + Direction
+                               Row(
+                                 crossAxisAlignment: CrossAxisAlignment.baseline,
+                                 textBaseline: TextBaseline.alphabetic,
+                                 children: [
+                                   Text(
+                                     normalizedHeading.toStringAsFixed(0),
+                                     style: GoogleFonts.fredoka(
+                                       fontSize: 48,
+                                       fontWeight: FontWeight.w700, // Bold
+                                       color: Colors.black87,
+                                       height: 1.0,
+                                     ),
+                                   ),
+                                   Text(
+                                     '°',
+                                      style: GoogleFonts.fredoka(
+                                       fontSize: 48,
+                                       fontWeight: FontWeight.w300,
+                                       color: Colors.black54,
+                                       height: 1.0,
+                                     ),
+                                   ),
+                                   const SizedBox(width: 8),
+                                   Text(
+                                     direction,
+                                     style: GoogleFonts.fredoka(
+                                       fontSize: 24,
+                                       fontWeight: FontWeight.w600,
+                                       color: _deepBlue,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                               
+                               // Back Azimuth Value
+                               Text(
+                                 '${backAzimuth.toStringAsFixed(0)}°',
+                                  style: GoogleFonts.fredoka(
+                                   fontSize: 28,
+                                   fontWeight: FontWeight.w600,
+                                   color: _tacticalRed, // Red Bata
+                                 ),
+                               ),
+                             ],
+                           ),
+                         ],
+                       ),
+                     ),
+                   ),
+                   
+                   const Spacer(),
+
+                   // -----------------------------------------------------------
+                   // B. VISUAL COMPASS (The Dial)
+                   // -----------------------------------------------------------
+                   Padding(
+                     padding: const EdgeInsets.symmetric(horizontal: 20),
+                     child: AspectRatio(
+                       aspectRatio: 1,
+                       child: Stack(
+                         alignment: Alignment.center,
+                         children: [
+                           // 1. Static Outer Ring (Optional Decor)
+                           Container(
+                             decoration: BoxDecoration(
+                               shape: BoxShape.circle,
+                               border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                             ),
+                           ),
+                           
+                           // 2. Rotating Compass Rose
+                           Transform.rotate(
+                             angle: -normalizedHeading * (math.pi / 180),
+                             child: _TacticalCompassPainter(),
+                           ),
+
+                           // 3. Static Indicator Needle (Red Line at Top)
+                           Positioned(
+                             top: 20,
+                             child: Container(
+                               width: 4,
+                               height: 40,
+                               decoration: BoxDecoration(
+                                 color: _tacticalRed,
+                                 borderRadius: BorderRadius.circular(4),
+                                 boxShadow: [
+                                   BoxShadow(
+                                     color: _tacticalRed.withOpacity(0.6),
+                                     blurRadius: 8,
+                                   ),
+                                 ],
+                               ),
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                   ),
+
+                   const Spacer(),
+
+                   // -----------------------------------------------------------
+                   // C. LOCK BEARING BUTTON (3D Style)
+                   // -----------------------------------------------------------
+                   Padding(
+                     padding: const EdgeInsets.only(bottom: 40, left: 24, right: 24),
+                     child: GestureDetector(
+                       onTap: () {
+                         HapticFeedback.mediumImpact();
+                         setState(() {
+                           if (_isLocked) {
+                             _isLocked = false;
+                             _lockedHeading = null;
+                           } else {
+                             _isLocked = true;
+                             _lockedHeading = _currentHeading;
+                           }
+                         });
+                       },
+                       child: AnimatedContainer(
+                         duration: const Duration(milliseconds: 150),
+                         height: 60,
+                         decoration: BoxDecoration(
+                           color: _isLocked ? _tacticalRed : Colors.white,
+                           borderRadius: BorderRadius.circular(30),
+                           border: Border(
+                             bottom: BorderSide(
+                               color: _isLocked ? const Color(0xFFB71C1C) : Colors.grey.shade400, // 3D Shadow
+                               width: 6.0,
+                             ),
+                           ),
+                           boxShadow: [
+                             BoxShadow(
+                               color: Colors.black.withOpacity(0.2),
+                               blurRadius: 10,
+                               offset: const Offset(0, 5),
+                             ),
+                           ],
+                         ),
+                         child: Center(
+                           child: Row(
+                             mainAxisAlignment: MainAxisAlignment.center,
+                             children: [
+                               Icon(
+                                 _isLocked ? Icons.lock : Icons.lock_open,
+                                 color: _isLocked ? Colors.white : _deepBlue,
+                               ),
+                               const SizedBox(width: 12),
+                               Text(
+                                 _isLocked ? 'UNLOCK BEARING' : 'LOCK BEARING',
+                                 style: GoogleFonts.fredoka(
+                                   color: _isLocked ? Colors.white : _deepBlue,
+                                   fontSize: 18,
+                                   fontWeight: FontWeight.w700,
+                                   letterSpacing: 1.0,
+                                 ),
+                               ),
+                             ],
+                           ),
+                         ),
+                       ),
+                     ),
+                   ),
                 ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
-
-  Widget _buildTrainingTab() {
-    return StreamBuilder<CompassEvent>(
-      stream: FlutterCompass.events,
-      builder: (context, snapshot) {
-        final heading = snapshot.data?.heading;
-        if (heading == null) {
-          return _buildUnavailable();
-        }
-
-        final normalized = (heading + 360) % 360;
-        final backAzimuth = normalized < 180 ? normalized + 180 : normalized - 180;
-        final direction = _cardinalDirection(normalized);
-
-        return ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            _buildReadout(normalized, direction, backAzimuth),
-            const SizedBox(height: 16),
-            _buildCompassCard(normalized),
-            const SizedBox(height: 16),
-            _buildControlPanel(normalized),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildUnavailable() {
-    return Center(
-      child: Text(
-        'Sensor tidak tersedia.',
-        style: GoogleFonts.poppins(color: Colors.black54),
-      ),
-    );
-  }
-
-  Widget _buildReadout(double heading, String direction, double backAzimuth) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            '${heading.toStringAsFixed(0)}° $direction',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-              color: _textDark,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Back Azimuth: ${backAzimuth.toStringAsFixed(0)}°',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompassCard(double heading) {
-    final target = _targetAzimuth;
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: _surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CustomPaint(
-              size: const Size(double.infinity, double.infinity),
-              painter: _CompassCirclePainter(),
-            ),
-            Transform.rotate(
-              angle: -heading * math.pi / 180,
-              child: CustomPaint(
-                size: const Size(double.infinity, double.infinity),
-                painter: _CompassRosePainter(),
-              ),
-            ),
-            if (target != null)
-              Transform.rotate(
-                angle: (target - heading) * math.pi / 180,
-                child: _GhostNeedle(color: _gold),
-              ),
-            _PrimaryNeedle(color: _primaryGreen),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlPanel(double heading) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: _surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _gold,
-                    foregroundColor: _textDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    elevation: 4,
-                  ),
-                  icon: const Icon(Icons.assistant_navigation),
-                  label: const Text('Minta Sasaran'),
-                  onPressed: () {
-                    final random = math.Random();
-                    setState(() {
-                      _targetAzimuth = random.nextDouble() * 360;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    elevation: 4,
-                  ),
-                  icon: const Icon(Icons.gps_fixed),
-                  label: const Text('LOCK / BIDIK'),
-                  onPressed: () => _handleLock(heading),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _targetAzimuth == null
-                ? 'Belum ada sasaran. Tekan "Minta Sasaran".'
-                : 'Target: ${_targetAzimuth!.toStringAsFixed(0)}°',
-            style: GoogleFonts.poppins(color: Colors.black54),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _handleLock(double heading) async {
-    final target = _targetAzimuth;
-    if (target == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Buat sasaran dulu.')),
-      );
-      return;
-    }
-
-    HapticFeedback.heavyImpact();
-
-    final diff = _angleDiff(heading, target);
-    final accuracy = diff <= 2
-        ? 100.0
-        : (100 - ((diff - 2) / 178 * 100)).clamp(0.0, 100.0);
-
-    int xpGained = 0;
-    if (accuracy > 90) {
-      xpGained = 50;
-      await context.read<SurvivalMasteryController>().recordAction(
-            toolType: 'compass',
-            xpGained: xpGained,
-            metadata: {
-              'target_azimuth': target,
-              'heading': heading,
-              'accuracy': accuracy,
-            },
-          );
-    }
-
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hasil Bidikan'),
-        content: Text(
-          'Target: ${target.toStringAsFixed(0)}°\n'
-          'Bidikanmu: ${heading.toStringAsFixed(0)}°\n'
-          'Akurasi: ${accuracy.toStringAsFixed(1)}%\n'
-          '${xpGained > 0 ? '(+${xpGained} XP)' : 'Belum dapat XP'}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTheoryTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        _TheoryCard(
-          title: 'Aturan Back Azimuth',
-          body:
-              'Jika azimuth < 180°, maka tambah 180°. Jika azimuth ≥ 180°, maka kurangi 180°.',
-        ),
-        const SizedBox(height: 12),
-        _TheoryCard(
-          title: 'Contoh',
-          body: 'Forward 45° → Back 225°.\nForward 250° → Back 70°.',
-        ),
-        const SizedBox(height: 12),
-        _TheoryCard(
-          title: 'Visual',
-          child: _AzimuthDiagram(),
-        ),
-      ],
-    );
-  }
-
-  double _angleDiff(double a, double b) {
-    final diff = (a - b + 540) % 360 - 180;
-    return diff.abs();
-  }
-
+  
   String _cardinalDirection(double heading) {
     const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
     final index = ((heading + 22.5) / 45).floor() % 8;
@@ -340,227 +329,97 @@ class _CompassToolPageState extends State<CompassToolPage> {
   }
 }
 
-class _CompassCirclePainter extends CustomPainter {
+// -----------------------------------------------------------------------------
+// TACTICAL COMPASS PAINTER
+// -----------------------------------------------------------------------------
+class _TacticalCompassPainter extends StatelessWidget {
   @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-
-    final circlePaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.06)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    canvas.drawCircle(center, radius - 4, circlePaint);
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(double.infinity, double.infinity),
+      painter: _CompassFacePainter(),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _CompassRosePainter extends CustomPainter {
+class _CompassFacePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
+    final radius = size.width / 2 - 20; // Padding
 
-    final tickPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.25)
-      ..strokeWidth = 1.2;
+    final paintMain = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
 
-    for (int i = 0; i < 360; i += 15) {
-      final radians = i * math.pi / 180;
-      final inner = radius - (i % 90 == 0 ? 18 : 10);
-      final start = Offset(
-        center.dx + inner * math.cos(radians),
-        center.dy + inner * math.sin(radians),
-      );
-      final end = Offset(
-        center.dx + radius * math.cos(radians),
-        center.dy + radius * math.sin(radians),
-      );
-      canvas.drawLine(start, end, tickPaint);
+    final paintSecondary = Paint()
+      ..color = Colors.white.withOpacity(0.5)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
+
+    // Draw Ticks
+    for (int i = 0; i < 360; i += 2) {
+      final angle = (i - 90) * math.pi / 180;
+      final isCardinal = i % 90 == 0;
+      final isMajor = i % 10 == 0;
+      
+      final double outer = radius;
+      final double inner = isCardinal ? radius - 20 : (isMajor ? radius - 12 : radius - 6);
+
+      final p1 = Offset(center.dx + math.cos(angle) * inner, center.dy + math.sin(angle) * inner);
+      final p2 = Offset(center.dx + math.cos(angle) * outer, center.dy + math.sin(angle) * outer);
+
+      canvas.drawLine(p1, p2, isMajor ? paintMain : paintSecondary);
+
+      // Draw Numbers every 30 degrees
+      if (i % 30 == 0 && i % 90 != 0) {
+        textPainter.text = TextSpan(
+          text: '$i',
+          style: GoogleFonts.fredoka(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        );
+        textPainter.layout();
+        
+        // Position info text slightly inside
+        final textRadius = radius - 35;
+        final textOffset = Offset(
+           center.dx + math.cos(angle) * textRadius - textPainter.width / 2,
+           center.dy + math.sin(angle) * textRadius - textPainter.height / 2,
+        );
+        textPainter.paint(canvas, textOffset);
+      }
     }
 
-    final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.ltr);
-    const labels = ['N', 'E', 'S', 'W'];
-    for (int i = 0; i < 4; i++) {
-      final angle = i * 90 * math.pi / 180;
-      final labelOffset = Offset(
-        center.dx + (radius - 32) * math.cos(angle),
-        center.dy + (radius - 32) * math.sin(angle),
-      );
-      textPainter.text = TextSpan(
-        text: labels[i],
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w700,
-          color: const Color(0xFF1B5E20),
-        ),
-      );
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        labelOffset - Offset(textPainter.width / 2, textPainter.height / 2),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _PrimaryNeedle extends StatelessWidget {
-  const _PrimaryNeedle({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 6,
-          height: 90,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(12),
+    // Draw Cardinals (N, E, S, W)
+    final cardinals = {'N': 0, 'E': 90, 'S': 180, 'W': 270};
+    cardinals.forEach((label, degree) {
+       final angle = (degree - 90) * math.pi / 180;
+       final textRadius = radius - 45;
+       
+       textPainter.text = TextSpan(
+          text: label,
+          style: GoogleFonts.fredoka(
+            color: label == 'N' ? const Color(0xFFFF5252) : Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GhostNeedle extends StatelessWidget {
-  const _GhostNeedle({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 4,
-          height: 70,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.9),
-            shape: BoxShape.circle,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _TheoryCard extends StatelessWidget {
-  const _TheoryCard({required this.title, this.body, this.child});
-
-  final String title;
-  final String? body;
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1B5E20),
-            ),
-          ),
-          const SizedBox(height: 8),
-          if (body != null)
-            Text(
-              body!,
-              style: GoogleFonts.poppins(color: Colors.black87),
-            ),
-          if (child != null) child!,
-        ],
-      ),
-    );
-  }
-}
-
-class _AzimuthDiagram extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 160,
-      child: CustomPaint(
-        painter: _AzimuthDiagramPainter(),
-      ),
-    );
-  }
-}
-
-class _AzimuthDiagramPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 3;
-
-    final circlePaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.08)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final forwardPaint = Paint()
-      ..color = const Color(0xFF2E7D32)
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    final backPaint = Paint()
-      ..color = const Color(0xFFFFD600)
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawCircle(center, radius, circlePaint);
-
-    final forward = Offset(center.dx + radius * math.cos(-math.pi / 4),
-        center.dy + radius * math.sin(-math.pi / 4));
-    final back = Offset(center.dx + radius * math.cos(math.pi * 3 / 4),
-        center.dy + radius * math.sin(math.pi * 3 / 4));
-
-    canvas.drawLine(center, forward, forwardPaint);
-    canvas.drawLine(center, back, backPaint);
+        );
+        textPainter.layout();
+        final textOffset = Offset(
+           center.dx + math.cos(angle) * textRadius - textPainter.width / 2,
+           center.dy + math.sin(angle) * textRadius - textPainter.height / 2,
+        );
+        textPainter.paint(canvas, textOffset);
+    });
   }
 
   @override

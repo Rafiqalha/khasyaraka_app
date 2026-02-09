@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/intro/logic/intro_controller.dart';
 
@@ -16,52 +17,61 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<IntroController>().checkAppState(context);
+      // Ensure minimum 3-second delay for branding visibility before checking auth state
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          context.read<IntroController>().checkAppState(context);
+        }
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    const deepBrown = Color(0xFF3E2723);
-    const scoutGold = Color(0xFFFFD600);
+    // 1. Background: Light Khaki / Tan (Warm, Flat Color)
+    const backgroundColor = Color(0xFFF0EAD6); // Eggshell / Light Khaki
+
+    // 2. Brand Color: Vibrant Purple (Duolingo Style)
+    const brandColor = Color(0xFF562F00); // Purple
 
     return Scaffold(
-      backgroundColor: deepBrown,
-      body: SafeArea(
-        child: Stack(
+      backgroundColor: backgroundColor,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Center(
-              child: Image.asset(
-                'assets/images/logo.png',
-                width: 150,
-              )
-                  .animate()
-                  .fadeIn(duration: 800.ms)
-                  .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1))
-                  .shimmer(
-                    duration: 1200.ms,
-                    color: scoutGold.withValues(alpha: 0.6),
-                  ),
+            // Logo Icon: Vibrant Purple (or Original PNG)
+            Image.asset(
+              'assets/images/icon-khasyaraka.png', 
+              width: MediaQuery.of(context).size.width * 0.65, // Responsive Width
+              fit: BoxFit.contain,
+              // color: brandColor, // Removed color filter to show original PNG colors. Uncomment if tint is needed.
+            )
+            .animate()
+            .fadeIn(duration: 800.ms)
+            .scale(
+              begin: const Offset(0.5, 0.5),
+              end: const Offset(1, 1),
+              curve: Curves.elasticOut,
+              duration: 1200.ms,
             ),
-            Positioned(
-              bottom: 48,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Text(
-                  "KHASYARAKA",
-                  style: GoogleFonts.cinzel(
-                    color: scoutGold,
-                    fontSize: 16,
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-                    .animate()
-                    .fadeIn(delay: 700.ms, duration: 700.ms)
-                    .move(begin: const Offset(0, 12), end: Offset.zero),
+
+            const SizedBox(height: 40),
+
+            // Text Brand: "KHASYARAKA"
+            Text(
+              "KHASYARAKA",
+              style: TextStyle(
+                fontFamily: 'Fredoka', // Using the local asset defined in pubspec.yaml
+                color: brandColor,
+                fontSize: 32,
+                fontWeight: FontWeight.w600, // Matches SemiBold asset
+                letterSpacing: 2.0,
               ),
-            ),
+            )
+            .animate()
+            .fadeIn(delay: 500.ms, duration: 800.ms)
+            .moveY(begin: 10, end: 0, curve: Curves.easeOutQuad),
           ],
         ),
       ),

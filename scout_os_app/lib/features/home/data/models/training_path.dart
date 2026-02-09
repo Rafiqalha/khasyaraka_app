@@ -1,6 +1,7 @@
 class UnitModel {
   final int id;
   final String unitId; // Backend unit ID (e.g., "puk_u1")
+  final String sectionId; // Backend section ID (e.g., "puk", "ppgd")
   final String title;
   final String description;
   final String colorHex;
@@ -10,6 +11,7 @@ class UnitModel {
   UnitModel({
     required this.id,
     required this.unitId,
+    required this.sectionId,
     required this.title,
     required this.description,
     required this.colorHex,
@@ -23,6 +25,7 @@ class UnitModel {
   /// ```json
   /// {
   ///   "unit_id": "puk_unit_1",
+  ///   "section_id": "puk",
   ///   "unit_title": "Sejarah dan Trivia Kepramukaan",
   ///   "order": 1,
   ///   "levels": [...]
@@ -35,11 +38,21 @@ class UnitModel {
         .map((levelJson) => LessonNode.fromBackendJson(levelJson as Map<String, dynamic>))
         .toList();
     
+    // Extract section_id from json or from unit_id (e.g., "puk_u1" -> "puk")
+    String sectionId = json['section_id'] as String? ?? '';
+    if (sectionId.isEmpty) {
+      final unitId = json['unit_id'] as String? ?? '';
+      if (unitId.contains('_')) {
+        sectionId = unitId.split('_').first;
+      }
+    }
+    
     return UnitModel(
-      id: json['order'] as int? ?? 0, // Use order as ID for now
-      unitId: json['unit_id'] as String? ?? '', // Backend unit ID (e.g., "puk_u1")
+      id: json['order'] as int? ?? 0,
+      unitId: json['unit_id'] as String? ?? '',
+      sectionId: sectionId,
       title: json['unit_title'] as String? ?? '',
-      description: json['unit_title'] as String? ?? '', // Backend doesn't have description
+      description: json['unit_title'] as String? ?? '',
       colorHex: _getColorForUnit(json['order'] as int? ?? 1),
       orderIndex: json['order'] as int? ?? 0,
       lessons: lessons,
@@ -68,6 +81,8 @@ class UnitModel {
 
     // Extract unitId from legacy format if available, or generate from id
     String unitId = json['unit_id'] as String? ?? '';
+    String sectionId = json['section_id'] as String? ?? '';
+    
     if (unitId.isEmpty && json['id'] != null) {
       // Try to extract from lessons if available
       final lessons = (json['lessons'] as List<dynamic>? ?? []);
@@ -79,20 +94,40 @@ class UnitModel {
           final parts = levelId.split('_');
           if (parts.length >= 2) {
             unitId = '${parts[0]}_${parts[1]}';
+            sectionId = parts[0]; // Extract section from level ID
           }
         }
       }
     }
     
+    // Fallback: extract section from unitId
+    if (sectionId.isEmpty && unitId.contains('_')) {
+      sectionId = unitId.split('_').first;
+    }
+    
     return UnitModel(
       id: json['id'] ?? 0,
       unitId: unitId,
+      sectionId: sectionId,
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       colorHex: json['color_hex'] ?? '8D6E63',
       orderIndex: json['order_index'] ?? 0,
       lessons: lessonsList,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'unit_id': unitId,
+      'section_id': sectionId,
+      'title': title,
+      'description': description,
+      'color_hex': colorHex,
+      'order_index': orderIndex,
+      'lessons': lessons.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -135,25 +170,26 @@ class LessonNode {
   factory LessonNode.fromBackendJson(Map<String, dynamic> json) {
     final levelNumber = json['level_number'] as int? ?? 1;
     final difficulty = json['difficulty'] as String? ?? 'easy';
-    final backendStatus = json['status'] as String? ?? 'locked';
+    final backendStatus = json['status'] as String? ?? 'LOCKED';
     
     // Map backend status to frontend status
-    // Backend: "locked" | "available" | "in_progress" | "completed"
-    // Frontend: "locked" | "active" | "unlocked" | "completed"
+    // Backend: "LOCKED" | "UNLOCKED" | "COMPLETED"
+    // Frontend: "LOCKED" | "UNLOCKED" | "COMPLETED"
     String status;
-    switch (backendStatus) {
-      case 'available':
-        status = 'active'; // Available level = active/unlocked
+    final normalizedStatus = backendStatus.toUpperCase();
+    
+    switch (normalizedStatus) {
+      case 'UNLOCKED': 
+      case 'AVAILABLE': // Legacy support
+      case 'IN_PROGRESS': // Legacy/Alt support
+        status = 'UNLOCKED'; 
         break;
-      case 'in_progress':
-        status = 'active'; // In progress = active
+      case 'COMPLETED':
+        status = 'COMPLETED';
         break;
-      case 'completed':
-        status = 'completed';
-        break;
-      case 'locked':
+      case 'LOCKED':
       default:
-        status = 'locked';
+        status = 'LOCKED';
         break;
     }
     
@@ -163,7 +199,7 @@ class LessonNode {
       title: json['title'] as String? ?? 'Level $levelNumber',
       description: _getDescriptionForDifficulty(difficulty),
       iconName: _getIconForLevel(levelNumber),
-      status: status,
+      status: status, // Now strictly UPPERCASE
       stars: 0, // Backend doesn't have stars yet
       orderIndex: levelNumber,
       levelId: json['level_id'] as String?,
@@ -195,10 +231,24 @@ class LessonNode {
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       iconName: json['icon_name'] ?? 'star',
-      status: json['status'] ?? 'locked',
+      status: json['status'] ?? 'LOCKED',
       stars: json['stars'] ?? 0,
       orderIndex: json['order_index'] ?? 0,
       levelId: json['level_id'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'path_id': pathId,
+      'title': title,
+      'description': description,
+      'icon_name': iconName,
+      'status': status,
+      'stars': stars,
+      'order_index': orderIndex,
+      'level_id': levelId,
+    };
   }
 }

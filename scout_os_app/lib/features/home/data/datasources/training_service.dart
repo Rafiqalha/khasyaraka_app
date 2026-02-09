@@ -347,7 +347,6 @@ class TrainingService {
       rethrow;
     }
   }
-
   /// Fetch learning path for a section
   /// 
   /// Endpoint: GET /api/v1/training/sections/{sectionId}/path
@@ -356,15 +355,29 @@ class TrainingService {
   /// - Exception with 404 if section not found
   /// - Exception with timeout if request times out
   /// - Exception with connection error if network fails
+  /// 
+  /// ✅ CRITICAL: Requires JWT authentication for user-specific progress
   Future<Map<String, dynamic>> fetchLearningPath(String sectionId) async {
     try {
       final url = Uri.parse('${Environment.apiBaseUrl}/training/sections/$sectionId/path');
       
+      // ✅ Get JWT token for user-specific progress
+      final token = await ApiDioProvider.getToken();
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+      
+      // Add Authorization header if token exists
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+        debugPrint('✅ [FETCH_PATH] Authorization header added for user progress');
+      } else {
+        debugPrint('⚠️ [FETCH_PATH] No token - returning generic (non-user) progress');
+      }
+      
       final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
       ).timeout(
         Duration(milliseconds: Environment.connectTimeout),
         onTimeout: () => throw Exception('Connection timeout: Server tidak merespons'),
@@ -396,4 +409,53 @@ class TrainingService {
       throw Exception('Unexpected Error: $e');
     }
   }
+
+  /// Fetch all available sections
+  /// 
+  /// Endpoint: GET /api/v1/training/sections
+  /// 
+  /// Returns: List of sections with id, title, order
+  Future<List<Map<String, dynamic>>> fetchSections() async {
+    try {
+      final url = Uri.parse('${Environment.apiBaseUrl}/training/sections');
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).timeout(
+        Duration(milliseconds: Environment.connectTimeout),
+        onTimeout: () => throw Exception('Connection timeout: Server tidak merespons'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final sectionsJson = data['sections'] as List<dynamic>? ?? [];
+        
+        return sectionsJson
+            .map((s) => s as Map<String, dynamic>)
+            .toList();
+        
+      } else if (response.statusCode == 500) {
+        throw Exception('Server Error (500): Database atau Redis bermasalah');
+        
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.reasonPhrase}');
+      }
+      
+    } on http.ClientException catch (e) {
+      throw Exception('NetworkException: Tidak dapat terhubung ke server - ${e.message}');
+      
+    } on FormatException catch (e) {
+      throw Exception('JSON Parse Error: Response tidak valid - ${e.message}');
+      
+    } on Exception {
+      rethrow;
+      
+    } catch (e) {
+      throw Exception('Unexpected Error: $e');
+    }
+  }
 }
+

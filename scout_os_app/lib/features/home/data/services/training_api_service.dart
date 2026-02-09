@@ -31,7 +31,7 @@ class TrainingApiService {
   /// Get all active training sections
   Future<SectionListResponse> getSections() async {
     try {
-      final response = await _dio.get('$baseUrl/training/sections');
+      final response = await _dio.get('/training/sections');
       return SectionListResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -42,7 +42,7 @@ class TrainingApiService {
   /// Get specific section by ID
   Future<TrainingSection> getSection(String sectionId) async {
     try {
-      final response = await _dio.get('$baseUrl/training/sections/$sectionId');
+      final response = await _dio.get('/training/sections/$sectionId');
       return TrainingSection.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -54,7 +54,7 @@ class TrainingApiService {
   Future<UnitListResponse> getSectionUnits(String sectionId) async {
     try {
       final response =
-          await _dio.get('$baseUrl/training/sections/$sectionId/units');
+          await _dio.get('/training/sections/$sectionId/units');
       return UnitListResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -67,7 +67,7 @@ class TrainingApiService {
   /// Get specific unit by ID
   Future<TrainingUnit> getUnit(String unitId) async {
     try {
-      final response = await _dio.get('$baseUrl/training/units/$unitId');
+      final response = await _dio.get('/training/units/$unitId');
       return TrainingUnit.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -78,7 +78,7 @@ class TrainingApiService {
   /// Get all levels in a unit
   Future<LevelListResponse> getUnitLevels(String unitId) async {
     try {
-      final response = await _dio.get('$baseUrl/training/units/$unitId/levels');
+      final response = await _dio.get('/training/units/$unitId/levels');
       return LevelListResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -91,7 +91,7 @@ class TrainingApiService {
   /// Get specific level by ID
   Future<TrainingLevel> getLevel(String levelId) async {
     try {
-      final response = await _dio.get('$baseUrl/training/levels/$levelId');
+      final response = await _dio.get('/training/levels/$levelId');
       return TrainingLevel.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -103,7 +103,7 @@ class TrainingApiService {
   Future<QuestionListResponse> getLevelQuestions(String levelId) async {
     try {
       final response =
-          await _dio.get('$baseUrl/training/levels/$levelId/questions');
+          await _dio.get('/training/levels/$levelId/questions');
       final responseData = QuestionListResponse.fromJson(response.data);
       
       // DEFENSIVE FILTERING: Ensure we only return questions for this specific levelId
@@ -138,7 +138,7 @@ class TrainingApiService {
   Future<LearningPathResponse> getLearningPath(String sectionId) async {
     try {
       final response =
-          await _dio.get('$baseUrl/training/sections/$sectionId/path');
+          await _dio.get('/training/sections/$sectionId/path');
       return LearningPathResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -160,7 +160,7 @@ class TrainingApiService {
   }) async {
     try {
       final response = await _dio.post(
-        '$baseUrl/training/progress/submit',
+        '/training/progress/submit',
         data: {
           'level_id': levelId,
           'score': score,
@@ -176,13 +176,39 @@ class TrainingApiService {
   }
 
   /// GET /training/progress/state
-  /// Get current user progress state for all levels
+  /// Get current user progress state.
+  /// If sectionId is provided, returns progress for that section.
+  /// If sectionId is null, returns progress for ALL sections (Global).
   /// 
-  /// TODO: Implement when backend endpoint is ready
-  Future<Map<String, dynamic>> getProgressState() async {
+  /// Backend returns: {success: true, section_id: "...", progress: {"puk_u1_l1": "completed", ...}}
+  Future<Map<String, String>> getProgressState({String? sectionId}) async {
     try {
-      final response = await _dio.get('$baseUrl/training/progress/state');
-      return response.data as Map<String, dynamic>;
+      final queryParams = <String, dynamic>{};
+      if (sectionId != null) {
+        queryParams['section_id'] = sectionId;
+      }
+
+      final response = await _dio.get(
+        '/training/progress/state',
+        queryParameters: queryParams,
+      );
+      
+      // ✅ FIX: Handle Map response from Backend
+      // Format: {"success": true, "section_id": "puk", "progress": {"puk_u1_l1": "completed"}}
+      final Map<String, dynamic> data = response.data as Map<String, dynamic>;
+      final Map<String, dynamic>? progressData = data['progress'] as Map<String, dynamic>?;
+      
+      if (progressData == null) {
+        return {};
+      }
+      
+      final Map<String, String> progressMap = {};
+      
+      for (var entry in progressData.entries) {
+        progressMap[entry.key] = entry.value?.toString() ?? 'unknown';
+      }
+      
+      return progressMap;
     } on DioException catch (e) {
       throw _handleError(e);
     }

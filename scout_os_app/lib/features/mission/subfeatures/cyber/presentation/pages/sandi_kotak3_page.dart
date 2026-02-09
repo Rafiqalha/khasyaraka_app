@@ -503,11 +503,13 @@ class Kotak3Painter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth.clamp(1.0, 4.0) as double
       ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+      ..strokeJoin = StrokeJoin.round
+      ..isAntiAlias = true;
 
     final dotPaint = Paint()
       ..color = dotColor
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
 
     // === Source-of-truth coordinate system (as per user formulas) ===
     final W = size.width;

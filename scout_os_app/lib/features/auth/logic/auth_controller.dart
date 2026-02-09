@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:scout_os_app/core/auth/local_auth_service.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 import 'package:scout_os_app/features/auth/data/auth_exception.dart';
+import 'package:scout_os_app/core/network/api_dio_provider.dart';
 
 /// AuthController - Manages authentication state
 /// 
-/// Uses FastAPI backend for authentication with JWT
+/// ✅ Google login only - uses JWT token stored via ApiDioProvider
 /// Architecture: Flutter App -> FastAPI Backend -> PostgreSQL
 class AuthController extends ChangeNotifier {
-  final LocalAuthService _localAuth = LocalAuthService();
   final AuthRepository _authRepo = AuthRepository();
 
   bool _isLoading = false;
@@ -25,19 +24,47 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> _initAuthService() async {
-    await _localAuth.init();
     // Check if user has saved session (JWT token exists)
     try {
-      final user = await _authRepo.getCurrentUser();
-      _currentUser = user;
-      notifyListeners();
+      final token = await ApiDioProvider.getToken();
+      if (token != null && token.isNotEmpty) {
+        final user = await _authRepo.getCurrentUser();
+        _currentUser = user;
+        notifyListeners();
+      }
     } catch (_) {
       // No valid token, user must login
       _currentUser = null;
     }
   }
 
-  // ============ API LOGIN ============
+  // ============ GOOGLE SIGN-IN (PRIMARY) ============
+  Future<bool> signInWithGoogle(String idToken) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await _authRepo.googleSignIn(idToken: idToken);
+      _currentUser = response.user;
+      _errorMessage = null;
+      debugPrint('✅ Google Sign-In Success: ${_currentUser?.username}');
+      return true;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      debugPrint('❌ Google Sign-In Error: ${e.message}');
+      return false;
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan tidak terduga. Silakan coba lagi.';
+      debugPrint('❌ Unexpected Google Sign-In Error: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ============ API LOGIN (FALLBACK) ============
   Future<bool> loginWithUsername(String username, String password) async {
     _isLoading = true;
     _errorMessage = null;
@@ -66,7 +93,7 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  // ============ API REGISTER ============
+  // ============ API REGISTER (FALLBACK) ============
   Future<bool> register({
     required String name,
     required String username,
@@ -102,32 +129,6 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  // ============ GOOGLE SIGN-IN ============
-  Future<bool> signInWithGoogle(String idToken) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final response = await _authRepo.googleSignIn(idToken: idToken);
-      _currentUser = response.user;
-      _errorMessage = null;
-      debugPrint('✅ Google Sign-In Success: ${_currentUser?.username}');
-      return true;
-    } on AuthException catch (e) {
-      _errorMessage = e.message;
-      debugPrint('❌ Google Sign-In Error: ${e.message}');
-      return false;
-    } catch (e) {
-      _errorMessage = 'Terjadi kesalahan tidak terduga. Silakan coba lagi.';
-      debugPrint('❌ Unexpected Google Sign-In Error: $e');
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
   // ============ LOGOUT ============
   /// Clear all state for logout - CRITICAL for preventing data leak between users
   Future<void> logout() async {
@@ -137,7 +138,7 @@ class AuthController extends ChangeNotifier {
     try {
       debugPrint('🧹 AuthController.logout() - Clearing authentication state');
       
-      // Clear token and local auth
+      // Clear JWT token
       await _authRepo.logout();
       
       // Clear current user
@@ -159,6 +160,8 @@ class AuthController extends ChangeNotifier {
   // ============ UTILITY METHODS ============
   Future<bool> isLoggedIn() async {
     try {
+      final token = await ApiDioProvider.getToken();
+      if (token == null || token.isEmpty) return false;
       await _authRepo.getCurrentUser();
       return true;
     } catch (_) {

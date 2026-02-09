@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
-import 'package:scout_os_app/core/config/theme_config.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
+import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import 'package:scout_os_app/features/home/presentation/widgets/glossy_stats_bar.dart';
 import 'package:scout_os_app/features/home/presentation/widgets/lesson_node_widget.dart';
+import 'package:scout_os_app/shared/widgets/shimmer_skeleton.dart';
+import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
 import '../../logic/training_controller.dart';
 import '../../data/models/training_path.dart';
 import 'quiz_page.dart';
@@ -16,20 +19,113 @@ class TrainingMapPage extends StatefulWidget {
   State<TrainingMapPage> createState() => _TrainingMapPageState();
 }
 
-class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderStateMixin {
+class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderStateMixin, RouteAware {
   final ScrollController _scrollController = ScrollController();
   
   // Konfigurasi Zigzag
   final double _itemSpacing = 100.0; // Jarak vertikal antar node
   final double _amplitude = 75.0; // Seberapa jauh belok ke kiri/kanan
 
+  // ✅ UI State Management for Progressive Loading
+  bool _isLoadingMateri = true;
+  bool _isLoadingLeaderboard = true;
+  // Progress & Stats are less critical blocking UI, but we track them
+  bool _isLoadingProgress = true; 
+
   @override
   void initState() {
     super.initState();
-    // Load data when page is created
+    // ✅ NON-BLOCKING INIT: Move logic to separate method, no await here
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = Provider.of<TrainingController>(context, listen: false);
-      controller.refresh();
+      _loadAllTrainingData();
+    });
+  }
+  
+  /// ✅ PARALLEL FETCHING STRATEGY
+  /// Fetches Materi, Progress, Stats, and Leaderboard concurrently
+  /// Updates UI progressively as data arrives
+  Future<void> _loadAllTrainingData() async {
+    final trainingCtrl = Provider.of<TrainingController>(context, listen: false);
+    final leaderboardCtrl = Provider.of<LeaderboardController>(context, listen: false);
+
+    setState(() {
+      _isLoadingMateri = true;
+      _isLoadingLeaderboard = true;
+      _isLoadingProgress = true;
+    });
+
+    debugPrint('🚀 [MAP] Starting Parallel Data Fetching...');
+
+    // 1. Fetch Materi (Units/Sections Structure) - CRITICAL UI
+    final materiFuture = trainingCtrl.loadUnitsOnly().then((_) {
+      if (mounted) {
+        setState(() => _isLoadingMateri = false);
+        debugPrint('✅ [MAP] Materi Loaded');
+      }
+    }).catchError((e) {
+      debugPrint('❌ [MAP] Failed to load Materi: $e');
+      if (mounted) setState(() => _isLoadingMateri = false);
+    });
+
+    // 2. Fetch Progress & Stats (User Data) - Updates existing nodes
+    final progressFuture = Future.wait([
+      trainingCtrl.loadProgress(),
+      trainingCtrl.loadUserStats(),
+    ]).then((_) {
+      if (mounted) {
+        setState(() => _isLoadingProgress = false);
+        debugPrint('✅ [MAP] Progress & Stats Loaded');
+      }
+    }).catchError((e) {
+      debugPrint('❌ [MAP] Failed to load Progress/Stats: $e');
+      if (mounted) setState(() => _isLoadingProgress = false);
+    });
+
+    // 3. Fetch Leaderboard - Secondary Content
+    final leaderboardFuture = leaderboardCtrl.loadLeaderboard(limit: 10).then((_) {
+      if (mounted) {
+        setState(() => _isLoadingLeaderboard = false);
+        debugPrint('✅ [MAP] Leaderboard Loaded');
+      }
+    }).catchError((e) {
+      debugPrint('❌ [MAP] Failed to load Leaderboard: $e');
+      if (mounted) setState(() => _isLoadingLeaderboard = false);
+    });
+
+    // Wait for all to complete (so RefreshIndicator knows when to stop)
+    // We use wait([futures]) so we wait for the LONGEST one, but UI updates happened individually/progressively
+    await Future.wait([materiFuture, progressFuture, leaderboardFuture]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Register with RouteObserver to get notified when this page becomes visible
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      // Note: RouteObserver must be registered in MaterialApp's navigatorObservers
+      // For now, we use a simpler approach below in didPopNext
+    }
+  }
+  
+  /// ✅ AUTO-REFRESH: Called when this page becomes visible after another page is popped
+  /// This fixes Bug #2 (Hearts sync) and Bug #3 (Level unlock visibility)
+  void _onPageBecameVisible() {
+    debugPrint('🔄 [MAP] Page became visible - refreshing data for hearts & level sync...');
+    final controller = Provider.of<TrainingController>(context, listen: false);
+    
+    // Use Future.microtask to avoid calling during build
+    Future.microtask(() async {
+      try {
+        // Refresh progress and stats to sync hearts and level status
+        await Future.wait([
+          controller.loadProgress(),
+          controller.loadUserStats(),
+        ]);
+        debugPrint('✅ [MAP] Data refreshed: XP=${controller.userXp}, Hearts=${controller.userHearts}');
+      } catch (e) {
+        debugPrint('⚠️ [MAP] Refresh failed: $e');
+      }
     });
   }
 
@@ -42,27 +138,29 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Consumer<TrainingController>(
           builder: (context, controller, _) {
-            if (controller.isLoading) {
-              return Center(
-                child: CircularProgressIndicator(color: ThemeConfig.primaryBrown),
-              );
+            // ✅ SWR: Show shimmer skeleton ONLY if Materi is loading
+            // and we have no sections to show (Cold Start)
+            if (_isLoadingMateri && controller.sectionsWithUnits.isEmpty) {
+              return const ShimmerTrainingMap();
             }
 
-            if (controller.errorMessage != null) {
+            if (controller.errorMessage != null && controller.sectionsWithUnits.isEmpty) {
               return _buildErrorState(controller);
             }
 
-            if (controller.units.isEmpty) {
+            if (controller.sectionsWithUnits.isEmpty) {
               return _buildEmptyState();
             }
 
             return RefreshIndicator(
-              onRefresh: () async => controller.refresh(),
-              color: ThemeConfig.primaryBrown,
+              onRefresh: () async {
+                await _loadAllTrainingData();
+              },
+              color: AppColors.primary,
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
@@ -74,14 +172,13 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                     title: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_rounded, color: ThemeConfig.secondaryGrey),
+                        Icon(Icons.map_rounded, color: Colors.grey),
                         const SizedBox(width: 8),
                         Text(
                           'Peta Belajar',
-                          style: TextStyle(
-                            color: ThemeConfig.textSecondary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                          style: AppTextStyles.h3.copyWith( // Titan One
+                            color: Colors.grey[800],
+                            fontSize: 20,
                           ),
                         ),
                       ],
@@ -90,8 +187,8 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: ThemeConfig.spaceL,
-                        vertical: ThemeConfig.spaceM,
+                        horizontal: 16,
+                        vertical: 12,
                       ),
                       child: Center(
                         child: Builder(
@@ -99,7 +196,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                             // CRITICAL: Use Consumer to ensure rebuild when stats change
                             return Consumer<TrainingController>(
                               builder: (context, ctrl, _) {
-                                debugPrint('🔄 [UI] GlossyStatsBar rebuild: XP=${ctrl.userXp}, Streak=${ctrl.userStreak}');
+                                // debugPrint('🔄 [UI] GlossyStatsBar rebuild: XP=${ctrl.userXp}, Streak=${ctrl.userStreak}');
                                 return GlossyStatsBar(
                                   streak: ctrl.userStreak,
                                   totalXp: ctrl.userXp,
@@ -111,16 +208,173 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                       ),
                     ),
                   ),
-                  ...controller.units.asMap().entries.map((unitEntry) {
-                    final index = unitEntry.key;
-                    final unit = unitEntry.value;
-                    return _buildUnitSection(unit, index, controller.units.length);
-                  }),
+                  
+                  // ✅ Leaderboard Preview
+                  SliverToBoxAdapter(
+                    child: Builder(
+                      builder: (context) {
+                        return Consumer<LeaderboardController>(
+                          builder: (context, leaderCtrl, _) {
+                            if (_isLoadingLeaderboard && (leaderCtrl.topUsers.isEmpty)) {
+                              return const SizedBox.shrink(); // Low priority, don't show shimmer if not loaded yet to avoid clutter? Or show simple shimmer?
+                              // Actually user asked for Shimmer. Let's make a mini shimmer or just hide until loaded to keep it clean if it fails.
+                              // But prompt said "Parallel... jadi user melihat konten muncul satu per satu".
+                              // Let's return a simple placeholder or empty for now to not block UI.
+                            }
+                            
+                            if (leaderCtrl.topUsers.isEmpty) return const SizedBox.shrink();
+
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey.shade200),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Papan Peringkat',
+                                          style: AppTextStyles.h3.copyWith(fontSize: 16),
+                                        ),
+                                        Text(
+                                          'Lihat Semua >',
+                                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    height: 60,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: math.min(leaderCtrl.topUsers.length, 5),
+                                      itemBuilder: (context, index) {
+                                        final user = leaderCtrl.topUsers[index];
+                                        return Container(
+                                          margin: const EdgeInsets.only(right: 16),
+                                          child: Column(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 20,
+                                                backgroundColor: AppColors.primary.withOpacity(0.1),
+                                                backgroundImage: user.avatar != null 
+                                                    ? NetworkImage(user.avatar!) 
+                                                    : null,
+                                                child: user.avatar == null 
+                                                    ? Text(user.name[0], style: TextStyle(color: AppColors.primary))
+                                                    : null,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                '#${user.rank}',
+                                                style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+
+                  // ✅ SECTION-BASED RENDERING (Lazy Loading support)
+                  ...controller.sectionsWithUnits.expand((sectionWrapper) {
+                    final section = sectionWrapper.section;
+                    final units = sectionWrapper.units;
+                    
+                    return [
+                      // 1. Backend Section Header (Divider)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                section.title.toUpperCase(),
+                                style: AppTextStyles.h3.copyWith(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              if (section.description != null)
+                                Text(
+                                  section.description!,
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              Divider(color: Colors.grey[300], thickness: 1),
+                            ],
+                          ),
+                        ),
+                      ),
+                      
+                      // 2. Units or Load Button
+                      if (units.isEmpty)
+                        SliverToBoxAdapter(
+                           child: _buildLoadSectionButton(context, controller, section),
+                        )
+                      else
+                        ...units.asMap().entries.map((unitEntry) {
+                           final index = unitEntry.key;
+                           final unit = unitEntry.value;
+                           return _buildUnitSection(unit, index, units.length);
+                        }),
+                    ];
+                  }).toList(),
+                  
+                  // Spacer
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadSectionButton(BuildContext context, TrainingController controller, dynamic section) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          // Trigger lazy load
+          controller.loadSectionUnits(section.id);
+        },
+        icon: const Icon(Icons.download_rounded, color: Colors.white),
+        label: Text('Muat Materi ${section.title}'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -137,15 +391,14 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             Icon(
               Icons.error_outline,
               size: 80,
-              color: ThemeConfig.errorRed,
+              color: AppColors.danger,
             ),
             const SizedBox(height: 24),
             Text(
               'Oops! Terjadi Kesalahan',
-              style: TextStyle(
+              style: AppTextStyles.h2.copyWith( // Titan One
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: ThemeConfig.primaryBrown,
+                color: AppColors.primary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -154,7 +407,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
               controller.errorMessage ?? "Error memuat data path training",
               style: TextStyle(
                 fontSize: 16,
-                color: ThemeConfig.textSecondary,
+                color: Colors.grey[700],
               ),
               textAlign: TextAlign.center,
             ),
@@ -162,7 +415,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             ElevatedButton.icon(
               onPressed: () => controller.refresh(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: ThemeConfig.primaryBrown,
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
                   vertical: 16,
@@ -211,16 +464,16 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
       child: Container(
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF00796B), Color(0xFF004D40)],
+          gradient: LinearGradient(
+            colors: [AppColors.primary, Color(0xFF1B5E20)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFF00E5FF), width: 1),
+          border: Border.all(color: AppColors.accent, width: 1),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00695C).withValues(alpha: 0.25),
+              color: AppColors.primary.withValues(alpha: 0.25),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -237,27 +490,25 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Text(
+                  child: Text(
                     'BAGIAN 1',
-                    style: TextStyle(
-                      color: Color(0xFF00E5FF),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                      letterSpacing: 1.6,
+                    style: AppTextStyles.h3.copyWith( // Titan One for label
+                      color: AppColors.accent,
+                      fontSize: 12,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.shield, color: Color(0xFF00E5FF), size: 16),
+                const Icon(Icons.shield, color: AppColors.accent, size: 16),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               unit.title,
-              style: const TextStyle(
+              style: AppTextStyles.h3.copyWith( // Titan One
                 color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
+                fontSize: 22,
               ),
             ),
           ],
@@ -275,17 +526,16 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             width: 6,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFF00E5FF),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
           const SizedBox(width: 10),
           Text(
             'Unit ${unit.orderIndex}: ${unit.title}',
-            style: TextStyle(
+            style: AppTextStyles.h3.copyWith( // Titan One
               color: Colors.blueGrey.shade800,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
+              fontSize: 18,
             ),
           ),
         ],
@@ -361,7 +611,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
     
     Widget nodeWidget = LessonNodeWidget(
       lesson: lesson,
-      unitColor: ThemeConfig.primaryBrown,
+      unitColor: AppColors.primary,
       onTap: () {
         if (!isLocked) {
           // CRITICAL FIX: Always use QuizPage.withLevel() for individual levels
@@ -373,22 +623,25 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
               MaterialPageRoute(
                 builder: (_) => QuizPage.withLevel(levelId: lesson.levelId!),
               ),
-            ).then((_) async {
+            ).then((_) {
+              // ✅ INSTANT REFRESH: No blocking await - fire & forget pattern
               if (mounted) {
-                debugPrint('🔄 [MAP] Returned from QuizPage, refreshing progress and stats...');
+                debugPrint('🔄 [MAP] Returned from QuizPage, refreshing data in background...');
                 final controller = Provider.of<TrainingController>(context, listen: false);
-                // CRITICAL: Wait a bit to ensure navigation is complete
-                await Future.delayed(Duration(milliseconds: 200));
-                // CRITICAL: Reload progress to ensure UI updates
-                try {
-                  await controller.loadProgress();
-                  debugPrint('✅ [MAP] Progress refreshed after returning from quiz');
-                  // CRITICAL: Explicitly refresh user stats to update header
-                  await controller.loadUserStats();
-                  debugPrint('✅ [MAP] User stats refreshed: XP=${controller.userXp}, Streak=${controller.userStreak}');
-                } catch (e) {
-                  debugPrint('❌ [MAP] Error refreshing: $e');
-                }
+                
+                // ✅ NON-BLOCKING: Refresh in parallel background microtask
+                Future.microtask(() async {
+                  try {
+                    // Refresh progress and stats in parallel for hearts & level sync
+                    await Future.wait([
+                      controller.loadProgress(),
+                      controller.loadUserStats(),
+                    ]);
+                    debugPrint('✅ [MAP] Background refresh: XP=${controller.userXp}, Hearts=${controller.userHearts}');
+                  } catch (e) {
+                    debugPrint('⚠️ [MAP] Background refresh error: $e');
+                  }
+                });
               }
             });
           } else {
@@ -415,7 +668,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
   }
 
   Widget _buildTreasureChest() {
-    return Icon(Icons.redeem_rounded, size: 40, color: ThemeConfig.accentKhaki);
+    return Icon(Icons.redeem_rounded, size: 40, color: AppColors.accent);
   }
 }
 

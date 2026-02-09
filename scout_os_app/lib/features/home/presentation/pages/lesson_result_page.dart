@@ -152,75 +152,56 @@ class _LessonResultPageState extends State<LessonResultPage> {
       _isProcessing = true;
     });
 
-    debugPrint('🔄 [RESULT] Button pressed, starting finish flow...');
+    debugPrint('🔄 [RESULT] Button pressed - INSTANT navigation flow...');
 
     try {
       final trainingController =
           Provider.of<TrainingController>(context, listen: false);
 
-      debugPrint('🔄 [RESULT] Button pressed, starting finish flow...');
-
-      // NOTE: finishLesson was already called in QuizPage to get XP earned
-      // We don't need to call it again here to avoid duplicate processing
-      debugPrint('✅ [RESULT] finishLesson already completed in QuizPage (XP: ${widget.xpEarned})');
-
-      debugPrint('✅ [RESULT] finishLesson completed');
-
-      // CRITICAL: Add longer delay to ensure SharedPreferences is fully written
-      // This ensures updateUserStats() has time to save to disk before we read it
-      await Future.delayed(Duration(milliseconds: 300));
-
-      debugPrint('🔄 [RESULT] Calling loadProgress...');
-
-      // Refresh progress to show unlocked levels
-      try {
-        await trainingController.loadProgress();
-        debugPrint('✅ [RESULT] Progress refreshed successfully');
-        
-        // CRITICAL: loadProgress() already calls loadUserStats() internally
-        // But we can also explicitly call it to ensure stats are refreshed
-        // Add small delay to ensure SharedPreferences read is fresh
-        await Future.delayed(Duration(milliseconds: 100));
-        await trainingController.loadUserStats();
-        debugPrint('✅ [RESULT] User stats refreshed: XP=${trainingController.userXp}, Streak=${trainingController.userStreak}');
-        
-        // CRITICAL: Add another small delay to ensure UI rebuild completes
-        await Future.delayed(Duration(milliseconds: 150));
-      } catch (e, stackTrace) {
-        debugPrint('⚠️ [RESULT] Error loading progress: $e');
-        debugPrint('   Stack trace: $stackTrace');
-        // Continue navigation even if loadProgress fails
+      // ✅ OPTIMISTIC UI: Navigate FIRST, then refresh in background
+      // This makes the button feel instant/snappy
+      
+      // ✅ OPTIMISTIC UI: Update local state INSTANTLY before navigation
+      // This ensures the map shows the new progress immediately
+      final currentLevelId = widget.lessonController.currentLevelId;
+      if (currentLevelId != null) {
+        trainingController.unlockNextLevelLocally(currentLevelId);
       }
 
-      debugPrint('✅ [RESULT] Navigating back to training map...');
-
-      // CRITICAL: Use addPostFrameCallback to ensure navigation happens when widget is still mounted
-      if (mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          } else {
-            debugPrint('⚠️ [RESULT] Cannot navigate - context not available');
-          }
-        });
-      } else {
-        debugPrint('⚠️ [RESULT] Widget not mounted, cannot navigate');
+      // Navigate back immediately
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+        debugPrint('✅ [RESULT] Navigation completed instantly!');
       }
+      
+      // 🔄 BACKGROUND: Refresh data after navigation (non-blocking)
+      // Use Future.microtask to ensure this runs after navigation completes
+      Future.microtask(() async {
+        try {
+          debugPrint('🔄 [RESULT] Background: Refreshing training data...');
+          
+          // ✅ CRITICAL: Refresh ALL training data including level status
+          // This ensures UI shows updated COMPLETED/UNLOCKED status
+          await Future.wait([
+            trainingController.loadPathData(),    // ← FIXED: Correct method name
+            trainingController.loadProgress(),
+            trainingController.loadUserStats(),
+          ]);
+          
+          debugPrint('✅ [RESULT] Background refresh complete: XP=${trainingController.userXp}, Hearts=${trainingController.userHearts}');
+        } catch (e) {
+          debugPrint('⚠️ [RESULT] Background refresh failed (non-critical): $e');
+        }
+      });
+      
     } catch (e, stackTrace) {
       debugPrint('❌ [RESULT] Unexpected error: $e');
       debugPrint('   Stack trace: $stackTrace');
 
-      // CRITICAL: Even if there's an error, try to navigate back to prevent black screen
-      if (mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
-        });
+      // Fallback: try to navigate back
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
       }
-    } finally {
-      // Don't reset _isProcessing here - let navigation happen first
-      // It will be reset when widget is disposed
     }
   }
 }

@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scout_os_app/core/config/duo_theme.dart'; // Import Duolingo theme
+import 'package:scout_os_app/shared/theme/app_theme.dart';
 // Import from features structure
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
-import 'package:scout_os_app/features/auth/presentation/login_page.dart';
+import 'features/auth/logic/login_controller.dart';
+
+import 'package:scout_os_app/features/auth/presentation/login_screen.dart';
 import 'package:scout_os_app/features/auth/presentation/register_page.dart';
 import 'package:scout_os_app/core/widgets/duo_main_scaffold.dart';
 import 'package:scout_os_app/features/intro/logic/intro_controller.dart';
 import 'package:scout_os_app/features/intro/presentation/pages/onboarding_page.dart';
 import 'package:scout_os_app/features/intro/presentation/pages/splash_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/logic/survival_mastery_controller.dart';
+import 'package:scout_os_app/features/mission/subfeatures/survival/logic/survival_tools_controller.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/logic/cyber_controller.dart';
 import 'package:scout_os_app/features/profile/logic/profile_controller.dart';
 import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
 import 'package:scout_os_app/routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:scout_os_app/core/services/local_cache_service.dart';
 
 void main() async {
   // Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferences.getInstance();
+  
+  // Initialize local cache (Hive) for SWR pattern
+  await LocalCacheService.init();
+  
+  // ✅ HARD RESET: No SharedPreferences needed for auth
+  // JWT tokens are now memory-only (cleared on app kill)
 
   runApp(const ScoutOSApp());
 }
@@ -43,9 +51,12 @@ class ScoutOSApp extends StatelessWidget {
         // Register controllers for state management
         ChangeNotifierProvider(create: (_) => TrainingController()),
         ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => LoginController()), // Added LoginController
         ChangeNotifierProvider(create: (_) => SkuController()),
         ChangeNotifierProvider(create: (_) => IntroController()),
+
         ChangeNotifierProvider(create: (_) => SurvivalMasteryController()),
+        ChangeNotifierProvider(create: (_) => SurvivalToolsController()),
         ChangeNotifierProvider(create: (_) => LeaderboardController()), // ✅ Add LeaderboardController to global providers
         ChangeNotifierProvider(create: (_) => CyberController()), // ✅ Add CyberController for Sandi tools
         ChangeNotifierProxyProvider<TrainingController, ProfileController>(
@@ -61,8 +72,10 @@ class ScoutOSApp extends StatelessWidget {
         title: 'Khasyaraka - Scout OS',
         debugShowCheckedModeBanner: false,
         
-        // Duolingo Theme
-        theme: DuoTheme.lightTheme,
+        // App Theme
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
         
         // Initial Route
         home: const SplashPage(),
@@ -75,7 +88,7 @@ class ScoutOSApp extends StatelessWidget {
         routes: {
           '/splash': (context) => const SplashPage(),
           '/onboarding': (context) => const OnboardingPage(),
-          '/login': (context) => const LoginPage(),
+          '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterPage(),
           '/dashboard': (context) => const DuoMainScaffold(),
           '/penegak': (context) => const DuoMainScaffold(), // Main Duolingo-style learning path                                                                                                                                                                                                               
