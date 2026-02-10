@@ -514,9 +514,19 @@ class _QuizPageState extends State<QuizPage> {
                      (question.payload['items'] as List<dynamic>?)
                          ?.map((e) => e.toString())
                          .toList() ?? [];
+                         
+        // Get correct answer for display
+        final correctOrder = (question.payload['correct_order'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList();
+        final correctAnswer = correctOrder?.join(" ");
+        
         return ArrangeWordsWidget(
           words: words,
           onAnswerChanged: (answer) => controller.updateStringAnswer(answer),
+          isChecked: controller.isChecked,
+          isCorrect: controller.isCorrect,
+          correctAnswer: correctAnswer,
         );
       }
 
@@ -660,13 +670,22 @@ class _QuizPageState extends State<QuizPage> {
              // ✅ CRITICAL: Inline Feedback Logic
              controller.checkAnswer();
              if (controller.isCorrect) {
-               QuizHapticService.correctFeedback();
+               // ✅ LOGIC: If question uses DuolingoOptionButton, let IT handle the Haptic+Bounce
+               // Otherwise, trigger standard feedback here
+               final type = controller.currentQuestion?.type;
+               final isChoiceBased = type == 'multiple_choice' || type == 'true_false' || type == 'listening';
+               
+               if (!isChoiceBased) {
+                 QuizHapticService.correctFeedbackLong();
+               }
+               // If isChoiceBased, DuolingoOptionButton.didUpdateWidget will handle it w/ bounce
              } else {
                QuizHapticService.wrongFeedback();
                _shakeKey.currentState?.shake(); // 📳 Shake input
              }
             }
           : null;
+
     }
 
     return Container(

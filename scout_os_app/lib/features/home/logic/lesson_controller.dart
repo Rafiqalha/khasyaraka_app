@@ -274,15 +274,34 @@ class LessonController extends ChangeNotifier {
         if (userMatchingPairs != null) {
           final pairs = List<Map<String, dynamic>>.from(q.payload['pairs'] ?? []);
           bool allMatch = true;
+          
+          debugPrint('🔍 [CHECK_MATCHING] Validating payload pairs against user answers:');
+          
           for (final pair in pairs) {
-            final left = pair['left']?.toString() ?? '';
-            final right = pair['right']?.toString() ?? '';
-            if (userMatchingPairs?[left] != right) {
+            final left = pair['left']?.toString().trim() ?? '';
+            final right = pair['right']?.toString().trim() ?? '';
+            // ✅ Hot Reload: Matching debug added
+            
+            // Get user's answer for this left key (also trimmed)
+            final userRight = userMatchingPairs?[left]?.trim();
+            // Fallback: iterate user map to find key match if trimming differs slightly
+            final userRightFallback = userMatchingPairs?.entries
+                .firstWhere((e) => e.key.trim() == left, orElse: () => const MapEntry('', ''))
+                .value.trim();
+
+            final actualUserRight = userRight ?? (userRightFallback?.isNotEmpty == true ? userRightFallback : null);
+
+            debugPrint('   - Key: "$left" | Expected: "$right" | User: "${actualUserRight ?? 'NULL'}"');
+            
+            if (actualUserRight != right) {
+              debugPrint('     ❌ MISMATCH!');
               allMatch = false;
-              break;
+              // Don't break immediately so we can see other mismatches in debug
             }
           }
           isCorrect = allMatch;
+        } else {
+             debugPrint('❌ [CHECK_MATCHING] userMatchingPairs is NULL');
         }
         break;
 

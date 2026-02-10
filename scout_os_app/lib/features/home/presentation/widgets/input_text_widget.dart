@@ -22,6 +22,7 @@ class InputTextWidget extends StatefulWidget {
 }
 
 class _InputTextWidgetState extends State<InputTextWidget> {
+  // ✅ Updated for Red/Green Feedback & Correct Answer Card (Fixed White Background Bug)
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
@@ -49,67 +50,125 @@ class _InputTextWidgetState extends State<InputTextWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Color borderColor = Colors.grey.shade300;
-    Color bgColor = AppColors.hasdukWhite;
+    Color borderColor = AppColors.duoNeutralBorder;
+    Color bgColor = Colors.white;
+    Color textColor = AppColors.textDark;
 
     if (widget.isChecked) {
       if (widget.isCorrect) {
-        borderColor = AppColors.forestGreen;
-        bgColor = AppColors.forestGreen.withValues(alpha: 0.1);
+        borderColor = AppColors.duoSuccess;
+        bgColor = AppColors.duoSuccessLight;
+        textColor = AppColors.duoSuccess;
       } else {
-        borderColor = AppColors.alertRed;
-        bgColor = AppColors.alertRed.withValues(alpha: 0.1);
+        borderColor = AppColors.duoError;
+        bgColor = AppColors.duoErrorLight;
+        textColor = AppColors.duoError;
       }
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: borderColor,
-          width: widget.isChecked ? 3 : 2,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: borderColor,
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: borderColor.withOpacity(widget.isChecked ? 0.5 : 0.2),
+                blurRadius: 0,
+                offset: const Offset(0, 4), // 3D effect
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            enabled: !widget.isChecked,
+            onChanged: (value) {
+              widget.onAnswerChanged(value);
+            },
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+            decoration: InputDecoration(
+              filled: true, // Allow fill color overrides
+              fillColor: Colors.transparent, // Transparent to show container color
+              hintText: "Ketik jawabanmu di sini...",
+              hintStyle: TextStyle(color: Colors.grey.shade400),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none, // Ensure no borders from theme
+              focusedBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              suffixIcon: widget.isChecked
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Icon(
+                        widget.isCorrect ? Icons.check_circle : Icons.cancel,
+                        color: widget.isCorrect
+                            ? AppColors.duoSuccess
+                            : AppColors.duoError,
+                        size: 28,
+                      ),
+                    )
+                  : null,
+            ),
+            textCapitalization: TextCapitalization.sentences,
+          ),
         ),
-        boxShadow: widget.isChecked
-            ? [
-                BoxShadow(
-                  color: borderColor.withValues(alpha: 0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+        
+        // Correct Answer Card (Only if checked and WRONG)
+        if (widget.isChecked && !widget.isCorrect && widget.correctAnswer != null) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.duoSuccessLight.withOpacity(0.5), // Lighter green for info
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.duoSuccess.withOpacity(0.5),
+                width: 2,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.lightbulb_circle, color: AppColors.duoSuccess, size: 24),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Jawaban yang benar:", // Correct Answer Title
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.duoSuccess,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-              ]
-            : [],
-      ),
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        enabled: !widget.isChecked,
-        onChanged: (value) {
-          widget.onAnswerChanged(value);
-        },
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: widget.isChecked
-              ? (widget.isCorrect ? AppColors.forestGreen : AppColors.alertRed)
-              : AppColors.textDark,
-        ),
-        decoration: InputDecoration(
-          hintText: "Ketik jawabanmu di sini...",
-          hintStyle: TextStyle(color: Colors.grey.shade400),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(20),
-          suffixIcon: widget.isChecked
-              ? Icon(
-                  widget.isCorrect ? Icons.check_circle : Icons.cancel,
-                  color: widget.isCorrect
-                      ? AppColors.forestGreen
-                      : AppColors.alertRed,
-                )
-              : null,
-        ),
-        textCapitalization: TextCapitalization.sentences,
-      ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.correctAnswer!,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

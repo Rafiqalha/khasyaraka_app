@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 
@@ -41,6 +42,26 @@ class QuizHapticService {
     } catch (e) {
       // Fallback to system haptic
       await HapticFeedback.heavyImpact();
+    }
+  }
+
+  /// Trigger LONG vibration for correct answer (~500ms)
+  /// Requested by user for distinct success feeling
+  static Future<void> correctFeedbackLong() async {
+    try {
+      if (await hasVibrationSupport()) {
+        // Pattern: Strong vibration for 500ms
+        await Vibration.vibrate(duration: 500);
+      } else {
+        // Fallback: Triple heavy impact
+        await HapticFeedback.heavyImpact();
+        await Future.delayed(const Duration(milliseconds: 100));
+        await HapticFeedback.heavyImpact();
+        await Future.delayed(const Duration(milliseconds: 100));
+        await HapticFeedback.heavyImpact();
+      }
+    } catch (e) {
+      debugPrint('Haptic Error: $e');
     }
   }
 

@@ -53,6 +53,11 @@ class _RumputToolPageState extends State<RumputToolPage> {
     '---..': '8', '----.': '9',
   };
 
+  // Reverse mapping for backspace logic
+  static final Map<String, String> alphabetToMorse = {
+    for (var entry in morseToAlphabet.entries) entry.value: entry.key,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -68,7 +73,7 @@ class _RumputToolPageState extends State<RumputToolPage> {
     super.dispose();
   }
 
-  // --- LOGIC SECTION (PRESERVED) ---
+  // --- LOGIC SECTION ---
 
   void _onTextChanged() {
     if (_isEncryptMode) {
@@ -81,29 +86,6 @@ class _RumputToolPageState extends State<RumputToolPage> {
       }
       _previousText = currentText;
     }
-  }
-
-  String _getVisualizationText() {
-    if (_isEncryptMode) {
-      return _textController.text;
-    } else {
-      return _convertMorseSequenceToText(_rawMorseSequence);
-    }
-  }
-
-  String _convertMorseSequenceToText(String morseSequence) {
-    if (morseSequence.isEmpty) return '';
-    final result = <String>[];
-    final parts = morseSequence.split(' ');
-    for (var part in parts) {
-      if (part.isEmpty) continue;
-      if (morseToAlphabet.containsKey(part)) {
-        result.add(morseToAlphabet[part]!);
-      } else {
-        result.add('?');
-      }
-    }
-    return result.join(' ');
   }
 
   Future<void> _playFeedbackForText(String text) async {
@@ -152,14 +134,8 @@ class _RumputToolPageState extends State<RumputToolPage> {
   }
 
   void _copyToClipboard() {
-    String textToCopy = _isEncryptMode ? _getVisualizationText() : _decodedText;
-    // For Rumput, Visual text is what we might want? Or maybe just the plain text?
-    // User requested "Salin" button. Usually copies the result.
-    // In Encrypt Mode (Text -> Rumput), user likely wants to copy the Visual representation?
-    // But SandiRumputView draws canvas. We can't easily copy canvas to clipboard as text.
-    // So we copy the Input Text if Encrypt Mode, or Decoded Text if Decode Mode.
-    // Or maybe we verify if user wants the literal "Grass Art".
-    // For now, let's copy the meaningful text content.
+    String textToCopy = _isEncryptMode ? _textController.text : _decodedText;
+
     if (textToCopy.isNotEmpty) {
        Clipboard.setData(ClipboardData(text: textToCopy));
        ScaffoldMessenger.of(context).showSnackBar(
@@ -202,13 +178,27 @@ class _RumputToolPageState extends State<RumputToolPage> {
 
   void _onSeparatorPressed() {
     setState(() {
+      // Logic Spasi Pintar (Smart Space)
       if (_currentLetterBuffer.isNotEmpty) {
+        // Jika ada buffer huruf, selesaikan huruf tersebut
         final letter = morseToAlphabet[_currentLetterBuffer] ?? '?';
         _decodedText += letter;
+        
+        // Reset buffer
         _currentLetterBuffer = '';
-        if (!_rawMorseSequence.endsWith(' ')) _rawMorseSequence += ' ';
+        
+        // Visual separator di graph
+        if (!_rawMorseSequence.endsWith(' ')) _rawMorseSequence += ' '; 
+        
       } else {
-        if (!_rawMorseSequence.endsWith(' ')) _rawMorseSequence += ' ';
+        // Jika buffer kosong, berarti user menekan spasi lagi -> Spasi Kalimat
+        if (_decodedText.isNotEmpty && !_decodedText.endsWith(' ')) {
+           _decodedText += ' ';
+           
+           // Tambah indikator spasi di visual morse (gap)
+           // Kita pakai 3 spasi untuk word gap di visual
+           if (!_rawMorseSequence.endsWith('   ')) _rawMorseSequence += '   ';
+        }
       }
       _scrollGraphToEnd();
     });
@@ -216,17 +206,44 @@ class _RumputToolPageState extends State<RumputToolPage> {
 
   void _onBackspacePressed() {
     setState(() {
-      if (_rawMorseSequence.isNotEmpty) {
-        _rawMorseSequence = _rawMorseSequence.substring(0, _rawMorseSequence.length - 1);
-        if (_currentLetterBuffer.isNotEmpty) {
-          _currentLetterBuffer = _currentLetterBuffer.substring(0, _currentLetterBuffer.length - 1);
-        } else if (_decodedText.isNotEmpty) {
-          _decodedText = _decodedText.substring(0, _decodedText.length - 1);
-          if (_rawMorseSequence.endsWith(' ')) {
-             _rawMorseSequence = _rawMorseSequence.substring(0, _rawMorseSequence.length - 1);
-          }
+      // 1. Jika sedang mengetik huruf (Buffer tidak kosong)
+      if (_currentLetterBuffer.isNotEmpty) {
+        // Hapus karakter terakhir dari buffer dan sequence
+        _currentLetterBuffer = _currentLetterBuffer.substring(0, _currentLetterBuffer.length - 1);
+        if (_rawMorseSequence.isNotEmpty) {
+          _rawMorseSequence = _rawMorseSequence.substring(0, _rawMorseSequence.length - 1);
+        }
+      } 
+      // 2. Jika buffer kosong, tapi ada teks yang sudah didecode
+      else if (_decodedText.isNotEmpty) {
+        // Cek karakter terakhir
+        final lastChar = _decodedText[_decodedText.length - 1];
+
+        // Hapus karakter terakhir dari teks
+        _decodedText = _decodedText.substring(0, _decodedText.length - 1);
+
+        // Hapus visual separator spasi/gap trailing jika ada
+        _rawMorseSequence = _rawMorseSequence.trimRight(); // Hapus spasi separator token/word
+        
+        // Logic "Edit Ulang" (Undo finish letter)
+        // Jika karakter yang dihapus adalah huruf (bukan spasi), kembalikan ke buffer
+        if (lastChar != ' ') {
+           final morseBack = alphabetToMorse[lastChar.toUpperCase()];
+           if (morseBack != null) {
+              _currentLetterBuffer = morseBack;
+              // Note: _rawMorseSequence sudah kita trimRight, jadi huruf yg baru dihapus masih ada di sana (tanpa separator).
+              // Kita perlu pastikan sequence match buffer.
+              // Karena visual sequence tidak kita hapus hurufnya, hanya separatornya.
+              // Jadi logika trimRight harusnya aman.
+              // Contoh: ".- " -> Delete -> "A" hilang. Seq ".-" (space gone). Buffer ".-". Correct.
+           }
         }
       }
+      // 3. Cleanup sequence jika kosong
+      if (_decodedText.isEmpty && _currentLetterBuffer.isEmpty) {
+        _rawMorseSequence = '';
+      }
+
       _scrollGraphToEnd();
     });
   }
@@ -299,18 +316,33 @@ class _RumputToolPageState extends State<RumputToolPage> {
                            decoration: InputDecoration(
                              border: InputBorder.none,
                              hintText: "Ketik pesan di sini...",
-                             hintStyle: GoogleFonts.fredoka(color: Colors.grey),
+                             hintStyle: GoogleFonts.fredoka(color: Colors.grey.shade400),
+                             contentPadding: EdgeInsets.zero,
                            ),
                            maxLines: 3,
+                           minLines: 1,
                          )
+                       // FIXED: Use Visual View for Decode Input instead of Text
                        : Container(
                            height: 80,
-                           alignment: Alignment.center,
-                           child: Text(
-                             "Gunakan tombol di bawah untuk input Rumput",
-                             style: GoogleFonts.fredoka(color: Colors.grey, fontSize: 14, fontStyle: FontStyle.italic),
-                           ),
+                           alignment: Alignment.centerLeft,
+                           child: _rawMorseSequence.isEmpty 
+                             ? Text("Tekan tombol di bawah...", style: GoogleFonts.fredoka(color: Colors.grey.shade400))
+                             : SingleChildScrollView(
+                                 controller: _graphScrollController,
+                                 scrollDirection: Axis.horizontal,
+                                 child: SandiRumputView(
+                                   morseCode: _rawMorseSequence,
+                                   strokeWidth: 3.0,
+                                   color: _grassGreen,
+                                   unitWidth: 12.0,
+                                   shortHeight: 25.0,
+                                   tallHeight: 60.0,
+                                   spaceWidth: 18.0,
+                                 ),
+                               ),
                          ),
+
                  ),
 
                  const SizedBox(height: 24),
@@ -325,7 +357,7 @@ class _RumputToolPageState extends State<RumputToolPage> {
                        // Encode Mode: Show SandiRumputView (Visual)
                        // Decode Mode: Show Decoded Text
                        child: _isEncryptMode
-                          ? (_textController.text.isEmpty 
+                          ? (_textController.text.trim().isEmpty 
                               ? Center(child: Text("Rumput akan tumbuh di sini...", style: GoogleFonts.fredoka(color: Colors.grey)))
                               : SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
@@ -340,16 +372,18 @@ class _RumputToolPageState extends State<RumputToolPage> {
                                   ),
                                 )
                             )
-                          : Center(
-                              child: Text(
-                                _decodedText.isEmpty ? "..." : _decodedText,
-                                style: GoogleFonts.fredoka(
-                                   fontSize: 32, 
-                                   color: _forestGreen, 
-                                   fontWeight: FontWeight.bold
-                                ),
-                                textAlign: TextAlign.center,
+                          : TextField(
+                              controller: TextEditingController(text: _decodedText + (_currentLetterBuffer.isNotEmpty ? '...' : '')), // Show hint if typing
+                              readOnly: true,
+                              style: GoogleFonts.fredoka(fontSize: 18, color: _textBlack, fontWeight: FontWeight.bold),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Hasil terjemahan...",
+                                hintStyle: GoogleFonts.fredoka(color: Colors.grey.shade400),
+                                contentPadding: EdgeInsets.zero,
                               ),
+                              maxLines: 5,
+                              minLines: 3,
                             ),
                     ),
                  ),
@@ -389,10 +423,10 @@ class _RumputToolPageState extends State<RumputToolPage> {
          Container(
            decoration: BoxDecoration(
              color: _cardWhite,
-             borderRadius: BorderRadius.circular(24),
+             borderRadius: BorderRadius.circular(20),
              boxShadow: const [
                BoxShadow(
-                 color: _forestGreen, // 3D Forest Green Effect
+                 color: _grassGreen, // Match Morse vibrancy with Grass Green Accent shadow
                  offset: Offset(0, 6),
                  blurRadius: 0,
                )
@@ -460,8 +494,9 @@ class _RumputToolPageState extends State<RumputToolPage> {
           child: Column(
              children: [
                 // Visual Graph for decoding feedback
+                // FIXED: Increased height to avoid clipping (tallHeight 50 + padding 40 = 90 needed)
                 SizedBox(
-                   height: 60,
+                   height: 100, // Increased from 60 to 100
                    child: SingleChildScrollView(
                       controller: _graphScrollController,
                       scrollDirection: Axis.horizontal,
@@ -481,7 +516,7 @@ class _RumputToolPageState extends State<RumputToolPage> {
                    children: [
                       Expanded(child: _buildGrassKey("PENDEK", Icons.arrow_drop_up, _grassGreen, _onShortGrassPressed)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildGrassKey("TINGGI", Icons.arrow_drop_up, Colors.orange, _onTallGrassPressed)), // Or use existing logic
+                      Expanded(child: _buildGrassKey("TINGGI", Icons.arrow_drop_up, Colors.orange, _onTallGrassPressed)), 
                    ],
                 ),
                 const SizedBox(height: 8),

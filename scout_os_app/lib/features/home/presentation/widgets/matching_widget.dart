@@ -14,6 +14,7 @@ class MatchingWidget extends StatefulWidget {
     required this.isCorrect,
     required this.onAnswerChanged,
   });
+  // ✅ Fix: Matching widget shuffle & overflow handled
 
   @override
   State<MatchingWidget> createState() => _MatchingWidgetState();
@@ -21,15 +22,34 @@ class MatchingWidget extends StatefulWidget {
 
 class _MatchingWidgetState extends State<MatchingWidget> {
   final Map<String, String> _answers = {};
+  late List<String> _shuffledRightOptions;
 
-  List<String> get _rightOptions {
-    // CRITICAL FIX: Remove duplicates and empty strings to prevent dropdown crashes
-    final options = widget.pairs
+  @override
+  void initState() {
+    super.initState();
+    _initializeOptions();
+  }
+
+  @override
+  void didUpdateWidget(MatchingWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-initialize if pairs change (e.g. new question)
+    // Using a simple length check or reference check. 
+    // Ideally we should check content equality, but for now reference is likely sufficient if parent recreates list.
+    if (widget.pairs != oldWidget.pairs) {
+      _answers.clear();
+      _initializeOptions();
+    }
+  }
+
+  void _initializeOptions() {
+    // Get all right-side options, remove duplicates/empty, and shuffle.
+    _shuffledRightOptions = widget.pairs
         .map((pair) => pair['right'] ?? '')
-        .where((option) => option.isNotEmpty) // Remove empty strings
-        .toSet() // Remove duplicates
+        .where((option) => option.isNotEmpty)
+        .toSet()
         .toList();
-    return options;
+    _shuffledRightOptions.shuffle();
   }
 
   void _updateAnswer(String left, String right) {
@@ -48,11 +68,15 @@ class _MatchingWidgetState extends State<MatchingWidget> {
         final selectedRight = _answers[left];
 
         Color borderColor = Colors.grey.shade300;
+        Color bgColor = AppColors.scoutWhite;
+
         if (widget.isChecked) {
           if (selectedRight == correctRight) {
             borderColor = AppColors.forestGreen;
+            bgColor = AppColors.duoSuccessLight.withOpacity(0.3);
           } else {
             borderColor = AppColors.alertRed;
+            bgColor = AppColors.duoErrorLight.withOpacity(0.3);
           }
         }
 
@@ -60,13 +84,15 @@ class _MatchingWidgetState extends State<MatchingWidget> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.scoutWhite,
+            color: bgColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: borderColor, width: 2),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center, // Align center vertically
             children: [
               Expanded(
+                flex: 2, // Give left side reasonable space
                 child: Text(
                   left,
                   style: const TextStyle(
@@ -78,19 +104,29 @@ class _MatchingWidgetState extends State<MatchingWidget> {
               ),
               const SizedBox(width: 12),
               Expanded(
+                flex: 3, // Give dropdown slightly more space
                 child: DropdownButtonFormField<String>(
-                  initialValue: selectedRight,
+                  value: selectedRight,
+                  isExpanded: true, // ✅ Fix for overflow
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade400),
                     ),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
-                  items: _rightOptions
+                  items: _shuffledRightOptions
                       .map(
                         (option) => DropdownMenuItem<String>(
                           value: option,
-                          child: Text(option),
+                          child: Text(
+                            option,
+                            overflow: TextOverflow.ellipsis, // ✅ Fix for long text
+                            maxLines: 2,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ),
                       )
                       .toList(),

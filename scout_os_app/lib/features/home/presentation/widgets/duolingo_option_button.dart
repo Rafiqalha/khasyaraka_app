@@ -37,10 +37,14 @@ class DuolingoOptionButton extends StatefulWidget {
   State<DuolingoOptionButton> createState() => _DuolingoOptionButtonState();
 }
 
+// ✅ Fixed: Used TickerProviderStateMixin for multiple controllers
 class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  late AnimationController _bounceController; // ✅ NEW: Bounce animation
+  late Animation<double> _bounceAnimation;
+
   bool _isPressed = false;
   bool _hasTriggeredFeedback = false;
 
@@ -56,13 +60,24 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
     _shakeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
     );
+
+    // ✅ NEW: Bounce animation for correct answer
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    // Bounce: Scale up slightly then back to normal with elastic effect
+    _bounceAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _bounceController, curve: Curves.elasticOut),
+    );
   }
 
   @override
   void didUpdateWidget(DuolingoOptionButton oldWidget) {
     super.didUpdateWidget(oldWidget);
     
-    // Trigger shake and haptic when answer is checked and this is wrong selection
+    // Trigger shake/bounce and haptic when answer is checked and this is the relevant selection
     if (widget.isChecked && !oldWidget.isChecked && !_hasTriggeredFeedback) {
       _hasTriggeredFeedback = true;
       
@@ -71,34 +86,44 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
         _shakeController.forward(from: 0);
         QuizHapticService.wrongFeedback();
       } else if (widget.isSelected && widget.isCorrectAnswer) {
-        // Correct answer: light haptic only
-        QuizHapticService.correctFeedback();
+        // ✅ Correct answer: Bounce + LONG vibration
+        _bounceController.forward(from: 0).then((_) => _bounceController.reverse());
+        QuizHapticService.correctFeedbackLong();
+      } else if (widget.showCorrectHighlight && widget.isCorrectAnswer) {
+        // Highlight correct answer (when user was wrong): Just bounce slightly
+         _bounceController.forward(from: 0).then((_) => _bounceController.reverse());
       }
     }
     
     // Reset feedback flag when moving to next question
     if (!widget.isChecked && oldWidget.isChecked) {
       _hasTriggeredFeedback = false;
+      _bounceController.reset();
+      _shakeController.reset();
     }
   }
 
   @override
   void dispose() {
     _shakeController.dispose();
+    _bounceController.dispose(); // ✅ NEW
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _shakeAnimation,
+      animation: Listenable.merge([_shakeAnimation, _bounceAnimation]),
       builder: (context, child) {
         // Calculate shake offset (sin wave for smooth oscillation)
         final shakeOffset = sin(_shakeAnimation.value * pi * 6) * 8;
         
         return Transform.translate(
           offset: Offset(shakeOffset, 0),
-          child: child,
+          child: Transform.scale(
+            scale: _bounceAnimation.value, // ✅ Apply bounce scale
+            child: child,
+          ),
         );
       },
       child: _buildButton(),
