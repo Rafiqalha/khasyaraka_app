@@ -37,16 +37,17 @@ class UnitProgressState {
   final String unitId;
   final List<LevelProgressState> levels;
 
-  UnitProgressState({
-    required this.unitId,
-    required this.levels,
-  });
+  UnitProgressState({required this.unitId, required this.levels});
 
   factory UnitProgressState.fromJson(Map<String, dynamic> json) {
     return UnitProgressState(
       unitId: json['unit_id'] as String,
-      levels: (json['levels'] as List<dynamic>?)
-              ?.map((item) => LevelProgressState.fromJson(item as Map<String, dynamic>))
+      levels:
+          (json['levels'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    LevelProgressState.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -69,8 +70,12 @@ class SectionProgressState {
     return SectionProgressState(
       sectionId: json['section_id'] as String,
       isUnlocked: json['is_unlocked'] as bool? ?? false,
-      units: (json['units'] as List<dynamic>?)
-              ?.map((item) => UnitProgressState.fromJson(item as Map<String, dynamic>))
+      units:
+          (json['units'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    UnitProgressState.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -81,14 +86,16 @@ class SectionProgressState {
 class ProgressStateResponse {
   final List<SectionProgressState> sections;
 
-  ProgressStateResponse({
-    required this.sections,
-  });
+  ProgressStateResponse({required this.sections});
 
   factory ProgressStateResponse.fromJson(Map<String, dynamic> json) {
     return ProgressStateResponse(
-      sections: (json['sections'] as List<dynamic>?)
-              ?.map((item) => SectionProgressState.fromJson(item as Map<String, dynamic>))
+      sections:
+          (json['sections'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    SectionProgressState.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );

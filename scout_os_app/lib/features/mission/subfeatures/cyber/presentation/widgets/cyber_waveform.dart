@@ -18,7 +18,8 @@ class CyberWaveform extends StatefulWidget {
   State<CyberWaveform> createState() => _CyberWaveformState();
 }
 
-class _CyberWaveformState extends State<CyberWaveform> with SingleTickerProviderStateMixin {
+class _CyberWaveformState extends State<CyberWaveform>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -70,7 +71,11 @@ class _CyberWaveformState extends State<CyberWaveform> with SingleTickerProvider
 }
 
 class _WavePainter extends CustomPainter {
-  _WavePainter({required this.isPlaying, required this.isError, required this.seed});
+  _WavePainter({
+    required this.isPlaying,
+    required this.isError,
+    required this.seed,
+  });
 
   final bool isPlaying;
   final bool isError;
@@ -104,7 +109,8 @@ class _WavePainter extends CustomPainter {
 
     for (int i = 1; i <= spikes; i++) {
       final x = step * i;
-      final spikeHeight = (random.nextDouble() * 0.8 + 0.2) * (size.height / 2.4);
+      final spikeHeight =
+          (random.nextDouble() * 0.8 + 0.2) * (size.height / 2.4);
       final direction = random.nextBool() ? 1 : -1;
       final y = baseLine + (spikeHeight * direction);
       path.lineTo(x, y);

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class MissionBriefingController extends ChangeNotifier {
   MissionBriefingController({required int seconds})
-      : _remaining = seconds,
-        _total = seconds;
+    : _remaining = seconds,
+      _total = seconds;
 
   final int _total;
   int _remaining;

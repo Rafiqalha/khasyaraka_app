@@ -19,9 +19,14 @@ class PathCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Color difficultyColor;
     switch (difficulty.toLowerCase()) {
-      case 'hard': difficultyColor = AppColors.scoutRed; break;
-      case 'medium': difficultyColor = AppColors.actionOrange; break;
-      default: difficultyColor = AppColors.forestGreen;
+      case 'hard':
+        difficultyColor = AppColors.scoutRed;
+        break;
+      case 'medium':
+        difficultyColor = AppColors.actionOrange;
+        break;
+      default:
+        difficultyColor = AppColors.forestGreen;
     }
 
     return GestureDetector(
@@ -31,13 +36,16 @@ class PathCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.scoutBrown.withValues(alpha: 0.1), width: 2),
+          border: Border.all(
+            color: AppColors.scoutBrown.withValues(alpha: 0.1),
+            width: 2,
+          ),
           boxShadow: [
             BoxShadow(
               color: AppColors.scoutBrown.withValues(alpha: 0.1),
               offset: const Offset(0, 6), // 3D Effect
               blurRadius: 0,
-            )
+            ),
           ],
         ),
         child: Column(
@@ -48,10 +56,16 @@ class PathCard extends StatelessWidget {
               height: 100,
               decoration: BoxDecoration(
                 color: difficultyColor.withValues(alpha: 0.1),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(18),
+                ),
               ),
               child: Center(
-                child: Icon(Icons.map_rounded, size: 40, color: difficultyColor),
+                child: Icon(
+                  Icons.map_rounded,
+                  size: 40,
+                  color: difficultyColor,
+                ),
               ),
             ),
             // Content
@@ -66,13 +80,16 @@ class PathCard extends StatelessWidget {
                       Text(
                         title,
                         style: const TextStyle(
-                          fontSize: 18, 
-                          fontWeight: FontWeight.w900, 
-                          color: AppColors.textDark
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textDark,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: difficultyColor,
                           borderRadius: BorderRadius.circular(8),
@@ -80,9 +97,9 @@ class PathCard extends StatelessWidget {
                         child: Text(
                           difficulty.toUpperCase(),
                           style: const TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.bold, 
-                            fontSize: 10
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
                           ),
                         ),
                       ),

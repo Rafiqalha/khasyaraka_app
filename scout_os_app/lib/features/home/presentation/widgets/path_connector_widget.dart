@@ -5,10 +5,7 @@ class PathConnectorPainter extends CustomPainter {
   final int nodeCount;
   final double nodeSpacing;
 
-  PathConnectorPainter({
-    required this.nodeCount,
-    required this.nodeSpacing,
-  });
+  PathConnectorPainter({required this.nodeCount, required this.nodeSpacing});
 
   @override
   void paint(Canvas canvas, Size size) {

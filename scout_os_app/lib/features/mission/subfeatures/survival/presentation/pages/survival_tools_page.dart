@@ -23,7 +23,11 @@ class SurvivalToolsPage extends StatelessWidget {
         title: 'Clinometer',
         subtitle: 'ANGLE_MEASURE',
         icon: Icons.signal_cellular_alt,
-        backgroundIcons: [Icons.terrain, Icons.straighten, Icons.change_history],
+        backgroundIcons: [
+          Icons.terrain,
+          Icons.straighten,
+          Icons.change_history,
+        ],
         gradientColors: [Colors.purpleAccent, Colors.indigo.shade800],
         routeName: AppRoutes.survivalClinometer,
         isAvailable: true,
@@ -41,19 +45,28 @@ class SurvivalToolsPage extends StatelessWidget {
         title: 'Leveler',
         subtitle: 'WATERPASS',
         icon: Icons.water_drop,
-        backgroundIcons: [Icons.balance, Icons.linear_scale, Icons.construction],
+        backgroundIcons: [
+          Icons.balance,
+          Icons.linear_scale,
+          Icons.construction,
+        ],
         gradientColors: [Colors.orangeAccent, Colors.deepOrange.shade800],
-        routeName: AppRoutes.survivalRiver, // Using 'River' route as placeholder for Leveler logic if applicable, or check routes
+        routeName: AppRoutes
+            .survivalRiver, // Using 'River' route as placeholder for Leveler logic if applicable, or check routes
         isAvailable: true,
       ),
       _SurvivalTool(
         title: 'Pedometer',
         subtitle: 'STEP_COUNTER',
         icon: Icons.directions_run,
-        backgroundIcons: [Icons.do_not_step, Icons.timer, Icons.health_and_safety],
+        backgroundIcons: [
+          Icons.do_not_step,
+          Icons.timer,
+          Icons.health_and_safety,
+        ],
         gradientColors: [Colors.pinkAccent, Colors.red.shade800],
         routeName: AppRoutes.survivalPedometer,
-        isAvailable: true, 
+        isAvailable: true,
       ),
       _SurvivalTool(
         title: 'Morse Torch',
@@ -73,7 +86,10 @@ class SurvivalToolsPage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black87,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -110,7 +126,12 @@ class SurvivalToolsPage extends StatelessWidget {
   Widget _buildSurvivalCard(BuildContext context, _SurvivalTool tool) {
     // Darker shade logic for border
     final Color borderBottomColor = HSLColor.fromColor(tool.gradientColors.last)
-        .withLightness((HSLColor.fromColor(tool.gradientColors.last).lightness - 0.2).clamp(0.0, 1.0))
+        .withLightness(
+          (HSLColor.fromColor(tool.gradientColors.last).lightness - 0.2).clamp(
+            0.0,
+            1.0,
+          ),
+        )
         .toColor();
 
     return GestureDetector(
@@ -126,7 +147,9 @@ class SurvivalToolsPage extends StatelessWidget {
               ),
               backgroundColor: Colors.black87,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               duration: const Duration(milliseconds: 1500),
             ),
           );
@@ -174,20 +197,22 @@ class SurvivalToolsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                 Positioned(
+                Positioned(
                   left: -30,
                   bottom: -10,
                   child: Transform.rotate(
                     angle: math.pi / 8,
                     child: Icon(
-                      tool.backgroundIcons.length > 1 ? tool.backgroundIcons[1] : tool.backgroundIcons[0],
+                      tool.backgroundIcons.length > 1
+                          ? tool.backgroundIcons[1]
+                          : tool.backgroundIcons[0],
                       color: Colors.white.withValues(alpha: 0.12),
                       size: 80,
                     ),
                   ),
                 ),
-                 // Third icon if available
-                 if (tool.backgroundIcons.length > 2)
+                // Third icon if available
+                if (tool.backgroundIcons.length > 2)
                   Positioned(
                     right: 40,
                     bottom: 20,
@@ -215,18 +240,19 @@ class SurvivalToolsPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2), // Glassy circle
+                        color: Colors.white.withValues(
+                          alpha: 0.2,
+                        ), // Glassy circle
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1.5),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.4),
+                          width: 1.5,
+                        ),
                       ),
-                      child: Icon(
-                        tool.icon,
-                        size: 40,
-                        color: Colors.white,
-                      ),
+                      child: Icon(tool.icon, size: 40, color: Colors.white),
                     ),
                     const Spacer(),
-                    
+
                     // Title
                     Text(
                       tool.title,
@@ -238,12 +264,16 @@ class SurvivalToolsPage extends StatelessWidget {
                         fontWeight: FontWeight.w700, // Bold
                         color: Colors.white,
                         shadows: [
-                          const Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2),
+                          const Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 4),
-                    
+
                     // Subtitle (Monospace)
                     Text(
                       tool.subtitle,

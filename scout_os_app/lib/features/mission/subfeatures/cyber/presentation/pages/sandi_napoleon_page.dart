@@ -6,21 +6,18 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Napoleon (Napoleon Cipher) Tool Page
-/// 
+///
 /// Horizontal Boustrophedon (Row-by-Row Filling):
 /// - Row 0 (Even): Fill Left-to-Right (Col 0 to Max)
 /// - Row 1 (Odd): Fill Right-to-Left (Col Max to 0)
 /// - Row 2 (Even): Fill Left-to-Right
 /// - ...and so on
-/// 
+///
 /// Encrypted text is read Row-by-Row (Left to Right)
 class SandiNapoleonPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiNapoleonPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiNapoleonPage({super.key, required this.sandi});
 
   @override
   State<SandiNapoleonPage> createState() => _SandiNapoleonPageState();
@@ -161,7 +158,10 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
   /// Build grid from encrypted text (decode mode)
   /// Encrypted text is read row by row, then we extract row by row with boustrophedon pattern
   void _buildGridFromEncrypted() {
-    final encrypted = _encryptedController.text.toUpperCase().replaceAll(' ', '');
+    final encrypted = _encryptedController.text.toUpperCase().replaceAll(
+      ' ',
+      '',
+    );
     if (encrypted.isEmpty) {
       _grid = [];
       _decryptedText = '';
@@ -177,7 +177,7 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
 
     // Build grid by reading row by row (encrypted text format)
     _grid = List.generate(rows, (_) => List.filled(cols, ''));
-    
+
     int encryptedIndex = 0;
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
@@ -375,9 +375,7 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
                 style: CyberTheme.headline().copyWith(fontSize: 16),
               ),
               const SizedBox(height: 12),
-              CyberContainer(
-                child: _buildGridView(),
-              ),
+              CyberContainer(child: _buildGridView()),
               const SizedBox(height: 24),
 
               // Result Section
@@ -403,14 +401,21 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: _encryptedText));
+                          Clipboard.setData(
+                            ClipboardData(text: _encryptedText),
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
                                 'Copied to clipboard!',
-                                style: CyberTheme.body().copyWith(color: Colors.white),
+                                style: CyberTheme.body().copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                               backgroundColor: Colors.black.withOpacity(0.9),
                               duration: const Duration(seconds: 1),
@@ -434,7 +439,9 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
                     children: [
                       Expanded(
                         child: SelectableText(
-                          _decryptedText.isEmpty ? 'Decoding...' : _decryptedText,
+                          _decryptedText.isEmpty
+                              ? 'Decoding...'
+                              : _decryptedText,
                           style: GoogleFonts.courierPrime(
                             fontSize: 20,
                             color: CyberTheme.matrixGreen,
@@ -445,14 +452,21 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
                       ),
                       if (_decryptedText.isNotEmpty)
                         IconButton(
-                          icon: const Icon(Icons.copy, color: CyberTheme.matrixGreen),
+                          icon: const Icon(
+                            Icons.copy,
+                            color: CyberTheme.matrixGreen,
+                          ),
                           onPressed: () {
-                            Clipboard.setData(ClipboardData(text: _decryptedText));
+                            Clipboard.setData(
+                              ClipboardData(text: _decryptedText),
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   'Copied to clipboard!',
-                                  style: CyberTheme.body().copyWith(color: Colors.white),
+                                  style: CyberTheme.body().copyWith(
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 backgroundColor: Colors.black.withOpacity(0.9),
                                 duration: const Duration(seconds: 1),
@@ -620,7 +634,8 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
     final fadeValue = animation.value;
     final scaleValue = 0.8 + (animation.value * 0.2);
     final slideOffset = isEvenRow
-        ? (1 - animation.value) * 50 // Slide from left
+        ? (1 - animation.value) *
+              50 // Slide from left
         : (1 - animation.value) * -50; // Slide from right
 
     return Transform.translate(
@@ -632,18 +647,16 @@ class _SandiNapoleonPageState extends State<SandiNapoleonPage>
           child: Container(
             decoration: BoxDecoration(
               color: cellColor,
-              border: Border.all(
-                color: borderColor,
-                width: 1.5,
-              ),
+              border: Border.all(color: borderColor, width: 1.5),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 if (animation.value > 0.5)
                   BoxShadow(
-                    color: (isEvenRow
-                            ? Colors.green.shade400
-                            : Colors.orange.shade400)
-                        .withOpacity(0.3 * animation.value),
+                    color:
+                        (isEvenRow
+                                ? Colors.green.shade400
+                                : Colors.orange.shade400)
+                            .withOpacity(0.3 * animation.value),
                     blurRadius: 8,
                     spreadRadius: 2,
                   ),

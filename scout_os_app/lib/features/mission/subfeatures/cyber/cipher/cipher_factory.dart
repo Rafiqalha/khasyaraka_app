@@ -10,7 +10,7 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_model
 /// Factory class to create cipher instances based on codename
 class CipherFactory {
   /// Create cipher instance based on sandi codename
-  /// 
+  ///
   /// Returns BaseCipher instance, or PlaceholderCipher if not implemented
   static BaseCipher createCipher(SandiModel sandiType) {
     final codename = sandiType.codename.toLowerCase();

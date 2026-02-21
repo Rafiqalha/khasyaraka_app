@@ -2,10 +2,10 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/cipher/base_ciph
 import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_model.dart';
 
 /// Sandi Rumput Cipher Implementation
-/// 
+///
 /// Sandi Rumput menggunakan pola garis-garis vertikal dan horizontal
 /// yang menyerupai rumput untuk menyandikan huruf.
-/// 
+///
 /// Format: Setiap huruf direpresentasikan dengan pola 5 baris
 /// - Baris 1-5: Kombinasi garis vertikal (|) dan spasi
 /// - Contoh: A = "| |\n| |\n|||\n| |\n| |"
@@ -81,14 +81,14 @@ class RumputCipher extends BaseCipher {
   @override
   String decrypt(String text) {
     final result = <String>[];
-    
+
     // Split by double newline to get individual letter patterns
     final letterPatterns = text.split('\n\n');
-    
+
     for (var pattern in letterPatterns) {
       // Normalize pattern (remove trailing/leading whitespace)
       final normalized = pattern.trim();
-      
+
       if (normalized.isEmpty) {
         result.add(' ');
       } else if (rumputToText.containsKey(normalized)) {

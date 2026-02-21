@@ -3,11 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/theme/cyber_theme.dart';
 
 class HoloButton extends StatelessWidget {
-  const HoloButton({
-    super.key,
-    required this.label,
-    required this.onTap,
-  });
+  const HoloButton({super.key, required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;

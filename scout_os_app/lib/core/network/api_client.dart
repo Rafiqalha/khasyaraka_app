@@ -13,16 +13,19 @@ class ApiClient {
   Future<dynamic> get(String endpoint) async {
     // Gabungkan Base URL dengan Endpoint (misal: /training/path)
     final url = Uri.parse("${Environment.apiBaseUrl}$endpoint");
-    
+
     try {
       if (kDebugMode) {
         debugPrint("📡 GET Request ke: $url");
       }
-      
-      final response = await http.get(url, headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      });
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
 
       if (kDebugMode) {
         debugPrint("📥 Response Code: ${response.statusCode}");

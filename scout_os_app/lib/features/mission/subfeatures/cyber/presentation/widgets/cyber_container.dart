@@ -18,7 +18,7 @@ class CyberContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isLocked 
+    final borderColor = isLocked
         ? CyberTheme.textSecondary.withValues(alpha: 0.3)
         : (glowColor ?? CyberTheme.neonCyan).withValues(alpha: 0.5);
     final shadowColor = isLocked
@@ -28,16 +28,9 @@ class CyberContainer extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: borderColor,
-          width: 1.5,
-        ),
+        border: Border.all(color: borderColor, width: 1.5),
         boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 12,
-            spreadRadius: 0,
-          ),
+          BoxShadow(color: shadowColor, blurRadius: 12, spreadRadius: 0),
         ],
       ),
       child: ClipRRect(

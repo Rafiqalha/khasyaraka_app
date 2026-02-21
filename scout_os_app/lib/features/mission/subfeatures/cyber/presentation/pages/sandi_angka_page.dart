@@ -6,17 +6,14 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Angka (Number Cipher) Tool
-/// 
+///
 /// Converts text to numbers and vice versa
 /// Standard: A=1, B=2, ..., Z=26
 /// Reverse: Z=1, Y=2, ..., A=26
 class SandiAngkaPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiAngkaPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiAngkaPage({super.key, required this.sandi});
 
   @override
   State<SandiAngkaPage> createState() => _SandiAngkaPageState();
@@ -145,10 +142,7 @@ class _SandiAngkaPageState extends State<SandiAngkaPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEncodeTab(),
-          _buildDecodeTab(),
-        ],
+        children: [_buildEncodeTab(), _buildDecodeTab()],
       ),
     );
   }
@@ -255,7 +249,10 @@ class _SandiAngkaPageState extends State<SandiAngkaPage>
                     ),
                     if (_encodeResult.isNotEmpty)
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () => _copyToClipboard(_encodeResult),
                         tooltip: 'Copy to clipboard',
                       ),
@@ -447,11 +444,11 @@ class _SandiAngkaPageState extends State<SandiAngkaPage>
 }
 
 /// Number Cipher Logic
-/// 
+///
 /// Handles encoding and decoding of text to/from numbers
 class NumberCipherLogic {
   /// Encode text to numbers
-  /// 
+  ///
   /// [text] - Input text to encode
   /// [isReverse] - If true, uses reverse mode (Z=1, Y=2, ..., A=26)
   /// Returns formatted number string with "-" separator
@@ -476,7 +473,8 @@ class NumberCipherLogic {
       } else if (char.codeUnitAt(0) >= 65 && char.codeUnitAt(0) <= 90) {
         // A-Z
         final number = isReverse
-            ? 27 - (char.codeUnitAt(0) - 64) // Reverse: Z=1, Y=2, ..., A=26
+            ? 27 -
+                  (char.codeUnitAt(0) - 64) // Reverse: Z=1, Y=2, ..., A=26
             : char.codeUnitAt(0) - 64; // Standard: A=1, B=2, ..., Z=26
         currentWord.add(number);
       }
@@ -492,7 +490,7 @@ class NumberCipherLogic {
   }
 
   /// Decode numbers to text
-  /// 
+  ///
   /// [input] - Input string containing numbers separated by non-digit characters
   /// [isReverse] - If true, uses reverse mode (Z=1, Y=2, ..., A=26)
   /// Returns decoded text string
@@ -511,7 +509,9 @@ class NumberCipherLogic {
 
         if (number >= 1 && number <= 26) {
           final charCode = isReverse
-              ? 27 - number + 64 // Reverse: 1=Z, 2=Y, ..., 26=A
+              ? 27 -
+                    number +
+                    64 // Reverse: 1=Z, 2=Y, ..., 26=A
               : number + 64; // Standard: 1=A, 2=B, ..., 26=Z
 
           decodedChars.add(String.fromCharCode(charCode));

@@ -18,17 +18,18 @@ class MissionDashboardPage extends StatelessWidget {
     final userName = user?.name ?? 'Pramuka'; // Fallback if name is null
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.backgroundColor(context),
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _TopographyPainter(),
-              ),
-            ),
+            Positioned.fill(child: CustomPaint(painter: _TopographyPainter())),
             ListView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 90), // Bottom padding for navbar
+              padding: const EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                90,
+              ), // Bottom padding for navbar
               children: [
                 _HeaderSection(userName: userName),
                 const SizedBox(height: 24),
@@ -36,11 +37,15 @@ class MissionDashboardPage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const JamnasConstructionScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const JamnasConstructionScreen(),
+                      ),
                     );
                   },
                 ),
-                const SizedBox(height: 24), // Extra spacing after exclusive card
+                const SizedBox(
+                  height: 24,
+                ), // Extra spacing after exclusive card
                 _JalurPenegakCard(
                   onTap: () {
                     // Navigate to Under Construction Screen -> SKU Variant
@@ -73,9 +78,10 @@ class MissionDashboardPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const UnderConstructionScreen(
-                                type: ConstructionType.skk,
-                              ),
+                              builder: (context) =>
+                                  const UnderConstructionScreen(
+                                    type: ConstructionType.skk,
+                                  ),
                             ),
                           );
                         },
@@ -112,7 +118,7 @@ class _HeaderSection extends StatelessWidget {
         Text(
           'PUSAT MISI', // Changed query
           style: AppTextStyles.h1.copyWith(
-            fontSize: 24, 
+            fontSize: 24,
             fontWeight: FontWeight.w900, // Extra Bold
             color: AppColors.primary,
             letterSpacing: 1.2,
@@ -120,10 +126,10 @@ class _HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Siap berpetualang, $userName?', 
+          'Siap berpetualang, $userName?',
           style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 14,
-            color: Colors.black54,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -136,13 +142,10 @@ class _HeaderSection extends StatelessWidget {
 // HELPER: BACKGROUND PATTERN PAINTER
 // -----------------------------------------------------------------------------
 class _BackgroundPattern extends StatelessWidget {
-  final List<IconData> icons;
+  final List<dynamic> icons; // Changed to dynamic to support Widgets too
   final Color color;
 
-  const _BackgroundPattern({
-    required this.icons,
-    required this.color,
-  });
+  const _BackgroundPattern({required this.icons, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -155,17 +158,26 @@ class _BackgroundPattern extends StatelessWidget {
         final left = (index * 40.0) % 300; // Distributed horizontally
         final angle = (random.nextDouble() - 0.5) * 0.5; // Mild rotation
 
+        final item = icons[index % icons.length];
+        Widget patternWidget;
+
+        if (item is IconData) {
+          patternWidget = Icon(
+            item,
+            size: size,
+            color: color.withOpacity(0.12), // Subtle opacity requested
+          );
+        } else if (item is Widget) {
+          // Assume widget is correctly sized/colored already if passed directly
+          patternWidget = SizedBox(width: size, height: size, child: item);
+        } else {
+          patternWidget = const SizedBox();
+        }
+
         return Positioned(
           top: top - 20, // Shift up slightly
           left: left - 20, // Shift left
-          child: Transform.rotate(
-            angle: angle,
-            child: Icon(
-              icons[index % icons.length],
-              size: size,
-              color: color.withOpacity(0.12), // Subtle opacity requested
-            ),
-          ),
+          child: Transform.rotate(angle: angle, child: patternWidget),
         );
       }),
     );
@@ -182,7 +194,7 @@ class _Gradient3DCard extends StatelessWidget {
   final Color borderColor;
   final double height;
   final double borderWidth;
-  final List<IconData>? patternIcons; // NEW: Accept pattern icons
+  final List<dynamic>? patternIcons; // NEW: Accept pattern icons/widgets
 
   const _Gradient3DCard({
     required this.child,
@@ -205,7 +217,7 @@ class _Gradient3DCard extends StatelessWidget {
           // We don't put color/gradient here to allow ClipRRect to work on children
           // The visual container is below
           boxShadow: [
-             BoxShadow(
+            BoxShadow(
               color: borderColor,
               offset: Offset(0, borderWidth), // 3D Bottom Border Effect
               blurRadius: 0,
@@ -237,10 +249,7 @@ class _Gradient3DCard extends StatelessWidget {
                 ),
 
               // 3. Content (Foreground)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: child,
-              ),
+              Padding(padding: const EdgeInsets.all(16), child: child),
             ],
           ),
         ),
@@ -282,7 +291,7 @@ class _JamnasExclusiveCard extends StatelessWidget {
           child: Stack(
             children: [
               // Specific Background Icons for Jamnas (Large ones)
-               Positioned(
+              Positioned(
                 right: -20,
                 bottom: -20,
                 child: Transform.rotate(
@@ -294,7 +303,7 @@ class _JamnasExclusiveCard extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // Content
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,8 +333,12 @@ class _JamnasExclusiveCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       shadows: [
-                         const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-                      ]
+                        const Shadow(
+                          blurRadius: 2,
+                          color: Colors.black26,
+                          offset: Offset(0, 1),
+                        ),
+                      ],
                     ),
                   ),
                   const Spacer(),
@@ -333,7 +346,10 @@ class _JamnasExclusiveCard extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
@@ -357,7 +373,11 @@ class _JamnasExclusiveCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFFFF8F00)),
+                          const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 16,
+                            color: Color(0xFFFF8F00),
+                          ),
                         ],
                       ),
                     ),
@@ -367,7 +387,7 @@ class _JamnasExclusiveCard extends StatelessWidget {
             ],
           ),
         ),
-        
+
         // "EVENT TERBATAS" Badge
         Positioned(
           top: 0,
@@ -427,7 +447,8 @@ class _JalurPenegakCard extends StatelessWidget {
         Icons.hiking,
         Icons.agriculture,
       ],
-      child: Row( // Changed to Row for Horizontal layout
+      child: Row(
+        // Changed to Row for Horizontal layout
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
@@ -443,11 +464,15 @@ class _JalurPenegakCard extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                     height: 1.2,
                     shadows: [
-                       const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-                    ]
+                      const Shadow(
+                        blurRadius: 2,
+                        color: Colors.black26,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
                 ),
-                 const SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Mulai Petualangan',
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -455,8 +480,12 @@ class _JalurPenegakCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                     shadows: [
-                       const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-                    ]
+                      const Shadow(
+                        blurRadius: 2,
+                        color: Colors.black26,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -467,12 +496,16 @@ class _JalurPenegakCard extends StatelessWidget {
             angle: 0.1,
             child: Image.asset(
               'assets/images/tunas_kelapa.png',
-              height: 80, 
+              height: 80,
               color: Colors.white.withOpacity(0.8), // Slightly more visible
               colorBlendMode: BlendMode.srcIn,
-              errorBuilder: (_, __, ___) => Icon(Icons.verified, color: Colors.white.withOpacity(0.8), size: 80),
+              errorBuilder: (_, __, ___) => Icon(
+                Icons.verified,
+                color: Colors.white.withOpacity(0.8),
+                size: 80,
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -505,7 +538,11 @@ class _SurvivalToolsCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center, // Centered Vertically
         children: [
-          const Icon(Icons.explore_rounded, color: Colors.white, size: 48), // Large Icon
+          const Icon(
+            Icons.explore_rounded,
+            color: Colors.white,
+            size: 48,
+          ), // Large Icon
           const SizedBox(height: 12),
           Text(
             'Survival\nTools',
@@ -516,8 +553,12 @@ class _SurvivalToolsCard extends StatelessWidget {
               fontWeight: FontWeight.w900,
               height: 1.1,
               shadows: [
-                 const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-              ]
+                const Shadow(
+                  blurRadius: 2,
+                  color: Colors.black26,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
           ),
         ],
@@ -542,8 +583,12 @@ class _KoleksiTkkCard extends StatelessWidget {
         Color(0xFFE65100), // Red Orange
       ],
       borderColor: const Color(0xFFBF360C), // Dark Red Orange
-      patternIcons: const [
-        Icons.stars,
+      patternIcons: [
+        Image.asset(
+          'assets/icons/training/star.png',
+          color: Colors.white.withOpacity(0.12),
+          colorBlendMode: BlendMode.srcIn,
+        ),
         Icons.military_tech,
         Icons.emoji_events,
         Icons.workspace_premium,
@@ -551,8 +596,12 @@ class _KoleksiTkkCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-           const Icon(Icons.stars_rounded, color: Colors.white, size: 48), // Large Icon
-           const SizedBox(height: 12),
+          const Icon(
+            Icons.stars_rounded,
+            color: Colors.white,
+            size: 48,
+          ), // Large Icon
+          const SizedBox(height: 12),
           Text(
             'Koleksi\nTKK',
             textAlign: TextAlign.center,
@@ -561,9 +610,13 @@ class _KoleksiTkkCard extends StatelessWidget {
               fontSize: 18,
               fontWeight: FontWeight.w900,
               height: 1.1,
-               shadows: [
-                 const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-              ]
+              shadows: [
+                const Shadow(
+                  blurRadius: 2,
+                  color: Colors.black26,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
           ),
         ],
@@ -609,8 +662,12 @@ class _CyberIntelCard extends StatelessWidget {
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   shadows: [
-                     const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-                  ]
+                    const Shadow(
+                      blurRadius: 2,
+                      color: Colors.black26,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 4),
@@ -619,9 +676,13 @@ class _CyberIntelCard extends StatelessWidget {
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: Colors.white.withOpacity(0.95),
                   fontWeight: FontWeight.w600,
-                   shadows: [
-                     const Shadow(blurRadius: 2, color: Colors.black26, offset: Offset(0, 1)),
-                  ]
+                  shadows: [
+                    const Shadow(
+                      blurRadius: 2,
+                      color: Colors.black26,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -632,7 +693,11 @@ class _CyberIntelCard extends StatelessWidget {
               color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.security_rounded, color: Colors.white, size: 32),
+            child: const Icon(
+              Icons.security_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
         ],
       ),
@@ -652,12 +717,7 @@ class _TopographyPainter extends CustomPainter {
       final path = Path();
       path.moveTo(0, y);
       for (double x = 0; x <= size.width; x += 60) {
-        path.quadraticBezierTo(
-          x + 20,
-          y + (x % 120 == 0 ? 8 : -8),
-          x + 60,
-          y,
-        );
+        path.quadraticBezierTo(x + 20, y + (x % 120 == 0 ? 8 : -8), x + 60, y);
       }
       canvas.drawPath(path, paint);
     }

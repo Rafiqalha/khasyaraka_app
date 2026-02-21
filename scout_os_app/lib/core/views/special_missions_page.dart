@@ -21,11 +21,11 @@ class SpecialMissionsPage extends StatelessWidget {
             subtitle: "Cek kelengkapan syarat Bantara/Laksana",
             icon: Icons.checklist_rtl_rounded,
             iconColor: AppColors.scoutDarkBrown, // Ikon Coklat di atas Kuning
-            bgColor: AppColors.penegakYellow,    // Background Kuning
+            bgColor: AppColors.penegakYellow, // Background Kuning
             textColor: AppColors.pitchBlack,
             onTap: () => Navigator.pushNamed(context, AppRoutes.skuMap),
           ),
-          
+
           const SizedBox(height: 16),
 
           // 2. SKK & BADGES - Warna Merah Hasduk (Semangat)
@@ -38,12 +38,12 @@ class SpecialMissionsPage extends StatelessWidget {
             bgColor: AppColors.hasdukRed,
             textColor: AppColors.hasdukWhite,
             onTap: () {
-               ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(
-                   content: Text("Fitur SKK Segera Hadir! 🛠️"),
-                   backgroundColor: AppColors.hasdukRed,
-                 )
-               );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Fitur SKK Segera Hadir! 🛠️"),
+                  backgroundColor: AppColors.hasdukRed,
+                ),
+              );
             },
           ),
 
@@ -58,7 +58,8 @@ class SpecialMissionsPage extends StatelessWidget {
             iconColor: AppColors.penegakYellow, // Kuning menyala di atas Hitam
             bgColor: AppColors.pitchBlack,
             textColor: AppColors.hasdukWhite,
-            onTap: () => Navigator.pushNamed(context, AppRoutes.cyberMissionControl),
+            onTap: () =>
+                Navigator.pushNamed(context, AppRoutes.cyberMissionControl),
           ),
 
           const SizedBox(height: 16),
@@ -80,7 +81,8 @@ class SpecialMissionsPage extends StatelessWidget {
   }
 
   // Custom Card Builder agar warna bisa dikontrol penuh
-  Widget _buildMissionCard(BuildContext context, {
+  Widget _buildMissionCard(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required IconData icon,
@@ -101,7 +103,7 @@ class SpecialMissionsPage extends StatelessWidget {
               color: AppColors.pitchBlack.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
         ),
         child: Row(
@@ -120,21 +122,21 @@ class SpecialMissionsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title, 
+                    title,
                     style: TextStyle(
-                      fontSize: 16, 
-                      fontWeight: FontWeight.w900, 
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
                       color: textColor,
-                      letterSpacing: 0.5
-                    )
+                      letterSpacing: 0.5,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    subtitle, 
+                    subtitle,
                     style: TextStyle(
-                      fontSize: 12, 
-                      color: textColor.withValues(alpha: 0.8)
-                    )
+                      fontSize: 12,
+                      color: textColor.withValues(alpha: 0.8),
+                    ),
                   ),
                 ],
               ),

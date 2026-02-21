@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Force Rebuild 2
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/shared/theme/app_theme.dart';
 // Import from features structure
@@ -20,81 +20,149 @@ import 'package:scout_os_app/features/profile/logic/profile_controller.dart';
 import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
 import 'package:scout_os_app/routes/app_routes.dart';
 import 'package:scout_os_app/core/services/local_cache_service.dart';
+import 'package:scout_os_app/core/services/in_app_update_service.dart';
+import 'package:scout_os_app/core/network/api_dio_provider.dart';
+import 'package:scout_os_app/shared/theme/theme_controller.dart'; // [NEW]
 
 void main() async {
+  // Force rebuild
   // Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize local cache (Hive) for SWR pattern
   await LocalCacheService.init();
-  
-  // ✅ HARD RESET: No SharedPreferences needed for auth
-  // JWT tokens are now memory-only (cleared on app kill)
 
-  runApp(const ScoutOSApp());
+  // Check for Google Play updates (forces immediate update if available)
+  await InAppUpdateService.checkForUpdate();
+
+  // Set up global navigation for Dio interceptor
+  final navigatorKey = GlobalKey<NavigatorState>();
+  ApiDioProvider.setNavigatorKey(navigatorKey);
+
+  runApp(ScoutOSApp(navigatorKey: navigatorKey));
 }
 
 /// Main Application Widget
-/// 
+///
 /// Implements Duolingo-inspired UI/UX with:
 /// - Bright, playful color scheme
 /// - Bold typography (Nunito font)
 /// - Smooth page transitions
 /// - Consistent theme across all screens
 class ScoutOSApp extends StatelessWidget {
-  const ScoutOSApp({super.key});
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const ScoutOSApp({super.key, required this.navigatorKey});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         // Register controllers for state management
-        ChangeNotifierProvider(create: (_) => TrainingController()),
         ChangeNotifierProvider(create: (_) => AuthController()),
-        ChangeNotifierProvider(create: (_) => LoginController()), // Added LoginController
+        ChangeNotifierProvider(create: (_) => LoginController()),
+        ChangeNotifierProxyProvider<AuthController, TrainingController>(
+          create: (context) {
+            final ac = Provider.of<AuthController>(context, listen: false);
+            return TrainingController(authController: ac);
+          },
+          update: (context, ac, previous) {
+            // Reuse previous instance to avoid disposing while async ops are in flight
+            return previous ?? TrainingController(authController: ac);
+          },
+        ),
         ChangeNotifierProvider(create: (_) => SkuController()),
         ChangeNotifierProvider(create: (_) => IntroController()),
 
         ChangeNotifierProvider(create: (_) => SurvivalMasteryController()),
         ChangeNotifierProvider(create: (_) => SurvivalToolsController()),
-        ChangeNotifierProvider(create: (_) => LeaderboardController()), // ✅ Add LeaderboardController to global providers
-        ChangeNotifierProvider(create: (_) => CyberController()), // ✅ Add CyberController for Sandi tools
-        ChangeNotifierProxyProvider<TrainingController, ProfileController>(
+        ChangeNotifierProvider(create: (_) => LeaderboardController()),
+        ChangeNotifierProvider(create: (_) => CyberController()),
+        ChangeNotifierProvider(create: (_) => ThemeController()), // [NEW]
+        ChangeNotifierProxyProvider3<
+          TrainingController,
+          LeaderboardController,
+          AuthController,
+          ProfileController
+        >(
           create: (context) {
             final tc = Provider.of<TrainingController>(context, listen: false);
-            return ProfileController(trainingController: tc);
+            final lc = Provider.of<LeaderboardController>(
+              context,
+              listen: false,
+            );
+            final ac = Provider.of<AuthController>(context, listen: false);
+            return ProfileController(
+              trainingController: tc,
+              leaderboardController: lc,
+              authController: ac,
+            );
           },
-          update: (_, tc, previous) => previous ?? ProfileController(trainingController: tc),
+          update: (context, tc, lc, ac, previous) {
+            if (previous != null) {
+              // Keep references up to date
+              previous.leaderboardController ??= lc;
+              return previous;
+            }
+            return ProfileController(
+              trainingController: tc,
+              leaderboardController: lc,
+              authController: ac,
+            );
+          },
         ),
       ],
-      child: MaterialApp(
-        // App Metadata
-        title: 'Khasyaraka - Scout OS',
-        debugShowCheckedModeBanner: false,
-        
-        // App Theme
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        
-        // Initial Route
-        home: const SplashPage(),
-        
-        // Page Transitions (Duolingo-style: smooth and bouncy)
-        themeAnimationDuration: const Duration(milliseconds: 300),
-        themeAnimationCurve: Curves.easeInOut,
-        
-        // Routes Configuration
-        routes: {
-          '/splash': (context) => const SplashPage(),
-          '/onboarding': (context) => const OnboardingPage(),
-          '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegisterPage(),
-          '/dashboard': (context) => const DuoMainScaffold(),
-          '/penegak': (context) => const DuoMainScaffold(), // Main Duolingo-style learning path                                                                                                                                                                                                               
+      child: Consumer2<AuthController, ThemeController>(
+        builder: (context, authController, themeController, child) {
+          return MaterialApp(
+            // App Metadata
+            title: 'Khasyaraka - Scout OS',
+            debugShowCheckedModeBanner: false,
+
+            // Global navigator key for Dio interceptor
+            navigatorKey: navigatorKey,
+
+            // App Theme
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeController.themeMode,
+
+            // Initial Route — uses AuthController.tryAutoLogin()
+            home: FutureBuilder<bool>(
+              future: authController.tryAutoLogin(),
+              builder: (context, snapshot) {
+                // Show splash while checking auth state
+                if (!snapshot.hasData) {
+                  return const SplashPage();
+                }
+
+                // Route based on auth state
+                final isLoggedIn = snapshot.data!;
+                if (isLoggedIn) {
+                  return const DuoMainScaffold();
+                } else {
+                  return const OnboardingPage();
+                }
+              },
+            ),
+
+            // Page Transitions
+            themeAnimationDuration: const Duration(milliseconds: 300),
+            themeAnimationCurve: Curves.easeInOut,
+
+            // Routes Configuration
+            routes: {
+              '/splash': (context) => const SplashPage(),
+              '/onboarding': (context) => const OnboardingPage(),
+              '/login': (context) => const LoginScreen(),
+              '/register': (context) => const RegisterPage(),
+              '/dashboard': (context) => const DuoMainScaffold(),
+              '/penegak': (context) => const DuoMainScaffold(),
+            },
+            onGenerateRoute: AppRoutes.generateRoute,
+          );
         },
-        onGenerateRoute: AppRoutes.generateRoute,
       ),
-    );                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-  }                                                                                                                                                                                                                       
+    );
+  }
 }

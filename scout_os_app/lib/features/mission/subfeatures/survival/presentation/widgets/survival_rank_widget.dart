@@ -15,7 +15,7 @@ class SurvivalRankWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SurvivalMasteryController>();
-    
+
     if (controller.isLoading) {
       return _buildLoadingCard();
     }
@@ -50,11 +50,7 @@ class SurvivalRankWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.military_tech,
-                  color: _gold,
-                  size: 24,
-                ),
+                Icon(Icons.military_tech, color: _gold, size: 24),
                 const SizedBox(width: 8),
                 Text(
                   'SURVIVAL MASTERY',
@@ -77,11 +73,7 @@ class SurvivalRankWidget extends StatelessWidget {
                     subtitle: highestTool.rankTitle,
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.white12,
-                ),
+                Container(width: 1, height: 40, color: Colors.white12),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatColumn(
@@ -105,11 +97,7 @@ class SurvivalRankWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                Icon(
-                  Icons.arrow_forward,
-                  color: _neonGreen,
-                  size: 14,
-                ),
+                Icon(Icons.arrow_forward, color: _neonGreen, size: 14),
               ],
             ),
           ],
@@ -147,10 +135,7 @@ class SurvivalRankWidget extends StatelessWidget {
           subtitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.poppins(
-            color: Colors.white70,
-            fontSize: 10,
-          ),
+          style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10),
         ),
       ],
     );
@@ -165,10 +150,7 @@ class SurvivalRankWidget extends StatelessWidget {
         border: Border.all(color: Colors.white12, width: 1),
       ),
       child: const Center(
-        child: CircularProgressIndicator(
-          color: _neonGreen,
-          strokeWidth: 2,
-        ),
+        child: CircularProgressIndicator(color: _neonGreen, strokeWidth: 2),
       ),
     );
   }
@@ -188,11 +170,7 @@ class SurvivalRankWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.explore,
-                  color: _gold,
-                  size: 24,
-                ),
+                Icon(Icons.explore, color: _gold, size: 24),
                 const SizedBox(width: 8),
                 Text(
                   'SURVIVAL TOOLS',
@@ -208,10 +186,7 @@ class SurvivalRankWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Start using survival tools to gain XP and level up!',
-              style: GoogleFonts.poppins(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 8),
             Row(
@@ -226,11 +201,7 @@ class SurvivalRankWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                Icon(
-                  Icons.arrow_forward,
-                  color: _neonGreen,
-                  size: 14,
-                ),
+                Icon(Icons.arrow_forward, color: _neonGreen, size: 14),
               ],
             ),
           ],

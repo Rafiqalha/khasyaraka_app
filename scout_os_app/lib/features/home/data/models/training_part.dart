@@ -1,18 +1,18 @@
 /// Training Part Model
-/// 
+///
 /// Represents a Part (Bagian) in the training map.
 /// Each Part contains multiple Units and maps to a backend Section.
-/// 
+///
 /// Example:
 /// - BAGIAN 1: Pengetahuan Umum (PUK) → Units 1-5
 /// - BAGIAN 2: Pertolongan Pertama (PPGD) → Units 1-5
 import 'training_path.dart';
 
 class TrainingPart {
-  final String sectionId;     // Backend section ID (e.g., "puk")
-  final String title;         // Section title (e.g., "Pengetahuan Umum")
-  final String? description;  // Optional description
-  final int order;            // Display order (1, 2, 3...)
+  final String sectionId; // Backend section ID (e.g., "puk")
+  final String title; // Section title (e.g., "Pengetahuan Umum")
+  final String? description; // Optional description
+  final int order; // Display order (1, 2, 3...)
   final List<UnitModel> units;
 
   TrainingPart({
@@ -33,7 +33,8 @@ class TrainingPart {
   bool get hasUnits => units.isNotEmpty;
 
   /// Total levels in this part
-  int get totalLevels => units.fold(0, (sum, unit) => sum + unit.lessons.length);
+  int get totalLevels =>
+      units.fold(0, (sum, unit) => sum + unit.lessons.length);
 
   /// Create from Section and Units
   factory TrainingPart.fromSectionAndUnits({

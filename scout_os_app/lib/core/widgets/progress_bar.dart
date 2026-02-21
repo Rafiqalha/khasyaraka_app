@@ -22,7 +22,8 @@ class ScoutProgressBar extends StatelessWidget {
       child: LinearProgressIndicator(
         value: value,
         minHeight: height,
-        backgroundColor: backgroundColor ?? AppColors.textGrey.withValues(alpha: 0.2),
+        backgroundColor:
+            backgroundColor ?? AppColors.textGrey.withValues(alpha: 0.2),
         color: color,
       ),
     );

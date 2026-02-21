@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// Sandi Rumput View Widget
-/// 
+///
 /// Visualizes text as a continuous line graph representing grass/mountains
 /// based on Morse Code pattern.
-/// 
+///
 /// Example: "AKU" -> ".- -.- ..-" -> continuous line with peaks
-/// 
+///
 /// Can also accept morse code directly via [morseCode] parameter
 class SandiRumputView extends StatelessWidget {
   final String? text;
@@ -28,10 +28,13 @@ class SandiRumputView extends StatelessWidget {
     this.shortHeight = 25.0,
     this.tallHeight = 75.0,
     this.spaceWidth = 20.0,
-  }) : assert(text != null || morseCode != null, 'Either text or morseCode must be provided');
+  }) : assert(
+         text != null || morseCode != null,
+         'Either text or morseCode must be provided',
+       );
 
   /// Convert text to Morse Code string
-  /// 
+  ///
   /// Comprehensive dictionary for A-Z and 0-9
   static String textToMorse(String text) {
     final morseMap = {
@@ -62,12 +65,13 @@ class SandiRumputView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use morseCode directly if provided, otherwise convert text to morse
-    final finalMorseCode = morseCode ?? (text != null ? textToMorse(text!) : '');
-    
+    final finalMorseCode =
+        morseCode ?? (text != null ? textToMorse(text!) : '');
+
     if (finalMorseCode.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     // Calculate required width based on morse code
     double totalWidth = 32.0; // Start with padding (16px left + 16px right)
     for (var char in finalMorseCode.split('')) {
@@ -77,12 +81,12 @@ class SandiRumputView extends StatelessWidget {
         totalWidth += spaceWidth;
       }
     }
-    
+
     // Ensure minimum width
     if (totalWidth < 100) {
       totalWidth = 100;
     }
-    
+
     return SizedBox(
       width: totalWidth,
       height: tallHeight + 40, // Height based on tallest peak + padding
@@ -102,9 +106,9 @@ class SandiRumputView extends StatelessWidget {
 }
 
 /// Custom Painter for Sandi Rumput visualization
-/// 
+///
 /// Draws a continuous line graph representing Morse Code as grass/mountains.
-/// 
+///
 /// Rules:
 /// - Baseline at y = 0 (bottom of canvas)
 /// - Continuous path (never breaks)
@@ -140,12 +144,13 @@ class SandiRumputPainter extends CustomPainter {
       ..color = color
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.miter // Sharp peaks, not rounded - CRITICAL!
+      ..strokeJoin = StrokeJoin
+          .miter // Sharp peaks, not rounded - CRITICAL!
       ..strokeCap = StrokeCap.butt; // Sharp caps
 
     // Create continuous path - ONE SINGLE PATH, NEVER BREAKS
     final path = Path();
-    
+
     // Baseline at y = 0 means bottom of canvas
     // In Flutter coordinate system: y=0 is top, y=size.height is bottom
     // So baselineY = size.height (bottom of canvas)
@@ -168,11 +173,11 @@ class SandiRumputPainter extends CustomPainter {
         // Move to peak (center of unit width, up by shortHeight from baseline)
         final peakX = x + unitWidth / 2;
         final peakY = baselineY - shortHeight;
-        
+
         // Ensure peak is within bounds
         if (peakY >= 0 && peakX < size.width) {
           path.lineTo(peakX, peakY); // Go up to peak
-          
+
           // Move to base (end of unit width, back to baseline)
           x += unitWidth;
           if (x <= size.width) {
@@ -186,11 +191,11 @@ class SandiRumputPainter extends CustomPainter {
         // Move to peak (center of unit width, up by tallHeight from baseline)
         final peakX = x + unitWidth / 2;
         final peakY = baselineY - tallHeight;
-        
+
         // Ensure peak is within bounds
         if (peakY >= 0 && peakX < size.width) {
           path.lineTo(peakX, peakY); // Go up to peak
-          
+
           // Move to base (end of unit width, back to baseline)
           x += unitWidth;
           if (x <= size.width) {

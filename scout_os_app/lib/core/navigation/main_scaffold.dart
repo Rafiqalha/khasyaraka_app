@@ -45,8 +45,20 @@ class _MainScaffoldState extends State<MainScaffold> {
         elevation: 2,
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map, color: AppColors.scoutBrown),
+            icon: Image.asset(
+              'assets/icons/navbar/camping-tent.png',
+              width: 24,
+              height: 24,
+              color: Colors.black54,
+              colorBlendMode: BlendMode.srcIn,
+            ),
+            selectedIcon: Image.asset(
+              'assets/icons/navbar/camping-tent.png',
+              width: 26,
+              height: 26,
+              color: AppColors.scoutBrown,
+              colorBlendMode: BlendMode.srcIn,
+            ),
             label: 'Peta',
           ),
           NavigationDestination(
@@ -60,8 +72,20 @@ class _MainScaffoldState extends State<MainScaffold> {
             label: 'Rank',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: AppColors.scoutBrown),
+            icon: Image.asset(
+              'assets/icons/navbar/girl.png',
+              width: 24,
+              height: 24,
+              color: Colors.black54,
+              colorBlendMode: BlendMode.srcIn,
+            ),
+            selectedIcon: Image.asset(
+              'assets/icons/navbar/girl.png',
+              width: 26,
+              height: 26,
+              color: AppColors.scoutBrown,
+              colorBlendMode: BlendMode.srcIn,
+            ),
             label: 'Profil',
           ),
         ],

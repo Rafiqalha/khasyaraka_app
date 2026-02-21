@@ -2,55 +2,74 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 import 'package:scout_os_app/features/home/data/models/training_question.dart';
 import 'package:scout_os_app/features/home/data/datasources/training_service.dart';
-import 'package:scout_os_app/features/home/data/repositories/training_repository.dart';
+import 'package:scout_os_app/features/home/logic/training_controller.dart';
+import 'package:scout_os_app/core/services/local_cache_service.dart';
 
 class LessonController extends ChangeNotifier {
   // Gunakan Service, bukan Repository (sesuai struktur sebelumnya)
   final TrainingService _service = TrainingService();
   final AuthRepository _authRepo = AuthRepository();
-  
+
+  LessonController({TrainingController? trainingController});
+
   List<TrainingQuestion> questions = [];
   int currentQuestionIndex = 0;
   int score = 0;
   bool isLoading = true;
   String? errorMessage;
   String lessonId = ""; // Ubah ke String agar cocok dengan "puk_u1_l1"
-  
+
   // ✅ CRITICAL: Track which question IDs were answered correctly
   List<String> correctQuestionIds = [];
-  
+
   // Duolingo-style progress tracking
   int userXp = 0;
   int userStreak = 0;
   int userHearts = 5;
   int maxHearts = 5;
-  
+
   // State Jawaban User
   int? selectedOptionIndex; // Untuk Multiple Choice (Index tombol)
   String? userAnswerString; // Untuk Input Teks
   List<String>? userSortingOrder; // Untuk Soal Sorting (Drag & Drop)
   Map<String, String>? userMatchingPairs; // Untuk Soal Matching
-  
+
   // State UI
   bool isChecked = false;
   bool isCorrect = false;
   bool isCompleted = false;
   bool showFeedback = false;
-  
+
   // Anti-cheat: Delay
   DateTime? _lastAnswerTime;
   static const Duration _answerDelay = Duration(milliseconds: 500);
-  bool get canAnswer => _lastAnswerTime == null || 
+  bool get canAnswer =>
+      _lastAnswerTime == null ||
       DateTime.now().difference(_lastAnswerTime!) >= _answerDelay;
 
   // ✅ Deduplication lock - prevents double submit
   bool _isSubmitting = false;
 
+  // ✅ Store backend response for optimistic UI updates
+  String? _lastCompletedStatus;
+  String? _lastNextLevelId;
+
+  // ⏱ Quiz timer
+  DateTime? _quizStartTime;
+  int get elapsedSeconds => _quizStartTime != null
+      ? DateTime.now().difference(_quizStartTime!).inSeconds
+      : 0;
+
+  /// Status returned by backend after finishLesson (e.g. 'COMPLETED', 'UNLOCKED')
+  String? get lastCompletedStatus => _lastCompletedStatus;
+
+  /// Next level ID unlocked by backend after finishLesson
+  String? get lastNextLevelId => _lastNextLevelId;
+
   bool get hasHearts => userHearts > 0;
-  
-  double get progress => questions.isEmpty 
-      ? 0.0 
-      : (currentQuestionIndex + 1) / questions.length;
+
+  double get progress =>
+      questions.isEmpty ? 0.0 : (currentQuestionIndex + 1) / questions.length;
 
   TrainingQuestion? get currentQuestion =>
       questions.isNotEmpty ? questions[currentQuestionIndex] : null;
@@ -67,72 +86,98 @@ class LessonController extends ChangeNotifier {
     errorMessage = null;
     questions = []; // Reset questions
     notifyListeners();
-    
+
     try {
       // CRITICAL: Trim levelId to prevent whitespace issues
       final cleanLevelId = levelId.trim();
-      debugPrint('🔍 LessonController.loadQuestions() called with levelId: "$cleanLevelId"');
-      
+      debugPrint(
+        '🔍 LessonController.loadQuestions() called with levelId: "$cleanLevelId"',
+      );
+
       // Panggil API Backend: GET /api/v1/training/levels/{id}/questions
       final fetchedQuestions = await _service.fetchQuestions(cleanLevelId);
-      
+
       // DEFENSIVE FILTERING: Double-check that all questions belong to this level
       // This is a safety measure in case the service layer doesn't filter properly
       // CRITICAL: Use STRICT EQUALITY (==) with trimmed values
       final filteredQuestions = fetchedQuestions
           .where((q) => q.levelId.trim() == cleanLevelId)
           .toList();
-      
+
       // DEBUG LOGGING: Help diagnose data leak issues
       debugPrint('🔍 LessonController filtering results:');
-      debugPrint('   📊 Fetched from service: ${fetchedQuestions.length} questions');
-      debugPrint('   ✅ After strict filtering: ${filteredQuestions.length} questions');
+      debugPrint(
+        '   📊 Fetched from service: ${fetchedQuestions.length} questions',
+      );
+      debugPrint(
+        '   ✅ After strict filtering: ${filteredQuestions.length} questions',
+      );
       if (fetchedQuestions.isNotEmpty) {
         final uniqueLevelIds = fetchedQuestions.map((q) => q.levelId).toSet();
         debugPrint('   📋 Found levelIds: ${uniqueLevelIds.join(", ")}');
         if (filteredQuestions.isNotEmpty) {
           debugPrint('   ✅ Filtered questions (first 3):');
           filteredQuestions.take(3).forEach((q) {
-            debugPrint('      - QID: ${q.id} | LevelID: "${q.levelId}" | Order: ${q.order}');
+            debugPrint(
+              '      - QID: ${q.id} | LevelID: "${q.levelId}" | Order: ${q.order}',
+            );
           });
         }
       }
-      
+
+      // ⏱ Start timer when questions are ready
+      _quizStartTime = DateTime.now();
+
       if (filteredQuestions.isEmpty) {
         if (fetchedQuestions.isNotEmpty) {
           // Backend returned questions but none match the levelId
           final uniqueLevelIds = fetchedQuestions.map((q) => q.levelId).toSet();
-          errorMessage = "Backend mengembalikan ${fetchedQuestions.length} soal, tetapi tidak ada yang cocok dengan level '$cleanLevelId'.";
-          debugPrint("⚠️ Level ID mismatch: Expected '$cleanLevelId', but got questions with levelIds: ${uniqueLevelIds.join(", ")}");
+          errorMessage =
+              "Backend mengembalikan ${fetchedQuestions.length} soal, tetapi tidak ada yang cocok dengan level '$cleanLevelId'.";
+          debugPrint(
+            "⚠️ Level ID mismatch: Expected '$cleanLevelId', but got questions with levelIds: ${uniqueLevelIds.join(", ")}",
+          );
         } else {
-          errorMessage = "Level ini belum memiliki soal. Silakan coba level lain.";
+          errorMessage =
+              "Level ini belum memiliki soal. Silakan coba level lain.";
         }
       } else {
         // CRITICAL: Sort by order field to maintain exact sequence from database
         // Backend already orders by order field, but we ensure it here as well
         filteredQuestions.sort((a, b) => a.order.compareTo(b.order));
         questions = filteredQuestions;
-        debugPrint('✅ Successfully loaded ${questions.length} questions for level "$cleanLevelId"');
+        questions = filteredQuestions;
+        debugPrint(
+          '✅ Successfully loaded ${questions.length} questions for level "$cleanLevelId"',
+        );
+
+        // ✅ Sync hearts with backend
+        _loadUserHearts();
       }
     } on Exception catch (e) {
       // Parse backend error messages
       final errorString = e.toString();
-      
+
       if (errorString.contains('404') || errorString.contains('not found')) {
         errorMessage = "Level '$levelId' tidak ditemukan atau tidak aktif.";
-      } else if (errorString.contains('timeout') || errorString.contains('Connection timeout')) {
+      } else if (errorString.contains('timeout') ||
+          errorString.contains('Connection timeout')) {
         errorMessage = "Koneksi timeout. Periksa koneksi internet Anda.";
-      } else if (errorString.contains('SocketException') || errorString.contains('NetworkException')) {
-        errorMessage = "Tidak dapat terhubung ke server. Pastikan backend berjalan.";
-      } else if (errorString.contains('FormatException') || errorString.contains('JSON')) {
+      } else if (errorString.contains('SocketException') ||
+          errorString.contains('NetworkException')) {
+        errorMessage =
+            "Tidak dapat terhubung ke server. Pastikan backend berjalan.";
+      } else if (errorString.contains('FormatException') ||
+          errorString.contains('JSON')) {
         errorMessage = "Data dari server tidak valid. Hubungi administrator.";
       } else {
         errorMessage = "Gagal memuat soal. Coba lagi nanti.";
       }
-      
+
       debugPrint("❌ API Error: $e");
     } catch (e) {
-      errorMessage = "Terjadi kesalahan tidak terduga: ${e.toString().substring(0, 50)}...";
+      errorMessage =
+          "Terjadi kesalahan tidak terduga: ${e.toString().substring(0, 50)}...";
       debugPrint("❌ Unexpected Error: $e");
     } finally {
       isLoading = false;
@@ -141,7 +186,7 @@ class LessonController extends ChangeNotifier {
   }
 
   /// Load all questions from a unit (all levels combined)
-  /// 
+  ///
   /// This is useful when you want to show all questions from a unit in one quiz session.
   /// Endpoint: GET /api/v1/training/units/{unitId}/questions
   Future<void> loadQuestionsByUnit(String unitId) async {
@@ -150,35 +195,45 @@ class LessonController extends ChangeNotifier {
     errorMessage = null;
     questions = []; // Reset questions
     notifyListeners();
-    
+
     try {
       // Panggil API Backend: GET /api/v1/training/units/{unitId}/questions
       final fetchedQuestions = await _service.fetchQuestionsByUnit(unitId);
-      
+
+      // ⏱ Start timer when questions are ready
+      _quizStartTime = DateTime.now();
+
       if (fetchedQuestions.isEmpty) {
         errorMessage = "Unit ini belum memiliki soal. Silakan coba unit lain.";
       } else {
         questions = fetchedQuestions;
+        // ✅ Sync hearts with backend
+        _loadUserHearts();
       }
     } on Exception catch (e) {
       // Parse backend error messages
       final errorString = e.toString();
-      
+
       if (errorString.contains('404') || errorString.contains('not found')) {
         errorMessage = "Unit '$unitId' tidak ditemukan atau tidak aktif.";
-      } else if (errorString.contains('timeout') || errorString.contains('Connection timeout')) {
+      } else if (errorString.contains('timeout') ||
+          errorString.contains('Connection timeout')) {
         errorMessage = "Koneksi timeout. Periksa koneksi internet Anda.";
-      } else if (errorString.contains('SocketException') || errorString.contains('NetworkException')) {
-        errorMessage = "Tidak dapat terhubung ke server. Pastikan backend berjalan.";
-      } else if (errorString.contains('FormatException') || errorString.contains('JSON')) {
+      } else if (errorString.contains('SocketException') ||
+          errorString.contains('NetworkException')) {
+        errorMessage =
+            "Tidak dapat terhubung ke server. Pastikan backend berjalan.";
+      } else if (errorString.contains('FormatException') ||
+          errorString.contains('JSON')) {
         errorMessage = "Data dari server tidak valid. Hubungi administrator.";
       } else {
         errorMessage = "Gagal memuat soal. Coba lagi nanti.";
       }
-      
+
       debugPrint("❌ API Error: $e");
     } catch (e) {
-      errorMessage = "Terjadi kesalahan tidak terduga: ${e.toString().substring(0, 50)}...";
+      errorMessage =
+          "Terjadi kesalahan tidak terduga: ${e.toString().substring(0, 50)}...";
       debugPrint("❌ Unexpected Error: $e");
     } finally {
       isLoading = false;
@@ -226,7 +281,7 @@ class LessonController extends ChangeNotifier {
   // ==========================================
   void checkAnswer() {
     if (currentQuestion == null || isChecked || !canAnswer) return;
-    
+
     _lastAnswerTime = DateTime.now();
     final q = currentQuestion!;
     isCorrect = false;
@@ -272,27 +327,41 @@ class LessonController extends ChangeNotifier {
 
       case 'matching':
         if (userMatchingPairs != null) {
-          final pairs = List<Map<String, dynamic>>.from(q.payload['pairs'] ?? []);
+          final pairs = List<Map<String, dynamic>>.from(
+            q.payload['pairs'] ?? [],
+          );
           bool allMatch = true;
-          
-          debugPrint('🔍 [CHECK_MATCHING] Validating payload pairs against user answers:');
-          
+
+          debugPrint(
+            '🔍 [CHECK_MATCHING] Validating payload pairs against user answers:',
+          );
+
           for (final pair in pairs) {
             final left = pair['left']?.toString().trim() ?? '';
             final right = pair['right']?.toString().trim() ?? '';
             // ✅ Hot Reload: Matching debug added
-            
+
             // Get user's answer for this left key (also trimmed)
             final userRight = userMatchingPairs?[left]?.trim();
             // Fallback: iterate user map to find key match if trimming differs slightly
             final userRightFallback = userMatchingPairs?.entries
-                .firstWhere((e) => e.key.trim() == left, orElse: () => const MapEntry('', ''))
-                .value.trim();
+                .firstWhere(
+                  (e) => e.key.trim() == left,
+                  orElse: () => const MapEntry('', ''),
+                )
+                .value
+                .trim();
 
-            final actualUserRight = userRight ?? (userRightFallback?.isNotEmpty == true ? userRightFallback : null);
+            final actualUserRight =
+                userRight ??
+                (userRightFallback?.isNotEmpty == true
+                    ? userRightFallback
+                    : null);
 
-            debugPrint('   - Key: "$left" | Expected: "$right" | User: "${actualUserRight ?? 'NULL'}"');
-            
+            debugPrint(
+              '   - Key: "$left" | Expected: "$right" | User: "${actualUserRight ?? 'NULL'}"',
+            );
+
             if (actualUserRight != right) {
               debugPrint('     ❌ MISMATCH!');
               allMatch = false;
@@ -301,7 +370,7 @@ class LessonController extends ChangeNotifier {
           }
           isCorrect = allMatch;
         } else {
-             debugPrint('❌ [CHECK_MATCHING] userMatchingPairs is NULL');
+          debugPrint('❌ [CHECK_MATCHING] userMatchingPairs is NULL');
         }
         break;
 
@@ -331,13 +400,70 @@ class LessonController extends ChangeNotifier {
       // ✅ REMOVED: userXp += q.xp; - XP must ONLY come from backend response
       userStreak++;
     } else {
+      // Strict Sync: Decrement hearts directly
       userHearts = (userHearts - 1).clamp(0, maxHearts);
+
+      // ✅ Critical: Update local cache immediately so TrainingPage sees the change
+      _preserveHeartsLocally();
+
+      // Fire-and-forget: sync hearts decrement to backend
+      _decrementHeartsOnBackend();
+
       userStreak = 0;
     }
 
     isChecked = true;
     showFeedback = true;
     notifyListeners();
+  }
+
+  /// Save hearts to local cache to keep TrainingController in sync
+  Future<void> _preserveHeartsLocally() async {
+    try {
+      await LocalCacheService.put('user_hearts', userHearts);
+      debugPrint('💚 [LESSON_SYNC] Saved hearts to cache: $userHearts');
+    } catch (e) {
+      debugPrint('⚠️ [LESSON_SYNC] Failed to save hearts/cache: $e');
+    }
+  }
+
+  /// Fire-and-forget: decrement hearts on backend
+  Future<void> _loadUserHearts() async {
+    try {
+      final currentUser = await _authRepo.getCurrentUser();
+      final userId = currentUser.id;
+      if (userId.isNotEmpty) {
+        final result = await _service.getHearts(userId: userId);
+        if (result.containsKey('hearts')) {
+          userHearts = result['hearts'] as int;
+          // Sync with local cache as backup
+          await LocalCacheService.put('user_hearts', userHearts);
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ [HEARTS] Failed to load hearts: $e');
+    }
+  }
+
+  /// Fire-and-forget: decrement hearts on backend
+  void _decrementHeartsOnBackend() {
+    Future(() async {
+      try {
+        final currentUser = await _authRepo.getCurrentUser();
+        final userId = currentUser.id;
+        if (userId.isNotEmpty) {
+          final result = await _service.decrementHearts(userId: userId);
+          // ✅ Sync local state with backend response
+          if (result.containsKey('hearts')) {
+            userHearts = result['hearts'] as int;
+            notifyListeners();
+          }
+        }
+      } catch (e) {
+        debugPrint('⚠️ [HEARTS] Backend decrement failed (non-critical): $e');
+      }
+    });
   }
 
   // Helper untuk membandingkan 2 List String
@@ -366,9 +492,9 @@ class LessonController extends ChangeNotifier {
   // ==========================================
   Future<void> nextQuestion() async {
     if (!isChecked) return;
-    
+
     showFeedback = false;
-    
+
     if (currentQuestionIndex < questions.length - 1) {
       // Lanjut soal berikutnya
       currentQuestionIndex++;
@@ -377,18 +503,18 @@ class LessonController extends ChangeNotifier {
     } else {
       // Selesai Level
       isCompleted = true;
-      
+
       // ✅ REMOVED: _submitProgressToBackend() - finishLesson will handle it
       // Progress submission is done in finishLesson() which is called by UI
-      
+
       notifyListeners();
     }
   }
 
   /// Finish lesson and calculate XP reward
-  /// 
+  ///
   /// Returns: XP earned (0 if level was previously completed, otherwise level's xpReward)
-  /// 
+  ///
   /// **Single API Architecture:**
   /// - ONLY calls submitProgress (backend handles streak + XP)
   /// - NO getUserStats, NO updateUserXp, NO loadPathData
@@ -398,13 +524,15 @@ class LessonController extends ChangeNotifier {
       debugPrint('⚠️ [FINISH] Already submitting, skipping duplicate call');
       return 0;
     }
-    
+
     int xpEarned = 0;
     _isSubmitting = true;
-    
+
     try {
       if (!isSuccess || questions.isEmpty) {
-        debugPrint('⚠️ [FINISH] finishLesson skipped: isSuccess=$isSuccess, questions.isEmpty=${questions.isEmpty}');
+        debugPrint(
+          '⚠️ [FINISH] finishLesson skipped: isSuccess=$isSuccess, questions.isEmpty=${questions.isEmpty}',
+        );
         return 0;
       }
 
@@ -430,19 +558,21 @@ class LessonController extends ChangeNotifier {
         return 0;
       }
 
-      debugPrint('🎯 [FINISH] Starting finishLesson for level: $currentLevelId');
+      debugPrint(
+        '🎯 [FINISH] Starting finishLesson for level: $currentLevelId',
+      );
 
       // ✅ Step 1: SINGLE API CALL - submitProgress returns EVERYTHING
       // Backend handles: XP, streak calculation, last_active_date update, AND unlocking next level
       try {
         final correctAnswers = score;
         final totalQuestions = questions.length;
-        
-        debugPrint('📊 [FINISH] Submitting progress: level=$currentLevelId, score=$score/$totalQuestions');
-        
-        // Note: Using TrainingService (Datasources) here. Ideally should use TrainingApiService, 
-        // but LessonController uses TrainingService currently.
-        // Assuming TrainingService.submitProgress is correctly implemented.
+
+        debugPrint(
+          '📊 [FINISH] Submitting progress: level=$currentLevelId, score=$score/$totalQuestions',
+        );
+        debugPrint('📊 [FINISH] Correct question IDs: $correctQuestionIds');
+
         final response = await _service.submitProgress(
           levelId: currentLevelId,
           score: score,
@@ -451,24 +581,29 @@ class LessonController extends ChangeNotifier {
           correctQuestionIds: correctQuestionIds,
           timeSpentSeconds: 0,
         );
-        
-        // ✅ Get ALL data from response
+
+        // ✅ Get ALL data from backend response
         xpEarned = response['xp_earned'] as int? ?? 0;
         final totalXp = response['total_xp'] as int? ?? 0;
         final streak = response['streak'] as int? ?? 0;
-        
-        debugPrint('✅ [FINISH] Backend response: xp_earned=$xpEarned, total_xp=$totalXp, streak=$streak');
-        
-        // ✅ Update local stats for display (transient)
+        final status = response['status'] as String? ?? 'UNLOCKED';
+        final nextLevelId = response['next_level_id'] as String?;
+
+        debugPrint('✅ [FINISH] Backend response:');
+        debugPrint('   status=$status, xp_earned=$xpEarned, total_xp=$totalXp');
+        debugPrint('   streak=$streak, next_level_id=$nextLevelId');
+
+        // ✅ Update local stats for display
         userXp = totalXp;
         userStreak = streak;
-        
-      } catch (e) {
-        debugPrint('⚠️ [FINISH] Error submitting progress: $e');
-      }
 
-      // ✅ Step 2: No local unlocking needed. 
-      // When user returns to map, force-refresh will fetch new "unlocked" status from backend.
+        // ✅ Store completion status for optimistic UI
+        _lastCompletedStatus = status;
+        _lastNextLevelId = nextLevelId;
+      } catch (e, stackTrace) {
+        debugPrint('❌ [FINISH] Error submitting progress: $e');
+        debugPrint('   Stack trace: $stackTrace');
+      }
 
       debugPrint('✅ [FINISH] finishLesson completed. XP Earned: $xpEarned');
       return xpEarned;
@@ -484,50 +619,7 @@ class LessonController extends ChangeNotifier {
   // ✅ REMOVED: _unlockNextLevel
   // Next level unlocking is handled by Backend (Redis Invalidation) + Frontend Force Refresh
 
-  /// Try alternative unit ID format
-  /// Example: "puk_u1" -> "puk_unit_1"
-  String? _tryAlternativeUnitId(String unitId) {
-    final match = RegExp(r'^(.+)_u(\d+)$').firstMatch(unitId);
-    if (match != null) {
-      final prefix = match.group(1);
-      final number = match.group(2);
-      if (prefix != null && number != null) {
-        return '${prefix}_unit_$number';
-      }
-    }
-    return null;
-  }
-
-  /// Extract unit ID from level ID
-  /// Examples: 
-  ///   "puk_u1_l1" -> "puk_u1"
-  ///   "puk_u2_l3" -> "puk_u2"
-  ///   "ppgd_u1_l1" -> "ppgd_u1"
-  String? _extractUnitId(String levelId) {
-    debugPrint('🔍 [EXTRACT] Extracting unitId from levelId: $levelId');
-    
-    // Pattern: {section}_{unit}_{level} -> {section}_{unit}
-    // Example: "puk_u1_l1" -> "puk_u1"
-    final match = RegExp(r'^(.+_u\d+)_l\d+$').firstMatch(levelId);
-    if (match != null) {
-      final unitId = match.group(1);
-      debugPrint('✅ [EXTRACT] Pattern matched: $unitId');
-      return unitId;
-    }
-
-    // Fallback: Try to extract by splitting on underscore
-    // Take first 2 parts (section_unit)
-    final parts = levelId.split('_');
-    if (parts.length >= 3) {
-      // Format: puk_u1_l1 -> puk_u1
-      final unitId = '${parts[0]}_${parts[1]}';
-      debugPrint('✅ [EXTRACT] Fallback pattern matched: $unitId');
-      return unitId;
-    }
-
-    debugPrint('❌ [EXTRACT] Could not extract unit ID from level ID: $levelId');
-    return null;
-  }
+  // REMOVED: _tryAlternativeUnitId, _extractUnitId - Unused
 
   String? _resolveCurrentLevelId() {
     if (lessonId.isEmpty) return null;
@@ -536,7 +628,6 @@ class LessonController extends ChangeNotifier {
     }
     return lessonId;
   }
-
 
   void _resetAnswerState() {
     selectedOptionIndex = null;

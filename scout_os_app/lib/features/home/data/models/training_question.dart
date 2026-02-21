@@ -1,14 +1,15 @@
 /// Training Question Model
-/// 
+///
 /// 1:1 mapping with backend TrainingQuestionResponse schema.
 /// DO NOT modify field names or types - must match backend exactly.
-/// 
+///
 /// IMPORTANT: payload structure depends on question type.
 /// Frontend must switch by type, not assume structure.
 class TrainingQuestion {
   final String id;
   final String levelId;
-  final String type; // "multiple_choice" | "matching" | "true_false" | "input" | "ordering"
+  final String
+  type; // "multiple_choice" | "matching" | "true_false" | "input" | "ordering"
   final String question;
   final Map<String, dynamic> payload; // Type-specific structure
   final int xp;
@@ -57,7 +58,7 @@ class TrainingQuestion {
       xp: safeInt('xp', 2),
       order: safeInt('order', 1),
       isActive: json['is_active'] == true || json['isActive'] == true,
-      createdAt: json['created_at'] != null 
+      createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
     );
@@ -110,11 +111,13 @@ class TrainingQuestion {
 
     // Fallback: older shape (left_items/right_items)
     return {
-      'left': (payload['left_items'] as List<dynamic>?)
+      'left':
+          (payload['left_items'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
-      'right': (payload['right_items'] as List<dynamic>?)
+      'right':
+          (payload['right_items'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -174,8 +177,12 @@ class QuestionListResponse {
     return QuestionListResponse(
       total: safeInt('total', 0),
       levelId: safeStringId('level_id'),
-      questions: (json['questions'] as List<dynamic>?)
-              ?.map((item) => TrainingQuestion.fromJson(item as Map<String, dynamic>))
+      questions:
+          (json['questions'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    TrainingQuestion.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );

@@ -5,10 +5,7 @@ class ApiConfig {
 
   // Header standar untuk setiap request JSON
   static Map<String, String> get headers {
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
+    return {'Content-Type': 'application/json', 'Accept': 'application/json'};
   }
 
   // Header dengan Token Auth (Dipanggil saat user sudah login)
@@ -19,6 +16,10 @@ class ApiConfig {
     };
   }
 
-  static const Duration connectionTimeout = Duration(milliseconds: Environment.connectTimeout);
-  static const Duration receiveTimeout = Duration(milliseconds: Environment.receiveTimeout);
+  static const Duration connectionTimeout = Duration(
+    milliseconds: Environment.connectTimeout,
+  );
+  static const Duration receiveTimeout = Duration(
+    milliseconds: Environment.receiveTimeout,
+  );
 }

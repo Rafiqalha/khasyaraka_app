@@ -1,5 +1,5 @@
 /// Sandi Pramuka Model
-/// 
+///
 /// Represents a Scout Cipher (Sandi) type from the backend API.
 class SandiModel {
   final int id;
@@ -77,10 +77,7 @@ class SandiListResponse {
   final int total;
   final List<SandiModel> sandiTypes;
 
-  SandiListResponse({
-    required this.total,
-    required this.sandiTypes,
-  });
+  SandiListResponse({required this.total, required this.sandiTypes});
 
   factory SandiListResponse.fromJson(Map<String, dynamic> json) {
     final sandiTypesList = json['sandi_types'] as List<dynamic>? ?? [];

@@ -5,41 +5,37 @@ class XpBadge extends StatelessWidget {
   final int xp;
   final bool isLarge;
 
-  const XpBadge({
-    super.key, 
-    required this.xp, 
-    this.isLarge = false
-  });
+  const XpBadge({super.key, required this.xp, this.isLarge = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isLarge ? 16 : 10, 
-        vertical: isLarge ? 8 : 4
+        horizontal: isLarge ? 16 : 10,
+        vertical: isLarge ? 8 : 4,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.goldBadge.withValues(alpha: 0.5), 
-          width: 2
+          color: AppColors.goldBadge.withValues(alpha: 0.5),
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
             color: AppColors.goldBadge.withValues(alpha: 0.2),
             blurRadius: 4,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.stars_rounded, 
-            color: AppColors.goldBadge, 
-            size: isLarge ? 24 : 18
+          Image.asset(
+            'assets/icons/training/star.png',
+            width: isLarge ? 24 : 18,
+            height: isLarge ? 24 : 18,
           ),
           SizedBox(width: isLarge ? 8 : 4),
           Text(

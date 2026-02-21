@@ -26,7 +26,7 @@ class ShakeAnimation extends StatefulWidget {
 class ShakeAnimationState extends State<ShakeAnimation>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -60,8 +60,7 @@ class ShakeAnimationState extends State<ShakeAnimation>
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
-        final sineValue =
-            sin(widget.count * 2 * pi * controller.value);
+        final sineValue = sin(widget.count * 2 * pi * controller.value);
         return Transform.translate(
           offset: Offset(sineValue * widget.offset, 0),
           child: child,

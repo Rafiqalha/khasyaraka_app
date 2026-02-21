@@ -25,15 +25,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE5E5E5), // Light background for contrast
       body: Stack(
         children: [
           PageView(
             controller: _pageController,
             onPageChanged: (index) => setState(() => _currentIndex = index),
-            children: const [
-              _TriSatyaSlide(),
-              _DasaDarmaSlide(),
-            ],
+            children: const [_TriSatyaSlide(), _DasaDarmaSlide()],
           ),
           Positioned(
             left: 0,
@@ -46,29 +44,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 if (_currentIndex == 1)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFD600),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      onPressed: () {
-                        context.read<IntroController>().completeOnboarding(context);
-                      },
-                      child: Text(
-                        "SIAP SEDIA",
-                        style: GoogleFonts.cinzel(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .move(begin: const Offset(0, 12), end: Offset.zero),
+                    child: _buildStartButton(),
                   ),
               ],
             ),
@@ -77,81 +53,146 @@ class _OnboardingPageState extends State<OnboardingPage> {
       ),
     );
   }
+
+  Widget _buildStartButton() {
+    return GestureDetector(
+      onTap: () {
+        context.read<IntroController>().completeOnboarding(context);
+      },
+      child:
+          Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFD600), // Scout Gold Face
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFF9A825), // Darker Gold Lip
+                      offset: const Offset(0, 4),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    "SIAP SEDIA",
+                    style: GoogleFonts.fredoka(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                      color: Colors.black,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 400.ms)
+              .move(begin: const Offset(0, 12), end: Offset.zero),
+    );
+  }
 }
 
+// ==========================================
+// TRI SATYA SLIDE (Flat 3D Cards)
+// ==========================================
 class _TriSatyaSlide extends StatelessWidget {
   const _TriSatyaSlide();
+
+  void _showExplanation(
+    BuildContext context,
+    String title,
+    String explanation,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          _ExplanationSheet(title: title, explanation: explanation),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     const deepBrown = Color(0xFF3E2723);
-    const boneWhite = Color(0xFFF5F5DC);
-
-    final points = [
-      "Demi kehormatanku, aku berjanji akan bersungguh-sungguh: menjalankan kewajibanku terhadap Tuhan, Negara Kesatuan Republik Indonesia dan mengamalkan Pancasila.",
-      "Menolong sesama hidup dan mempersiapkan diri membangun masyarakat.",
-      "Menepati Dasa Darma.",
-    ];
 
     return Container(
-      color: boneWhite,
+      color: const Color(0xFFF5F5DC), // Bone White
       child: Stack(
         children: [
+          // Background Icon
           Positioned.fill(
             child: Opacity(
-              opacity: 0.08,
+              opacity: 0.05,
               child: Center(
                 child: Icon(
-                  Icons.back_hand_outlined,
-                  size: 240,
+                  Icons.back_hand_rounded,
+                  size: 280,
                   color: deepBrown,
                 ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  "TRI SATYA",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 30,
-                    color: deepBrown,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 40, 24, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "TRI SATYA",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 32,
+                      color: deepBrown,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 28),
-                _GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (int i = 0; i < points.length; i++) ...[
-                        Text(
-                          "${i + 1}. ${points[i]}",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: deepBrown,
-                            height: 1.5,
-                          ),
-                        ),
-                        if (i != points.length - 1) const SizedBox(height: 14),
-                      ],
-                    ],
+                  const SizedBox(height: 8),
+                  Text(
+                    "Demi kehormatanku, aku berjanji akan bersungguh-sungguh:",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 14,
+                      color: deepBrown.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  "Janji ini adalah fondasi karakter Penegak.",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    color: deepBrown.withValues(alpha: 0.7),
+                  const SizedBox(height: 32),
+
+                  // Interactive Cards
+                  _TriSatyaCard(
+                    number: "1",
+                    text:
+                        "Menjalankan kewajibanku terhadap Tuhan, NKRI, dan mengamalkan Pancasila.",
+                    onTap: () => _showExplanation(
+                      context,
+                      "Kewajiban Utama",
+                      "Seorang Pramuka harus taat beribadah sesuai agama dan setia menjaga keutuhan Negara Kesatuan Republik Indonesia.",
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  _TriSatyaCard(
+                    number: "2",
+                    text:
+                        "Menolong sesama hidup dan ikut serta membangun masyarakat.",
+                    onTap: () => _showExplanation(
+                      context,
+                      "Kepedulian Sosial",
+                      "Pramuka selalu siap menolong orang lain tanpa membedakan dan aktif berkontribusi dalam kemajuan lingkungan.",
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _TriSatyaCard(
+                    number: "3",
+                    text: "Menepati Dasa Darma.",
+                    onTap: () => _showExplanation(
+                      context,
+                      "Kode Kehormatan",
+                      "Menjadikan 10 janji Dasa Darma sebagai pedoman moral dalam berpikir, berkata, dan bertindak.",
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -160,8 +201,99 @@ class _TriSatyaSlide extends StatelessWidget {
   }
 }
 
+class _TriSatyaCard extends StatelessWidget {
+  final String number;
+  final String text;
+  final VoidCallback onTap;
+
+  const _TriSatyaCard({
+    required this.number,
+    required this.text,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 4),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE0F7FA), // Light Blue tint
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                number,
+                style: GoogleFonts.fredoka(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: const Color(0xFF0277BD),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                text,
+                style: GoogleFonts.fredoka(
+                  fontSize: 16,
+                  color: Colors.black87,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==========================================
+// DASA DARMA SLIDE (Scrollable Cards)
+// ==========================================
 class _DasaDarmaSlide extends StatelessWidget {
   const _DasaDarmaSlide();
+
+  void _showExplanation(BuildContext context, int index, String title) {
+    final explanations = [
+      "Beribadah sesuai agama kepercayaan masing-masing.",
+      "Menjaga lingkungan dan menyayangi sesama makhluk hidup.",
+      "Sopan, santun, dan berjiwa ksatria dalam membela kebenaran.",
+      "Menghargai pendapat orang lain dan mengutamakan diskusi.",
+      "Siap membantu orang yang kesusahan dan tabah menghadapi cobaan.",
+      "Selalu semangat, kreatif, dan tidak mudah putus asa.",
+      "Menggunakan waktu dan harta secukupnya, tidak boros.",
+      "Taat aturan, berani karena benar, dan setia pada janji.",
+      "Selalu menjalankan tugas dengan sepenuh hati.",
+      "Jujur dan bersih dalam niat, ucapan, dan perilaku.",
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          _ExplanationSheet(title: title, explanation: explanations[index - 1]),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,79 +315,137 @@ class _DasaDarmaSlide extends StatelessWidget {
 
     return Container(
       color: deepBrown,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              "DASA DARMA",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 28,
+      child: Stack(
+        children: [
+          // Background decoration
+          Positioned(
+            top: -50,
+            right: -50,
+            child: Opacity(
+              opacity: 0.1,
+              child: Icon(
+                Icons.verified_user_rounded,
+                size: 300,
                 color: scoutGold,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.3,
               ),
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: points.length,
-                itemBuilder: (context, index) {
-                  return _DasaItem(index: index + 1, text: points[index])
-                      .animate(delay: (index * 120).ms)
-                      .fadeIn(duration: 400.ms)
-                      .move(begin: const Offset(0, 12), end: Offset.zero);
-                },
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 60),
+              Text(
+                "DASA DARMA",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.fredoka(
+                  fontSize: 32,
+                  color: scoutGold,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 8),
+              Text(
+                "Ketuk poin untuk melihat makna",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white70),
+              ),
+              const SizedBox(height: 20),
+
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+                  itemCount: points.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final num = index + 1;
+                    return _DasaItemCard(
+                          index: num,
+                          text: points[index],
+                          onTap: () =>
+                              _showExplanation(context, num, points[index]),
+                        )
+                        .animate(delay: (index * 50).ms)
+                        .fadeIn(duration: 300.ms)
+                        .moveX(begin: 20, end: 0);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DasaItem extends StatelessWidget {
-  const _DasaItem({required this.index, required this.text});
+class _DasaItemCard extends StatelessWidget {
+  const _DasaItemCard({
+    required this.index,
+    required this.text,
+    required this.onTap,
+  });
 
   final int index;
   final String text;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    const scoutGold = Color(0xFFFFD600);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor: scoutGold,
-            child: Text(
-              "$index",
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              offset: const Offset(0, 4), // 3D Lip
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0xFF8D6E63), // Brown tint
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                "$index",
+                style: GoogleFonts.fredoka(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 14,
-                height: 1.4,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                text,
+                style: GoogleFonts.fredoka(
+                  color: Colors.black87,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                ),
               ),
             ),
-          ),
-        ],
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: Colors.black26,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -275,11 +465,20 @@ class _DotsIndicator extends StatelessWidget {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           margin: const EdgeInsets.symmetric(horizontal: 6),
-          width: isActive ? 18 : 8,
-          height: 8,
+          width: isActive ? 24 : 10,
+          height: 10,
           decoration: BoxDecoration(
             color: isActive ? const Color(0xFFFFD600) : Colors.grey.shade400,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFF9A825), // Lip
+                      offset: const Offset(0, 2),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : null,
           ),
         );
       }),
@@ -287,26 +486,82 @@ class _DotsIndicator extends StatelessWidget {
   }
 }
 
-class _GlassCard extends StatelessWidget {
-  const _GlassCard({required this.child});
+// Reusable Explanation Sheet
+class _ExplanationSheet extends StatelessWidget {
+  final String title;
+  final String explanation;
 
-  final Widget child;
+  const _ExplanationSheet({required this.title, required this.explanation});
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFFFD600), width: 1),
-          ),
-          child: child,
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            style: GoogleFonts.fredoka(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            explanation,
+            style: GoogleFonts.fredoka(
+              fontSize: 16,
+              color: Colors.black54,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style:
+                ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF58CC02), // Duolingo Green
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ).copyWith(
+                  // Custom Shadow for 3D effect could be done with Container instead
+                ),
+            child: Text(
+              "MENGERTI",
+              style: GoogleFonts.fredoka(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
       ),
     );
   }

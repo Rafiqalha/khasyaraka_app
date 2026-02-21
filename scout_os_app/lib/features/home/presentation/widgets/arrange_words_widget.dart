@@ -9,8 +9,8 @@ class ArrangeWordsWidget extends StatefulWidget {
   final String? correctAnswer;
 
   const ArrangeWordsWidget({
-    super.key, 
-    required this.words, 
+    super.key,
+    required this.words,
     required this.onAnswerChanged,
     this.isChecked = false,
     this.isCorrect = false,
@@ -21,7 +21,8 @@ class ArrangeWordsWidget extends StatefulWidget {
   State<ArrangeWordsWidget> createState() => _ArrangeWordsWidgetState();
 }
 
-class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTickerProviderStateMixin {
+class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget>
+    with SingleTickerProviderStateMixin {
   late List<String> availableWords;
   List<String> selectedWords = [];
   late AnimationController _bounceController;
@@ -33,15 +34,27 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
     // Copy list agar tidak merubah aslinya & acak
     availableWords = List.from(widget.words);
     availableWords.shuffle();
-    
+
     _bounceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
 
     _bounceAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2).chain(CurveTween(curve: Curves.easeOut)), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)), weight: 2),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 1.2,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.2,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 2,
+      ),
     ]).animate(_bounceController);
   }
 
@@ -56,7 +69,7 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
       availableWords.shuffle();
       selectedWords = [];
     }
-    
+
     // Trigger bounce if checked and CORRECT
     if (widget.isChecked && widget.isCorrect && !oldWidget.isChecked) {
       _bounceController.forward(from: 0);
@@ -89,7 +102,7 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
     // Determine colors based on state
     Color borderColor = Colors.grey.shade300;
     Color bgColor = AppColors.scoutWhite;
-    
+
     if (widget.isChecked) {
       if (widget.isCorrect) {
         borderColor = AppColors.duoSuccess;
@@ -108,7 +121,9 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
           animation: _bounceAnimation,
           builder: (context, child) {
             return Transform.scale(
-              scale: widget.isChecked && widget.isCorrect ? _bounceAnimation.value : 1.0,
+              scale: widget.isChecked && widget.isCorrect
+                  ? _bounceAnimation.value
+                  : 1.0,
               child: child,
             );
           },
@@ -117,7 +132,7 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
             padding: const EdgeInsets.all(16),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: bgColor, 
+              color: bgColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: borderColor, width: 2),
               boxShadow: [
@@ -126,7 +141,7 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
                     color: AppColors.duoSuccess.withOpacity(0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
-                  )
+                  ),
               ],
             ),
             child: Wrap(
@@ -134,28 +149,31 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
               runSpacing: 8,
               children: selectedWords.map((word) {
                 return GestureDetector(
-                  onTap: widget.isChecked ? null : () { // Disable click if checked
-                    setState(() {
-                      selectedWords.remove(word);
-                      availableWords.add(word);
-                      _updateParent();
-                    });
-                  },
+                  onTap: widget.isChecked
+                      ? null
+                      : () {
+                          // Disable click if checked
+                          setState(() {
+                            selectedWords.remove(word);
+                            availableWords.add(word);
+                            _updateParent();
+                          });
+                        },
                   child: Chip(
                     label: Text(
-                      word, 
+                      word,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: widget.isChecked && widget.isCorrect 
-                            ? AppColors.duoSuccess 
+                        color: widget.isChecked && widget.isCorrect
+                            ? AppColors.duoSuccess
                             : AppColors.scoutBrown, // Teks coklat default
-                      )
+                      ),
                     ),
                     backgroundColor: AppColors.scoutWhite,
                     side: BorderSide(
-                      color: widget.isChecked && widget.isCorrect 
-                          ? AppColors.duoSuccess 
-                          : AppColors.forestGreen
+                      color: widget.isChecked && widget.isCorrect
+                          ? AppColors.duoSuccess
+                          : AppColors.forestGreen,
                     ),
                     elevation: 2,
                   ),
@@ -164,14 +182,18 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
             ),
           ),
         ),
-        
+
         // Correct Answer Card (Only if checked and WRONG)
-        if (widget.isChecked && !widget.isCorrect && widget.correctAnswer != null) ...[
+        if (widget.isChecked &&
+            !widget.isCorrect &&
+            widget.correctAnswer != null) ...[
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.duoSuccessLight.withOpacity(0.5), // Lighter green for info
+              color: AppColors.duoSuccessLight.withOpacity(
+                0.5,
+              ), // Lighter green for info
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppColors.duoSuccess.withOpacity(0.5),
@@ -183,7 +205,11 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lightbulb_circle, color: AppColors.duoSuccess, size: 24),
+                    Icon(
+                      Icons.lightbulb_circle,
+                      color: AppColors.duoSuccess,
+                      size: 24,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       "Jawaban yang benar:", // Correct Answer Title
@@ -208,14 +234,15 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
             ),
           ),
         ],
-        
+
         const SizedBox(height: 24),
-        if (!widget.isChecked) ...[ // Hide instruction if checked
+        if (!widget.isChecked) ...[
+          // Hide instruction if checked
           const Center(
             child: Text(
-              "Ketuk kata di bawah untuk menyusun:", 
-              style: TextStyle(color: AppColors.textGrey)
-            )
+              "Ketuk kata di bawah untuk menyusun:",
+              style: TextStyle(color: AppColors.textGrey),
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -245,7 +272,7 @@ class _ArrangeWordsWidgetState extends State<ArrangeWordsWidget> with SingleTick
                       style: const TextStyle(color: AppColors.textDark),
                     ),
                     // PERBAIKAN UTAMA: Ganti paperWhite jadi scoutWhite
-                    backgroundColor: AppColors.scoutWhite, 
+                    backgroundColor: AppColors.scoutWhite,
                     side: BorderSide(color: Colors.grey.shade400),
                   ),
                 );

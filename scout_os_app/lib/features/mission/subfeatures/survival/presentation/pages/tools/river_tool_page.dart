@@ -11,7 +11,8 @@ class RiverToolPage extends StatefulWidget {
   State<RiverToolPage> createState() => _RiverToolPageState();
 }
 
-class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProviderStateMixin {
+class _RiverToolPageState extends State<RiverToolPage>
+    with SingleTickerProviderStateMixin {
   // --- DUO THEME ---
   static const _riverBlue = Color(0xFF0091FF);
   static const _grassGreen = Color(0xFF58CC02);
@@ -32,7 +33,9 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
   // --- WIDTH TOOL STATE ---
   double? _startHeading;
   double? _endHeading;
-  final TextEditingController _distanceController = TextEditingController(text: "10");
+  final TextEditingController _distanceController = TextEditingController(
+    text: "10",
+  );
   double _calculatedWidth = 0.0;
 
   // --- FLOW TOOL STATE ---
@@ -40,7 +43,9 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   String _formattedTime = "00:00.0";
-  final TextEditingController _flowDistanceController = TextEditingController(text: "10");
+  final TextEditingController _flowDistanceController = TextEditingController(
+    text: "10",
+  );
   double _flowSpeed = 0.0;
 
   @override
@@ -65,7 +70,7 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
       if (mounted) {
         setState(() {
           // Simple tilt calculation
-          _pitch = event.y; 
+          _pitch = event.y;
           _roll = event.x;
         });
       }
@@ -95,13 +100,13 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
 
   void _calculateRiverWidth() {
     if (_startHeading == null) return;
-    
+
     double current = _heading;
     double diff = (current - _startHeading!).abs();
     if (diff > 180) diff = 360 - diff; // Handle wrap-around
 
     double walkDist = double.tryParse(_distanceController.text) ?? 0.0;
-    
+
     if (walkDist <= 0) {
       _showSnack("MASUKKAN JARAK LANGKAH!", _dangerRed);
       return;
@@ -136,7 +141,8 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
   void _updateTime(Timer timer) {
     if (mounted) {
       setState(() {
-        _formattedTime = "${_stopwatch.elapsed.inMinutes.toString().padLeft(2, '0')}:${(_stopwatch.elapsed.inSeconds % 60).toString().padLeft(2, '0')}.${(_stopwatch.elapsed.inMilliseconds % 1000 ~/ 100)}";
+        _formattedTime =
+            "${_stopwatch.elapsed.inMinutes.toString().padLeft(2, '0')}:${(_stopwatch.elapsed.inSeconds % 60).toString().padLeft(2, '0')}.${(_stopwatch.elapsed.inMilliseconds % 1000 ~/ 100)}";
       });
     }
   }
@@ -154,7 +160,14 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
   void _showSnack(String msg, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg, style: const TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.bold, color: Colors.white)),
+        content: Text(
+          msg,
+          style: const TextStyle(
+            fontFamily: 'Fredoka',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -167,7 +180,15 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Navigasi Arus 🌊", style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.bold, fontSize: 24, color: Color(0xFF4B4B4B))),
+        title: const Text(
+          "Navigasi Arus 🌊",
+          style: TextStyle(
+            fontFamily: 'Fredoka',
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Color(0xFF4B4B4B),
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -176,7 +197,11 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           controller: _tabController,
           labelColor: _riverBlue,
           unselectedLabelColor: Colors.grey,
-          labelStyle: const TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.bold, fontSize: 16),
+          labelStyle: const TextStyle(
+            fontFamily: 'Fredoka',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
           indicatorColor: _riverBlue,
           indicatorWeight: 4,
           tabs: const [
@@ -184,17 +209,11 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
             Tab(text: "LAJU ARUS"),
           ],
         ),
-        actions: [
-          _buildSpiritLevel(),
-          const SizedBox(width: 16),
-        ],
+        actions: [_buildSpiritLevel(), const SizedBox(width: 16)],
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildWidthTab(),
-          _buildFlowTab(),
-        ],
+        children: [_buildWidthTab(), _buildFlowTab()],
       ),
     );
   }
@@ -213,24 +232,33 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
             icon: Icons.straighten,
           ),
           const SizedBox(height: 24),
-          
+
           Text("1. BIDIK & KUNCI SUDUT AWAL", style: _labelStyle()),
           const SizedBox(height: 8),
           _build3DButton(
-            text: _startHeading == null ? "SET TITIK AWAL" : "TITIK AWAL: ${_startHeading!.toStringAsFixed(0)}°",
+            text: _startHeading == null
+                ? "SET TITIK AWAL"
+                : "TITIK AWAL: ${_startHeading!.toStringAsFixed(0)}°",
             color: _startHeading == null ? _grassGreen : Colors.grey,
-            shadowColor: _startHeading == null ? _grassShadow : Colors.grey.shade700,
+            shadowColor: _startHeading == null
+                ? _grassShadow
+                : Colors.grey.shade700,
             onTap: _setStartPoint,
             icon: Icons.gps_fixed,
           ),
-          
+
           const SizedBox(height: 24),
           Text("2. MASUKKAN JARAK GESER (METER)", style: _labelStyle()),
           const SizedBox(height: 8),
           TextField(
             controller: _distanceController,
             keyboardType: TextInputType.number,
-            style: const TextStyle(fontFamily: 'Fredoka', fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(
+              fontFamily: 'Fredoka',
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
             decoration: _inputDecoration("Contoh: 10"),
           ),
 
@@ -247,8 +275,16 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
 
           const SizedBox(height: 24),
           if (_endHeading != null)
-             Center(child: Text("Sudut Akhir: ${_endHeading!.toStringAsFixed(0)}° (Bedanya: ${(_heading - (_startHeading ?? 0)).abs().toStringAsFixed(1)}°)", style: const TextStyle(fontFamily: 'Fredoka', color: Colors.grey))),
-        
+            Center(
+              child: Text(
+                "Sudut Akhir: ${_endHeading!.toStringAsFixed(0)}° (Bedanya: ${(_heading - (_startHeading ?? 0)).abs().toStringAsFixed(1)}°)",
+                style: const TextStyle(
+                  fontFamily: 'Fredoka',
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+
           const SizedBox(height: 40),
           _buildDisclaimer(),
         ],
@@ -266,20 +302,23 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           _buildInfoCard(
             title: "LAJU ARUS",
             value: "${_flowSpeed.toStringAsFixed(2)} m/s",
-            color: _riverBlue, // Use Blue for water context, or Orange as per user request? User asked for Orange in "Data Panel". Let's stick to Orange for Speed Result.
+            color:
+                _riverBlue, // Use Blue for water context, or Orange as per user request? User asked for Orange in "Data Panel". Let's stick to Orange for Speed Result.
             overrideColor: const Color(0xFFFF9600),
             icon: Icons.speed,
           ),
           const SizedBox(height: 12),
           Center(
             child: Text(
-              _flowSpeed < 0.5 ? "ARUS TENANG" : (_flowSpeed < 1.0 ? "ARUS SEDANG" : "ARUS DERAS!"),
+              _flowSpeed < 0.5
+                  ? "ARUS TENANG"
+                  : (_flowSpeed < 1.0 ? "ARUS SEDANG" : "ARUS DERAS!"),
               style: TextStyle(
-                fontFamily: 'Fredoka', 
-                fontWeight: FontWeight.bold, 
-                color: _flowSpeed < 1.0 ? _grassGreen : _dangerRed
-              )
-            )
+                fontFamily: 'Fredoka',
+                fontWeight: FontWeight.bold,
+                color: _flowSpeed < 1.0 ? _grassGreen : _dangerRed,
+              ),
+            ),
           ),
 
           const SizedBox(height: 32),
@@ -288,7 +327,12 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           TextField(
             controller: _flowDistanceController,
             keyboardType: TextInputType.number,
-            style: const TextStyle(fontFamily: 'Fredoka', fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(
+              fontFamily: 'Fredoka',
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
             decoration: _inputDecoration("Contoh: 10"),
           ),
 
@@ -296,10 +340,15 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           Center(
             child: Text(
               _formattedTime,
-              style: const TextStyle(fontFamily: 'Fredoka', fontSize: 64, fontWeight: FontWeight.bold, color: Color(0xFF4B4B4B)),
+              style: const TextStyle(
+                fontFamily: 'Fredoka',
+                fontSize: 64,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF4B4B4B),
+              ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
           Center(
             child: SizedBox(
@@ -322,26 +371,37 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
   }
 
   // --- WIDGETS ---
-  
+
   Widget _buildSpiritLevel() {
     // Mini visualizer for tilt
     bool isLevel = _pitch.abs() < 1.0 && _roll.abs() < 1.0;
     return Container(
-      width: 40, height: 40,
+      width: 40,
+      height: 40,
       margin: const EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
         color: isLevel ? _grassGreen : Colors.grey.shade300,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))
-        ]
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: const Icon(Icons.water_drop, color: Colors.white, size: 20),
     );
   }
 
-  Widget _buildInfoCard({required String title, required String value, required Color color, required IconData icon, Color? overrideColor}) {
+  Widget _buildInfoCard({
+    required String title,
+    required String value,
+    required Color color,
+    required IconData icon,
+    Color? overrideColor,
+  }) {
     final displayColor = overrideColor ?? color;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -359,14 +419,36 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
         children: [
           Icon(icon, color: displayColor, size: 32),
           const SizedBox(height: 8),
-          Text(title, style: TextStyle(fontFamily: 'Fredoka', color: Colors.grey.shade600, fontWeight: FontWeight.bold, fontSize: 12)),
-          Text(value, style: TextStyle(fontFamily: 'Fredoka', color: displayColor, fontWeight: FontWeight.bold, fontSize: 32)),
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Fredoka',
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: 'Fredoka',
+              color: displayColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 32,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _build3DButton({required String text, required Color color, required Color shadowColor, required VoidCallback onTap, required IconData icon}) {
+  Widget _build3DButton({
+    required String text,
+    required Color color,
+    required Color shadowColor,
+    required VoidCallback onTap,
+    required IconData icon,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -375,7 +457,11 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           color: color,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: shadowColor, offset: const Offset(0, 4), blurRadius: 0),
+            BoxShadow(
+              color: shadowColor,
+              offset: const Offset(0, 4),
+              blurRadius: 0,
+            ),
           ],
         ),
         child: Row(
@@ -385,7 +471,13 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
             const SizedBox(width: 12),
             Text(
               text,
-              style: const TextStyle(fontFamily: 'Fredoka', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1.0),
+              style: const TextStyle(
+                fontFamily: 'Fredoka',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 1.0,
+              ),
             ),
           ],
         ),
@@ -393,7 +485,12 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
     );
   }
 
-  Widget _buildCircular3DButton({required String text, required Color color, required Color shadowColor, required VoidCallback onTap}) {
+  Widget _buildCircular3DButton({
+    required String text,
+    required Color color,
+    required Color shadowColor,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -401,13 +498,23 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           color: color,
           shape: BoxShape.circle,
           boxShadow: [
-            BoxShadow(color: shadowColor, offset: const Offset(0, 10), blurRadius: 0),
+            BoxShadow(
+              color: shadowColor,
+              offset: const Offset(0, 10),
+              blurRadius: 0,
+            ),
           ],
         ),
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(fontFamily: 'Fredoka', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 28, letterSpacing: 1.5),
+            style: const TextStyle(
+              fontFamily: 'Fredoka',
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              letterSpacing: 1.5,
+            ),
           ),
         ),
       ),
@@ -433,7 +540,12 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
   }
 
   TextStyle _labelStyle() {
-    return const TextStyle(fontFamily: 'Fredoka', fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey);
+    return const TextStyle(
+      fontFamily: 'Fredoka',
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+      color: Colors.grey,
+    );
   }
 
   Widget _buildDisclaimer() {
@@ -451,7 +563,11 @@ class _RiverToolPageState extends State<RiverToolPage> with SingleTickerProvider
           Expanded(
             child: Text(
               "Hasil adalah ESTIMASI. Jangan terlalu dekat dengan sunga yang deras!",
-              style: TextStyle(fontFamily: 'Fredoka', fontSize: 12, color: Colors.orange.shade800),
+              style: TextStyle(
+                fontFamily: 'Fredoka',
+                fontSize: 12,
+                color: Colors.orange.shade800,
+              ),
             ),
           ),
         ],

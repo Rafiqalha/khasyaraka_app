@@ -18,7 +18,11 @@ class GlossyStatsBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _GlossyCapsule(
-          icon: Icons.local_fire_department_rounded,
+          customIcon: Image.asset(
+            'assets/icons/training/fire.png',
+            height: 22,
+            width: 22,
+          ),
           value: '$streak',
           label: 'Streak',
           borderColor: const Color(0xFFFFA726),
@@ -28,7 +32,11 @@ class GlossyStatsBar extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         _GlossyCapsule(
-          icon: Icons.bolt_rounded,
+          customIcon: Image.asset(
+            'assets/icons/training/star.png',
+            height: 22,
+            width: 22,
+          ),
           value: _formatXp(totalXp),
           label: 'XP',
           borderColor: const Color(0xFFFFD600),
@@ -51,14 +59,16 @@ class GlossyStatsBar extends StatelessWidget {
 
 class _GlossyCapsule extends StatelessWidget {
   const _GlossyCapsule({
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.value,
     required this.label,
     required this.borderColor,
     required this.iconGradient,
   });
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final String value;
   final String label;
   final Color borderColor;
@@ -88,7 +98,10 @@ class _GlossyCapsule extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _GradientIcon(icon: icon, gradient: iconGradient),
+              if (customIcon != null)
+                customIcon!
+              else
+                _GradientIcon(icon: icon!, gradient: iconGradient),
               const SizedBox(width: 10),
               Column(
                 mainAxisSize: MainAxisSize.min,

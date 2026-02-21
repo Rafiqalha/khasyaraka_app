@@ -6,16 +6,13 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Jam (Clock Cipher) Tool
-/// 
+///
 /// Uses a starting time as 'A' and a fixed interval to determine subsequent letters.
 /// Example: Start 07:00, Interval 5 mins → 07:00=A, 07:05=B, 07:10=C, etc.
 class SandiJamPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiJamPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiJamPage({super.key, required this.sandi});
 
   @override
   State<SandiJamPage> createState() => _SandiJamPageState();
@@ -26,7 +23,7 @@ class _SandiJamPageState extends State<SandiJamPage>
   late TabController _tabController;
   final TextEditingController _encodeController = TextEditingController();
   final TextEditingController _decodeController = TextEditingController();
-  
+
   TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
   int _interval = 15; // minutes
   final List<String> _decodeTimes = [];
@@ -156,10 +153,7 @@ class _SandiJamPageState extends State<SandiJamPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEncodeTab(),
-          _buildDecodeTab(),
-        ],
+        children: [_buildEncodeTab(), _buildDecodeTab()],
       ),
     );
   }
@@ -211,7 +205,8 @@ class _SandiJamPageState extends State<SandiJamPage>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     _formatTime(_startTime),
@@ -325,7 +320,11 @@ class _SandiJamPageState extends State<SandiJamPage>
                       style: CyberTheme.headline().copyWith(fontSize: 16),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClear,
                       tooltip: 'Clear',
                     ),
@@ -371,7 +370,10 @@ class _SandiJamPageState extends State<SandiJamPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
                           final times = _encodeText(_encodeController.text);
                           _copyToClipboard(times);
@@ -445,7 +447,8 @@ class _SandiJamPageState extends State<SandiJamPage>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     _formatTime(_startTime),
@@ -579,7 +582,11 @@ class _SandiJamPageState extends State<SandiJamPage>
                     ),
                     const SizedBox(width: 12),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClear,
                       tooltip: 'Clear All',
                     ),
@@ -604,8 +611,12 @@ class _SandiJamPageState extends State<SandiJamPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
-                        onPressed: () => _copyToClipboard(_decodeTimes.join(', ')),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
+                        onPressed: () =>
+                            _copyToClipboard(_decodeTimes.join(', ')),
                         tooltip: 'Copy',
                       ),
                     ],
@@ -639,7 +650,10 @@ class _SandiJamPageState extends State<SandiJamPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: _decodedText.isNotEmpty
                             ? () => _copyToClipboard(_decodedText)
                             : null,
@@ -676,7 +690,10 @@ class _SandiJamPageState extends State<SandiJamPage>
   }
 
   Widget _buildCheatSheet() {
-    final letters = List.generate(26, (index) => String.fromCharCode(65 + index));
+    final letters = List.generate(
+      26,
+      (index) => String.fromCharCode(65 + index),
+    );
     return Container(
       height: 300,
       child: ListView.builder(
@@ -730,9 +747,7 @@ class _SandiJamPageState extends State<SandiJamPage>
               ? Colors.transparent
               : CyberTheme.error.withOpacity(0.2),
           border: Border.all(
-            color: isValid
-                ? CyberTheme.neonCyan
-                : CyberTheme.error,
+            color: isValid ? CyberTheme.neonCyan : CyberTheme.error,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(6),
@@ -763,7 +778,7 @@ class _SandiJamPageState extends State<SandiJamPage>
   String _encodeText(String text) {
     final upperText = text.toUpperCase();
     final times = <String>[];
-    
+
     for (int i = 0; i < upperText.length; i++) {
       final char = upperText[i];
       if (char == ' ') {
@@ -776,7 +791,7 @@ class _SandiJamPageState extends State<SandiJamPage>
         times.add(_formatTime(time));
       }
     }
-    
+
     return times.join(', ');
   }
 
@@ -800,7 +815,7 @@ class _SandiJamPageState extends State<SandiJamPage>
         );
       },
     );
-    
+
     if (picked != null) {
       setState(() {
         _decodeTimes.add(_formatTime(picked));
@@ -824,25 +839,22 @@ class _SandiJamPageState extends State<SandiJamPage>
 
   TimeOfDay _parseTime(String timeStr) {
     final parts = timeStr.split(':');
-    return TimeOfDay(
-      hour: int.parse(parts[0]),
-      minute: int.parse(parts[1]),
-    );
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
   void _updateDecodedText() {
     final buffer = StringBuffer();
-    
+
     for (int i = 0; i < _decodeTimes.length; i++) {
       final timeStr = _decodeTimes[i];
       if (timeStr == ' ') {
         buffer.write(' ');
         continue;
       }
-      
+
       final time = _parseTime(timeStr);
       final diffMinutes = _getMinutesDifference(_startTime, time);
-      
+
       if (diffMinutes % _interval == 0) {
         final letterIndex = diffMinutes ~/ _interval;
         if (letterIndex >= 0 && letterIndex < 26) {
@@ -850,7 +862,7 @@ class _SandiJamPageState extends State<SandiJamPage>
         }
       }
     }
-    
+
     setState(() {
       _decodedText = buffer.toString();
     });

@@ -1,3 +1,4 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
@@ -34,7 +35,7 @@ class _SkuListViewState extends State<SkuListView> {
         title: Text('POIN ${widget.level.toUpperCase()}'),
       ),
       body: controller.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: GrassSosLoader())
           : GridView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: controller.points.length,
@@ -122,8 +123,8 @@ class _CrystalTile extends StatelessWidget {
               point.isCompleted
                   ? 'Selesai'
                   : point.score > 0
-                      ? 'Ulangi'
-                      : 'Belum',
+                  ? 'Ulangi'
+                  : 'Belum',
               style: TextStyle(color: crystalColor),
             ),
           ],

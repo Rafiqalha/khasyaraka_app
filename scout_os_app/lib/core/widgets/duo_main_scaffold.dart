@@ -17,11 +17,8 @@ import 'package:scout_os_app/features/profile/presentation/pages/profile_page.da
 
 class DuoMainScaffold extends StatefulWidget {
   final int initialIndex;
-  
-  const DuoMainScaffold({
-    super.key,
-    this.initialIndex = 0,
-  });
+
+  const DuoMainScaffold({super.key, this.initialIndex = 0});
 
   @override
   State<DuoMainScaffold> createState() => _DuoMainScaffoldState();
@@ -32,9 +29,9 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
 
   // List of pages (corresponds to bottom nav items)
   final List<Widget> _pages = [
-    const TrainingPathPage(),  // Tab 0: Learning Path (Duolingo Layout)
-    const MissionDashboardPage(),    // Tab 1: Mission Dashboard
-    const RankPage(),               // Tab 2: Leaderboard
+    const TrainingPathPage(), // Tab 0: Learning Path (Duolingo Layout)
+    const MissionDashboardPage(), // Tab 1: Mission Dashboard
+    const RankPage(), // Tab 2: Leaderboard
     const ProfilePage(), // Tab 3: Profile
   ];
 
@@ -53,14 +50,11 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      
+      backgroundColor: AppColors.backgroundColor(context),
+
       // Use IndexedStack to preserve state when switching tabs
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      
+      body: IndexedStack(index: _currentIndex, children: _pages),
+
       // Bottom Navigation Bar (Duolingo Style)
       bottomNavigationBar: _buildDuoBottomNav(),
     );
@@ -98,7 +92,10 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
         assetPath,
         width: 32,
         height: 32,
-        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), // Apply white base for shader
+        colorFilter: const ColorFilter.mode(
+          Colors.white,
+          BlendMode.srcIn,
+        ), // Apply white base for shader
       ),
     );
   }
@@ -106,23 +103,16 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
   Widget _buildDuoBottomNav() {
     return Container(
       height: 90, // Taller matching Duolingo
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        border: Border(
-          top: BorderSide(
-            color: Colors.grey.shade200, // Clean flat border
-            width: 2,
-          ),
-        ),
-      ),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor),
       child: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildNavItem(
-              iconWidget: _buildGradientIcon(
-                Icons.home_rounded,
-                [Colors.red, Colors.yellow, Colors.green],
+              iconWidget: Image.asset(
+                'assets/icons/navbar/camping-tent.png',
+                width: 32,
+                height: 32,
               ),
               index: 0,
               color: AppColors.primary, // Selection color
@@ -130,7 +120,11 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
             _buildNavItem(
               iconWidget: _buildGradientIcon(
                 Icons.hiking_rounded, // Changed to Hiking Icon
-                [const Color(0xFFE91E63), const Color(0xFF9C27B0), const Color(0xFFFF9800)], // Pink, Purple, Orange
+                [
+                  const Color(0xFFE91E63),
+                  const Color(0xFF9C27B0),
+                  const Color(0xFFFF9800),
+                ], // Pink, Purple, Orange
               ),
               index: 1,
               color: AppColors.warning, // Selection color
@@ -138,15 +132,20 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
             _buildNavItem(
               iconWidget: _buildGradientIcon(
                 Icons.emoji_events_rounded,
-                [const Color(0xFFFFC107), const Color(0xFFFF9800), const Color(0xFFF44336)], // Gold, Orange, Red
+                [
+                  const Color(0xFFFFC107),
+                  const Color(0xFFFF9800),
+                  const Color(0xFFF44336),
+                ], // Gold, Orange, Red
               ),
               index: 2,
               color: AppColors.accent, // Selection color
             ),
             _buildNavItem(
-              iconWidget: _buildGradientIcon(
-                Icons.face_rounded,
-                [const Color(0xFF2196F3), const Color(0xFF00BCD4), const Color(0xFF673AB7)], // Blue, Cyan, Purple
+              iconWidget: Image.asset(
+                'assets/icons/navbar/girl.png',
+                width: 32,
+                height: 32,
               ),
               index: 3,
               color: AppColors.info, // Selection color
@@ -163,7 +162,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
     required Color color,
   }) {
     final isSelected = _currentIndex == index;
-    
+
     return GestureDetector(
       onTap: () => _onTabSelected(index),
       behavior: HitTestBehavior.opaque,
@@ -175,10 +174,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
             ? BoxDecoration(
                 color: color.withOpacity(0.15), // Light background
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: color,
-                  width: 2,
-                ),
+                border: Border.all(color: color, width: 2),
               )
             : null, // No decoration when inactive
         child: iconWidget,

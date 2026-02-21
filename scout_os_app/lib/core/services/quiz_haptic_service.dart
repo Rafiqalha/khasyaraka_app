@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 
 /// Haptic feedback service for quiz interactions
-/// 
+///
 /// Provides distinct tactile feedback for:
 /// - Correct answers: Light, quick feedback
 /// - Wrong answers: Heavy, longer buzz

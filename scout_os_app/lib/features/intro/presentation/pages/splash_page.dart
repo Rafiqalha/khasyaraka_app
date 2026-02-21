@@ -42,36 +42,39 @@ class _SplashPageState extends State<SplashPage> {
           children: [
             // Logo Icon: Vibrant Purple (or Original PNG)
             Image.asset(
-              'assets/images/icon-khasyaraka.png', 
-              width: MediaQuery.of(context).size.width * 0.65, // Responsive Width
-              fit: BoxFit.contain,
-              // color: brandColor, // Removed color filter to show original PNG colors. Uncomment if tint is needed.
-            )
-            .animate()
-            .fadeIn(duration: 800.ms)
-            .scale(
-              begin: const Offset(0.5, 0.5),
-              end: const Offset(1, 1),
-              curve: Curves.elasticOut,
-              duration: 1200.ms,
-            ),
+                  'assets/images/icon-khasyaraka.png',
+                  width:
+                      MediaQuery.of(context).size.width *
+                      0.65, // Responsive Width
+                  fit: BoxFit.contain,
+                  // color: brandColor, // Removed color filter to show original PNG colors. Uncomment if tint is needed.
+                )
+                .animate()
+                .fadeIn(duration: 800.ms)
+                .scale(
+                  begin: const Offset(0.5, 0.5),
+                  end: const Offset(1, 1),
+                  curve: Curves.elasticOut,
+                  duration: 1200.ms,
+                ),
 
             const SizedBox(height: 40),
 
             // Text Brand: "KHASYARAKA"
             Text(
-              "KHASYARAKA",
-              style: TextStyle(
-                fontFamily: 'Fredoka', // Using the local asset defined in pubspec.yaml
-                color: brandColor,
-                fontSize: 32,
-                fontWeight: FontWeight.w600, // Matches SemiBold asset
-                letterSpacing: 2.0,
-              ),
-            )
-            .animate()
-            .fadeIn(delay: 500.ms, duration: 800.ms)
-            .moveY(begin: 10, end: 0, curve: Curves.easeOutQuad),
+                  "KHASYARAKA",
+                  style: TextStyle(
+                    fontFamily:
+                        'Fredoka', // Using the local asset defined in pubspec.yaml
+                    color: brandColor,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w600, // Matches SemiBold asset
+                    letterSpacing: 2.0,
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 500.ms, duration: 800.ms)
+                .moveY(begin: 10, end: 0, curve: Curves.easeOutQuad),
           ],
         ),
       ),

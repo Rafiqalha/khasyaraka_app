@@ -6,16 +6,13 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Kotak 1 (Pigpen Cipher Variant 1) Tool
-/// 
+///
 /// Replaces letters with geometric symbols from tic-tac-toe and X grids.
 /// Some symbols have dots, some don't.
 class SandiKotak1Page extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiKotak1Page({
-    super.key,
-    required this.sandi,
-  });
+  const SandiKotak1Page({super.key, required this.sandi});
 
   @override
   State<SandiKotak1Page> createState() => _SandiKotak1PageState();
@@ -167,9 +164,7 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
                     style: CyberTheme.headline().copyWith(fontSize: 16),
                   ),
                   const SizedBox(height: 12),
-                  CyberContainer(
-                    child: _buildReferenceChart(),
-                  ),
+                  CyberContainer(child: _buildReferenceChart()),
                   const SizedBox(height: 24),
 
                   if (_isEncryptMode) ...[
@@ -183,10 +178,16 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
                             children: [
                               Text(
                                 'Plaintext',
-                                style: CyberTheme.headline().copyWith(fontSize: 16),
+                                style: CyberTheme.headline().copyWith(
+                                  fontSize: 16,
+                                ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: CyberTheme.neonCyan,
+                                  size: 20,
+                                ),
                                 onPressed: _onClear,
                                 tooltip: 'Clear',
                               ),
@@ -229,11 +230,17 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
                               children: [
                                 Text(
                                   'Encoded Symbols',
-                                  style: CyberTheme.headline().copyWith(fontSize: 16),
+                                  style: CyberTheme.headline().copyWith(
+                                    fontSize: 16,
+                                  ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
-                                  onPressed: () => _copyToClipboard(_encodedText),
+                                  icon: const Icon(
+                                    Icons.copy,
+                                    color: CyberTheme.neonCyan,
+                                  ),
+                                  onPressed: () =>
+                                      _copyToClipboard(_encodedText),
                                   tooltip: 'Copy',
                                 ),
                               ],
@@ -255,19 +262,31 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
                             children: [
                               Text(
                                 'Decoded Text',
-                                style: CyberTheme.headline().copyWith(fontSize: 16),
+                                style: CyberTheme.headline().copyWith(
+                                  fontSize: 16,
+                                ),
                               ),
                               Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.copy, color: CyberTheme.neonCyan, size: 20),
+                                    icon: const Icon(
+                                      Icons.copy,
+                                      color: CyberTheme.neonCyan,
+                                      size: 20,
+                                    ),
                                     onPressed: _decodeController.text.isNotEmpty
-                                        ? () => _copyToClipboard(_decodeController.text)
+                                        ? () => _copyToClipboard(
+                                            _decodeController.text,
+                                          )
                                         : null,
                                     tooltip: 'Copy',
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                                    icon: const Icon(
+                                      Icons.clear,
+                                      color: CyberTheme.neonCyan,
+                                      size: 20,
+                                    ),
                                     onPressed: _onClear,
                                     tooltip: 'Clear',
                                   ),
@@ -309,7 +328,9 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
                           children: [
                             Text(
                               'Input History',
-                              style: CyberTheme.headline().copyWith(fontSize: 16),
+                              style: CyberTheme.headline().copyWith(
+                                fontSize: 16,
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Wrap(
@@ -323,7 +344,9 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
                                   width: 40,
                                   height: 40,
                                   child: CustomPaint(
-                                    painter: Kotak1EncodedSymbolPainter(character: char),
+                                    painter: Kotak1EncodedSymbolPainter(
+                                      character: char,
+                                    ),
                                   ),
                                 );
                               }).toList(),
@@ -357,10 +380,7 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
           color: isActive ? CyberTheme.neonCyan : Colors.transparent,
-          border: Border.all(
-            color: CyberTheme.neonCyan,
-            width: 2,
-          ),
+          border: Border.all(color: CyberTheme.neonCyan, width: 2),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -398,7 +418,10 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
 
   Widget _buildDecodeKeyboard() {
     // Generate A-Z alphabetically
-    final letters = List.generate(26, (index) => String.fromCharCode(65 + index));
+    final letters = List.generate(
+      26,
+      (index) => String.fromCharCode(65 + index),
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -468,10 +491,7 @@ class _SandiKotak1PageState extends State<SandiKotak1Page> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: Colors.transparent,
-          border: Border.all(
-            color: CyberTheme.neonCyan,
-            width: 1.5,
-          ),
+          border: Border.all(color: CyberTheme.neonCyan, width: 1.5),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -512,7 +532,8 @@ class GridReferencePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF8B6F47) // Dark Brown/Grey (Scout theme)
+      ..color =
+          const Color(0xFF8B6F47) // Dark Brown/Grey (Scout theme)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..strokeJoin = StrokeJoin.miter;
@@ -521,9 +542,7 @@ class GridReferencePainter extends CustomPainter {
       ..color = Colors.white
       ..style = PaintingStyle.fill;
 
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     if (gridType == GridType.ticTacToe) {
       // Draw tic-tac-toe grid (3x3)
@@ -581,11 +600,7 @@ class GridReferencePainter extends CustomPainter {
 
         // Draw dot if needed
         if (hasDots) {
-          canvas.drawCircle(
-            Offset(centerX, centerY + 12),
-            3.0,
-            dotPaint,
-          );
+          canvas.drawCircle(Offset(centerX, centerY + 12), 3.0, dotPaint);
         }
       }
     } else {
@@ -649,11 +664,7 @@ class GridReferencePainter extends CustomPainter {
 
         // Draw dot if needed
         if (hasDots) {
-          canvas.drawCircle(
-            Offset(centerX, centerY + 12),
-            3.0,
-            dotPaint,
-          );
+          canvas.drawCircle(Offset(centerX, centerY + 12), 3.0, dotPaint);
         }
       }
     }
@@ -760,7 +771,7 @@ class Kotak1SymbolPainter extends CustomPainter {
       // Position 1: Top triangle (U-V)
       // Position 2: Right triangle (W-X)
       // Position 3: Bottom triangle (Y-Z)
-      
+
       final centerX = size.width / 2;
       final centerY = size.height / 2;
       final triangleSize = width * 0.6;
@@ -871,7 +882,7 @@ class Kotak1SymbolPainter extends CustomPainter {
     if (upperChar.length != 1) return null;
 
     final code = upperChar.codeUnitAt(0);
-    
+
     // Mapping berdasarkan Pigpen Cipher yang benar:
     // Setiap pair memiliki posisi yang sama, huruf kedua memiliki dot
     // A-B (pos 0), C-D (pos 1), E-F (pos 2), G-H (pos 3), I-J (pos 4),
@@ -945,226 +956,465 @@ class Kotak1ReferenceSymbolPainter extends CustomPainter {
     switch (char) {
       case 'A':
         // L-shape like '7' (vertical right, horizontal top-left)
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY - symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
         break;
       case 'B':
         // Same as A with dot above left
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2 - 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2 - 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'C':
         // U-shape open at top
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         break;
       case 'D':
         // U-shape like C with dot inside top-left
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX - symbolSize / 2 + 4, centerY - symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX - symbolSize / 2 + 4, centerY - symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'E':
         // L-shape like 'L' (vertical left, horizontal top-right)
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
         break;
       case 'F':
         // Same as E with dot above right
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2 - 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2 - 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'G':
         // U-shape open at bottom (inverted U)
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
         break;
       case 'H':
         // Square outline with top-right corner missing, dot in top-left
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY), paint);
-        canvas.drawCircle(Offset(centerX - symbolSize / 2 + 4, centerY - symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX - symbolSize / 2 + 4, centerY - symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'I':
         // Complete square outline
         canvas.drawRect(
-            Rect.fromCenter(center: Offset(centerX, centerY), width: symbolSize, height: symbolSize),
-            paint);
+          Rect.fromCenter(
+            center: Offset(centerX, centerY),
+            width: symbolSize,
+            height: symbolSize,
+          ),
+          paint,
+        );
         break;
       case 'J':
         // Complete square outline with dot in top-left
         canvas.drawRect(
-            Rect.fromCenter(center: Offset(centerX, centerY), width: symbolSize, height: symbolSize),
-            paint);
-        canvas.drawCircle(Offset(centerX - symbolSize / 2 + 4, centerY - symbolSize / 2 + 4), 2.5, dotPaint);
+          Rect.fromCenter(
+            center: Offset(centerX, centerY),
+            width: symbolSize,
+            height: symbolSize,
+          ),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX - symbolSize / 2 + 4, centerY - symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'K':
         // Square outline with top-left corner missing
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
         break;
       case 'L':
         // Square outline like K with dot in top-right
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX + symbolSize / 2 - 4, centerY - symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX + symbolSize / 2 - 4, centerY - symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'M':
         // L-shape like 'J' without curve (horizontal top, vertical right bottom)
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         break;
       case 'N':
         // Same as M with dot below right
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX + symbolSize / 2 - 4, centerY + symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX + symbolSize / 2 - 4, centerY + symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'O':
         // U-shape open at top with dot in top-right
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX + symbolSize / 2 - 4, centerY - symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX + symbolSize / 2 - 4, centerY - symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'P':
         // L-shape with vertical left, horizontal bottom-right
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         break;
       case 'Q':
         // Same as P with dot below left
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX - symbolSize / 2 + 4, centerY + symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX - symbolSize / 2 + 4, centerY + symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'R':
         // L-shape with vertical right, horizontal bottom-left
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         break;
       case 'S':
         // Same as R with dot below left
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawCircle(Offset(centerX - symbolSize / 2 + 4, centerY + symbolSize / 2 + 4), 2.5, dotPaint);
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawCircle(
+          Offset(centerX - symbolSize / 2 + 4, centerY + symbolSize / 2 + 4),
+          2.5,
+          dotPaint,
+        );
         break;
       case 'T':
         // Chevron pointing right (>) with dot in center
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX, centerY), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX, centerY),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         canvas.drawCircle(Offset(centerX, centerY), 2.5, dotPaint);
         break;
       case 'U':
         // Chevron pointing down (V)
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
         break;
       case 'V':
         // Chevron pointing down (V) with dot in center
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY + symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY - symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY + symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
         canvas.drawCircle(Offset(centerX, centerY), 2.5, dotPaint);
         break;
       case 'W':
         // Chevron pointing left (<)
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX, centerY), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX - symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX, centerY),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         break;
       case 'X':
         // Chevron pointing left (<) with dot in center
-        canvas.drawLine(Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
-            Offset(centerX, centerY), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX - symbolSize / 2, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY),
-            Offset(centerX - symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX + symbolSize / 2, centerY - symbolSize / 2),
+          Offset(centerX, centerY),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX - symbolSize / 2, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY),
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         canvas.drawCircle(Offset(centerX, centerY), 2.5, dotPaint);
         break;
       case 'Y':
         // Chevron pointing up (^)
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         break;
       case 'Z':
         // Chevron pointing up (^) with dot in center
-        canvas.drawLine(Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
-            Offset(centerX, centerY - symbolSize / 2), paint);
-        canvas.drawLine(Offset(centerX, centerY - symbolSize / 2),
-            Offset(centerX + symbolSize / 2, centerY + symbolSize / 2), paint);
+        canvas.drawLine(
+          Offset(centerX - symbolSize / 2, centerY + symbolSize / 2),
+          Offset(centerX, centerY - symbolSize / 2),
+          paint,
+        );
+        canvas.drawLine(
+          Offset(centerX, centerY - symbolSize / 2),
+          Offset(centerX + symbolSize / 2, centerY + symbolSize / 2),
+          paint,
+        );
         canvas.drawCircle(Offset(centerX, centerY), 2.5, dotPaint);
         break;
     }
@@ -1184,26 +1434,46 @@ class Grid3x3Painter extends CustomPainter {
       ..strokeWidth = 3.0
       ..strokeJoin = StrokeJoin.miter;
 
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     final cellWidth = size.width / 3;
     final cellHeight = size.height / 3;
 
     // Draw grid lines
     // Vertical lines
-    canvas.drawLine(Offset(cellWidth, 0), Offset(cellWidth, size.height), gridPaint);
-    canvas.drawLine(Offset(cellWidth * 2, 0), Offset(cellWidth * 2, size.height), gridPaint);
+    canvas.drawLine(
+      Offset(cellWidth, 0),
+      Offset(cellWidth, size.height),
+      gridPaint,
+    );
+    canvas.drawLine(
+      Offset(cellWidth * 2, 0),
+      Offset(cellWidth * 2, size.height),
+      gridPaint,
+    );
     // Horizontal lines
-    canvas.drawLine(Offset(0, cellHeight), Offset(size.width, cellHeight), gridPaint);
-    canvas.drawLine(Offset(0, cellHeight * 2), Offset(size.width, cellHeight * 2), gridPaint);
+    canvas.drawLine(
+      Offset(0, cellHeight),
+      Offset(size.width, cellHeight),
+      gridPaint,
+    );
+    canvas.drawLine(
+      Offset(0, cellHeight * 2),
+      Offset(size.width, cellHeight * 2),
+      gridPaint,
+    );
 
     // Draw letters in each cell
     final letters = [
-      ['A', 'B'], ['C', 'D'], ['E', 'F'],
-      ['G', 'H'], ['I', 'J'], ['K', 'L'],
-      ['M', 'N'], ['O', 'P'], ['Q', 'R'],
+      ['A', 'B'],
+      ['C', 'D'],
+      ['E', 'F'],
+      ['G', 'H'],
+      ['I', 'J'],
+      ['K', 'L'],
+      ['M', 'N'],
+      ['O', 'P'],
+      ['Q', 'R'],
     ];
 
     for (int i = 0; i < 9; i++) {
@@ -1216,7 +1486,7 @@ class Grid3x3Painter extends CustomPainter {
       for (int j = 0; j < 2; j++) {
         final letter = letters[i][j];
         final offsetX = j == 0 ? -8.0 : 8.0;
-        
+
         textPainter.text = TextSpan(
           text: letter,
           style: GoogleFonts.courierPrime(
@@ -1228,7 +1498,10 @@ class Grid3x3Painter extends CustomPainter {
         textPainter.layout();
         textPainter.paint(
           canvas,
-          Offset(centerX - textPainter.width / 2 + offsetX, centerY - textPainter.height / 2),
+          Offset(
+            centerX - textPainter.width / 2 + offsetX,
+            centerY - textPainter.height / 2,
+          ),
         );
       }
     }
@@ -1248,9 +1521,7 @@ class GridXPainter extends CustomPainter {
       ..strokeWidth = 3.0
       ..strokeJoin = StrokeJoin.miter;
 
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     final centerX = size.width / 2;
     final centerY = size.height / 2;
@@ -1279,8 +1550,11 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX - textPainter.width / 2 - 8, centerY - xSize / 2 - 20));
-    
+    textPainter.paint(
+      canvas,
+      Offset(centerX - textPainter.width / 2 - 8, centerY - xSize / 2 - 20),
+    );
+
     textPainter.text = TextSpan(
       text: 'V',
       style: GoogleFonts.courierPrime(
@@ -1290,7 +1564,10 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX - textPainter.width / 2 + 8, centerY - xSize / 2 - 20));
+    textPainter.paint(
+      canvas,
+      Offset(centerX - textPainter.width / 2 + 8, centerY - xSize / 2 - 20),
+    );
 
     // Left: ST
     textPainter.text = TextSpan(
@@ -1302,8 +1579,11 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX - xSize / 2 - 20, centerY - textPainter.height / 2 - 8));
-    
+    textPainter.paint(
+      canvas,
+      Offset(centerX - xSize / 2 - 20, centerY - textPainter.height / 2 - 8),
+    );
+
     textPainter.text = TextSpan(
       text: 'T',
       style: GoogleFonts.courierPrime(
@@ -1313,7 +1593,10 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX - xSize / 2 - 20, centerY - textPainter.height / 2 + 8));
+    textPainter.paint(
+      canvas,
+      Offset(centerX - xSize / 2 - 20, centerY - textPainter.height / 2 + 8),
+    );
 
     // Right: WX
     textPainter.text = TextSpan(
@@ -1325,8 +1608,11 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX + xSize / 2 + 20, centerY - textPainter.height / 2 - 8));
-    
+    textPainter.paint(
+      canvas,
+      Offset(centerX + xSize / 2 + 20, centerY - textPainter.height / 2 - 8),
+    );
+
     textPainter.text = TextSpan(
       text: 'X',
       style: GoogleFonts.courierPrime(
@@ -1336,7 +1622,10 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX + xSize / 2 + 20, centerY - textPainter.height / 2 + 8));
+    textPainter.paint(
+      canvas,
+      Offset(centerX + xSize / 2 + 20, centerY - textPainter.height / 2 + 8),
+    );
 
     // Bottom: YZ
     textPainter.text = TextSpan(
@@ -1348,8 +1637,11 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX - textPainter.width / 2 - 8, centerY + xSize / 2 + 20));
-    
+    textPainter.paint(
+      canvas,
+      Offset(centerX - textPainter.width / 2 - 8, centerY + xSize / 2 + 20),
+    );
+
     textPainter.text = TextSpan(
       text: 'Z',
       style: GoogleFonts.courierPrime(
@@ -1359,7 +1651,10 @@ class GridXPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(centerX - textPainter.width / 2 + 8, centerY + xSize / 2 + 20));
+    textPainter.paint(
+      canvas,
+      Offset(centerX - textPainter.width / 2 + 8, centerY + xSize / 2 + 20),
+    );
   }
 
   @override
@@ -1468,10 +1763,7 @@ class Kotak1ReferenceBoard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.yellow,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.yellow, width: 2),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -1480,13 +1772,9 @@ class Kotak1ReferenceBoard extends StatelessWidget {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _buildTicTacToeGrid(),
-                ),
+                Expanded(child: _buildTicTacToeGrid()),
                 const SizedBox(width: 24),
-                Expanded(
-                  child: _buildXGrid(),
-                ),
+                Expanded(child: _buildXGrid()),
               ],
             );
           } else {
@@ -1535,9 +1823,15 @@ class Kotak1ReferenceBoard extends StatelessWidget {
 
   Widget _buildTicTacToeText() {
     final letters = [
-      ['A', 'B'], ['C', 'D'], ['E', 'F'],
-      ['G', 'H'], ['I', 'J'], ['K', 'L'],
-      ['M', 'N'], ['O', 'P'], ['Q', 'R'],
+      ['A', 'B'],
+      ['C', 'D'],
+      ['E', 'F'],
+      ['G', 'H'],
+      ['I', 'J'],
+      ['K', 'L'],
+      ['M', 'N'],
+      ['O', 'P'],
+      ['Q', 'R'],
     ];
 
     return Positioned.fill(
@@ -1938,8 +2232,16 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
       case 'A':
       case 'B':
         // Pair (A, B): Shape `_|` (Bottom & Right border)
-        canvas.drawLine(Offset(right, bottom), Offset(left, bottom), paint); // Bottom
-        canvas.drawLine(Offset(right, top), Offset(right, bottom), paint); // Right
+        canvas.drawLine(
+          Offset(right, bottom),
+          Offset(left, bottom),
+          paint,
+        ); // Bottom
+        canvas.drawLine(
+          Offset(right, top),
+          Offset(right, bottom),
+          paint,
+        ); // Right
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
         }
@@ -1947,9 +2249,17 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
       case 'C':
       case 'D':
         // Pair (C, D): Shape `|_|` (Bottom, Left, Right border)
-        canvas.drawLine(Offset(left, bottom), Offset(right, bottom), paint); // Bottom
+        canvas.drawLine(
+          Offset(left, bottom),
+          Offset(right, bottom),
+          paint,
+        ); // Bottom
         canvas.drawLine(Offset(left, top), Offset(left, bottom), paint); // Left
-        canvas.drawLine(Offset(right, top), Offset(right, bottom), paint); // Right
+        canvas.drawLine(
+          Offset(right, top),
+          Offset(right, bottom),
+          paint,
+        ); // Right
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
         }
@@ -1957,7 +2267,11 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
       case 'E':
       case 'F':
         // Pair (E, F): Shape `|_` (Bottom & Left border)
-        canvas.drawLine(Offset(left, bottom), Offset(right, bottom), paint); // Bottom
+        canvas.drawLine(
+          Offset(left, bottom),
+          Offset(right, bottom),
+          paint,
+        ); // Bottom
         canvas.drawLine(Offset(left, top), Offset(left, bottom), paint); // Left
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
@@ -1967,8 +2281,16 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
       case 'H':
         // Pair (G, H): Square missing left (Top, Bottom, Right border)
         canvas.drawLine(Offset(left, top), Offset(right, top), paint); // Top
-        canvas.drawLine(Offset(left, bottom), Offset(right, bottom), paint); // Bottom
-        canvas.drawLine(Offset(right, top), Offset(right, bottom), paint); // Right
+        canvas.drawLine(
+          Offset(left, bottom),
+          Offset(right, bottom),
+          paint,
+        ); // Bottom
+        canvas.drawLine(
+          Offset(right, top),
+          Offset(right, bottom),
+          paint,
+        ); // Right
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
         }
@@ -1988,7 +2310,11 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
       case 'L':
         // Pair (K, L): Square missing right (Top, Bottom, Left border)
         canvas.drawLine(Offset(left, top), Offset(right, top), paint); // Top
-        canvas.drawLine(Offset(left, bottom), Offset(right, bottom), paint); // Bottom
+        canvas.drawLine(
+          Offset(left, bottom),
+          Offset(right, bottom),
+          paint,
+        ); // Bottom
         canvas.drawLine(Offset(left, top), Offset(left, bottom), paint); // Left
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
@@ -1998,7 +2324,11 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
       case 'N':
         // Pair (M, N): Shape `7` (Top & Right border)
         canvas.drawLine(Offset(left, top), Offset(right, top), paint); // Top
-        canvas.drawLine(Offset(right, top), Offset(right, bottom), paint); // Right
+        canvas.drawLine(
+          Offset(right, top),
+          Offset(right, bottom),
+          paint,
+        ); // Right
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
         }
@@ -2008,7 +2338,11 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
         // Pair (O, P): Square missing bottom (Top, Left, Right border)
         canvas.drawLine(Offset(left, top), Offset(right, top), paint); // Top
         canvas.drawLine(Offset(left, top), Offset(left, bottom), paint); // Left
-        canvas.drawLine(Offset(right, top), Offset(right, bottom), paint); // Right
+        canvas.drawLine(
+          Offset(right, top),
+          Offset(right, bottom),
+          paint,
+        ); // Right
         if (isSecondLetter) {
           canvas.drawCircle(Offset(centerX, centerY), 4.0, dotPaint);
         }
@@ -2066,9 +2400,19 @@ class Kotak1EncodedSymbolPainter extends CustomPainter {
   bool _isSecondLetterOfPair(String char) {
     final code = char.codeUnitAt(0);
     // B, D, F, H, J, L, N, P, R, T, V, X, Z are second letters
-    return code == 66 || code == 68 || code == 70 || code == 72 || code == 74 ||
-        code == 76 || code == 78 || code == 80 || code == 82 || code == 84 ||
-        code == 86 || code == 88 || code == 90;
+    return code == 66 ||
+        code == 68 ||
+        code == 70 ||
+        code == 72 ||
+        code == 74 ||
+        code == 76 ||
+        code == 78 ||
+        code == 80 ||
+        code == 82 ||
+        code == 84 ||
+        code == 86 ||
+        code == 88 ||
+        code == 90;
   }
 
   @override
@@ -2081,11 +2425,7 @@ class Kotak1Key extends StatelessWidget {
   final String character;
   final VoidCallback onTap;
 
-  const Kotak1Key({
-    super.key,
-    required this.character,
-    required this.onTap,
-  });
+  const Kotak1Key({super.key, required this.character, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -2094,10 +2434,7 @@ class Kotak1Key extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.transparent,
-          border: Border.all(
-            color: CyberTheme.neonCyan,
-            width: 1.5,
-          ),
+          border: Border.all(color: CyberTheme.neonCyan, width: 1.5),
           borderRadius: BorderRadius.circular(6),
         ),
         child: CustomPaint(

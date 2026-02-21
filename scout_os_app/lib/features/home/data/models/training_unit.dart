@@ -1,5 +1,5 @@
 /// Training Unit Model
-/// 
+///
 /// 1:1 mapping with backend TrainingUnitResponse schema.
 /// DO NOT modify field names or types - must match backend exactly.
 class TrainingUnit {

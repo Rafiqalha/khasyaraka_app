@@ -1,10 +1,10 @@
 import 'training_level.dart';
 
 /// Learning Path Response Model
-/// 
+///
 /// 1:1 mapping with backend LearningPathResponse schema.
 /// Used for Duolingo-style training map display.
-/// 
+///
 /// Matches: GET /training/sections/{id}/path
 class LearningPathResponse {
   final String sectionId;
@@ -70,4 +70,3 @@ class PathUnit {
     };
   }
 }
-

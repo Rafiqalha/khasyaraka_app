@@ -104,7 +104,9 @@ class SkuQuestionModel {
   factory SkuQuestionModel.fromJson(Map<String, dynamic> json) {
     return SkuQuestionModel(
       question: json['question'] as String? ?? '',
-      options: (json['options'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      options: (json['options'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       correctIndex: json['correct_index'] as int? ?? 0,
     );
   }

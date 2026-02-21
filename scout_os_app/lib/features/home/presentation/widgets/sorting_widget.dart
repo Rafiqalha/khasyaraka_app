@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 
 /// Sorting Widget - Reorderable list for sorting questions
-/// 
+///
 /// User drags items to reorder them in the correct sequence
 class SortingWidget extends StatefulWidget {
   final List<String> items;
@@ -44,7 +44,9 @@ class _SortingWidgetState extends State<SortingWidget> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: widget.isChecked
-                  ? (widget.isCorrect ? AppColors.successGreen : AppColors.alertRed)
+                  ? (widget.isCorrect
+                        ? AppColors.successGreen
+                        : AppColors.alertRed)
                   : AppColors.scoutBrown.withValues(alpha: 0.2),
               width: 2,
             ),
@@ -74,7 +76,9 @@ class _SortingWidgetState extends State<SortingWidget> {
               ReorderableListView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                onReorder: widget.isChecked ? (oldIndex, newIndex) {} : _onReorder,
+                onReorder: widget.isChecked
+                    ? (oldIndex, newIndex) {}
+                    : _onReorder,
                 children: _currentOrder.asMap().entries.map((entry) {
                   final index = entry.key;
                   final item = entry.value;
@@ -114,11 +118,7 @@ class _SortingWidgetState extends State<SortingWidget> {
             padding: const EdgeInsets.only(top: 12),
             child: Row(
               children: [
-                Icon(
-                  Icons.cancel,
-                  color: AppColors.alertRed,
-                  size: 20,
-                ),
+                Icon(Icons.cancel, color: AppColors.alertRed, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Urutan kurang tepat, coba lagi!',

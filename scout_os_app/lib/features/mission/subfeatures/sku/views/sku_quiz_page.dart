@@ -1,3 +1,4 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
@@ -36,7 +37,7 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
     final point = controller.selectedPoint;
 
     if (controller.isLoading || point == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: GrassSosLoader()));
     }
 
     return Scaffold(
@@ -44,7 +45,10 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F5DC),
         elevation: 0,
-        title: Text(point.title, style: const TextStyle(color: Color(0xFF3E2723))),
+        title: Text(
+          point.title,
+          style: const TextStyle(color: Color(0xFF3E2723)),
+        ),
       ),
       body: _showBriefing ? _buildBriefing(point) : _buildQuiz(point),
     );
@@ -65,7 +69,10 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
             ),
           ),
           const SizedBox(height: 12),
-          Text(point.description, style: const TextStyle(color: Color(0xFF3E2723))),
+          Text(
+            point.description,
+            style: const TextStyle(color: Color(0xFF3E2723)),
+          ),
           const Spacer(),
           SizedBox(
             width: double.infinity,
@@ -74,7 +81,9 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
                 backgroundColor: const Color(0xFFFFD600),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
                 setState(() {
@@ -133,7 +142,11 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
                   }
                   _submit(point);
                 },
-                child: Text(_currentIndex < point.questions.length - 1 ? 'Lanjut' : 'Kirim'),
+                child: Text(
+                  _currentIndex < point.questions.length - 1
+                      ? 'Lanjut'
+                      : 'Kirim',
+                ),
               ),
             ],
           ),
@@ -153,12 +166,16 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFFFF2B3) : Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFF3E2723).withValues(alpha: 0.3)),
+            border: Border.all(
+              color: const Color(0xFF3E2723).withValues(alpha: 0.3),
+            ),
           ),
           child: Row(
             children: [
               Icon(
-                selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                selected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
                 color: const Color(0xFF3E2723),
               ),
               const SizedBox(width: 10),
@@ -177,9 +194,9 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
     );
 
     final result = await context.read<SkuController>().submitAnswers(
-          pointId: point.id,
-          answers: answers,
-        );
+      pointId: point.id,
+      answers: answers,
+    );
 
     if (!mounted || result == null) return;
 

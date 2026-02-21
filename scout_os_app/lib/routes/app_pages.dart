@@ -4,7 +4,7 @@ import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_map_page
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
 
 /// GetX Pages Configuration
-/// 
+///
 /// File ini mendefinisikan semua routes menggunakan GetX.
 /// Untuk menggunakan GetX routing, ubah MaterialApp menjadi GetMaterialApp di main.dart.
 class AppPages {
@@ -14,10 +14,7 @@ class AppPages {
 
   // Pages list
   static final List<GetPage> pages = [
-    GetPage(
-      name: trainingMap,
-      page: () => const TrainingPathPage(),
-    ),
+    GetPage(name: trainingMap, page: () => const TrainingPathPage()),
     GetPage(
       name: skuMap,
       page: () => const SkuMapPage(),

@@ -3,7 +3,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 
 /// Shimmer skeleton for training map loading state
-/// 
+///
 /// Shows animated placeholders that match the actual UI layout:
 /// - Stats bar at top
 /// - Section cards
@@ -24,27 +24,30 @@ class ShimmerTrainingMap extends StatelessWidget {
             // Stats bar skeleton
             const ShimmerStatsBar(),
             const SizedBox(height: 24),
-            
+
             // Section card skeleton
             const ShimmerSectionCard(),
             const SizedBox(height: 16),
-            
+
             // Unit header skeleton
             const ShimmerUnitHeader(),
             const SizedBox(height: 24),
-            
+
             // Lesson nodes skeleton (zigzag pattern)
-            ...List.generate(5, (index) => Padding(
-              padding: EdgeInsets.only(
-                left: index.isEven ? 40 : 120,
-                right: index.isEven ? 120 : 40,
-                bottom: 20,
+            ...List.generate(
+              5,
+              (index) => Padding(
+                padding: EdgeInsets.only(
+                  left: index.isEven ? 40 : 120,
+                  right: index.isEven ? 120 : 40,
+                  bottom: 20,
+                ),
+                child: const ShimmerLessonNode(),
               ),
-              child: const ShimmerLessonNode(),
-            )),
-            
+            ),
+
             const SizedBox(height: 32),
-            
+
             // Second section preview
             const ShimmerSectionCard(),
           ],
@@ -106,11 +109,7 @@ class ShimmerStatsBar extends StatelessWidget {
   }
 
   Widget _verticalDivider() {
-    return Container(
-      width: 1,
-      height: 32,
-      color: Colors.grey[300],
-    );
+    return Container(width: 1, height: 32, color: Colors.grey[300]);
   }
 }
 

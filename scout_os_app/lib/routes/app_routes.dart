@@ -11,6 +11,9 @@ import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/river_tool_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/pedometer_pro_screen.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/morse_touch_screen.dart';
+import 'package:scout_os_app/features/billing/views/subscription_page.dart';
+import 'package:scout_os_app/features/profile/presentation/pages/profile_page.dart';
+import 'package:scout_os_app/features/profile/models/public_profile_model.dart';
 
 class AppRoutes {
   static const trainingMap = '/training-map';
@@ -28,64 +31,49 @@ class AppRoutes {
   static const survivalRiver = '/survival/river';
   static const survivalPedometer = '/survival/pedometer';
   static const survivalMorse = '/survival/morse';
+  static const subscription = '/subscription';
+  static const publicProfile = '/public-profile';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case trainingMap:
-        return MaterialPageRoute(
-          builder: (_) => const TrainingPathPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const TrainingPathPage());
       case skuMap:
-        return MaterialPageRoute(
-          builder: (_) => const SkuMainPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const SkuMainPage());
       case skuList:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         final level = args["level"] as String? ?? "bantara";
-        return MaterialPageRoute(
-          builder: (_) => SkuListView(level: level),
-        );
+        return MaterialPageRoute(builder: (_) => SkuListView(level: level));
       case cyberMissionControl:
-        return MaterialPageRoute(
-          builder: (_) => const CyberBootScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const CyberBootScreen());
       case cyberDashboard:
-        return MaterialPageRoute(
-          builder: (_) => const CyberDashboardScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const CyberDashboardScreen());
       case survivalTools:
-        return MaterialPageRoute(
-          builder: (_) => const SurvivalToolsPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const SurvivalToolsPage());
       case survivalCompass:
-        return MaterialPageRoute(
-          builder: (_) => const CompassToolPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const CompassToolPage());
       case survivalClinometer:
-        return MaterialPageRoute(
-          builder: (_) => const ClinometerToolPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const ClinometerToolPage());
       case survivalGpsTracker:
-        return MaterialPageRoute(
-          builder: (_) => const GpsTrackerToolPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const GpsTrackerToolPage());
       case survivalRiver:
-        return MaterialPageRoute(
-          builder: (_) => const RiverToolPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const RiverToolPage());
       case survivalPedometer:
-        return MaterialPageRoute(
-          builder: (_) => const PedometerProScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const PedometerProScreen());
       case survivalMorse:
+        return MaterialPageRoute(builder: (_) => const MorseTouchScreen());
+      case subscription:
+        return MaterialPageRoute(builder: (_) => const SubscriptionPage());
+      case publicProfile:
+        final publicProfileData = settings.arguments as PublicProfileModel?;
         return MaterialPageRoute(
-          builder: (_) => const MorseTouchScreen(),
+          builder: (_) =>
+              ProfilePage(publicProfile: publicProfileData, isReadOnly: true),
         );
       default:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Route not found')),
-          ),
+          builder: (_) =>
+              const Scaffold(body: Center(child: Text('Route not found'))),
         );
     }
   }

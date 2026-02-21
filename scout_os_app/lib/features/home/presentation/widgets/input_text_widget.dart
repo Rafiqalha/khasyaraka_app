@@ -73,10 +73,7 @@ class _InputTextWidgetState extends State<InputTextWidget> {
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: borderColor,
-              width: 2,
-            ),
+            border: Border.all(color: borderColor, width: 2),
             boxShadow: [
               BoxShadow(
                 color: borderColor.withOpacity(widget.isChecked ? 0.5 : 0.2),
@@ -99,7 +96,8 @@ class _InputTextWidgetState extends State<InputTextWidget> {
             ),
             decoration: InputDecoration(
               filled: true, // Allow fill color overrides
-              fillColor: Colors.transparent, // Transparent to show container color
+              fillColor:
+                  Colors.transparent, // Transparent to show container color
               hintText: "Ketik jawabanmu di sini...",
               hintStyle: TextStyle(color: Colors.grey.shade400),
               border: InputBorder.none,
@@ -107,7 +105,10 @@ class _InputTextWidgetState extends State<InputTextWidget> {
               focusedBorder: InputBorder.none,
               errorBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
               suffixIcon: widget.isChecked
                   ? Padding(
                       padding: const EdgeInsets.only(right: 12),
@@ -124,14 +125,18 @@ class _InputTextWidgetState extends State<InputTextWidget> {
             textCapitalization: TextCapitalization.sentences,
           ),
         ),
-        
+
         // Correct Answer Card (Only if checked and WRONG)
-        if (widget.isChecked && !widget.isCorrect && widget.correctAnswer != null) ...[
+        if (widget.isChecked &&
+            !widget.isCorrect &&
+            widget.correctAnswer != null) ...[
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.duoSuccessLight.withOpacity(0.5), // Lighter green for info
+              color: AppColors.duoSuccessLight.withOpacity(
+                0.5,
+              ), // Lighter green for info
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppColors.duoSuccess.withOpacity(0.5),
@@ -143,7 +148,11 @@ class _InputTextWidgetState extends State<InputTextWidget> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lightbulb_circle, color: AppColors.duoSuccess, size: 24),
+                    Icon(
+                      Icons.lightbulb_circle,
+                      color: AppColors.duoSuccess,
+                      size: 24,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       "Jawaban yang benar:", // Correct Answer Title

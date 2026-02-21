@@ -19,9 +19,10 @@ class TrainingMapPage extends StatefulWidget {
   State<TrainingMapPage> createState() => _TrainingMapPageState();
 }
 
-class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderStateMixin, RouteAware {
+class _TrainingMapPageState extends State<TrainingMapPage>
+    with TickerProviderStateMixin, RouteAware {
   final ScrollController _scrollController = ScrollController();
-  
+
   // Konfigurasi Zigzag
   final double _itemSpacing = 100.0; // Jarak vertikal antar node
   final double _amplitude = 75.0; // Seberapa jauh belok ke kiri/kanan
@@ -30,7 +31,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
   bool _isLoadingMateri = true;
   bool _isLoadingLeaderboard = true;
   // Progress & Stats are less critical blocking UI, but we track them
-  bool _isLoadingProgress = true; 
+  bool _isLoadingProgress = true;
 
   @override
   void initState() {
@@ -40,13 +41,20 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
       _loadAllTrainingData();
     });
   }
-  
-  /// ✅ PARALLEL FETCHING STRATEGY
-  /// Fetches Materi, Progress, Stats, and Leaderboard concurrently
-  /// Updates UI progressively as data arrives
+
+  /// ✅ EFFICIENT 2-PHASE LOADING
+  /// Phase 1 (blocking): Load structure (sections + cached units) → shows UI skeleton
+  /// Phase 2 (parallel):  Load progress + stats → updates node statuses
+  /// Phase 3 (background): Leaderboard (fire & forget, non-blocking)
   Future<void> _loadAllTrainingData() async {
-    final trainingCtrl = Provider.of<TrainingController>(context, listen: false);
-    final leaderboardCtrl = Provider.of<LeaderboardController>(context, listen: false);
+    final trainingCtrl = Provider.of<TrainingController>(
+      context,
+      listen: false,
+    );
+    final leaderboardCtrl = Provider.of<LeaderboardController>(
+      context,
+      listen: false,
+    );
 
     setState(() {
       _isLoadingMateri = true;
@@ -54,47 +62,43 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
       _isLoadingProgress = true;
     });
 
-    debugPrint('🚀 [MAP] Starting Parallel Data Fetching...');
+    debugPrint('🚀 [MAP] Phase 1: Loading structure (cache-first)...');
 
-    // 1. Fetch Materi (Units/Sections Structure) - CRITICAL UI
-    final materiFuture = trainingCtrl.loadUnitsOnly().then((_) {
-      if (mounted) {
-        setState(() => _isLoadingMateri = false);
-        debugPrint('✅ [MAP] Materi Loaded');
-      }
-    }).catchError((e) {
-      debugPrint('❌ [MAP] Failed to load Materi: $e');
-      if (mounted) setState(() => _isLoadingMateri = false);
-    });
+    // ── Phase 1: Structure (CRITICAL — shows the map) ──
+    try {
+      await trainingCtrl.loadUnitsOnly();
+      debugPrint('✅ [MAP] Phase 1 done');
+    } catch (e) {
+      debugPrint('❌ [MAP] Phase 1 failed: $e');
+    }
+    if (mounted) setState(() => _isLoadingMateri = false);
 
-    // 2. Fetch Progress & Stats (User Data) - Updates existing nodes
-    final progressFuture = Future.wait([
-      trainingCtrl.loadProgress(),
-      trainingCtrl.loadUserStats(),
-    ]).then((_) {
-      if (mounted) {
-        setState(() => _isLoadingProgress = false);
-        debugPrint('✅ [MAP] Progress & Stats Loaded');
-      }
-    }).catchError((e) {
-      debugPrint('❌ [MAP] Failed to load Progress/Stats: $e');
-      if (mounted) setState(() => _isLoadingProgress = false);
-    });
+    // ── Phase 2: User data (parallel, updates nodes) ──
+    debugPrint('🚀 [MAP] Phase 2: Loading progress + stats in parallel...');
+    try {
+      await Future.wait([
+        trainingCtrl.loadProgress(),
+        trainingCtrl.loadUserStats(),
+      ]);
+      debugPrint('✅ [MAP] Phase 2 done');
+    } catch (e) {
+      debugPrint('❌ [MAP] Phase 2 failed: $e');
+    }
+    if (mounted) setState(() => _isLoadingProgress = false);
 
-    // 3. Fetch Leaderboard - Secondary Content
-    final leaderboardFuture = leaderboardCtrl.loadLeaderboard(limit: 10).then((_) {
-      if (mounted) {
-        setState(() => _isLoadingLeaderboard = false);
-        debugPrint('✅ [MAP] Leaderboard Loaded');
-      }
-    }).catchError((e) {
-      debugPrint('❌ [MAP] Failed to load Leaderboard: $e');
-      if (mounted) setState(() => _isLoadingLeaderboard = false);
-    });
-
-    // Wait for all to complete (so RefreshIndicator knows when to stop)
-    // We use wait([futures]) so we wait for the LONGEST one, but UI updates happened individually/progressively
-    await Future.wait([materiFuture, progressFuture, leaderboardFuture]);
+    // ── Phase 3: Leaderboard (background, fire & forget) ──
+    leaderboardCtrl
+        .loadLeaderboard(limit: 10)
+        .then((_) {
+          if (mounted) {
+            setState(() => _isLoadingLeaderboard = false);
+            debugPrint('✅ [MAP] Leaderboard loaded (background)');
+          }
+        })
+        .catchError((e) {
+          debugPrint('⚠️ [MAP] Leaderboard failed (non-critical): $e');
+          if (mounted) setState(() => _isLoadingLeaderboard = false);
+        });
   }
 
   @override
@@ -107,13 +111,15 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
       // For now, we use a simpler approach below in didPopNext
     }
   }
-  
+
   /// ✅ AUTO-REFRESH: Called when this page becomes visible after another page is popped
   /// This fixes Bug #2 (Hearts sync) and Bug #3 (Level unlock visibility)
   void _onPageBecameVisible() {
-    debugPrint('🔄 [MAP] Page became visible - refreshing data for hearts & level sync...');
+    debugPrint(
+      '🔄 [MAP] Page became visible - refreshing data for hearts & level sync...',
+    );
     final controller = Provider.of<TrainingController>(context, listen: false);
-    
+
     // Use Future.microtask to avoid calling during build
     Future.microtask(() async {
       try {
@@ -122,7 +128,9 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
           controller.loadProgress(),
           controller.loadUserStats(),
         ]);
-        debugPrint('✅ [MAP] Data refreshed: XP=${controller.userXp}, Hearts=${controller.userHearts}');
+        debugPrint(
+          '✅ [MAP] Data refreshed: XP=${controller.userXp}, Hearts=${controller.userHearts}',
+        );
       } catch (e) {
         debugPrint('⚠️ [MAP] Refresh failed: $e');
       }
@@ -148,7 +156,8 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
               return const ShimmerTrainingMap();
             }
 
-            if (controller.errorMessage != null && controller.sectionsWithUnits.isEmpty) {
+            if (controller.errorMessage != null &&
+                controller.sectionsWithUnits.isEmpty) {
               return _buildErrorState(controller);
             }
 
@@ -176,7 +185,8 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                         const SizedBox(width: 8),
                         Text(
                           'Peta Belajar',
-                          style: AppTextStyles.h3.copyWith( // Titan One
+                          style: AppTextStyles.h3.copyWith(
+                            // Titan One
                             color: Colors.grey[800],
                             fontSize: 20,
                           ),
@@ -208,24 +218,29 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                       ),
                     ),
                   ),
-                  
+
                   // ✅ Leaderboard Preview
                   SliverToBoxAdapter(
                     child: Builder(
                       builder: (context) {
                         return Consumer<LeaderboardController>(
                           builder: (context, leaderCtrl, _) {
-                            if (_isLoadingLeaderboard && (leaderCtrl.topUsers.isEmpty)) {
+                            if (_isLoadingLeaderboard &&
+                                (leaderCtrl.topUsers.isEmpty)) {
                               return const SizedBox.shrink(); // Low priority, don't show shimmer if not loaded yet to avoid clutter? Or show simple shimmer?
                               // Actually user asked for Shimmer. Let's make a mini shimmer or just hide until loaded to keep it clean if it fails.
                               // But prompt said "Parallel... jadi user melihat konten muncul satu per satu".
                               // Let's return a simple placeholder or empty for now to not block UI.
                             }
-                            
-                            if (leaderCtrl.topUsers.isEmpty) return const SizedBox.shrink();
+
+                            if (leaderCtrl.topUsers.isEmpty)
+                              return const SizedBox.shrink();
 
                             return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -243,17 +258,25 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           'Papan Peringkat',
-                                          style: AppTextStyles.h3.copyWith(fontSize: 16),
+                                          style: AppTextStyles.h3.copyWith(
+                                            fontSize: 16,
+                                          ),
                                         ),
                                         Text(
                                           'Lihat Semua >',
-                                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                color: AppColors.primary,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -263,27 +286,45 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                                     height: 60,
                                     child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
-                                      itemCount: math.min(leaderCtrl.topUsers.length, 5),
+                                      itemCount: math.min(
+                                        leaderCtrl.topUsers.length,
+                                        5,
+                                      ),
                                       itemBuilder: (context, index) {
                                         final user = leaderCtrl.topUsers[index];
                                         return Container(
-                                          margin: const EdgeInsets.only(right: 16),
+                                          margin: const EdgeInsets.only(
+                                            right: 16,
+                                          ),
                                           child: Column(
                                             children: [
                                               CircleAvatar(
                                                 radius: 20,
-                                                backgroundColor: AppColors.primary.withOpacity(0.1),
-                                                backgroundImage: user.avatar != null 
-                                                    ? NetworkImage(user.avatar!) 
+                                                backgroundColor: AppColors
+                                                    .primary
+                                                    .withOpacity(0.1),
+                                                backgroundImage:
+                                                    user.avatar != null
+                                                    ? NetworkImage(user.avatar!)
                                                     : null,
-                                                child: user.avatar == null 
-                                                    ? Text(user.name[0], style: TextStyle(color: AppColors.primary))
+                                                child: user.avatar == null
+                                                    ? Text(
+                                                        user.name[0],
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors.primary,
+                                                        ),
+                                                      )
                                                     : null,
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
                                                 '#${user.rank}',
-                                                style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                                                style: AppTextStyles.caption
+                                                    .copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -304,7 +345,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                   ...controller.sectionsWithUnits.expand((sectionWrapper) {
                     final section = sectionWrapper.section;
                     final units = sectionWrapper.units;
-                    
+
                     return [
                       // 1. Backend Section Header (Divider)
                       SliverToBoxAdapter(
@@ -334,21 +375,25 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                           ),
                         ),
                       ),
-                      
+
                       // 2. Units or Load Button
                       if (units.isEmpty)
                         SliverToBoxAdapter(
-                           child: _buildLoadSectionButton(context, controller, section),
+                          child: _buildLoadSectionButton(
+                            context,
+                            controller,
+                            section,
+                          ),
                         )
                       else
                         ...units.asMap().entries.map((unitEntry) {
-                           final index = unitEntry.key;
-                           final unit = unitEntry.value;
-                           return _buildUnitSection(unit, index, units.length);
+                          final index = unitEntry.key;
+                          final unit = unitEntry.value;
+                          return _buildUnitSection(unit, index, units.length);
                         }),
                     ];
                   }).toList(),
-                  
+
                   // Spacer
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
@@ -360,7 +405,11 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
     );
   }
 
-  Widget _buildLoadSectionButton(BuildContext context, TrainingController controller, dynamic section) {
+  Widget _buildLoadSectionButton(
+    BuildContext context,
+    TrainingController controller,
+    dynamic section,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       width: double.infinity,
@@ -374,7 +423,9 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );
@@ -388,15 +439,12 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: AppColors.danger,
-            ),
+            Icon(Icons.error_outline, size: 80, color: AppColors.danger),
             const SizedBox(height: 24),
             Text(
               'Oops! Terjadi Kesalahan',
-              style: AppTextStyles.h2.copyWith( // Titan One
+              style: AppTextStyles.h2.copyWith(
+                // Titan One
                 fontSize: 24,
                 color: AppColors.primary,
               ),
@@ -405,10 +453,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             const SizedBox(height: 16),
             Text(
               controller.errorMessage ?? "Error memuat data path training",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -444,7 +489,6 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
     return Center(child: Text("Belum ada materi tersedia"));
   }
 
-
   /// BAGIAN UNIT (Header + Zigzag Path)
   Widget _buildUnitSection(UnitModel unit, int unitIndex, int totalUnits) {
     return SliverList(
@@ -452,8 +496,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
         _buildSectionCard(unit),
         _buildUnitHeader(unit),
         _buildZigZagPath(unit),
-        if (unitIndex < totalUnits - 1)
-          SizedBox(height: 40),
+        if (unitIndex < totalUnits - 1) SizedBox(height: 40),
       ]),
     );
   }
@@ -485,14 +528,18 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
                     'BAGIAN 1',
-                    style: AppTextStyles.h3.copyWith( // Titan One for label
+                    style: AppTextStyles.h3.copyWith(
+                      // Titan One for label
                       color: AppColors.accent,
                       fontSize: 12,
                       letterSpacing: 1.2,
@@ -506,7 +553,8 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             const SizedBox(height: 6),
             Text(
               unit.title,
-              style: AppTextStyles.h3.copyWith( // Titan One
+              style: AppTextStyles.h3.copyWith(
+                // Titan One
                 color: Colors.white,
                 fontSize: 22,
               ),
@@ -533,7 +581,8 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
           const SizedBox(width: 10),
           Text(
             'Unit ${unit.orderIndex}: ${unit.title}',
-            style: AppTextStyles.h3.copyWith( // Titan One
+            style: AppTextStyles.h3.copyWith(
+              // Titan One
               color: Colors.blueGrey.shade800,
               fontSize: 18,
             ),
@@ -568,7 +617,8 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             final index = entry.key;
             final lesson = entry.value;
 
-            final double dx = (math.sin(index * 0.75) * _amplitude) +
+            final double dx =
+                (math.sin(index * 0.75) * _amplitude) +
                 (math.cos(index * 0.35) * 18);
             final double dy = index * _itemSpacing;
 
@@ -584,7 +634,7 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                     children: [
                       // Render Lesson Node
                       _buildLessonNode(lesson, index, unit),
-                      
+
                       // Render Mascot/Chest di sebelah kanan/kiri node tertentu
                       // (Opsional, buat variasi)
                       if (index > 0 && index % 3 == 0)
@@ -598,17 +648,16 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
               ),
             );
           }),
-        ],                                    
+        ],
       ),
     );
   }
 
   Widget _buildLessonNode(LessonNode lesson, int index, UnitModel unit) {
-    // CRITICAL FIX: Recognize 'active', 'unlocked', and 'completed' as playable states
-    // Only 'locked' (or empty) should be considered locked
-    final status = lesson.status;
-    final isLocked = status == 'locked' || status.isEmpty;
-    
+    // CRITICAL: Use UPPERCASE status matching (backend sends UPPERCASE)
+    final status = lesson.status.toUpperCase();
+    final isLocked = status == 'LOCKED' || status.isEmpty;
+
     Widget nodeWidget = LessonNodeWidget(
       lesson: lesson,
       unitColor: AppColors.primary,
@@ -617,7 +666,9 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
           // CRITICAL FIX: Always use QuizPage.withLevel() for individual levels
           // Level 1 should NOT load all unit questions - it should only load Level 1 questions
           if (lesson.levelId != null) {
-            debugPrint('🔍 Opening Level: ${lesson.levelId} (Index: $index, Status: $status)');
+            debugPrint(
+              '🔍 Opening Level: ${lesson.levelId} (Index: $index, Status: $status)',
+            );
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -626,9 +677,14 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
             ).then((_) {
               // ✅ INSTANT REFRESH: No blocking await - fire & forget pattern
               if (mounted) {
-                debugPrint('🔄 [MAP] Returned from QuizPage, refreshing data in background...');
-                final controller = Provider.of<TrainingController>(context, listen: false);
-                
+                debugPrint(
+                  '🔄 [MAP] Returned from QuizPage, refreshing data in background...',
+                );
+                final controller = Provider.of<TrainingController>(
+                  context,
+                  listen: false,
+                );
+
                 // ✅ NON-BLOCKING: Refresh in parallel background microtask
                 Future.microtask(() async {
                   try {
@@ -637,7 +693,9 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
                       controller.loadProgress(),
                       controller.loadUserStats(),
                     ]);
-                    debugPrint('✅ [MAP] Background refresh: XP=${controller.userXp}, Hearts=${controller.userHearts}');
+                    debugPrint(
+                      '✅ [MAP] Background refresh: XP=${controller.userXp}, Hearts=${controller.userHearts}',
+                    );
                   } catch (e) {
                     debugPrint('⚠️ [MAP] Background refresh error: $e');
                   }
@@ -647,7 +705,9 @@ class _TrainingMapPageState extends State<TrainingMapPage> with TickerProviderSt
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Error: Level ID tidak tersedia. Hubungi administrator."),
+                content: Text(
+                  "Error: Level ID tidak tersedia. Hubungi administrator.",
+                ),
                 backgroundColor: Colors.red,
                 duration: Duration(seconds: 3),
               ),
@@ -719,12 +779,7 @@ class _PathPainter extends CustomPainter {
       // Kita ambil titik tengah vertikal, tapi horizontalnya rata-rata
       // Menggambar kurva Bezier Quadric agar halus
       // Trik: Tambahkan sedikit offset curve biar belokannya tajam
-      path.quadraticBezierTo(
-        x1,
-        (y1 + y2) / 2,
-        x2,
-        y2,
-      );
+      path.quadraticBezierTo(x1, (y1 + y2) / 2, x2, y2);
     }
 
     _drawDashedPath(canvas, path, paint, dashLength: 10, gapLength: 8);

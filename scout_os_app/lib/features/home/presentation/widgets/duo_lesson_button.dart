@@ -17,8 +17,8 @@ class DuoLessonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double size = 75; 
-    
+    const double size = 75;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -26,12 +26,12 @@ class DuoLessonButton extends StatelessWidget {
         children: [
           SizedBox(
             width: size,
-            height: size + 8, 
+            height: size + 8,
             child: Stack(
               children: [
                 // Layer Bayangan (Bawah)
                 Positioned(
-                  top: 6, 
+                  top: 6,
                   child: Container(
                     width: size,
                     height: size,
@@ -57,17 +57,23 @@ class DuoLessonButton extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      child: Icon(
-                        isLocked ? Icons.lock : Icons.star,
-                        color: Colors.white,
-                        size: 32,
-                      ),
+                      child: isLocked
+                          ? const Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: 32,
+                            )
+                          : Image.asset(
+                              'assets/icons/training/star.png',
+                              height: 32,
+                              width: 32,
+                            ),
                     ),
                   ),
                 ),
                 // Mahkota jika Completed
                 if (lesson.status == 'completed')
-                   Positioned(
+                  Positioned(
                     right: 0,
                     bottom: 0,
                     child: CircleAvatar(
@@ -75,7 +81,7 @@ class DuoLessonButton extends StatelessWidget {
                       radius: 12,
                       child: Icon(Icons.check, size: 16, color: color),
                     ),
-                  )
+                  ),
               ],
             ),
           ),

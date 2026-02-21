@@ -2,7 +2,7 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/cipher/base_ciph
 import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_model.dart';
 
 /// AZ/Atbash Cipher Implementation
-/// 
+///
 /// Atbash cipher: A=Z, B=Y, C=X, ..., Z=A
 class AzAtbashCipher extends BaseCipher {
   AzAtbashCipher(SandiModel sandiType) : super(sandiType);

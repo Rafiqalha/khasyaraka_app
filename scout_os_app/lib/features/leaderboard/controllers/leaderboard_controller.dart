@@ -1,5 +1,5 @@
 /// Leaderboard Controller
-/// 
+///
 /// Manages leaderboard state and fetches data from remote API only.
 /// Uses LeaderboardRepository for API calls.
 /// NO local storage fallback - purely API-driven.
@@ -21,8 +21,8 @@ class LeaderboardController extends ChangeNotifier {
   LeaderboardController({
     LeaderboardRepository? repository,
     AuthRepository? authRepo,
-  })  : _repository = repository ?? LeaderboardRepository(),
-        _authRepo = authRepo ?? AuthRepository();
+  }) : _repository = repository ?? LeaderboardRepository(),
+       _authRepo = authRepo ?? AuthRepository();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -31,7 +31,7 @@ class LeaderboardController extends ChangeNotifier {
   MyRank? get myRank => _leaderboardData?.myRank;
 
   /// Load leaderboard from remote API
-  /// 
+  ///
   /// Fetches top users and current user's rank from backend.
   /// Purely API-driven - no local storage fallback.
   Future<void> loadLeaderboard({int limit = 50}) async {
@@ -56,23 +56,33 @@ class LeaderboardController extends ChangeNotifier {
       // Fetch leaderboard from API
       _leaderboardData = await _repository.fetchLeaderboard(limit: limit);
 
-      debugPrint('✅ [LEADERBOARD] Loaded ${_leaderboardData!.topUsers.length} users from API');
+      debugPrint(
+        '✅ [LEADERBOARD] Loaded ${_leaderboardData!.topUsers.length} users from API',
+      );
       debugPrint('✅ [LEADERBOARD] Controller hashCode: ${hashCode}');
-      
+
       if (_leaderboardData!.myRank != null) {
-        debugPrint('   My rank: #${_leaderboardData!.myRank!.rank} (${_leaderboardData!.myRank!.xp} XP)');
+        debugPrint(
+          '   My rank: #${_leaderboardData!.myRank!.rank} (${_leaderboardData!.myRank!.xp} XP)',
+        );
       } else {
-        debugPrint('   My rank: Not available (user might not be in leaderboard)');
+        debugPrint(
+          '   My rank: Not available (user might not be in leaderboard)',
+        );
       }
-      
+
       // ✅ CRITICAL DEBUG: Verify data assignment
-      debugPrint('📊 [LEADERBOARD] After assignment: topUsers.length=${topUsers.length}, myRank=${myRank != null ? 'present' : 'null'}');
+      debugPrint(
+        '📊 [LEADERBOARD] After assignment: topUsers.length=${topUsers.length}, myRank=${myRank != null ? 'present' : 'null'}',
+      );
 
       _isLoading = false;
       notifyListeners(); // ✅ CRITICAL: Notify listeners AFTER data assignment
-      
+
       // ✅ CRITICAL DEBUG: Verify after notifyListeners
-      debugPrint('📊 [LEADERBOARD] After notifyListeners: topUsers.length=${topUsers.length}, myRank=${myRank != null ? 'present' : 'null'}');
+      debugPrint(
+        '📊 [LEADERBOARD] After notifyListeners: topUsers.length=${topUsers.length}, myRank=${myRank != null ? 'present' : 'null'}',
+      );
     } catch (e) {
       debugPrint('❌ [LEADERBOARD] Error loading leaderboard: $e');
       _errorMessage = 'Gagal memuat leaderboard: ${e.toString()}';

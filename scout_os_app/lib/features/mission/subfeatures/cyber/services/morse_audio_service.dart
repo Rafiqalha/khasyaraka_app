@@ -1,11 +1,11 @@
 import 'package:audioplayers/audioplayers.dart';
 
 /// Morse Audio Service
-/// 
+///
 /// Handles audio playback for Morse code according to standard:
 /// - Dot (.) = 1 unit (short beep ~100ms)
 /// - Dash (-) = 3 units (long beep ~300ms)
-/// 
+///
 /// Uses single audio file playback, NOT multiple beeps
 class MorseAudioService {
   static final AudioPlayer _player = AudioPlayer();

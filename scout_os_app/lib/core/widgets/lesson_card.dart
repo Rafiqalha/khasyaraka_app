@@ -22,8 +22,12 @@ class LessonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color baseColor = isLocked ? Colors.grey.shade300 : Colors.white;
-    final Color borderColor = isLocked ? Colors.grey.shade400 : AppColors.textGrey.withValues(alpha: 0.2);
-    final Color iconBg = isLocked ? Colors.grey.shade400 : (isCompleted ? AppColors.goldBadge : AppColors.wosmPurple);
+    final Color borderColor = isLocked
+        ? Colors.grey.shade400
+        : AppColors.textGrey.withValues(alpha: 0.2);
+    final Color iconBg = isLocked
+        ? Colors.grey.shade400
+        : (isCompleted ? AppColors.goldBadge : AppColors.wosmPurple);
 
     return GestureDetector(
       onTap: isLocked ? null : onTap,
@@ -40,7 +44,7 @@ class LessonCard extends StatelessWidget {
               color: borderColor,
               offset: const Offset(0, 4),
               blurRadius: 0,
-            )
+            ),
           ],
         ),
         child: Row(
@@ -57,8 +61,8 @@ class LessonCard extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 4,
-                  )
-                ]
+                  ),
+                ],
               ),
               child: Icon(
                 isLocked ? Icons.lock : (isCompleted ? Icons.check : icon),
@@ -92,7 +96,11 @@ class LessonCard extends StatelessWidget {
             ),
             // Arrow
             if (!isLocked)
-              const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.scoutBrown, size: 18),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.scoutBrown,
+                size: 18,
+              ),
           ],
         ),
       ),

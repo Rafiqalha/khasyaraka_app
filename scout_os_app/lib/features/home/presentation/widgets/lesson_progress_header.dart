@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 
 // PERBAIKAN: Tambahkan 'implements PreferredSizeWidget'
-class LessonProgressHeader extends StatelessWidget implements PreferredSizeWidget {
+class LessonProgressHeader extends StatelessWidget
+    implements PreferredSizeWidget {
   final int current;
   final int total;
   final VoidCallback onExit;

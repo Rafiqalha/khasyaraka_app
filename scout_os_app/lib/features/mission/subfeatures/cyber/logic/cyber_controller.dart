@@ -3,11 +3,11 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_model
 import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_repository.dart';
 
 /// Cyber Controller - Tools Only (NO EXAM/QUESTIONS)
-/// 
+///
 /// 100% OFFLINE - All processing client-side
 class CyberController extends ChangeNotifier {
   CyberController({SandiRepository? repository})
-      : _repository = repository ?? SandiRepository();
+    : _repository = repository ?? SandiRepository();
 
   final SandiRepository _repository;
 

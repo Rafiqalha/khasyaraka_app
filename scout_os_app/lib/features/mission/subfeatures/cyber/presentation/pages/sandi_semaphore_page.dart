@@ -9,16 +9,13 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Semaphore Learning Tool
-/// 
+///
 /// Interactive tool to learn Semaphore flag positions
 /// with animated stickman character
 class SandiSemaphorePage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiSemaphorePage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiSemaphorePage({super.key, required this.sandi});
 
   @override
   State<SandiSemaphorePage> createState() => _SandiSemaphorePageState();
@@ -28,7 +25,7 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
   final TextEditingController _textController = TextEditingController();
   final FlutterTts _flutterTts = FlutterTts();
   final AudioPlayer _audioPlayer = AudioPlayer();
-  
+
   double _speed = 0.5; // 0.0 = slow, 1.0 = fast
   bool _isPlaying = false;
   bool _isMuted = false;
@@ -58,10 +55,10 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
       // Test if TTS is available by trying to get languages
       final languages = await _flutterTts.getLanguages;
       debugPrint('Available TTS languages: $languages');
-      
+
       if (languages != null) {
         _ttsAvailable = true;
-        
+
         // Try to set Indonesian language, fallback to English if not available
         bool languageSet = false;
         if (languages.contains('id-ID')) {
@@ -71,15 +68,17 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
         } else if (languages.contains('en-US')) {
           await _flutterTts.setLanguage('en-US');
           languageSet = true;
-          debugPrint('TTS language set to English (en-US) - Indonesian not available');
+          debugPrint(
+            'TTS language set to English (en-US) - Indonesian not available',
+          );
         }
-        
+
         if (!languageSet && languages.isNotEmpty) {
           // Try first available language
           await _flutterTts.setLanguage(languages.first);
           debugPrint('TTS using first available language: ${languages.first}');
         }
-        
+
         await _flutterTts.setSpeechRate(0.5); // Slow and clear
         await _flutterTts.setVolume(1.0);
         await _flutterTts.setPitch(1.0);
@@ -111,7 +110,9 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
 
     // Load flag sound effect
     try {
-      await _audioPlayer.setSource(AssetSource('audio/semaphore/flag_flap.wav'));
+      await _audioPlayer.setSource(
+        AssetSource('audio/semaphore/flag_flap.wav'),
+      );
       debugPrint('Flag sound loaded successfully');
     } catch (e) {
       // If asset doesn't exist, we'll handle it gracefully
@@ -123,7 +124,7 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
   void dispose() {
     _textController.dispose();
     _playTimer?.cancel();
-    
+
     // Stop TTS safely
     if (_ttsAvailable) {
       try {
@@ -132,14 +133,14 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
         debugPrint('Error stopping TTS in dispose: $e');
       }
     }
-    
+
     // Dispose audio safely
     try {
       _audioPlayer.dispose();
     } catch (e) {
       debugPrint('Error disposing audio: $e');
     }
-    
+
     super.dispose();
   }
 
@@ -182,11 +183,11 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
       // Keep stickman at current pose - don't reset angles
     });
     _playTimer?.cancel();
-    
+
     // Complete and reset TTS completer if exists
     _ttsCompleter?.complete();
     _ttsCompleter = null;
-    
+
     // Stop TTS immediately and safely
     if (_ttsAvailable) {
       try {
@@ -195,14 +196,14 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
         debugPrint('Error stopping TTS: $e');
       }
     }
-    
+
     // Stop audio immediately and safely
     try {
       _audioPlayer.stop();
     } catch (e) {
       debugPrint('Error stopping audio: $e');
     }
-    
+
     // Don't reset to rest position - keep current pose and state
   }
 
@@ -261,7 +262,7 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
 
         // Synchronized audio playback - this will handle timing internally
         await _animateToPose(angles['left']!, angles['right']!, char);
-        
+
         // Small delay between letters (only if still playing)
         if (_isPlaying) {
           await Future.delayed(const Duration(milliseconds: 200));
@@ -278,7 +279,11 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
     _stopPlaying();
   }
 
-  Future<void> _animateToPose(double leftAngle, double rightAngle, String letter) async {
+  Future<void> _animateToPose(
+    double leftAngle,
+    double rightAngle,
+    String letter,
+  ) async {
     // Update animation state first
     setState(() {
       _targetLeftAngle = leftAngle;
@@ -291,19 +296,20 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
       try {
         // Create completer for TTS synchronization
         _ttsCompleter = Completer<void>();
-        
+
         // Start flag sound immediately
-        _audioPlayer.play(AssetSource('audio/semaphore/flag_flap.wav'))
+        _audioPlayer
+            .play(AssetSource('audio/semaphore/flag_flap.wav'))
             .catchError((e) {
-          debugPrint('Flag sound error: $e');
-        });
-        
+              debugPrint('Flag sound error: $e');
+            });
+
         // Start TTS immediately after flag sound (for perfect sync)
         if (_ttsAvailable) {
           try {
             // Small delay to let flag sound start first
             await Future.delayed(const Duration(milliseconds: 50));
-            
+
             // Start TTS - completion handler will complete the completer
             await _flutterTts.speak(letter).catchError((e) {
               debugPrint('TTS speak error: $e');
@@ -313,18 +319,20 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
                 _ttsAvailable = false;
               }
             });
-            
+
             // Wait for TTS to complete using completer (with timeout)
-            await _ttsCompleter?.future.timeout(
-              const Duration(seconds: 2),
-              onTimeout: () {
-                debugPrint('TTS completion timeout for letter: $letter');
-                _ttsCompleter = null;
-              },
-            ).catchError((e) {
-              debugPrint('TTS completer error: $e');
-              _ttsCompleter = null;
-            });
+            await _ttsCompleter?.future
+                .timeout(
+                  const Duration(seconds: 2),
+                  onTimeout: () {
+                    debugPrint('TTS completion timeout for letter: $letter');
+                    _ttsCompleter = null;
+                  },
+                )
+                .catchError((e) {
+                  debugPrint('TTS completer error: $e');
+                  _ttsCompleter = null;
+                });
           } catch (e) {
             debugPrint('TTS initialization error: $e');
             _ttsCompleter?.complete();
@@ -334,7 +342,6 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
           // If no TTS, just wait for flag sound
           await Future.delayed(const Duration(milliseconds: 300));
         }
-        
       } catch (e) {
         debugPrint('Audio playback error: $e');
         _ttsCompleter?.complete();
@@ -489,7 +496,8 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
                       ),
                     ),
                   ),
-                  if (_currentIndex >= 0 && _textController.text.isNotEmpty) ...[
+                  if (_currentIndex >= 0 &&
+                      _textController.text.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
                       '${_currentIndex + 1} / ${_textController.text.replaceAll(' ', '').length}',
@@ -520,8 +528,8 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
                         _speed < 0.33
                             ? 'SLOW'
                             : _speed < 0.67
-                                ? 'MEDIUM'
-                                : 'FAST',
+                            ? 'MEDIUM'
+                            : 'FAST',
                         style: GoogleFonts.orbitron(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -550,7 +558,7 @@ class _SandiSemaphorePageState extends State<SandiSemaphorePage> {
 }
 
 /// Semaphore Man Widget
-/// 
+///
 /// Modern stylized Scout character (Pramuka) with semaphore flags
 class SemaphoreMan extends StatefulWidget {
   final double leftAngle;
@@ -586,17 +594,11 @@ class _SemaphoreManState extends State<SemaphoreMan>
     _leftAnimation = Tween<double>(
       begin: widget.leftAngle,
       end: widget.targetLeftAngle,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _rightAnimation = Tween<double>(
       begin: widget.rightAngle,
       end: widget.targetRightAngle,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
   }
 
@@ -608,17 +610,11 @@ class _SemaphoreManState extends State<SemaphoreMan>
       _leftAnimation = Tween<double>(
         begin: oldWidget.targetLeftAngle,
         end: widget.targetLeftAngle,
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ));
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
       _rightAnimation = Tween<double>(
         begin: oldWidget.targetRightAngle,
         end: widget.targetRightAngle,
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ));
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
       _controller.reset();
       _controller.forward();
     }
@@ -652,10 +648,7 @@ class SemaphoreManPainter extends CustomPainter {
   final double leftAngle;
   final double rightAngle;
 
-  SemaphoreManPainter({
-    required this.leftAngle,
-    required this.rightAngle,
-  });
+  SemaphoreManPainter({required this.leftAngle, required this.rightAngle});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -679,18 +672,10 @@ class SemaphoreManPainter extends CustomPainter {
       ..color = Colors.white
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
-    canvas.drawCircle(
-      Offset(centerX, headY),
-      headRadius,
-      paint,
-    );
+    canvas.drawCircle(Offset(centerX, headY), headRadius, paint);
     paint.style = PaintingStyle.fill;
     paint.color = Colors.white.withOpacity(0.1);
-    canvas.drawCircle(
-      Offset(centerX, headY),
-      headRadius,
-      paint,
-    );
+    canvas.drawCircle(Offset(centerX, headY), headRadius, paint);
 
     // Body
     paint
@@ -708,11 +693,11 @@ class SemaphoreManPainter extends CustomPainter {
     final legLength = 100.0;
     final legWidth = 6.0;
     final legSpread = 20.0; // Distance between legs at hip
-    
+
     paint
       ..color = Colors.white
       ..strokeWidth = legWidth;
-    
+
     // Left leg (from body end, going left and down)
     final leftLegEndX = centerX - legSpread / 2;
     final leftLegEndY = bodyEndY + legLength;
@@ -721,7 +706,7 @@ class SemaphoreManPainter extends CustomPainter {
       Offset(leftLegEndX, leftLegEndY),
       paint,
     );
-    
+
     // Right leg (from body end, going right and down)
     final rightLegEndX = centerX + legSpread / 2;
     final rightLegEndY = bodyEndY + legLength;
@@ -734,7 +719,8 @@ class SemaphoreManPainter extends CustomPainter {
     // Convert angles from degrees to radians
     // Semaphore angles: 0° = down, 90° = horizontal right, 180° = up, 270° = horizontal left
     // But we need: 0° = down, 90° = horizontal right, -90° = horizontal left
-    final leftRad = math.pi / 180 * (leftAngle - 90); // Adjust for coordinate system
+    final leftRad =
+        math.pi / 180 * (leftAngle - 90); // Adjust for coordinate system
     final rightRad = math.pi / 180 * (rightAngle - 90);
 
     // Left Arm (from shoulder, going left)
@@ -805,7 +791,7 @@ class SemaphoreManPainter extends CustomPainter {
     final flagOffset = 5.0; // Offset untuk memastikan bendera jelas di ujung
     final flagCenterX = poleEndX + math.cos(angle) * flagOffset;
     final flagCenterY = poleEndY + math.sin(angle) * flagOffset;
-    
+
     final flagRect = Rect.fromLTWH(
       flagCenterX - size / 2,
       flagCenterY - size / 2,
@@ -860,7 +846,7 @@ class SemaphoreManPainter extends CustomPainter {
 }
 
 /// Semaphore Dictionary
-/// 
+///
 /// Maps letters to semaphore flag positions (angles in degrees)
 /// Standard Semaphore positions:
 /// - 0° = Down
@@ -875,32 +861,53 @@ class SemaphoreDictionary {
   // Standard Semaphore positions (angles in degrees)
   // Left and Right arm positions for each letter
   static final Map<String, Map<String, double>> _positions = {
-    'A': {'left': 45, 'right': 225},   // Left: Low Side, Right: High Side (opposite)
-    'B': {'left': 90, 'right': 225},   // Left: Horizontal, Right: High Side
-    'C': {'left': 135, 'right': 225},  // Left: High Side, Right: High Side
-    'D': {'left': 45, 'right': 270},   // Left: Low Side, Right: Horizontal (opposite)
-    'E': {'left': 90, 'right': 270},   // Left: Horizontal, Right: Horizontal (opposite)
-    'F': {'left': 135, 'right': 270},  // Left: High Side, Right: Horizontal (opposite)
-    'G': {'left': 45, 'right': 315},   // Left: Low Side, Right: Low Side (opposite)
-    'H': {'left': 90, 'right': 315},   // Left: Horizontal, Right: Low Side (opposite)
-    'I': {'left': 135, 'right': 315},  // Left: High Side, Right: Low Side (opposite)
-    'J': {'left': 45, 'right': 0},     // Left: Low Side, Right: Down
-    'K': {'left': 90, 'right': 0},     // Left: Horizontal, Right: Down
-    'L': {'left': 135, 'right': 0},    // Left: High Side, Right: Down
-    'M': {'left': 180, 'right': 0},    // Left: Up, Right: Down
-    'N': {'left': 225, 'right': 0},    // Left: High Side (opposite), Right: Down
-    'O': {'left': 270, 'right': 0},    // Left: Horizontal (opposite), Right: Down
-    'P': {'left': 315, 'right': 0},    // Left: Low Side (opposite), Right: Down
-    'Q': {'left': 0, 'right': 45},     // Left: Down, Right: Low Side
-    'R': {'left': 0, 'right': 90},    // Left: Down, Right: Horizontal
-    'S': {'left': 0, 'right': 135},    // Left: Down, Right: High Side
-    'T': {'left': 0, 'right': 180},    // Left: Down, Right: Up
-    'U': {'left': 0, 'right': 225},   // Left: Down, Right: High Side (opposite)
-    'V': {'left': 0, 'right': 270},    // Left: Down, Right: Horizontal (opposite)
-    'W': {'left': 0, 'right': 315},    // Left: Down, Right: Low Side (opposite)
-    'X': {'left': 45, 'right': 45},    // Both: Low Side
-    'Y': {'left': 90, 'right': 90},    // Both: Horizontal
-    'Z': {'left': 135, 'right': 135},  // Both: High Side
+    'A': {
+      'left': 45,
+      'right': 225,
+    }, // Left: Low Side, Right: High Side (opposite)
+    'B': {'left': 90, 'right': 225}, // Left: Horizontal, Right: High Side
+    'C': {'left': 135, 'right': 225}, // Left: High Side, Right: High Side
+    'D': {
+      'left': 45,
+      'right': 270,
+    }, // Left: Low Side, Right: Horizontal (opposite)
+    'E': {
+      'left': 90,
+      'right': 270,
+    }, // Left: Horizontal, Right: Horizontal (opposite)
+    'F': {
+      'left': 135,
+      'right': 270,
+    }, // Left: High Side, Right: Horizontal (opposite)
+    'G': {
+      'left': 45,
+      'right': 315,
+    }, // Left: Low Side, Right: Low Side (opposite)
+    'H': {
+      'left': 90,
+      'right': 315,
+    }, // Left: Horizontal, Right: Low Side (opposite)
+    'I': {
+      'left': 135,
+      'right': 315,
+    }, // Left: High Side, Right: Low Side (opposite)
+    'J': {'left': 45, 'right': 0}, // Left: Low Side, Right: Down
+    'K': {'left': 90, 'right': 0}, // Left: Horizontal, Right: Down
+    'L': {'left': 135, 'right': 0}, // Left: High Side, Right: Down
+    'M': {'left': 180, 'right': 0}, // Left: Up, Right: Down
+    'N': {'left': 225, 'right': 0}, // Left: High Side (opposite), Right: Down
+    'O': {'left': 270, 'right': 0}, // Left: Horizontal (opposite), Right: Down
+    'P': {'left': 315, 'right': 0}, // Left: Low Side (opposite), Right: Down
+    'Q': {'left': 0, 'right': 45}, // Left: Down, Right: Low Side
+    'R': {'left': 0, 'right': 90}, // Left: Down, Right: Horizontal
+    'S': {'left': 0, 'right': 135}, // Left: Down, Right: High Side
+    'T': {'left': 0, 'right': 180}, // Left: Down, Right: Up
+    'U': {'left': 0, 'right': 225}, // Left: Down, Right: High Side (opposite)
+    'V': {'left': 0, 'right': 270}, // Left: Down, Right: Horizontal (opposite)
+    'W': {'left': 0, 'right': 315}, // Left: Down, Right: Low Side (opposite)
+    'X': {'left': 45, 'right': 45}, // Both: Low Side
+    'Y': {'left': 90, 'right': 90}, // Both: Horizontal
+    'Z': {'left': 135, 'right': 135}, // Both: High Side
   };
 
   static Map<String, double>? getAngles(String letter) {
@@ -913,7 +920,7 @@ class SemaphoreDictionary {
 }
 
 /// Simple Stickman Widget
-/// 
+///
 /// Pure minimalist stick figure with semaphore flags
 /// Clean black lines, no shadows or 3D effects
 class SimpleStickman extends StatefulWidget {
@@ -1022,10 +1029,7 @@ class _SimpleStickmanState extends State<SimpleStickman> {
             child: TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
-              tween: Tween<double>(
-                begin: previousLeftRad,
-                end: leftRad,
-              ),
+              tween: Tween<double>(begin: previousLeftRad, end: leftRad),
               builder: (context, angle, child) {
                 return Transform.rotate(
                   angle: angle,
@@ -1066,10 +1070,7 @@ class _SimpleStickmanState extends State<SimpleStickman> {
             child: TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
-              tween: Tween<double>(
-                begin: previousRightRad,
-                end: rightRad,
-              ),
+              tween: Tween<double>(begin: previousRightRad, end: rightRad),
               builder: (context, angle, child) {
                 return Transform.rotate(
                   angle: angle,
@@ -1122,18 +1123,10 @@ class LegsPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     // Left leg (diagonal down-left)
-    canvas.drawLine(
-      Offset(0, 0),
-      Offset(-size.width / 2, size.height),
-      paint,
-    );
+    canvas.drawLine(Offset(0, 0), Offset(-size.width / 2, size.height), paint);
 
     // Right leg (diagonal down-right)
-    canvas.drawLine(
-      Offset(0, 0),
-      Offset(size.width / 2, size.height),
-      paint,
-    );
+    canvas.drawLine(Offset(0, 0), Offset(size.width / 2, size.height), paint);
   }
 
   @override
@@ -1141,7 +1134,7 @@ class LegsPainter extends CustomPainter {
 }
 
 /// Semaphore Flag Widget
-/// 
+///
 /// Square flag with diagonal Red-Yellow split using LinearGradient
 class _SemaphoreFlag extends StatelessWidget {
   final double size;
@@ -1158,18 +1151,15 @@ class _SemaphoreFlag extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: const [
-            Colors.red,
-            Colors.red,
-            Colors.yellow,
-            Colors.yellow,
-          ],
-          stops: const [0.0, 0.5, 0.5, 1.0], // Hard stop at 50% for sharp diagonal
+          colors: const [Colors.red, Colors.red, Colors.yellow, Colors.yellow],
+          stops: const [
+            0.0,
+            0.5,
+            0.5,
+            1.0,
+          ], // Hard stop at 50% for sharp diagonal
         ),
-        border: Border.all(
-          color: Colors.black,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.black, width: 1.5),
       ),
     );
   }

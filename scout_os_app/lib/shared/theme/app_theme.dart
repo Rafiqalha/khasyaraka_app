@@ -23,20 +23,50 @@ class AppTheme {
         onBackground: AppColors.textPrimaryLight,
       ),
       textTheme: TextTheme(
-        displayLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryLight),
-        displayMedium: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryLight),
-        displaySmall: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryLight),
-        headlineLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryLight),
-        headlineMedium: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryLight),
-        headlineSmall: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryLight),
-        titleLarge: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryLight),
-        titleMedium: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimaryLight),
-        titleSmall: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimaryLight),
-        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryLight),
-        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryLight),
-        bodySmall: AppTextStyles.caption.copyWith(color: AppColors.textPrimaryLight),
-        labelLarge: AppTextStyles.button.copyWith(color: AppColors.textPrimaryLight),
-        labelSmall: AppTextStyles.caption.copyWith(color: AppColors.textPrimaryLight),
+        displayLarge: AppTextStyles.h1.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        displayMedium: AppTextStyles.h2.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        displaySmall: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        headlineLarge: AppTextStyles.h1.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        headlineMedium: AppTextStyles.h2.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        headlineSmall: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        titleLarge: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        titleMedium: AppTextStyles.bodyLarge.copyWith(
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimaryLight,
+        ),
+        titleSmall: AppTextStyles.bodyMedium.copyWith(
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimaryLight,
+        ),
+        bodyLarge: AppTextStyles.bodyLarge.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        bodyMedium: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        bodySmall: AppTextStyles.caption.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        labelLarge: AppTextStyles.button.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
+        labelSmall: AppTextStyles.caption.copyWith(
+          color: AppColors.textPrimaryLight,
+        ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.primary,
@@ -51,15 +81,16 @@ class AppTheme {
           foregroundColor: Colors.white,
           textStyle: AppTextStyles.button,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: Colors.grey.shade400),
@@ -99,20 +130,48 @@ class AppTheme {
         onBackground: AppColors.textPrimaryDark,
       ),
       textTheme: TextTheme(
-        displayLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
-        displayMedium: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryDark),
-        displaySmall: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryDark),
-        headlineLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
-        headlineMedium: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryDark),
-        headlineSmall: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryDark),
+        displayLarge: AppTextStyles.h1.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        displayMedium: AppTextStyles.h2.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        displaySmall: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        headlineLarge: AppTextStyles.h1.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        headlineMedium: AppTextStyles.h2.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        headlineSmall: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
         titleLarge: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryDark),
-        titleMedium: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
-        titleSmall: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
-        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
-        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
-        bodySmall: AppTextStyles.caption.copyWith(color: AppColors.textPrimaryDark),
-        labelLarge: AppTextStyles.button.copyWith(color: AppColors.textPrimaryDark),
-        labelSmall: AppTextStyles.caption.copyWith(color: AppColors.textPrimaryDark),
+        titleMedium: AppTextStyles.bodyLarge.copyWith(
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimaryDark,
+        ),
+        titleSmall: AppTextStyles.bodyMedium.copyWith(
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimaryDark,
+        ),
+        bodyLarge: AppTextStyles.bodyLarge.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        bodyMedium: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        bodySmall: AppTextStyles.caption.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        labelLarge: AppTextStyles.button.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        labelSmall: AppTextStyles.caption.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surfaceDark,
@@ -127,15 +186,16 @@ class AppTheme {
           foregroundColor: Colors.white,
           textStyle: AppTextStyles.button,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Color(0xFF2C2C2C),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: Colors.grey.shade700),

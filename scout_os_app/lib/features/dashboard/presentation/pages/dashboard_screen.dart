@@ -1,3 +1,4 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -51,11 +52,7 @@ class _DashboardViewState extends State<_DashboardView> {
           if (viewModel.isBackgroundUpdating)
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 16, 
-                height: 16, 
-                child: CircularProgressIndicator(strokeWidth: 2)
-              ),
+              child: SizedBox(width: 16, height: 16, child: GrassSosLoader()),
             ),
         ],
       ),
@@ -70,32 +67,32 @@ class _DashboardViewState extends State<_DashboardView> {
               // User Stats Section
               _buildSectionHeader('User Profile'),
               const SizedBox(height: 8),
-              
+
               if (viewModel.isLoading && !viewModel.hasData)
                 const _ShimmerProfileCard() // 💀 Skeleton
               else if (viewModel.userData != null)
                 _UserProfileCard(stats: viewModel.userData!) // 🟢 Real Data
               else
                 const _ErrorCard(), // 🔴 Error or Empty
-              
+
               const SizedBox(height: 24),
 
               // Placeholder for Missions
               _buildSectionHeader('Active Missions'),
               const SizedBox(height: 8),
               if (viewModel.isLoading && !viewModel.hasData)
-                 const _ShimmerMissionList()
+                const _ShimmerMissionList()
               else
-                 _buildMissionPlaceholder(),
-                 
+                _buildMissionPlaceholder(),
+
               // Placeholder for Leaderboard
               const SizedBox(height: 24),
               _buildSectionHeader('Top Scouts'),
               const SizedBox(height: 8),
               if (viewModel.isLoading && !viewModel.hasData)
-                 const _ShimmerLeaderboard()
+                const _ShimmerLeaderboard()
               else
-                 _buildLeaderboardPlaceholder(),
+                _buildLeaderboardPlaceholder(),
             ],
           ),
         ),
@@ -113,16 +110,34 @@ class _DashboardViewState extends State<_DashboardView> {
   Widget _buildMissionPlaceholder() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-      child: const Row(children: [Icon(Icons.flag), SizedBox(width: 8), Text("Mission Data Loaded (Mock)")]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.flag),
+          SizedBox(width: 8),
+          Text("Mission Data Loaded (Mock)"),
+        ],
+      ),
     );
   }
-  
+
   Widget _buildLeaderboardPlaceholder() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-      child: const Row(children: [Icon(Icons.leaderboard), SizedBox(width: 8), Text("Leaderboard Data Loaded (Mock)")]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.leaderboard),
+          SizedBox(width: 8),
+          Text("Leaderboard Data Loaded (Mock)"),
+        ],
+      ),
     );
   }
 }
@@ -141,20 +156,40 @@ class _UserProfileCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
         children: [
-          const CircleAvatar(radius: 30, backgroundColor: Colors.blueAccent, child: Icon(Icons.person, color: Colors.white)),
+          const CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.blueAccent,
+            child: Icon(Icons.person, color: Colors.white),
+          ),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total XP: ${stats.totalXp}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Text('Streak: 🔥 ${stats.streak} Days', style: TextStyle(color: Colors.orange[700], fontWeight: FontWeight.w600)),
+              Text(
+                'Total XP: ${stats.totalXp}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Streak: 🔥 ${stats.streak} Days',
+                style: TextStyle(
+                  color: Colors.orange[700],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -167,8 +202,14 @@ class _ErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(12)),
-      child: const Text('Failed to load data. Tap to retry.', style: TextStyle(color: Colors.red)),
+      decoration: BoxDecoration(
+        color: Colors.red[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Text(
+        'Failed to load data. Tap to retry.',
+        style: TextStyle(color: Colors.red),
+      ),
     );
   }
 }
@@ -202,14 +243,17 @@ class _ShimmerMissionList extends StatelessWidget {
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Column(
-        children: List.generate(3, (index) => Container(
-          height: 60,
-          margin: const EdgeInsets.only(bottom: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+        children: List.generate(
+          3,
+          (index) => Container(
+            height: 60,
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-        )),
+        ),
       ),
     );
   }

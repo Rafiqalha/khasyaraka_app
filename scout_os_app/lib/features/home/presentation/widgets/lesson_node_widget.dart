@@ -32,10 +32,7 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
     )..repeat(reverse: true);
 
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     _updatePulseAnimation();
@@ -52,10 +49,11 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
 
   void _updatePulseAnimation() {
     final status = widget.lesson.status; // Already uppercase from model
-    final isActive = status == 'ACTIVE' || 
-                     status == 'UNLOCKED' ||
-                     (status != 'LOCKED' && status != 'COMPLETED' && status.isNotEmpty);
-    
+    final isActive =
+        status == 'ACTIVE' ||
+        status == 'UNLOCKED' ||
+        (status != 'LOCKED' && status != 'COMPLETED' && status.isNotEmpty);
+
     if (isActive) {
       _pulseController.repeat(reverse: true);
     } else {
@@ -73,9 +71,11 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
   @override
   Widget build(BuildContext context) {
     // CRITICAL: Strict 3-state logic (UPPERCASE)
-    final status = widget.lesson.status.toUpperCase(); // Double check normalization
+    final status = widget.lesson.status
+        .toUpperCase(); // Double check normalization
     final isPlayable = status == 'UNLOCKED' || status == 'COMPLETED';
-    final shouldAnimate = status == 'UNLOCKED'; // Only bounce current active level
+    final shouldAnimate =
+        status == 'UNLOCKED'; // Only bounce current active level
 
     return GestureDetector(
       onTap: isPlayable ? widget.onTap : null,
@@ -94,7 +94,7 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
   Widget _buildNodeContent(String status) {
     const nodeSize = 72.0;
     Widget node;
-    
+
     // Strict Switch Case as requested (UPPERCASE)
     switch (status) {
       case 'COMPLETED':
@@ -111,24 +111,20 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        node,
-        const SizedBox(height: 6),
-        _buildLabel(),
-      ],
+      children: [node, const SizedBox(height: 6), _buildLabel()],
     );
   }
 
   // Helper method to keep UI clean - old buildNodeContent removed
   Widget _buildLabel() {
-     return Text(
-          'Level ${widget.lesson.orderIndex}',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: Colors.blueGrey.shade700,
-          ),
-        );
+    return Text(
+      'Level ${widget.lesson.orderIndex}',
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: Colors.blueGrey.shade700,
+      ),
+    );
   }
 
   Widget _buildLockedNode({required double size}) {
@@ -138,7 +134,10 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
       decoration: BoxDecoration(
         color: const Color(0xFFE5E5E5), // Light grey for locked
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFBDBDBD), width: 4), // Thicker border
+        border: Border.all(
+          color: const Color(0xFFBDBDBD),
+          width: 4,
+        ), // Thicker border
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -148,7 +147,11 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
         ],
       ),
       child: Center(
-        child: Icon(Icons.lock_rounded, size: 30, color: const Color(0xFF9E9E9E)),
+        child: Icon(
+          Icons.lock_rounded,
+          size: 30,
+          color: const Color(0xFF9E9E9E),
+        ),
       ),
     );
   }
@@ -171,10 +174,10 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
         ],
       ),
       child: Center(
-        child: Icon(
-          Icons.star_rounded, // ✅ Star icon for active
-          size: 38,
-          color: Colors.white,
+        child: Image.asset(
+          'assets/icons/training/star.png',
+          height: 38,
+          width: 38,
         ),
       ),
     );
@@ -208,8 +211,14 @@ class _LessonNodeWidgetState extends State<LessonNodeWidget>
           Positioned(
             right: 12,
             bottom: 12,
-            child: Icon(Icons.star, size: 10, color: Colors.white.withValues(alpha: 0.5)),
-          )
+            child: Image.asset(
+              'assets/icons/training/star.png',
+              height: 12,
+              width: 12,
+              color: Colors.white.withValues(alpha: 0.5),
+              colorBlendMode: BlendMode.srcIn,
+            ),
+          ),
         ],
       ),
     );

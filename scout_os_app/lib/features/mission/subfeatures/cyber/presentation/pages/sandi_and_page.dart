@@ -6,17 +6,14 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi AND (Insertion Cipher) Tool
-/// 
+///
 /// Encodes by appending "AND" after every letter.
 /// Example: "AKU" -> "AAND KAND UAND"
 /// Decodes by removing all "AND" occurrences.
 class SandiAndPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiAndPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiAndPage({super.key, required this.sandi});
 
   @override
   State<SandiAndPage> createState() => _SandiAndPageState();
@@ -118,7 +115,11 @@ class _SandiAndPageState extends State<SandiAndPage>
           if (onset.isEmpty) {
             parts.add('and$ch');
           } else {
-            parts.add('$onset' 'and' '$ch');
+            parts.add(
+              '$onset'
+              'and'
+              '$ch',
+            );
           }
         } else {
           consonantBuf.write(ch);
@@ -127,7 +128,10 @@ class _SandiAndPageState extends State<SandiAndPage>
 
       // Trailing consonants without vowel -> append filler vowel 'a'
       if (consonantBuf.isNotEmpty) {
-        parts.add('${consonantBuf}and' 'a');
+        parts.add(
+          '${consonantBuf}and'
+          'a',
+        );
       }
 
       outWords.add(parts.join(' '));
@@ -141,21 +145,21 @@ class _SandiAndPageState extends State<SandiAndPage>
   /// Logic: Remove "AND" from each word, then join the remaining letters
   String _decodeText(String text) {
     if (text.isEmpty) return '';
-    
+
     // Split by spaces to get individual words
     final words = text.split(RegExp(r'\s+'));
-    
+
     final result = <String>[];
     for (final word in words) {
       if (word.isEmpty) continue;
-      
+
       // Remove all "AND" occurrences (case-insensitive) from each word
       final cleaned = word.replaceAll(RegExp('AND', caseSensitive: false), '');
       if (cleaned.isNotEmpty) {
         result.add(cleaned);
       }
     }
-    
+
     // Join all decoded words with spaces
     return result.join(' ');
   }
@@ -195,10 +199,7 @@ class _SandiAndPageState extends State<SandiAndPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEncodeTab(),
-          _buildDecodeTab(),
-        ],
+        children: [_buildEncodeTab(), _buildDecodeTab()],
       ),
     );
   }
@@ -213,11 +214,7 @@ class _SandiAndPageState extends State<SandiAndPage>
           CyberContainer(
             child: Row(
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: CyberTheme.neonCyan,
-                  size: 20,
-                ),
+                Icon(Icons.info_outline, color: CyberTheme.neonCyan, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -246,7 +243,11 @@ class _SandiAndPageState extends State<SandiAndPage>
                       style: CyberTheme.headline().copyWith(fontSize: 16),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClearEncode,
                       tooltip: 'Clear',
                     ),
@@ -291,7 +292,10 @@ class _SandiAndPageState extends State<SandiAndPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
                           final encoded = _encodeText(_encodeController.text);
                           _copyToClipboard(encoded);
@@ -321,11 +325,7 @@ class _SandiAndPageState extends State<SandiAndPage>
           CyberContainer(
             child: Row(
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: CyberTheme.neonCyan,
-                  size: 20,
-                ),
+                Icon(Icons.info_outline, color: CyberTheme.neonCyan, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -354,7 +354,11 @@ class _SandiAndPageState extends State<SandiAndPage>
                       style: CyberTheme.headline().copyWith(fontSize: 16),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClearDecode,
                       tooltip: 'Clear',
                     ),
@@ -399,7 +403,10 @@ class _SandiAndPageState extends State<SandiAndPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
                           final decoded = _decodeText(_decodeController.text);
                           if (decoded.isNotEmpty) {
@@ -493,11 +500,7 @@ class _SandiAndPageState extends State<SandiAndPage>
         color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SelectableText.rich(
-        TextSpan(
-          children: spans,
-        ),
-      ),
+      child: SelectableText.rich(TextSpan(children: spans)),
     );
   }
 }

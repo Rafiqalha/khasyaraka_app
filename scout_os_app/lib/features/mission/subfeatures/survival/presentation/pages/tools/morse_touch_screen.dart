@@ -24,25 +24,55 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
   final TextEditingController _textController = TextEditingController();
   final AudioPlayer _dotPlayer = AudioPlayer();
   final AudioPlayer _dashPlayer = AudioPlayer();
-  
+
   bool _isTransmitting = false;
   bool _isFlashOn = false;
   String _currentMorse = "";
-  
+
   // Morse Dictionary
   final Map<String, String> _morseCodeMap = {
-    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-    'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-    'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-    'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
-    '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
-    '9': '----.', '0': '-----', ' ': '/'
+    'A': '.-',
+    'B': '-...',
+    'C': '-.-.',
+    'D': '-..',
+    'E': '.',
+    'F': '..-.',
+    'G': '--.',
+    'H': '....',
+    'I': '..',
+    'J': '.---',
+    'K': '-.-',
+    'L': '.-..',
+    'M': '--',
+    'N': '-.',
+    'O': '---',
+    'P': '.--.',
+    'Q': '--.-',
+    'R': '.-.',
+    'S': '...',
+    'T': '-',
+    'U': '..-',
+    'V': '...-',
+    'W': '.--',
+    'X': '-..-',
+    'Y': '-.--',
+    'Z': '--..',
+    '1': '.----',
+    '2': '..---',
+    '3': '...--',
+    '4': '....-',
+    '5': '.....',
+    '6': '-....',
+    '7': '--...',
+    '8': '---..',
+    '9': '----.',
+    '0': '-----',
+    ' ': '/',
   };
 
   // Timings (ms)
-  final int _dotDuration = 200; 
-  final int _dashDuration = 600; 
+  final int _dotDuration = 200;
+  final int _dashDuration = 600;
   final int _gapDuration = 200;
   final int _letterGap = 600;
   final int _wordGap = 1400;
@@ -52,7 +82,7 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
     super.initState();
     _initAudio();
   }
-  
+
   Future<void> _initAudio() async {
     // Audio Ducking Configuration (Preserved Fix: Media/Music)
     final AudioContext audioContext = AudioContext(
@@ -73,12 +103,12 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
     );
 
     await AudioPlayer.global.setAudioContext(audioContext);
-    
+
     // Preload sounds
     await _dotPlayer.setSource(AssetSource('audio/morse/sos/dot.wav'));
     await _dotPlayer.setReleaseMode(ReleaseMode.stop);
     await _dotPlayer.setVolume(1.0);
-    
+
     await _dashPlayer.setSource(AssetSource('audio/morse/sos/dash.wav'));
     await _dashPlayer.setReleaseMode(ReleaseMode.stop);
     await _dashPlayer.setVolume(1.0);
@@ -86,17 +116,21 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
 
   void _onTextChanged(String text) {
     setState(() {
-      _currentMorse = text.toUpperCase().split('').map((char) {
-        return _morseCodeMap[char] ?? '';
-      }).join(' ');
+      _currentMorse = text
+          .toUpperCase()
+          .split('')
+          .map((char) {
+            return _morseCodeMap[char] ?? '';
+          })
+          .join(' ');
     });
   }
 
   // Play a specific signal type (Dot or Dash)
   Future<void> _playSignal(String type) async {
     if (!mounted) return;
-    
-    debugPrint("Playing Signal: $type"); 
+
+    debugPrint("Playing Signal: $type");
 
     // 1. Visual & Flash ON
     setState(() => _isFlashOn = true);
@@ -107,8 +141,8 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
     // 2. Play Audio (Preserved Fix: Error Handling & Resume)
     try {
       if (type == '.') {
-        await _dotPlayer.stop(); 
-        await _dotPlayer.resume(); 
+        await _dotPlayer.stop();
+        await _dotPlayer.resume();
         await Future.delayed(Duration(milliseconds: _dotDuration));
       } else if (type == '-') {
         await _dashPlayer.stop();
@@ -122,7 +156,7 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
     try {
       await TorchLight.disableTorch();
     } catch (_) {}
-    
+
     // Reset players
     if (type == '.') await _dotPlayer.stop();
     if (type == '-') await _dashPlayer.stop();
@@ -133,34 +167,36 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
 
     setState(() => _isTransmitting = true);
     final upperText = text.toUpperCase();
-    
+
     do {
       for (int i = 0; i < upperText.length; i++) {
-        if (!_isTransmitting) break; 
+        if (!_isTransmitting) break;
 
         String char = upperText[i];
         String? code = _morseCodeMap[char];
 
         if (code != null) {
           for (int j = 0; j < code.length; j++) {
-             if (!_isTransmitting) break;
-             String signal = code[j];
-             await _playSignal(signal);
-             await Future.delayed(Duration(milliseconds: _gapDuration));
+            if (!_isTransmitting) break;
+            String signal = code[j];
+            await _playSignal(signal);
+            await Future.delayed(Duration(milliseconds: _gapDuration));
           }
-          await Future.delayed(Duration(milliseconds: _letterGap - _gapDuration)); 
+          await Future.delayed(
+            Duration(milliseconds: _letterGap - _gapDuration),
+          );
         } else if (char == ' ') {
-           await Future.delayed(Duration(milliseconds: _wordGap)); 
+          await Future.delayed(Duration(milliseconds: _wordGap));
         }
       }
       if (loop && _isTransmitting) {
-        await Future.delayed(Duration(milliseconds: _wordGap)); 
+        await Future.delayed(Duration(milliseconds: _wordGap));
       }
     } while (loop && _isTransmitting);
 
     _stopTransmission();
   }
-  
+
   void _stopTransmission() async {
     if (mounted) {
       setState(() {
@@ -189,7 +225,13 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Morse Touch Data", style: GoogleFonts.fredoka(color: Colors.grey.shade800, fontWeight: FontWeight.bold)),
+        title: Text(
+          "Morse Touch Data",
+          style: GoogleFonts.fredoka(
+            color: Colors.grey.shade800,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -222,9 +264,9 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // 2. Real-time Morse Preview
             Container(
               width: double.infinity,
@@ -237,16 +279,16 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                 _currentMorse.isEmpty ? "..." : _currentMorse,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.sourceCodePro(
-                  fontSize: 24, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                   color: _duoBlue,
-                  letterSpacing: 2.0
+                  letterSpacing: 2.0,
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // 3. Visualizer (Giant Bulb)
             AnimatedContainer(
               duration: const Duration(milliseconds: 50),
@@ -255,16 +297,30 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _isFlashOn ? _duoYellow : Colors.grey.shade300,
-                boxShadow: _isFlashOn ? [
-                   BoxShadow(color: _duoYellow.withValues(alpha: 0.6), blurRadius: 40, spreadRadius: 10),
-                   BoxShadow(color: _duoYellow.withValues(alpha: 0.4), blurRadius: 80, spreadRadius: 20),
-                ] : [
-                   BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 5))
-                ],
+                boxShadow: _isFlashOn
+                    ? [
+                        BoxShadow(
+                          color: _duoYellow.withValues(alpha: 0.6),
+                          blurRadius: 40,
+                          spreadRadius: 10,
+                        ),
+                        BoxShadow(
+                          color: _duoYellow.withValues(alpha: 0.4),
+                          blurRadius: 80,
+                          spreadRadius: 20,
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                 border: Border.all(
                   color: _isFlashOn ? Colors.white : Colors.grey.shade400,
-                  width: 4
-                )
+                  width: 4,
+                ),
               ),
               child: Icon(
                 _isFlashOn ? Icons.light_mode : Icons.light_mode_outlined,
@@ -273,7 +329,7 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            
+
             // 4. Action Buttons (3D)
             Row(
               children: [
@@ -281,7 +337,9 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                   child: _build3DButton(
                     label: _isTransmitting ? "STOP" : "KIRIM",
                     color: _isTransmitting ? Colors.grey : _duoGreen,
-                    shadowColor: _isTransmitting ? Colors.grey.shade700 : _duoGreenShadow,
+                    shadowColor: _isTransmitting
+                        ? Colors.grey.shade700
+                        : _duoGreenShadow,
                     onTap: () {
                       if (_isTransmitting) {
                         _stopTransmission();
@@ -301,26 +359,26 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                     color: _duoRed,
                     shadowColor: _duoRedShadow,
                     onTap: () {
-                       if (_isTransmitting) {
-                         _stopTransmission();
-                       } else {
-                         _textController.text = "SOS";
-                         _onTextChanged("SOS");
-                         FocusScope.of(context).unfocus();
-                         _transmitMorseSequence("SOS", loop: true);
-                       }
+                      if (_isTransmitting) {
+                        _stopTransmission();
+                      } else {
+                        _textController.text = "SOS";
+                        _onTextChanged("SOS");
+                        FocusScope.of(context).unfocus();
+                        _transmitMorseSequence("SOS", loop: true);
+                      }
                     },
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 5. Manual Touch
             GestureDetector(
               onTapDown: (_) async {
-                 await _playSignal('.'); 
+                await _playSignal('.');
               },
               child: Container(
                 width: double.infinity,
@@ -329,19 +387,23 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                   color: _duoBlue,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
-                     BoxShadow(color: _duoBlueShadow, offset: Offset(0, 6), blurRadius: 0)
-                  ]
+                    BoxShadow(
+                      color: _duoBlueShadow,
+                      offset: Offset(0, 6),
+                      blurRadius: 0,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
                     const Icon(Icons.touch_app, color: Colors.white, size: 40),
                     const SizedBox(height: 8),
                     Text(
-                      "MANUAL TOUCH (DOT)", 
+                      "MANUAL TOUCH (DOT)",
                       style: GoogleFonts.fredoka(
-                        fontSize: 18, 
-                        fontWeight: FontWeight.bold, 
-                        color: Colors.white
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -353,12 +415,12 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
       ),
     );
   }
-  
+
   Widget _build3DButton({
-    required String label, 
-    required Color color, 
-    required Color shadowColor, 
-    required VoidCallback onTap
+    required String label,
+    required Color color,
+    required Color shadowColor,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -368,16 +430,20 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
           color: color,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: shadowColor, offset: const Offset(0, 4), blurRadius: 0)
-          ]
+            BoxShadow(
+              color: shadowColor,
+              offset: const Offset(0, 4),
+              blurRadius: 0,
+            ),
+          ],
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           style: GoogleFonts.fredoka(
-             fontSize: 16,
-             fontWeight: FontWeight.bold,
-             color: Colors.white
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
       ),

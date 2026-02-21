@@ -72,8 +72,8 @@ class SurvivalMasteryController extends ChangeNotifier {
     if (_masteryData == null || _masteryData!.tools.isEmpty) {
       return null;
     }
-    return _masteryData!.tools.reduce((a, b) => 
-      a.currentLevel > b.currentLevel ? a : b
+    return _masteryData!.tools.reduce(
+      (a, b) => a.currentLevel > b.currentLevel ? a : b,
     );
   }
 
@@ -86,7 +86,10 @@ class SurvivalMasteryController extends ChangeNotifier {
   /// Get average level across all tools
   double get averageLevel {
     if (_masteryData == null || _masteryData!.tools.isEmpty) return 1.0;
-    final totalLevel = _masteryData!.tools.fold(0, (sum, tool) => sum + tool.currentLevel);
+    final totalLevel = _masteryData!.tools.fold(
+      0,
+      (sum, tool) => sum + tool.currentLevel,
+    );
     return totalLevel / _masteryData!.tools.length;
   }
 }

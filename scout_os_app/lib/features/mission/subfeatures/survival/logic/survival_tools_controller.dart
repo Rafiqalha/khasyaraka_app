@@ -89,9 +89,12 @@ class SurvivalToolsController extends ChangeNotifier {
       _compassStream = magnetometerEventStream();
       _compassStream.listen(
         (MagnetometerEvent event) {
-          final heading = (math.atan2(event.y, event.x) * 180 / math.pi + 360) % 360;
-          final magneticField = math.sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
-          
+          final heading =
+              (math.atan2(event.y, event.x) * 180 / math.pi + 360) % 360;
+          final magneticField = math.sqrt(
+            event.x * event.x + event.y * event.y + event.z * event.z,
+          );
+
           _compassData = CompassData(
             heading: heading,
             magneticField: magneticField,
@@ -120,8 +123,7 @@ class SurvivalToolsController extends ChangeNotifier {
           // Convert accelerometer values to angles
           final pitchAngle = _calculateAngle(event.y, event.z);
           final rollAngle = _calculateAngle(event.x, event.z);
-          final yawAngle =
-              _atan2Angle(event.x, event.y); // Yaw from X,Y plane
+          final yawAngle = _atan2Angle(event.x, event.y); // Yaw from X,Y plane
 
           _clinoData = ClinoData(
             pitchAngle: pitchAngle,
@@ -144,47 +146,10 @@ class SurvivalToolsController extends ChangeNotifier {
 
   /// Initialize GPS (Geolocator)
   Future<void> _initializeGps() async {
-    try {
-      // Check permission
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        _gpsError =
-            'GPS permission denied. Enable location in device settings.';
-        notifyListeners();
-        return;
-      }
-
-      _gpsEnabled = true;
-
-      // Get initial position
-      final initialPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      _updateGpsData(initialPosition);
-
-      // Listen to position stream with distance filter
-      _gpsStream = Geolocator.getPositionStream();
-
-      _gpsStream.listen(
-        (Position position) {
-          _updateGpsData(position);
-        },
-        onError: (error) {
-          _gpsError = 'GPS Error: $error';
-          _gpsEnabled = false;
-          notifyListeners();
-        },
-      );
-    } catch (e) {
-      _gpsError = 'Failed to initialize GPS: $e';
-      _gpsEnabled = false;
-      notifyListeners();
-    }
+    // Feature disabled: Location permission removed from Manifest per user request
+    _gpsError = 'Lokasi dinonaktifkan (Izin dihapus).';
+    _gpsEnabled = false;
+    notifyListeners();
   }
 
   /// Update GPS data and notify listeners
@@ -229,7 +194,7 @@ class SurvivalToolsController extends ChangeNotifier {
       'W',
       'WNW',
       'NW',
-      'NNW'
+      'NNW',
     ];
     final index = ((heading + 11.25) / 22.5).toInt() % 16;
     return directions[index];

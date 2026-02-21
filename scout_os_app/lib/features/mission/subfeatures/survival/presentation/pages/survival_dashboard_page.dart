@@ -47,7 +47,8 @@ class _SurvivalDashboardPageState extends State<SurvivalDashboardPage> {
               subtitle: 'Magnetometer',
               description: 'Real-time magnetic heading',
               accentColor: _tacticalGreen,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.survivalCompass),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.survivalCompass),
               preview: _CompassPreview(),
             ),
             // Clinometer Tool Card
@@ -56,7 +57,8 @@ class _SurvivalDashboardPageState extends State<SurvivalDashboardPage> {
               subtitle: 'Angle Meter',
               description: 'Pitch & roll angles',
               accentColor: _accentOrange,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.survivalClinometer),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.survivalClinometer),
               preview: _ClinoPreview(),
             ),
             // GPS Tracker Tool Card
@@ -65,7 +67,8 @@ class _SurvivalDashboardPageState extends State<SurvivalDashboardPage> {
               subtitle: 'Location Data',
               description: 'Coordinates & altitude',
               accentColor: _tacticalGreen,
-              onTap: () => Navigator.pushNamed(context, AppRoutes.survivalGpsTracker),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.survivalGpsTracker),
               preview: _GpsPreview(),
             ),
           ],
@@ -91,10 +94,7 @@ class _SurvivalDashboardPageState extends State<SurvivalDashboardPage> {
       centerTitle: true,
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(4),
-        child: Container(
-          height: 2,
-          color: _tacticalGreen,
-        ),
+        child: Container(height: 2, color: _tacticalGreen),
       ),
     );
   }
@@ -112,10 +112,7 @@ class _CompassPreview extends StatelessWidget {
         if (error != null) {
           return Text(
             '⚠️ Compass Error',
-            style: GoogleFonts.robotoMono(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            style: GoogleFonts.robotoMono(color: Colors.red, fontSize: 12),
             textAlign: TextAlign.center,
           );
         }
@@ -169,10 +166,7 @@ class _ClinoPreview extends StatelessWidget {
         if (error != null) {
           return Text(
             '⚠️ Accel Error',
-            style: GoogleFonts.robotoMono(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            style: GoogleFonts.robotoMono(color: Colors.red, fontSize: 12),
             textAlign: TextAlign.center,
           );
         }
@@ -226,10 +220,7 @@ class _GpsPreview extends StatelessWidget {
         if (error != null) {
           return Text(
             '⚠️ GPS Error',
-            style: GoogleFonts.robotoMono(
-              color: Colors.red,
-              fontSize: 12,
-            ),
+            style: GoogleFonts.robotoMono(color: Colors.red, fontSize: 12),
             textAlign: TextAlign.center,
           );
         }

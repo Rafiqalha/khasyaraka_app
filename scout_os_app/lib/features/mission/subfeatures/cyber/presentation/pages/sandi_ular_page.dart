@@ -6,21 +6,18 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Ular (Snake Cipher) Tool Page
-/// 
+///
 /// Vertical Serpentine (Column-by-Column Filling):
 /// - Column 0 (Even): Fill Downwards (Row 0 to Max)
 /// - Column 1 (Odd): Fill Upwards (Row Max to 0)
 /// - Column 2 (Even): Fill Downwards
 /// - ...and so on
-/// 
+///
 /// Encrypted text is read Row-by-Row (Left to Right)
 class SandiUlarPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiUlarPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiUlarPage({super.key, required this.sandi});
 
   @override
   State<SandiUlarPage> createState() => _SandiUlarPageState();
@@ -161,7 +158,10 @@ class _SandiUlarPageState extends State<SandiUlarPage>
   /// Build grid from encrypted text (decode mode)
   /// Encrypted text is read row by row, then we extract column by column with snake pattern
   void _buildGridFromEncrypted() {
-    final encrypted = _encryptedController.text.toUpperCase().replaceAll(' ', '');
+    final encrypted = _encryptedController.text.toUpperCase().replaceAll(
+      ' ',
+      '',
+    );
     if (encrypted.isEmpty) {
       _grid = [];
       _decryptedText = '';
@@ -177,7 +177,7 @@ class _SandiUlarPageState extends State<SandiUlarPage>
 
     // Build grid by reading row by row (encrypted text format)
     _grid = List.generate(rows, (_) => List.filled(cols, ''));
-    
+
     int encryptedIndex = 0;
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
@@ -375,9 +375,7 @@ class _SandiUlarPageState extends State<SandiUlarPage>
                 style: CyberTheme.headline().copyWith(fontSize: 16),
               ),
               const SizedBox(height: 12),
-              CyberContainer(
-                child: _buildGridView(),
-              ),
+              CyberContainer(child: _buildGridView()),
               const SizedBox(height: 24),
 
               // Result Section
@@ -403,14 +401,21 @@ class _SandiUlarPageState extends State<SandiUlarPage>
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: _encryptedText));
+                          Clipboard.setData(
+                            ClipboardData(text: _encryptedText),
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
                                 'Copied to clipboard!',
-                                style: CyberTheme.body().copyWith(color: Colors.white),
+                                style: CyberTheme.body().copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                               backgroundColor: Colors.black.withOpacity(0.9),
                               duration: const Duration(seconds: 1),
@@ -434,7 +439,9 @@ class _SandiUlarPageState extends State<SandiUlarPage>
                     children: [
                       Expanded(
                         child: SelectableText(
-                          _decryptedText.isEmpty ? 'Decoding...' : _decryptedText,
+                          _decryptedText.isEmpty
+                              ? 'Decoding...'
+                              : _decryptedText,
                           style: GoogleFonts.courierPrime(
                             fontSize: 20,
                             color: CyberTheme.matrixGreen,
@@ -445,14 +452,21 @@ class _SandiUlarPageState extends State<SandiUlarPage>
                       ),
                       if (_decryptedText.isNotEmpty)
                         IconButton(
-                          icon: const Icon(Icons.copy, color: CyberTheme.matrixGreen),
+                          icon: const Icon(
+                            Icons.copy,
+                            color: CyberTheme.matrixGreen,
+                          ),
                           onPressed: () {
-                            Clipboard.setData(ClipboardData(text: _decryptedText));
+                            Clipboard.setData(
+                              ClipboardData(text: _decryptedText),
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   'Copied to clipboard!',
-                                  style: CyberTheme.body().copyWith(color: Colors.white),
+                                  style: CyberTheme.body().copyWith(
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 backgroundColor: Colors.black.withOpacity(0.9),
                                 duration: const Duration(seconds: 1),
@@ -620,7 +634,8 @@ class _SandiUlarPageState extends State<SandiUlarPage>
     final fadeValue = animation.value;
     final scaleValue = 0.8 + (animation.value * 0.2);
     final slideOffset = isEvenCol
-        ? (1 - animation.value) * 50 // Slide from top (downwards)
+        ? (1 - animation.value) *
+              50 // Slide from top (downwards)
         : (1 - animation.value) * -50; // Slide from bottom (upwards)
 
     return Transform.translate(
@@ -632,18 +647,14 @@ class _SandiUlarPageState extends State<SandiUlarPage>
           child: Container(
             decoration: BoxDecoration(
               color: cellColor,
-              border: Border.all(
-                color: borderColor,
-                width: 1.5,
-              ),
+              border: Border.all(color: borderColor, width: 1.5),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 if (animation.value > 0.5)
                   BoxShadow(
-                    color: (isEvenCol
-                            ? Colors.lightBlue
-                            : Colors.amber.shade300)
-                        .withOpacity(0.3 * animation.value),
+                    color:
+                        (isEvenCol ? Colors.lightBlue : Colors.amber.shade300)
+                            .withOpacity(0.3 * animation.value),
                     blurRadius: 8,
                     spreadRadius: 2,
                   ),
@@ -670,9 +681,7 @@ class _SandiUlarPageState extends State<SandiUlarPage>
                   child: Icon(
                     isEvenCol ? Icons.arrow_downward : Icons.arrow_upward,
                     size: 16,
-                    color: isEvenCol
-                        ? Colors.lightBlue
-                        : Colors.amber.shade300,
+                    color: isEvenCol ? Colors.lightBlue : Colors.amber.shade300,
                   ),
                 ),
 

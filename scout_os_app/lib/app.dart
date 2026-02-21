@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                    import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/core/config/theme_config.dart'; // Import tema yang baru dibuat
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
@@ -10,16 +10,14 @@ class ScoutOSApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TrainingController()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => TrainingController())],
       child: MaterialApp(
         title: 'Khasyaraka - Scout OS',
-        debugShowCheckedModeBanner: false,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-        
+        debugShowCheckedModeBanner: false,
+
         // --- PASANG TEMA DI SINI ---
-        theme: ThemeConfig.lightTheme, 
-        
+        theme: ThemeConfig.lightTheme,
+
         home: const MainScaffold(),
       ),
     );

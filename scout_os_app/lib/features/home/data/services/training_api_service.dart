@@ -19,11 +19,9 @@ class TrainingApiService {
   final Dio _dio;
   final String baseUrl;
 
-  TrainingApiService({
-    required Dio dio,
-    String? baseUrl,
-  })  : _dio = dio,
-        baseUrl = baseUrl ?? Environment.apiBaseUrl;
+  TrainingApiService({required Dio dio, String? baseUrl})
+    : _dio = dio,
+      baseUrl = baseUrl ?? Environment.apiBaseUrl;
 
   // ==================== SECTION ENDPOINTS ====================
 
@@ -53,8 +51,7 @@ class TrainingApiService {
   /// Get all units in a section
   Future<UnitListResponse> getSectionUnits(String sectionId) async {
     try {
-      final response =
-          await _dio.get('/training/sections/$sectionId/units');
+      final response = await _dio.get('/training/sections/$sectionId/units');
       return UnitListResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -102,25 +99,26 @@ class TrainingApiService {
   /// Get all questions in a level
   Future<QuestionListResponse> getLevelQuestions(String levelId) async {
     try {
-      final response =
-          await _dio.get('/training/levels/$levelId/questions');
+      final response = await _dio.get('/training/levels/$levelId/questions');
       final responseData = QuestionListResponse.fromJson(response.data);
-      
+
       // DEFENSIVE FILTERING: Ensure we only return questions for this specific levelId
       // This prevents bugs where backend returns all questions
       final filteredQuestions = responseData.questions
           .where((q) => q.levelId == levelId)
           .toList();
-      
+
       if (filteredQuestions.isEmpty && responseData.questions.isNotEmpty) {
         // Backend returned questions but none match the levelId
-        throw Exception('Backend returned ${responseData.questions.length} questions but none match level "$levelId"');
+        throw Exception(
+          'Backend returned ${responseData.questions.length} questions but none match level "$levelId"',
+        );
       }
-      
+
       // CRITICAL: Sort by order field to maintain exact sequence from database
       // Backend already orders by order field, but we ensure it here as well
       filteredQuestions.sort((a, b) => a.order.compareTo(b.order));
-      
+
       return QuestionListResponse(
         total: filteredQuestions.length,
         levelId: levelId,
@@ -137,8 +135,7 @@ class TrainingApiService {
   /// Get Duolingo-style learning path for a section
   Future<LearningPathResponse> getLearningPath(String sectionId) async {
     try {
-      final response =
-          await _dio.get('/training/sections/$sectionId/path');
+      final response = await _dio.get('/training/sections/$sectionId/path');
       return LearningPathResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -149,7 +146,7 @@ class TrainingApiService {
 
   /// POST /training/progress/submit
   /// Submit level completion and update user progress
-  /// 
+  ///
   /// TODO: Implement when backend endpoint is ready
   Future<Map<String, dynamic>> submitProgress({
     required String levelId,
@@ -179,7 +176,7 @@ class TrainingApiService {
   /// Get current user progress state.
   /// If sectionId is provided, returns progress for that section.
   /// If sectionId is null, returns progress for ALL sections (Global).
-  /// 
+  ///
   /// Backend returns: {success: true, section_id: "...", progress: {"puk_u1_l1": "completed", ...}}
   Future<Map<String, String>> getProgressState({String? sectionId}) async {
     try {
@@ -192,22 +189,23 @@ class TrainingApiService {
         '/training/progress/state',
         queryParameters: queryParams,
       );
-      
+
       // ✅ FIX: Handle Map response from Backend
       // Format: {"success": true, "section_id": "puk", "progress": {"puk_u1_l1": "completed"}}
       final Map<String, dynamic> data = response.data as Map<String, dynamic>;
-      final Map<String, dynamic>? progressData = data['progress'] as Map<String, dynamic>?;
-      
+      final Map<String, dynamic>? progressData =
+          data['progress'] as Map<String, dynamic>?;
+
       if (progressData == null) {
         return {};
       }
-      
+
       final Map<String, String> progressMap = {};
-      
+
       for (var entry in progressData.entries) {
         progressMap[entry.key] = entry.value?.toString() ?? 'unknown';
       }
-      
+
       return progressMap;
     } on DioException catch (e) {
       throw _handleError(e);

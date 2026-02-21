@@ -2,11 +2,11 @@ import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 
 /// Morse Haptic Service
-/// 
+///
 /// Handles haptic feedback for Morse code according to standard:
 /// - Dot (.) = 1 unit (short vibration ~100ms)
 /// - Dash (-) = 3 units (long vibration ~300ms)
-/// 
+///
 /// Uses single vibration with duration control, NOT multiple vibrations
 class MorseHapticService {
   /// Check if device supports vibration
@@ -23,7 +23,7 @@ class MorseHapticService {
   static Future<void> playDot() async {
     try {
       final hasVibrator = await _hasVibrator();
-      
+
       if (hasVibrator) {
         // Use vibration package for precise duration control
         await Vibration.vibrate(duration: 100); // 100ms for dot
@@ -46,7 +46,7 @@ class MorseHapticService {
   static Future<void> playDash() async {
     try {
       final hasVibrator = await _hasVibrator();
-      
+
       if (hasVibrator) {
         // Use vibration package for precise duration control
         // Single long vibration (3x duration of dot)

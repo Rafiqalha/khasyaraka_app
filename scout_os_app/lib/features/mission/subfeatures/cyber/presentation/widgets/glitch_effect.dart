@@ -48,7 +48,9 @@ class _GlitchEffectState extends State<GlitchEffect> {
     _burstTick = 0;
     HapticFeedback.vibrate();
     _glitchBurstTimer?.cancel();
-    _glitchBurstTimer = Timer.periodic(const Duration(milliseconds: 45), (timer) {
+    _glitchBurstTimer = Timer.periodic(const Duration(milliseconds: 45), (
+      timer,
+    ) {
       if (!mounted) return;
       _burstTick += 1;
       setState(() {
@@ -97,32 +99,35 @@ class _GlitchEffectState extends State<GlitchEffect> {
         Transform.translate(
           offset: const Offset(-14, 0),
           child: ColorFiltered(
-            colorFilter: const ColorFilter.mode(Colors.cyanAccent, BlendMode.modulate),
+            colorFilter: const ColorFilter.mode(
+              Colors.cyanAccent,
+              BlendMode.modulate,
+            ),
             child: widget.child,
           ),
         ),
         Transform.translate(
           offset: const Offset(14, 0),
           child: ColorFiltered(
-            colorFilter: const ColorFilter.mode(Colors.redAccent, BlendMode.modulate),
+            colorFilter: const ColorFilter.mode(
+              Colors.redAccent,
+              BlendMode.modulate,
+            ),
             child: widget.child,
           ),
         ),
         Transform.translate(
           offset: const Offset(0, -10),
           child: ColorFiltered(
-            colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.screen),
+            colorFilter: const ColorFilter.mode(
+              Colors.white70,
+              BlendMode.screen,
+            ),
             child: widget.child,
           ),
         ),
-        Transform.translate(
-          offset: _jitter,
-          child: widget.child,
-        ),
-        Transform.translate(
-          offset: _jitter2,
-          child: widget.child,
-        ),
+        Transform.translate(offset: _jitter, child: widget.child),
+        Transform.translate(offset: _jitter2, child: widget.child),
       ],
     );
   }

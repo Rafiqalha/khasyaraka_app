@@ -3,7 +3,8 @@ import 'package:scout_os_app/features/mission/subfeatures/sku/models/sku_model.d
 import 'package:scout_os_app/features/mission/subfeatures/sku/services/sku_repository.dart';
 
 class SkuController extends ChangeNotifier {
-  SkuController({SkuRepository? repository}) : _repository = repository ?? SkuRepository();
+  SkuController({SkuRepository? repository})
+    : _repository = repository ?? SkuRepository();
 
   final SkuRepository _repository;
 
@@ -64,7 +65,10 @@ class SkuController extends ChangeNotifier {
     required List<int> answers,
   }) async {
     try {
-      final result = await _repository.submitAnswers(pointId: pointId, answers: answers);
+      final result = await _repository.submitAnswers(
+        pointId: pointId,
+        answers: answers,
+      );
       await loadPoints(selectedPoint?.level ?? 'bantara');
       await loadOverview();
       return result;

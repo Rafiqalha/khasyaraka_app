@@ -54,7 +54,7 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.5,
   );
-  
+
   // Currency/Points
   static TextStyle currency = TextStyle(
     fontFamily: _fontFamily,

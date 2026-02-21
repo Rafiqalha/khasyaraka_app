@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Professional utility dashboard card for Survival tools.
-/// 
+///
 /// This widget displays a clean, modern card for survival tools without
 /// any gamification elements (no levels, progress bars, or locked states).
 /// All cards are immediately interactive and lead to their respective tool pages.
@@ -54,10 +54,7 @@ class SurvivalCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: accentColor.withAlpha(100),
-            width: 2,
-          ),
+          border: Border.all(color: accentColor.withAlpha(100), width: 2),
           boxShadow: [
             BoxShadow(
               color: accentColor.withAlpha(50),
@@ -75,10 +72,7 @@ class SurvivalCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    accentColor.withAlpha(20),
-                    accentColor.withAlpha(5),
-                  ],
+                  colors: [accentColor.withAlpha(20), accentColor.withAlpha(5)],
                 ),
               ),
             ),
@@ -110,9 +104,7 @@ class SurvivalCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   // Live preview widget (center of card)
                   if (preview != null)
-                    Expanded(
-                      child: Center(child: preview),
-                    )
+                    Expanded(child: Center(child: preview))
                   else
                     Expanded(
                       child: Center(

@@ -6,19 +6,16 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi AZ (AZ Cipher / Atbash) Tool
-/// 
+///
 /// Reverses the alphabet:
 /// A <-> Z, B <-> Y, C <-> X, ... M <-> N
-/// 
+///
 /// Mathematical logic: NewChar = 'Z' - (OriginalChar - 'A')
 /// Applying it twice returns the original text (self-inverse).
 class SandiAzPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiAzPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiAzPage({super.key, required this.sandi});
 
   @override
   State<SandiAzPage> createState() => _SandiAzPageState();
@@ -124,9 +121,7 @@ class _SandiAzPageState extends State<SandiAzPage> {
               style: CyberTheme.headline().copyWith(fontSize: 16),
             ),
             const SizedBox(height: 12),
-            CyberContainer(
-              child: _buildCheatSheet(),
-            ),
+            CyberContainer(child: _buildCheatSheet()),
             const SizedBox(height: 24),
 
             // Mode Toggle
@@ -228,7 +223,10 @@ class _SandiAzPageState extends State<SandiAzPage> {
                         ),
                         if (_encodeResult.isNotEmpty)
                           IconButton(
-                            icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                            icon: const Icon(
+                              Icons.copy,
+                              color: CyberTheme.neonCyan,
+                            ),
                             onPressed: () => _copyToClipboard(_encodeResult),
                             tooltip: 'Copy',
                           ),
@@ -236,7 +234,9 @@ class _SandiAzPageState extends State<SandiAzPage> {
                     ),
                     const SizedBox(height: 12),
                     SelectableText(
-                      _encodeResult.isEmpty ? 'Result will appear here...' : _encodeResult,
+                      _encodeResult.isEmpty
+                          ? 'Result will appear here...'
+                          : _encodeResult,
                       style: GoogleFonts.courierPrime(
                         fontSize: 20,
                         color: _encodeResult.isEmpty
@@ -263,7 +263,10 @@ class _SandiAzPageState extends State<SandiAzPage> {
                         ),
                         if (_decodeResult.isNotEmpty)
                           IconButton(
-                            icon: const Icon(Icons.copy, color: CyberTheme.matrixGreen),
+                            icon: const Icon(
+                              Icons.copy,
+                              color: CyberTheme.matrixGreen,
+                            ),
                             onPressed: () => _copyToClipboard(_decodeResult),
                             tooltip: 'Copy',
                           ),
@@ -271,7 +274,9 @@ class _SandiAzPageState extends State<SandiAzPage> {
                     ),
                     const SizedBox(height: 12),
                     SelectableText(
-                      _decodeResult.isEmpty ? 'Result will appear here...' : _decodeResult,
+                      _decodeResult.isEmpty
+                          ? 'Result will appear here...'
+                          : _decodeResult,
                       style: GoogleFonts.courierPrime(
                         fontSize: 20,
                         color: _decodeResult.isEmpty
@@ -292,13 +297,43 @@ class _SandiAzPageState extends State<SandiAzPage> {
   }
 
   Widget _buildCheatSheet() {
-    const row1 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
-    const row2 = ['Z', 'Y', 'X', 'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O', 'N'];
+    const row1 = [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'L',
+      'M',
+    ];
+    const row2 = [
+      'Z',
+      'Y',
+      'X',
+      'W',
+      'V',
+      'U',
+      'T',
+      'S',
+      'R',
+      'Q',
+      'P',
+      'O',
+      'N',
+    ];
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5DC).withOpacity(0.15), // Cream background (subtle)
+        color: const Color(
+          0xFFF5F5DC,
+        ).withOpacity(0.15), // Cream background (subtle)
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: CyberTheme.surface.withOpacity(0.3),

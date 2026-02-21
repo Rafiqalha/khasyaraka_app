@@ -6,16 +6,13 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Kotak 2 (Pigpen Cipher Variant 2) Tool
-/// 
+///
 /// Uses a 3x3 Tic-Tac-Toe grid where each box holds 3 letters.
 /// Dot logic: 1st letter (no dot), 2nd letter (1 centered dot), 3rd letter (2 horizontal dots).
 class SandiKotak2Page extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiKotak2Page({
-    super.key,
-    required this.sandi,
-  });
+  const SandiKotak2Page({super.key, required this.sandi});
 
   @override
   State<SandiKotak2Page> createState() => _SandiKotak2PageState();
@@ -141,10 +138,7 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEncodeTab(),
-          _buildDecodeTab(),
-        ],
+        children: [_buildEncodeTab(), _buildDecodeTab()],
       ),
     );
   }
@@ -189,7 +183,11 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
                       style: CyberTheme.headline().copyWith(fontSize: 16),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClear,
                       tooltip: 'Clear',
                     ),
@@ -235,7 +233,10 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () => _copyToClipboard(_encodedText),
                         tooltip: 'Copy',
                       ),
@@ -276,14 +277,24 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.copy, color: CyberTheme.neonCyan, size: 20),
+                                icon: const Icon(
+                                  Icons.copy,
+                                  color: CyberTheme.neonCyan,
+                                  size: 20,
+                                ),
                                 onPressed: _decodeController.text.isNotEmpty
-                                    ? () => _copyToClipboard(_decodeController.text)
+                                    ? () => _copyToClipboard(
+                                        _decodeController.text,
+                                      )
                                     : null,
                                 tooltip: 'Copy',
                               ),
                               IconButton(
-                                icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: CyberTheme.neonCyan,
+                                  size: 20,
+                                ),
                                 onPressed: _onClear,
                                 tooltip: 'Clear',
                               ),
@@ -375,9 +386,7 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
         return SizedBox(
           width: 60,
           height: 60,
-          child: CustomPaint(
-            painter: Kotak2SymbolPainter(character: char),
-          ),
+          child: CustomPaint(painter: Kotak2SymbolPainter(character: char)),
         );
       }).toList(),
     );
@@ -385,7 +394,10 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
 
   Widget _buildDecodeKeyboard() {
     // Generate A-Z alphabetically
-    final letters = List.generate(26, (index) => String.fromCharCode(65 + index));
+    final letters = List.generate(
+      26,
+      (index) => String.fromCharCode(65 + index),
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -455,10 +467,7 @@ class _SandiKotak2PageState extends State<SandiKotak2Page>
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: Colors.transparent,
-          border: Border.all(
-            color: CyberTheme.neonCyan,
-            width: 1.5,
-          ),
+          border: Border.all(color: CyberTheme.neonCyan, width: 1.5),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -488,11 +497,7 @@ class Kotak2Key extends StatelessWidget {
   final String character;
   final VoidCallback onTap;
 
-  const Kotak2Key({
-    super.key,
-    required this.character,
-    required this.onTap,
-  });
+  const Kotak2Key({super.key, required this.character, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -501,15 +506,10 @@ class Kotak2Key extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.transparent,
-          border: Border.all(
-            color: CyberTheme.neonCyan,
-            width: 1.5,
-          ),
+          border: Border.all(color: CyberTheme.neonCyan, width: 1.5),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: CustomPaint(
-          painter: Kotak2SymbolPainter(character: character),
-        ),
+        child: CustomPaint(painter: Kotak2SymbolPainter(character: character)),
       ),
     );
   }
@@ -517,15 +517,15 @@ class Kotak2Key extends StatelessWidget {
 
 /// Shape IDs for Sandi Kotak 2
 enum Kotak2Shape {
-  bottomRight,      // Group 1: A, B, C
+  bottomRight, // Group 1: A, B, C
   bottomLeftRight, // Group 2: D, E, F
-  bottomLeft,      // Group 3: G, H, I
-  topBottomRight,  // Group 4: J, K, L
-  box,             // Group 5: M, N, O
-  topBottomLeft,   // Group 6: P, Q, R
-  topRight,        // Group 7: S, T, U
-  topLeftRight,    // Group 8: V, W, X
-  topLeft,         // Group 9: Y, Z
+  bottomLeft, // Group 3: G, H, I
+  topBottomRight, // Group 4: J, K, L
+  box, // Group 5: M, N, O
+  topBottomLeft, // Group 6: P, Q, R
+  topRight, // Group 7: S, T, U
+  topLeftRight, // Group 8: V, W, X
+  topLeft, // Group 9: Y, Z
 }
 
 /// Helper function to map character to ShapeID and DotCount
@@ -533,11 +533,11 @@ enum Kotak2Shape {
 (Kotak2Shape shape, int dotCount) _getKotak2Mapping(String char) {
   final code = char.codeUnitAt(0);
   final letterIndex = code - 65; // A=0, B=1, ..., Z=25
-  
+
   // Determine group (0-8) and position in group (0-2)
   final groupIndex = letterIndex ~/ 3; // 0-8
   final position = letterIndex % 3; // 0, 1, or 2
-  
+
   // Map group to shape
   Kotak2Shape shape;
   switch (groupIndex) {
@@ -571,7 +571,7 @@ enum Kotak2Shape {
     default:
       shape = Kotak2Shape.box;
   }
-  
+
   // Dot count based on position: 0=0 dots, 1=1 dot, 2=2 dots
   return (shape, position);
 }
@@ -587,7 +587,9 @@ class Kotak2SymbolPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final char = character.toUpperCase();
-    if (char.length != 1 || char.codeUnitAt(0) < 65 || char.codeUnitAt(0) > 90) {
+    if (char.length != 1 ||
+        char.codeUnitAt(0) < 65 ||
+        char.codeUnitAt(0) > 90) {
       return;
     }
 
@@ -596,7 +598,7 @@ class Kotak2SymbolPainter extends CustomPainter {
 
     // Use larger stroke width for better visibility, especially in decode keyboard
     final strokeWidth = size.width < 50 ? 6.0 : 5.0;
-    
+
     final paint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -753,7 +755,9 @@ class Kotak2ReferenceChart extends StatelessWidget {
                     children: [
                       Expanded(child: _buildCell(['S', 'T', 'U'])), // Cell 7
                       Expanded(child: _buildCell(['V', 'W', 'X'])), // Cell 8
-                      Expanded(child: _buildCell(['Y', 'Z'])), // Cell 9 (only 2 letters)
+                      Expanded(
+                        child: _buildCell(['Y', 'Z']),
+                      ), // Cell 9 (only 2 letters)
                     ],
                   ),
                 ),
@@ -781,10 +785,7 @@ class Kotak2ReferenceChart extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Dots above letter
-                SizedBox(
-                  height: 20,
-                  child: _buildDots(dotType),
-                ),
+                SizedBox(height: 20, child: _buildDots(dotType)),
                 const SizedBox(height: 4),
                 // Letter
                 Text(
@@ -854,9 +855,11 @@ class Kotak2ReferenceGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final gridPaint = Paint()
-      ..color = Colors.yellow // Yellow lines matching cyber theme
+      ..color = Colors
+          .yellow // Yellow lines matching cyber theme
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0 // Thick lines
+      ..strokeWidth =
+          4.0 // Thick lines
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.miter;
 

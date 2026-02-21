@@ -45,26 +45,23 @@ class _CyberBootScreenState extends State<CyberBootScreen>
                 gradient: RadialGradient(
                   center: Alignment.topCenter,
                   radius: 1.5,
-                  colors: [
-                    const Color(0xFF1E293B),
-                    const Color(0xFF0F172A),
-                  ],
+                  colors: [const Color(0xFF1E293B), const Color(0xFF0F172A)],
                 ),
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(flex: 2),
-                
+
                 // 1. Centerpiece: Breathing Icon
                 const BreathingCenterpiece(),
-                
+
                 const Spacer(),
-                
+
                 // 2. Loading Title
                 Text(
                   "Membangun Jalur Data...",
@@ -74,17 +71,17 @@ class _CyberBootScreenState extends State<CyberBootScreen>
                     color: Colors.white,
                   ),
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // 3. Rotating Subtitle
                 const RotatingSubtitle(),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // 4. Custom Bouncing Indicator
                 const BouncingDataBlocks(),
-                
+
                 const Spacer(flex: 2),
               ],
             ),
@@ -118,9 +115,10 @@ class _BreathingCenterpieceState extends State<BreathingCenterpiece>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -146,7 +144,9 @@ class _BreathingCenterpieceState extends State<BreathingCenterpiece>
           boxShadow: [
             // 3D Bottom Border Effect
             BoxShadow(
-              color: const Color(0xFF1E1E1E).withValues(alpha: 0.5), // Using withValues as standard
+              color: const Color(
+                0xFF1E1E1E,
+              ).withValues(alpha: 0.5), // Using withValues as standard
               offset: const Offset(0, 10),
               blurRadius: 0,
             ),
@@ -158,15 +158,11 @@ class _BreathingCenterpieceState extends State<BreathingCenterpiece>
             ),
           ],
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2), 
+            color: Colors.white.withValues(alpha: 0.2),
             width: 4,
           ),
         ),
-        child: const Icon(
-          Icons.satellite_alt,
-          size: 80,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.satellite_alt, size: 80, color: Colors.white),
       ),
     );
   }
@@ -190,7 +186,7 @@ class _RotatingSubtitleState extends State<RotatingSubtitle> {
     "Verifikasi identitas agen...",
     "Mengunduh paket misi...",
   ];
-  
+
   int _index = 0;
   Timer? _timer;
 
@@ -245,7 +241,7 @@ class BouncingDataBlocks extends StatefulWidget {
 class _BouncingDataBlocksState extends State<BouncingDataBlocks>
     with TickerProviderStateMixin {
   late AnimationController _controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -282,21 +278,20 @@ class _BouncingDataBlocksState extends State<BouncingDataBlocks>
         // Staggered sine wave animation
         // Offset phase by index
         double t = (_controller.value + (index * 0.2)) % 1.0;
-        
-        
+
         // Correct bounce math: Parabola peaking at 0.25
         double val = 0;
         double st = _controller.value - (index * 0.15); // Stagger
         if (st < 0) st += 1.0;
-        
+
         // Bounce happens in the first 50% of the staggered cycle
         if (st < 0.5) {
-           // Map st (0..0.5) to x (-1..1)
-           // st=0 -> x=-1 (Start)
-           // st=0.25 -> x=0 (Peak)
-           // st=0.5 -> x=1 (End)
-           double x = (st * 4.0) - 1.0;
-           val = -20.0 * (1.0 - x * x); 
+          // Map st (0..0.5) to x (-1..1)
+          // st=0 -> x=-1 (Start)
+          // st=0.25 -> x=0 (Peak)
+          // st=0.5 -> x=1 (End)
+          double x = (st * 4.0) - 1.0;
+          val = -20.0 * (1.0 - x * x);
         }
 
         return Transform.translate(
@@ -308,11 +303,11 @@ class _BouncingDataBlocksState extends State<BouncingDataBlocks>
               color: color,
               borderRadius: BorderRadius.circular(4),
               boxShadow: [
-                 BoxShadow(
-                   color: color.withValues(alpha: 0.5),
-                   blurRadius: 8,
-                   offset: const Offset(0, 2),
-                 )
+                BoxShadow(
+                  color: color.withValues(alpha: 0.5),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -68,7 +69,9 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
       body: Consumer<CyberController>(
         builder: (context, controller, child) {
           if (controller.isLoading) {
-            return const Center(child: CircularProgressIndicator(color: Colors.cyanAccent));
+            return const Center(
+              child: GrassSosLoader(color: Colors.cyanAccent),
+            );
           }
 
           if (controller.errorMessage != null && controller.sandiList.isEmpty) {
@@ -76,7 +79,12 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
           }
 
           if (controller.sandiList.isEmpty) {
-            return const Center(child: Text('No Tools Available', style: TextStyle(color: Colors.white)));
+            return const Center(
+              child: Text(
+                'No Tools Available',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
           }
 
           return GridView.builder(
@@ -111,8 +119,11 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
           ),
           TextButton(
             onPressed: () => controller.loadSandiList(),
-            child: Text('RETRY', style: GoogleFonts.fredoka(color: Colors.cyanAccent)),
-          )
+            child: Text(
+              'RETRY',
+              style: GoogleFonts.fredoka(color: Colors.cyanAccent),
+            ),
+          ),
         ],
       ),
     );
@@ -121,7 +132,11 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
   // ---------------------------------------------------------------------------
   // EXCLUSIVE 3D CARD BUILDER
   // ---------------------------------------------------------------------------
-  Widget _buildCyberCard(BuildContext context, SandiModel sandi, CyberController controller) {
+  Widget _buildCyberCard(
+    BuildContext context,
+    SandiModel sandi,
+    CyberController controller,
+  ) {
     final theme = _getCyberTheme(sandi.codename);
 
     return GestureDetector(
@@ -144,7 +159,7 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
           // 3D Effect: Thick Bottom Border (20% Darker)
           border: Border(
             bottom: BorderSide(
-              color: _darken(theme.gradientColors.last, 0.2), 
+              color: _darken(theme.gradientColors.last, 0.2),
               width: 5.0,
             ),
           ),
@@ -169,13 +184,15 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
                     ),
                   ),
                 ),
-                 Positioned(
+                Positioned(
                   left: -15,
                   bottom: -15,
                   child: Transform.rotate(
                     angle: math.pi / 8,
                     child: Icon(
-                      theme.backgroundIcons.length > 1 ? theme.backgroundIcons[1] : theme.backgroundIcons[0],
+                      theme.backgroundIcons.length > 1
+                          ? theme.backgroundIcons[1]
+                          : theme.backgroundIcons[0],
                       color: Colors.white.withOpacity(0.12),
                       size: 70,
                     ),
@@ -198,7 +215,10 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.15), // Glassy circle
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1.5,
+                        ),
                       ),
                       child: Icon(
                         theme.mainIcon,
@@ -207,7 +227,7 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
                       ),
                     ),
                     const Spacer(),
-                    
+
                     // Title
                     Text(
                       sandi.name,
@@ -219,12 +239,16 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
                         fontWeight: FontWeight.w700, // Bold
                         color: Colors.white,
                         shadows: [
-                          const Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2),
+                          const Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 4),
-                    
+
                     // Subtitle (Monospace)
                     Text(
                       _getSubtitle(sandi.category),
@@ -262,44 +286,87 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
 
   String _getSubtitle(String category) {
     switch (category.toLowerCase()) {
-      case 'encoding': return 'ENCODING.EXE';
-      case 'substitution': return 'SUB.CIPHER';
-      case 'transposition': return 'TRANS.CIPHER';
-      case 'visual': return 'VISUAL.DAT';
-      case 'sandi': return 'SANDI.LOG';
-      default: return 'CLASSIFIED';
+      case 'encoding':
+        return 'ENCODING.EXE';
+      case 'substitution':
+        return 'SUB.CIPHER';
+      case 'transposition':
+        return 'TRANS.CIPHER';
+      case 'visual':
+        return 'VISUAL.DAT';
+      case 'sandi':
+        return 'SANDI.LOG';
+      default:
+        return 'CLASSIFIED';
     }
   }
 
-  void _navigateToTool(BuildContext context, SandiModel sandi, CyberController controller) {
+  void _navigateToTool(
+    BuildContext context,
+    SandiModel sandi,
+    CyberController controller,
+  ) {
     controller.selectSandi(sandi);
     final codename = sandi.codename.toLowerCase();
-    
+
     Widget page;
     switch (codename) {
-      case 'morse': page = MorseToolPage(sandi: sandi); break;
-      case 'rumput': page = RumputToolPage(sandi: sandi); break;
-      case 'kimia': page = SandiKimiaPage(sandi: sandi); break;
-      case 'ular': page = SandiUlarPage(sandi: sandi); break;
-      case 'semaphore': page = SandiSemaphorePage(sandi: sandi); break;
-      case 'angka': page = SandiAngkaPage(sandi: sandi); break;
-      case 'napoleon': page = SandiNapoleonPage(sandi: sandi); break;
-      case 'an': page = SandiAnPage(sandi: sandi); break;
-      case 'az': 
-      case 'az_atbash': page = SandiAzPage(sandi: sandi); break;
+      case 'morse':
+        page = MorseToolPage(sandi: sandi);
+        break;
+      case 'rumput':
+        page = RumputToolPage(sandi: sandi);
+        break;
+      case 'kimia':
+        page = SandiKimiaPage(sandi: sandi);
+        break;
+      case 'ular':
+        page = SandiUlarPage(sandi: sandi);
+        break;
+      case 'semaphore':
+        page = SandiSemaphorePage(sandi: sandi);
+        break;
+      case 'angka':
+        page = SandiAngkaPage(sandi: sandi);
+        break;
+      case 'napoleon':
+        page = SandiNapoleonPage(sandi: sandi);
+        break;
+      case 'an':
+        page = SandiAnPage(sandi: sandi);
+        break;
+      case 'az':
+      case 'az_atbash':
+        page = SandiAzPage(sandi: sandi);
+        break;
       case 'kotak_1':
-      case 'kotak1': page = SandiKotak1Page(sandi: sandi); break;
+      case 'kotak1':
+        page = SandiKotak1Page(sandi: sandi);
+        break;
       case 'kotak_2':
-      case 'kotak2': page = SandiKotak2Page(sandi: sandi); break;
+      case 'kotak2':
+        page = SandiKotak2Page(sandi: sandi);
+        break;
       case 'kotak_3':
-      case 'kotak3': page = SandiKotak3Page(sandi: sandi); break;
-      case 'jam': page = SandiJamPage(sandi: sandi); break;
-      case 'koordinat': page = SandiKoordinatPage(sandi: sandi); break;
-      case 'and': page = SandiAndPage(sandi: sandi); break;
+      case 'kotak3':
+        page = SandiKotak3Page(sandi: sandi);
+        break;
+      case 'jam':
+        page = SandiJamPage(sandi: sandi);
+        break;
+      case 'koordinat':
+        page = SandiKoordinatPage(sandi: sandi);
+        break;
+      case 'and':
+        page = SandiAndPage(sandi: sandi);
+        break;
       default:
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${sandi.name} coming soon...', style: GoogleFonts.sourceCodePro()),
+            content: Text(
+              '${sandi.name} coming soon...',
+              style: GoogleFonts.sourceCodePro(),
+            ),
             backgroundColor: Colors.black87,
             behavior: SnackBarBehavior.floating,
           ),
@@ -321,7 +388,7 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
           mainIcon: Icons.hub, // Looks like nodes/connection
           backgroundIcons: [Icons.radio, Icons.more_horiz],
         );
-      
+
       // 2. Semaphore (Orange -> Deep Orange)
       case 'semaphore':
         return _CyberTheme(
@@ -337,7 +404,7 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
           mainIcon: Icons.numbers,
           backgroundIcons: [Icons.onetwothree, Icons.calculate],
         );
-      
+
       // 4. Sandi AN (Purple -> Deep Purple)
       case 'an':
       case 'rot13':

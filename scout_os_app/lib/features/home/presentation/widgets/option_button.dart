@@ -57,7 +57,7 @@ class OptionButton extends StatelessWidget {
             border: Border.all(color: borderColor, width: 2),
             borderRadius: BorderRadius.circular(16),
             // Efek bayangan tipis di bawah (3D style)
-            boxShadow: isSelected && !isChecked 
+            boxShadow: isSelected && !isChecked
                 ? [BoxShadow(color: borderColor, offset: const Offset(0, 2))]
                 : [],
           ),
@@ -65,7 +65,7 @@ class OptionButton extends StatelessWidget {
             children: [
               // Kotak Huruf (A, B, C, D)
               Container(
-                width: 32, 
+                width: 32,
                 height: 32,
                 decoration: BoxDecoration(
                   border: Border.all(color: borderColor),

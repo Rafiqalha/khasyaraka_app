@@ -1,8 +1,11 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import '../logic/login_controller.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 
@@ -13,7 +16,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   late AnimationController _patternController;
 
   @override
@@ -56,66 +60,62 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
           // Content Layer
           SafeArea(
-            child: Center( // DEAD CENTER
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Vertically Centered
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // Vertically Centered
                 children: [
-                   const Spacer(), // Push content to center
-                  
-                  // 3. Hero Section (Logos)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo 1: WOSM
-                      SvgPicture.asset(
-                        'assets/images/logo/wosm_logo.svg',
-                        height: 100,
-                        colorFilter: const ColorFilter.mode(
-                          brandPurple,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      // Logo 2: Tunas Kelapa
-                      Image.asset(
-                        'assets/images/tunas_kelapa.png',
-                        height: 100,
-                        color: brandPurple, // Tinting PNG
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 32),
-
-                  // Branding Text
+                  const Spacer(), // Push content to center
+                  // Branding Text (No Logos)
                   Text(
-                    "Siap Berpetualang?",
-                    style: GoogleFonts.fredoka( // Using Fredoka for that friendly/bold look
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800, // Extra Bold
+                    "Salam Pramuka!",
+                    style: GoogleFonts.fredoka(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700, // Bold
                       color: brandPurple,
+                      letterSpacing: 1.2,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Satu akun untuk menjelajahi dunia\nkepanduan tanpa batas.",
-                    style: GoogleFonts.nunito(
-                      fontSize: 16,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(height: 16),
+
+                  // Typewriter Animation
+                  SizedBox(
+                    height: 60, // Fixed height to prevent layout jump
+                    child: DefaultTextStyle(
+                      style: GoogleFonts.fredoka(
+                        fontSize: 18,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                      child: AnimatedTextKit(
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            "Satyaku Kudharmakan,\nDharmaku Kubaktikan.",
+                            textAlign: TextAlign.center,
+                            speed: const Duration(milliseconds: 100),
+                            cursor: '|',
+                          ),
+                        ],
+                        isRepeatingAnimation: false, // Play once
+                        displayFullTextOnTap: true,
+                        totalRepeatCount: 1,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
 
-                   const Spacer(), // Space between Hero and Button
-
+                  const Spacer(), // Space between Hero and Button
                   // 4. Tombol Login Google (Bottom Positioned)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    padding: const EdgeInsets.only(bottom: 48),
                     child: _ThreeDGoogleButton(
                       onPressed: () {
-                         context.read<LoginController>().loginWithGoogle(context);
+                        context.read<LoginController>().loginWithGoogle(
+                          context,
+                        );
                       },
                     ),
                   ),
@@ -123,15 +123,30 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
             ),
           ),
-          
-          // Loading Overlay
+
+          // Loading Overlay (New SOS Loader)
           Consumer<LoginController>(
             builder: (context, controller, child) {
               if (controller.isLoading) {
                 return Container(
-                  color: Colors.black45,
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                  color: Colors.black54,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const GrassSosLoader(),
+                        const SizedBox(height: 24),
+                        Text(
+                          "MENGHUBUNGKAN...",
+                          style: GoogleFonts.fredoka(
+                            color: Colors.white,
+                            fontSize: 16,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -168,7 +183,7 @@ class _ScoutPatternBackground extends StatelessWidget {
           Icons.verified,
         ];
         final icon = icons[index % icons.length];
-        
+
         // Random rotation for "scattered" look happens naturally via grid + index
         return Transform.rotate(
           angle: (index % 4) * (math.pi / 4), // 0, 45, 90, 135 deg rotation
@@ -209,10 +224,7 @@ class _ThreeDGoogleButtonState extends State<_ThreeDGoogleButton> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.grey.shade300,
-            width: 2,
-          ),
+          border: Border.all(color: Colors.grey.shade300, width: 2),
           boxShadow: _isPressed
               ? [] // No shadow when pressed (flat)
               : [
@@ -227,10 +239,7 @@ class _ThreeDGoogleButtonState extends State<_ThreeDGoogleButton> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              'assets/icons/google/google.svg',
-              height: 24,
-            ),
+            SvgPicture.asset('assets/icons/google/google.svg', height: 24),
             const SizedBox(width: 12),
             Text(
               "LANJUTKAN DENGAN GOOGLE",

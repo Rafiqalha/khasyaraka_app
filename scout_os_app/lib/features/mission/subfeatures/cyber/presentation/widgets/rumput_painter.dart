@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 /// Custom Painter for drawing Rumput (Grass) patterns
-/// 
+///
 /// Features:
 /// - Anti-aliasing enabled
 /// - Gradient fill (green transparent to bottom)
@@ -24,19 +24,25 @@ class RumputPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (pattern.trim().isEmpty) return;
 
-    final lines = pattern.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    final lines = pattern
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty)
+        .toList();
     if (lines.isEmpty) return;
 
     // Calculate cell size based on available space
     final lineHeight = size.height / lines.length;
-    final maxLineWidth = lines.map((l) => l.length).reduce((a, b) => a > b ? a : b);
+    final maxLineWidth = lines
+        .map((l) => l.length)
+        .reduce((a, b) => a > b ? a : b);
     final charWidth = size.width / maxLineWidth;
 
     // Enable anti-aliasing
     final paint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.round // Round joins for smooth appearance
+      ..strokeJoin = StrokeJoin
+          .round // Round joins for smooth appearance
       ..strokeCap = StrokeCap.round;
 
     // Calculate total characters for animation
@@ -80,7 +86,7 @@ class RumputPainter extends CustomPainter {
               paint,
             );
           }
-          
+
           currentCharIndex++;
         }
       }
@@ -98,17 +104,23 @@ class RumputPainter extends CustomPainter {
   ) {
     // Create path for rumput blade (vertical line, slightly curved)
     final path = Path();
-    
+
     // Top point (narrow, sharp)
     final top = Offset(center.dx, center.dy - height * 0.5);
-    
+
     // Bottom points (wider, thicker)
-    final bottomLeft = Offset(center.dx - width * 0.4, center.dy + height * 0.5);
-    final bottomRight = Offset(center.dx + width * 0.4, center.dy + height * 0.5);
-    
+    final bottomLeft = Offset(
+      center.dx - width * 0.4,
+      center.dy + height * 0.5,
+    );
+    final bottomRight = Offset(
+      center.dx + width * 0.4,
+      center.dy + height * 0.5,
+    );
+
     // Create blade shape (vertical line with slight curve)
     path.moveTo(top.dx, top.dy);
-    
+
     // Left side with slight curve
     path.quadraticBezierTo(
       center.dx - width * 0.1,
@@ -116,18 +128,13 @@ class RumputPainter extends CustomPainter {
       bottomLeft.dx,
       bottomLeft.dy,
     );
-    
+
     // Bottom line
     path.lineTo(bottomRight.dx, bottomRight.dy);
-    
+
     // Right side with slight curve back to top
-    path.quadraticBezierTo(
-      center.dx + width * 0.1,
-      center.dy,
-      top.dx,
-      top.dy,
-    );
-    
+    path.quadraticBezierTo(center.dx + width * 0.1, center.dy, top.dx, top.dy);
+
     path.close();
 
     // Draw gradient fill (green transparent to bottom)

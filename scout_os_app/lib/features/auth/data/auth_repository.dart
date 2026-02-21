@@ -1,22 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:scout_os_app/core/network/api_dio_provider.dart';
 import 'package:scout_os_app/features/auth/data/auth_exception.dart';
+import 'package:scout_os_app/core/services/secure_storage_service.dart';
 
 /// AuthRepository - Online authentication via FastAPI backend.
-/// 
+///
 /// ✅ Google login only - uses JWT token stored via ApiDioProvider
-/// 
+///
 /// Endpoints:
 /// - POST /api/v1/auth/google (Google Sign-In)
 /// - GET /api/v1/users/me
 class AuthRepository {
   final Dio _dio;
 
-  AuthRepository({Dio? dio})
-      : _dio = dio ?? ApiDioProvider.getDio();
+  AuthRepository({Dio? dio}) : _dio = dio ?? ApiDioProvider.getDio();
 
   /// Login via API.
-  /// 
+  ///
   /// POST /api/v1/auth/login
   /// Body: { "username": "...", "password": "..." }
   /// Response: { "success": true, "data": { "access_token": "...", "token_type": "bearer", ... } }
@@ -27,16 +27,14 @@ class AuthRepository {
     try {
       final response = await _dio.post(
         '/auth/login',
-        data: {
-          'username': username.trim(),
-          'password': password,
-        },
+        data: {'username': username.trim(), 'password': password},
       );
 
       // Handle nested response structure: { "success": true, "data": { ... } }
       final responseData = response.data as Map<String, dynamic>;
-      final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
-      
+      final data =
+          responseData['data'] as Map<String, dynamic>? ?? responseData;
+
       final token = data['access_token'] as String;
       final tokenType = data['token_type'] as String? ?? 'bearer';
 
@@ -54,37 +52,51 @@ class AuthRepository {
       );
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
-      
+
       // Handle validation errors (422, 400)
       if (statusCode == 422 || statusCode == 400) {
         final errorMessage = _extractErrorMessage(e.response?.data);
         throw AuthException(errorMessage, statusCode: statusCode);
       }
-      
+
       // Handle authentication errors (401)
       if (statusCode == 401) {
-        throw AuthException('Username atau password salah.', statusCode: statusCode);
+        throw AuthException(
+          'Username atau password salah.',
+          statusCode: statusCode,
+        );
       }
-      
+
       // Handle not found (404)
       if (statusCode == 404) {
-        throw AuthException('Endpoint tidak ditemukan. Pastikan backend berjalan.', statusCode: statusCode);
+        throw AuthException(
+          'Endpoint tidak ditemukan. Pastikan backend berjalan.',
+          statusCode: statusCode,
+        );
       }
-      
+
       // Handle server errors (500+)
       if (statusCode != null && statusCode >= 500) {
-        throw AuthException('Terjadi kesalahan server. Silakan coba lagi nanti.', statusCode: statusCode);
+        throw AuthException(
+          'Terjadi kesalahan server. Silakan coba lagi nanti.',
+          statusCode: statusCode,
+        );
       }
-      
+
       // Handle timeout/connection errors
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw AuthException('Gagal terhubung ke server. Periksa koneksi internet Anda.');
+        throw AuthException(
+          'Gagal terhubung ke server. Periksa koneksi internet Anda.',
+        );
       }
-      
+
       // Generic error
-      throw AuthException('Gagal login: ${e.message ?? "Terjadi kesalahan"}', statusCode: statusCode);
+      throw AuthException(
+        'Gagal login: ${e.message ?? "Terjadi kesalahan"}',
+        statusCode: statusCode,
+      );
     } catch (e) {
       if (e is AuthException) {
         rethrow;
@@ -94,7 +106,7 @@ class AuthRepository {
   }
 
   /// Register via API.
-  /// 
+  ///
   /// POST /api/v1/auth/register
   /// Body: { "name": "...", "username": "...", "password": "...", "gugus_depan": "..." }
   /// Response: { "success": true, "data": { "access_token": "...", "token_type": "bearer", ... } }
@@ -111,14 +123,16 @@ class AuthRepository {
           'name': name.trim(),
           'username': username.trim().toLowerCase(),
           'password': password,
-          if (gugusDepan != null && gugusDepan.isNotEmpty) 'gugus_depan': gugusDepan.trim(),
+          if (gugusDepan != null && gugusDepan.isNotEmpty)
+            'gugus_depan': gugusDepan.trim(),
         },
       );
 
       // Handle nested response structure: { "success": true, "data": { ... } }
       final responseData = response.data as Map<String, dynamic>;
-      final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
-      
+      final data =
+          responseData['data'] as Map<String, dynamic>? ?? responseData;
+
       final token = data['access_token'] as String;
       final tokenType = data['token_type'] as String? ?? 'bearer';
 
@@ -136,33 +150,41 @@ class AuthRepository {
       );
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
-      
+
       // Handle validation errors (422, 400)
       if (statusCode == 422 || statusCode == 400) {
         final errorMessage = _extractErrorMessage(e.response?.data);
         throw AuthException(errorMessage, statusCode: statusCode);
       }
-      
+
       // Handle conflict (409) - username already taken
       if (statusCode == 409) {
         final errorMessage = _extractErrorMessage(e.response?.data);
         throw AuthException(errorMessage, statusCode: statusCode);
       }
-      
+
       // Handle server errors (500+)
       if (statusCode != null && statusCode >= 500) {
-        throw AuthException('Terjadi kesalahan server. Silakan coba lagi nanti.', statusCode: statusCode);
+        throw AuthException(
+          'Terjadi kesalahan server. Silakan coba lagi nanti.',
+          statusCode: statusCode,
+        );
       }
-      
+
       // Handle timeout/connection errors
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw AuthException('Gagal terhubung ke server. Periksa koneksi internet Anda.');
+        throw AuthException(
+          'Gagal terhubung ke server. Periksa koneksi internet Anda.',
+        );
       }
-      
+
       // Generic error
-      throw AuthException('Gagal register: ${e.message ?? "Terjadi kesalahan"}', statusCode: statusCode);
+      throw AuthException(
+        'Gagal register: ${e.message ?? "Terjadi kesalahan"}',
+        statusCode: statusCode,
+      );
     } catch (e) {
       if (e is AuthException) {
         rethrow;
@@ -187,11 +209,12 @@ class AuthRepository {
       // Try common error message keys
       if (responseData.containsKey('detail')) {
         final detail = responseData['detail'];
-        
+
         // Handle FastAPI validation errors (list format)
         if (detail is List && detail.isNotEmpty) {
           final firstError = detail[0];
-          if (firstError is Map<String, dynamic> && firstError.containsKey('msg')) {
+          if (firstError is Map<String, dynamic> &&
+              firstError.containsKey('msg')) {
             return firstError['msg'] as String? ?? 'Data tidak valid.';
           }
           // If it's a list of strings
@@ -199,27 +222,27 @@ class AuthRepository {
             return detail[0] as String;
           }
         }
-        
+
         // Handle string detail
         if (detail is String) {
           return detail;
         }
       }
-      
+
       if (responseData.containsKey('message')) {
         final message = responseData['message'];
         if (message is String) {
           return message;
         }
       }
-      
+
       if (responseData.containsKey('error')) {
         final error = responseData['error'];
         if (error is String) {
           return error;
         }
       }
-      
+
       // Handle nested error objects
       if (responseData.containsKey('errors')) {
         final errors = responseData['errors'];
@@ -231,7 +254,7 @@ class AuthRepository {
         }
       }
     }
-    
+
     // Handle string responses
     if (responseData is String) {
       return responseData;
@@ -243,17 +266,20 @@ class AuthRepository {
   // ✅ Memory Cache for User Profile
   static ApiUser? _cachedUser;
   static DateTime? _lastUserFetch;
-  static const Duration _userCacheTtl = Duration(minutes: 10); // 10 minutes cache
+  static const Duration _userCacheTtl = Duration(
+    minutes: 10,
+  ); // 10 minutes cache
 
   /// Get current user profile from API.
-  /// 
+  ///
   /// GET /api/v1/users/me
   Future<ApiUser> getCurrentUser({bool forceRefresh = false}) async {
     // ✅ 1. MEMORY CACHE (Instant)
     if (!forceRefresh && _cachedUser != null) {
-      final isExpired = _lastUserFetch != null && 
+      final isExpired =
+          _lastUserFetch != null &&
           DateTime.now().difference(_lastUserFetch!) > _userCacheTtl;
-      
+
       if (!isExpired) {
         return _cachedUser!;
       }
@@ -261,27 +287,34 @@ class AuthRepository {
 
     try {
       final response = await _dio.get('/users/me');
-      
+
       // Handle nested response structure: { "success": true, "data": { ... } }
       final responseData = response.data as Map<String, dynamic>;
-      final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
-      
+      final data =
+          responseData['data'] as Map<String, dynamic>? ?? responseData;
+
       final user = ApiUser.fromJson(data);
-      
+
       // Update cache
       _cachedUser = user;
       _lastUserFetch = DateTime.now();
-      
+
       return user;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         await logout(); // Change to logout() to clear cache
-        throw AuthException('Sesi habis, silakan login kembali.', statusCode: 401);
+        throw AuthException(
+          'Sesi habis, silakan login kembali.',
+          statusCode: 401,
+        );
       }
       // Offline resilience
       if (_cachedUser != null) return _cachedUser!;
-      
-      throw AuthException('Gagal memuat profil: ${e.message ?? "Terjadi kesalahan"}', statusCode: e.response?.statusCode);
+
+      throw AuthException(
+        'Gagal memuat profil: ${e.message ?? "Terjadi kesalahan"}',
+        statusCode: e.response?.statusCode,
+      );
     } catch (e) {
       if (e is AuthException) {
         rethrow;
@@ -292,25 +325,22 @@ class AuthRepository {
   }
 
   /// Google Sign-In via API.
-  /// 
+  ///
   /// POST /api/v1/auth/google
   /// Body: { "id_token": "..." }
   /// Response: { "success": true, "data": { "access_token": "...", "token_type": "bearer", ... } }
-  Future<AuthResponse> googleSignIn({
-    required String idToken,
-  }) async {
+  Future<AuthResponse> googleSignIn({required String idToken}) async {
     try {
       final response = await _dio.post(
         '/auth/google',
-        data: {
-          'id_token': idToken,
-        },
+        data: {'id_token': idToken},
       );
 
       // Handle nested response structure: { "success": true, "data": { ... } }
       final responseData = response.data as Map<String, dynamic>;
-      final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
-      
+      final data =
+          responseData['data'] as Map<String, dynamic>? ?? responseData;
+
       final token = data['access_token'] as String;
       final tokenType = data['token_type'] as String? ?? 'bearer';
 
@@ -328,32 +358,43 @@ class AuthRepository {
       );
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
-      
+
       // Handle validation errors (422, 400)
       if (statusCode == 422 || statusCode == 400) {
         final errorMessage = _extractErrorMessage(e.response?.data);
         throw AuthException(errorMessage, statusCode: statusCode);
       }
-      
+
       // Handle authentication errors (401)
       if (statusCode == 401) {
-        throw AuthException('Token Google tidak valid atau telah kedaluwarsa.', statusCode: statusCode);
+        throw AuthException(
+          'Token Google tidak valid atau telah kedaluwarsa.',
+          statusCode: statusCode,
+        );
       }
-      
+
       // Handle server errors (500+)
       if (statusCode != null && statusCode >= 500) {
-        throw AuthException('Terjadi kesalahan server. Silakan coba lagi nanti.', statusCode: statusCode);
+        throw AuthException(
+          'Terjadi kesalahan server. Silakan coba lagi nanti.',
+          statusCode: statusCode,
+        );
       }
-      
+
       // Handle timeout/connection errors
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw AuthException('Gagal terhubung ke server. Periksa koneksi internet Anda.');
+        throw AuthException(
+          'Gagal terhubung ke server. Periksa koneksi internet Anda.',
+        );
       }
-      
+
       // Generic error
-      throw AuthException('Gagal login dengan Google: ${e.message ?? "Terjadi kesalahan"}', statusCode: statusCode);
+      throw AuthException(
+        'Gagal login dengan Google: ${e.message ?? "Terjadi kesalahan"}',
+        statusCode: statusCode,
+      );
     } catch (e) {
       if (e is AuthException) {
         rethrow;
@@ -362,11 +403,18 @@ class AuthRepository {
     }
   }
 
-  /// Logout: Clear JWT token and memory caches.
+  /// Invalidate memory cache so next getCurrentUser() returns fresh data from API.
+  void invalidateCache() {
+    _cachedUser = null;
+    _lastUserFetch = null;
+  }
+
+  /// Logout: Clear JWT token, secure storage, and memory caches.
   Future<void> logout() async {
     _cachedUser = null;
     _lastUserFetch = null;
     await ApiDioProvider.clearToken();
+    await SecureStorageService.clearAll();
   }
 }
 
@@ -375,6 +423,7 @@ class ApiUser {
   final String id;
   final String name;
   final String username;
+  final String? pictureUrl;
   final bool isPro;
   final String? gugusDepan;
 
@@ -382,6 +431,7 @@ class ApiUser {
     required this.id,
     required this.name,
     required this.username,
+    this.pictureUrl,
     this.isPro = false,
     this.gugusDepan,
   });
@@ -394,8 +444,8 @@ class ApiUser {
     } else if (json['id'] is String) {
       id = json['id'] as String;
     } else if (json['user_id'] != null) {
-      id = json['user_id'] is int 
-          ? json['user_id'].toString() 
+      id = json['user_id'] is int
+          ? json['user_id'].toString()
           : json['user_id'] as String;
     } else {
       id = '';
@@ -406,6 +456,7 @@ class ApiUser {
       id: id,
       name: json['name']?.toString() ?? '',
       username: json['username']?.toString() ?? '',
+      pictureUrl: json['picture_url']?.toString(),
       isPro: json['is_pro'] == true || json['isPro'] == true,
       gugusDepan: json['gugus_depan']?.toString(),
     );

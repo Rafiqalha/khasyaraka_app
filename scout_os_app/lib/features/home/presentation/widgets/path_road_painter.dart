@@ -42,7 +42,7 @@ class PathRoadPainter extends CustomPainter {
     for (int i = 0; i < itemCount - 1; i++) {
       final currentX = centerX + (getOffsetX(i) * direction);
       final currentY = (i * itemHeight) + (itemHeight / 2);
-      
+
       final nextX = centerX + (getOffsetX(i + 1) * direction);
       final nextY = ((i + 1) * itemHeight) + (itemHeight / 2);
 
@@ -50,12 +50,7 @@ class PathRoadPainter extends CustomPainter {
       final controlX = (currentX + nextX) / 2;
       final controlY = (currentY + nextY) / 2;
 
-      path.quadraticBezierTo(
-        currentX,
-        controlY,
-        nextX,
-        nextY,
-      );
+      path.quadraticBezierTo(currentX, controlY, nextX, nextY);
     }
 
     // Draw the road with a soft dashed effect
@@ -70,11 +65,11 @@ class PathRoadPainter extends CustomPainter {
       ..strokeWidth = strokeWidth + 4
       ..strokeCap = StrokeCap.round;
     canvas.drawPath(path, basePaint);
-    
+
     // Draw main dotted line
     const double dashLength = 18.0;
     const double gapLength = 12.0;
-    
+
     for (final metric in path.computeMetrics()) {
       double distance = 0;
       while (distance < metric.length) {
@@ -92,8 +87,8 @@ class PathRoadPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant PathRoadPainter oldDelegate) {
     return oldDelegate.itemCount != itemCount ||
-           oldDelegate.color != color ||
-           oldDelegate.direction != direction;
+        oldDelegate.color != color ||
+        oldDelegate.direction != direction;
   }
 }
 
@@ -102,15 +97,19 @@ class PathCurveGenerator {
   /// Generates a more natural, varied zigzag offset
   /// Uses alternating amplitudes for visual interest
   /// [direction]: 1.0 for right-leaning, -1.0 for left-leaning
-  static double getOffset(int index, double baseAmplitude, {double direction = 1.0}) {
+  static double getOffset(
+    int index,
+    double baseAmplitude, {
+    double direction = 1.0,
+  }) {
     // Alternating amplitude pattern: 60 -> 90 -> 70 -> 100 -> repeat
     final amplitudes = [60.0, 90.0, 70.0, 100.0, 55.0, 85.0];
     final amplitude = amplitudes[index % amplitudes.length];
-    
+
     // Use a combination of sine waves for more organic feel
     final primary = math.sin(index * 0.9) * amplitude;
     final secondary = math.cos(index * 0.4) * 15.0; // Slight wobble
-    
+
     return (primary + secondary) * direction;
   }
 }

@@ -12,10 +12,13 @@ class GpsTrackerToolPage extends StatefulWidget {
   State<GpsTrackerToolPage> createState() => _GpsTrackerToolPageState();
 }
 
-class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProviderStateMixin {
+class _GpsTrackerToolPageState extends State<GpsTrackerToolPage>
+    with TickerProviderStateMixin {
   // --- DUO-STYLE PALETTE ---
   static const _duoGreen = Color(0xFF58CC02); // Bright Green
-  static const _duoGreenShadow = Color(0xFF58A700); // Darker Green for 3D effect
+  static const _duoGreenShadow = Color(
+    0xFF58A700,
+  ); // Darker Green for 3D effect
   static const _duoBlue = Color(0xFF1CB0F6); // Bright Blue
   static const _duoTeal = Color(0xFF2B7F8C); // Teal-ish
   static const _duoOrange = Color(0xFFFF9600); // Bright Orange
@@ -47,31 +50,8 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
 
   // --- GPS LOGIC ---
   Future<void> _initGps() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
-
-    const locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 0,
-    );
-
-    _positionStream = Geolocator.getPositionStream(locationSettings: locationSettings)
-        .listen((Position pos) {
-      if (mounted) {
-        setState(() {
-          _currentPosition = pos;
-          if (_isTrackingMe) {
-             _mapController.move(LatLng(pos.latitude, pos.longitude), _mapController.camera.zoom);
-          }
-        });
-      }
-    });
+    // Feature disabled: Location permission removed from Manifest per user request
+    return;
   }
 
   void _lockNorth() {
@@ -87,8 +67,8 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
 
   @override
   Widget build(BuildContext context) {
-    final myPos = _currentPosition != null 
-        ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude) 
+    final myPos = _currentPosition != null
+        ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
         : const LatLng(-6.200, 106.816);
 
     return Scaffold(
@@ -117,7 +97,7 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.khasyaraka.scout_os',
               ),
-              
+
               MarkerLayer(
                 markers: [
                   Marker(
@@ -125,13 +105,20 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
                     width: 60,
                     height: 60,
                     child: Transform.rotate(
-                      angle: _currentRotation * (3.14159 / 180) * -1, // Counter-rotate marker to keep upright if needed, or rotate with heading
+                      angle:
+                          _currentRotation *
+                          (3.14159 / 180) *
+                          -1, // Counter-rotate marker to keep upright if needed, or rotate with heading
                       child: Tooltip(
                         message: "Posisi Saya",
                         child: Image.asset(
                           'assets/images/tunas_kelapa.png',
-                          errorBuilder: (context, error, stackTrace) => 
-                            const Icon(Icons.navigation, color: _duoGreen, size: 50),
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                                Icons.navigation,
+                                color: _duoGreen,
+                                size: 50,
+                              ),
                         ),
                       ),
                     ),
@@ -210,21 +197,36 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
                       _isTrackingMe = true;
                       _lockNorth();
                     });
-                     if(_currentPosition != null) {
-                       _mapController.move(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 18);
-                     }
+                    if (_currentPosition != null) {
+                      _mapController.move(
+                        LatLng(
+                          _currentPosition!.latitude,
+                          _currentPosition!.longitude,
+                        ),
+                        18,
+                      );
+                    }
                   },
                   child: Container(
-                    width: 65, height: 60,
+                    width: 65,
+                    height: 60,
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
                       color: _duoGreen,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
-                        BoxShadow(color: _duoGreenShadow, offset: Offset(0, 6), blurRadius: 0),
+                        BoxShadow(
+                          color: _duoGreenShadow,
+                          offset: Offset(0, 6),
+                          blurRadius: 0,
+                        ),
                       ],
                     ),
-                    child: const Icon(Icons.my_location, color: Colors.white, size: 32),
+                    child: const Icon(
+                      Icons.my_location,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                   ),
                 ),
 
@@ -236,7 +238,11 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
                     ],
                   ),
                   child: Column(
@@ -246,41 +252,45 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
                         children: [
                           Expanded(
                             child: _buildDataCapsule(
-                              "Latitude", 
-                              _currentPosition?.latitude.toStringAsFixed(5) ?? "...",
-                              _duoTeal
+                              "Latitude",
+                              _currentPosition?.latitude.toStringAsFixed(5) ??
+                                  "...",
+                              _duoTeal,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildDataCapsule(
-                              "Longitude", 
-                              _currentPosition?.longitude.toStringAsFixed(5) ?? "...",
-                              _duoBlue
+                              "Longitude",
+                              _currentPosition?.longitude.toStringAsFixed(5) ??
+                                  "...",
+                              _duoBlue,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      
+
                       // Alt & Accuracy Row
                       Row(
                         children: [
-                           Expanded(
+                          Expanded(
                             child: _buildDataCapsule(
-                              "Altitude", 
+                              "Altitude",
                               "${_currentPosition?.altitude.toStringAsFixed(1) ?? '0'} m",
-                              _duoOrange
+                              _duoOrange,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildDataCapsule(
-                              "Akurasi", 
+                              "Akurasi",
                               "±${_currentPosition?.accuracy.toStringAsFixed(0) ?? '0'} m",
-                              _currentPosition != null 
-                                  ? _getAccuracyColor(_currentPosition!.accuracy) 
-                                  : Colors.grey
+                              _currentPosition != null
+                                  ? _getAccuracyColor(
+                                      _currentPosition!.accuracy,
+                                    )
+                                  : Colors.grey,
                             ),
                           ),
                         ],
@@ -297,10 +307,10 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
   }
 
   Widget _build3DIconButton({
-    required IconData icon, 
-    required Color color, 
+    required IconData icon,
+    required Color color,
     required Color iconColor,
-    required VoidCallback onTap
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -310,7 +320,11 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage> with TickerProv
           color: color,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-             BoxShadow(color: Colors.black.withOpacity(0.1), offset: const Offset(0, 4), blurRadius: 0),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              offset: const Offset(0, 4),
+              blurRadius: 0,
+            ),
           ],
           border: Border.all(color: Colors.grey.shade300, width: 2),
         ),

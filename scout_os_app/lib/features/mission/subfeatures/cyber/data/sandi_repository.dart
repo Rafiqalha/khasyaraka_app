@@ -1,5 +1,5 @@
 /// Sandi Repository - Offline Tools Repository
-/// 
+///
 /// 100% OFFLINE - NO API CALLS
 /// Semua data hardcoded untuk kegiatan outdoor pramuka
 import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_model.dart';
@@ -35,7 +35,7 @@ class SandiRepository {
   }
 
   /// Process cipher encryption/decryption (client-side, offline)
-  /// 
+  ///
   /// [text] - Input text to process
   /// [codename] - Sandi codename (e.g., 'morse', 'an_rot13')
   /// [isEncrypt] - true for encrypt, false for decrypt

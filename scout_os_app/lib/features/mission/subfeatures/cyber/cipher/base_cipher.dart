@@ -1,7 +1,7 @@
 import 'package:scout_os_app/features/mission/subfeatures/cyber/data/sandi_model.dart';
 
 /// Abstract base class for all cipher implementations
-/// 
+///
 /// Semua cipher harus implement encrypt() dan decrypt()
 abstract class BaseCipher {
   final SandiModel sandiType;

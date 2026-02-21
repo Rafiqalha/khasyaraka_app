@@ -60,11 +60,8 @@ class _SkuMainPageState extends State<SkuMainPage> {
                   width: 90,
                   height: 90,
                   color: const Color(0xFFFFD600),
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.spa,
-                    color: Color(0xFFFFD600),
-                    size: 64,
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.spa, color: Color(0xFFFFD600), size: 64),
                 ),
               ),
             ),
@@ -86,11 +83,7 @@ class _SkuMainPageState extends State<SkuMainPage> {
                     ),
                   );
                 },
-                child: Icon(
-                  Icons.lock,
-                  size: 64,
-                  color: Colors.grey.shade400,
-                ),
+                child: Icon(Icons.lock, size: 64, color: Colors.grey.shade400),
               ),
             ),
           ],
@@ -104,7 +97,10 @@ class _SkuMainPageState extends State<SkuMainPage> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF3E2723),
-        title: const Text('LAKSANA TERKUNCI', style: TextStyle(color: Color(0xFFFFD600))),
+        title: const Text(
+          'LAKSANA TERKUNCI',
+          style: TextStyle(color: Color(0xFFFFD600)),
+        ),
         content: const Text(
           'Selesaikan semua poin Bantara untuk membuka Laksana.',
           style: TextStyle(color: Colors.white70),
@@ -112,7 +108,10 @@ class _SkuMainPageState extends State<SkuMainPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Kembali', style: TextStyle(color: Color(0xFFFFD600))),
+            child: const Text(
+              'Kembali',
+              style: TextStyle(color: Color(0xFFFFD600)),
+            ),
           ),
         ],
       ),
@@ -174,7 +173,9 @@ class PillarWidget extends StatelessWidget {
             Text(
               title,
               style: GoogleFonts.playfairDisplay(
-                color: isLocked ? Colors.grey.shade300 : const Color(0xFFFFD600),
+                color: isLocked
+                    ? Colors.grey.shade300
+                    : const Color(0xFFFFD600),
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
               ),

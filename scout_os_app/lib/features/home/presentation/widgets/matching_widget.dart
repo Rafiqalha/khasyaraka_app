@@ -33,13 +33,23 @@ class _MatchingWidgetState extends State<MatchingWidget> {
   @override
   void didUpdateWidget(MatchingWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-initialize if pairs change (e.g. new question)
-    // Using a simple length check or reference check. 
-    // Ideally we should check content equality, but for now reference is likely sufficient if parent recreates list.
-    if (widget.pairs != oldWidget.pairs) {
+    // Only reset if the actual CONTENT changed (new question), not just a new list reference
+    if (!_pairsContentEqual(widget.pairs, oldWidget.pairs)) {
       _answers.clear();
       _initializeOptions();
     }
+  }
+
+  bool _pairsContentEqual(
+    List<Map<String, String>> a,
+    List<Map<String, String>> b,
+  ) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i]['left'] != b[i]['left'] || a[i]['right'] != b[i]['right'])
+        return false;
+    }
+    return true;
   }
 
   void _initializeOptions() {
@@ -89,7 +99,8 @@ class _MatchingWidgetState extends State<MatchingWidget> {
             border: Border.all(color: borderColor, width: 2),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center, // Align center vertically
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Align center vertically
             children: [
               Expanded(
                 flex: 2, // Give left side reasonable space
@@ -109,7 +120,10 @@ class _MatchingWidgetState extends State<MatchingWidget> {
                   value: selectedRight,
                   isExpanded: true, // ✅ Fix for overflow
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Colors.grey.shade400),
@@ -123,7 +137,8 @@ class _MatchingWidgetState extends State<MatchingWidget> {
                           value: option,
                           child: Text(
                             option,
-                            overflow: TextOverflow.ellipsis, // ✅ Fix for long text
+                            overflow:
+                                TextOverflow.ellipsis, // ✅ Fix for long text
                             maxLines: 2,
                             style: const TextStyle(fontSize: 14),
                           ),

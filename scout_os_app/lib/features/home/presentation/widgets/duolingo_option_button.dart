@@ -4,7 +4,7 @@ import 'package:scout_os_app/core/constants/app_colors.dart';
 import 'package:scout_os_app/core/services/quiz_haptic_service.dart';
 
 /// Duolingo-style option button with 3D cartoon effects
-/// 
+///
 /// Features:
 /// - 3D depth effect with thick bottom border
 /// - Press down animation (border shrinks)
@@ -18,7 +18,7 @@ class DuolingoOptionButton extends StatefulWidget {
   final bool isChecked;
   final bool isCorrectAnswer;
   final VoidCallback? onTap;
-  
+
   /// Optional: highlight correct answer when user answers wrong
   final bool showCorrectHighlight;
 
@@ -55,7 +55,7 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    
+
     // Shake animation: rapid left-right oscillation
     _shakeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
@@ -76,25 +76,29 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
   @override
   void didUpdateWidget(DuolingoOptionButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Trigger shake/bounce and haptic when answer is checked and this is the relevant selection
     if (widget.isChecked && !oldWidget.isChecked && !_hasTriggeredFeedback) {
       _hasTriggeredFeedback = true;
-      
+
       if (widget.isSelected && !widget.isCorrectAnswer) {
         // Wrong answer: shake + heavy haptic
         _shakeController.forward(from: 0);
         QuizHapticService.wrongFeedback();
       } else if (widget.isSelected && widget.isCorrectAnswer) {
         // ✅ Correct answer: Bounce + LONG vibration
-        _bounceController.forward(from: 0).then((_) => _bounceController.reverse());
-        QuizHapticService.correctFeedbackLong();
+        _bounceController
+            .forward(from: 0)
+            .then((_) => _bounceController.reverse());
+        QuizHapticService.correctFeedback();
       } else if (widget.showCorrectHighlight && widget.isCorrectAnswer) {
         // Highlight correct answer (when user was wrong): Just bounce slightly
-         _bounceController.forward(from: 0).then((_) => _bounceController.reverse());
+        _bounceController
+            .forward(from: 0)
+            .then((_) => _bounceController.reverse());
       }
     }
-    
+
     // Reset feedback flag when moving to next question
     if (!widget.isChecked && oldWidget.isChecked) {
       _hasTriggeredFeedback = false;
@@ -117,7 +121,7 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
       builder: (context, child) {
         // Calculate shake offset (sin wave for smooth oscillation)
         final shakeOffset = sin(_shakeAnimation.value * pi * 6) * 8;
-        
+
         return Transform.translate(
           offset: Offset(shakeOffset, 0),
           child: Transform.scale(
@@ -138,7 +142,7 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
     Color textColor;
     IconData? trailingIcon;
     Color? iconColor;
-    
+
     if (widget.isChecked) {
       if (widget.isSelected && widget.isCorrectAnswer) {
         // ✅ Correct answer that was selected
@@ -194,13 +198,21 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GestureDetector(
-        onTapDown: widget.isChecked ? null : (_) => setState(() => _isPressed = true),
-        onTapUp: widget.isChecked ? null : (_) => setState(() => _isPressed = false),
-        onTapCancel: widget.isChecked ? null : () => setState(() => _isPressed = false),
-        onTap: widget.isChecked ? null : () {
-          QuizHapticService.selectionFeedback();
-          widget.onTap?.call();
-        },
+        onTapDown: widget.isChecked
+            ? null
+            : (_) => setState(() => _isPressed = true),
+        onTapUp: widget.isChecked
+            ? null
+            : (_) => setState(() => _isPressed = false),
+        onTapCancel: widget.isChecked
+            ? null
+            : () => setState(() => _isPressed = false),
+        onTap: widget.isChecked
+            ? null
+            : () {
+                QuizHapticService.selectionFeedback();
+                widget.onTap?.call();
+              },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -218,7 +230,7 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
             ],
           ),
           // Offset to simulate press down
-          transform: _isPressed 
+          transform: _isPressed
               ? Matrix4.translationValues(0, 2, 0)
               : Matrix4.identity(),
           child: Row(
@@ -228,14 +240,15 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: widget.isChecked && (widget.isSelected || (widget.showCorrectHighlight && widget.isCorrectAnswer))
+                  color:
+                      widget.isChecked &&
+                          (widget.isSelected ||
+                              (widget.showCorrectHighlight &&
+                                  widget.isCorrectAnswer))
                       ? borderColor.withOpacity(0.2)
                       : Colors.white,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: borderColor,
-                    width: 2,
-                  ),
+                  border: Border.all(color: borderColor, width: 2),
                 ),
                 child: Center(
                   child: Text(
@@ -249,7 +262,7 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
                 ),
               ),
               const SizedBox(width: 14),
-              
+
               // Answer text
               Expanded(
                 child: Text(
@@ -262,15 +275,11 @@ class _DuolingoOptionButtonState extends State<DuolingoOptionButton>
                   ),
                 ),
               ),
-              
+
               // Trailing icon (check/X)
               if (trailingIcon != null) ...[
                 const SizedBox(width: 8),
-                Icon(
-                  trailingIcon,
-                  color: iconColor,
-                  size: 28,
-                ),
+                Icon(trailingIcon, color: iconColor, size: 28),
               ],
             ],
           ),

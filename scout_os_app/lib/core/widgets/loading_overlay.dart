@@ -1,3 +1,4 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 
@@ -31,17 +32,17 @@ class LoadingOverlay extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(color: AppColors.forestGreen),
+                    GrassSosLoader(color: AppColors.forestGreen),
                     if (message != null) ...[
                       const SizedBox(height: 16),
                       Text(
                         message!,
                         style: const TextStyle(
                           color: AppColors.textDark,
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),

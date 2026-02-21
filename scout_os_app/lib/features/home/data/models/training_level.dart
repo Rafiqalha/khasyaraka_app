@@ -1,5 +1,5 @@
 /// Training Level Model
-/// 
+///
 /// 1:1 mapping with backend TrainingLevelResponse schema.
 /// DO NOT modify field names or types - must match backend exactly.
 class TrainingLevel {

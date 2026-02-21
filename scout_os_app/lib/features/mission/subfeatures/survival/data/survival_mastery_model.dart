@@ -75,9 +75,7 @@ class AllMasteryResponse {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'tools': tools.map((tool) => tool.toJson()).toList(),
-    };
+    return {'tools': tools.map((tool) => tool.toJson()).toList()};
   }
 
   /// Get mastery for a specific tool type

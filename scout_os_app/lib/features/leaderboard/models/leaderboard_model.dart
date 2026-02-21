@@ -1,5 +1,5 @@
 /// Leaderboard Models
-/// 
+///
 /// Models for leaderboard API responses matching FastAPI schemas.
 
 import 'package:flutter/foundation.dart';
@@ -10,6 +10,7 @@ class LeaderboardUser {
   final String name;
   final int xp;
   final String? avatar;
+  final String level; // "Siaga", "Penggalang", "Penegak"
 
   LeaderboardUser({
     required this.rank,
@@ -17,6 +18,7 @@ class LeaderboardUser {
     required this.name,
     required this.xp,
     this.avatar,
+    this.level = 'Siaga', // Default to Siaga
   });
 
   factory LeaderboardUser.fromJson(Map<String, dynamic> json) {
@@ -41,9 +43,10 @@ class LeaderboardUser {
     }
 
     // Defensive type casting for name (handle both 'name' and 'full_name')
-    String nameValue = json['name']?.toString() ?? 
-                      json['full_name']?.toString() ?? 
-                      'Unknown User';
+    String nameValue =
+        json['name']?.toString() ??
+        json['full_name']?.toString() ??
+        'Unknown User';
 
     // Defensive type casting for xp (handle both 'xp' and 'total_xp')
     int xpValue;
@@ -76,7 +79,38 @@ class LeaderboardUser {
       avatarValue = json['picture_url']?.toString();
     }
 
-    debugPrint('📊 [LEADERBOARD_USER] Parsed: rank=$rankValue, id=$idValue, name=$nameValue, xp=$xpValue, avatar=${avatarValue ?? 'null'}');
+    // Parse level or fallback based on XP
+    // Level Inference Logic based on XP (Indonesian Scout Levels)
+    // Siaga: Green
+    // Penggalang: Red
+    // Penegak: Yellow
+    String levelValue;
+    if (json['level'] != null) {
+      levelValue = json['level'].toString();
+    } else {
+      // INFERENCE LOGIC
+      if (xpValue < 100) {
+        levelValue = "Siaga Mula";
+      } else if (xpValue < 200) {
+        levelValue = "Siaga Bantu";
+      } else if (xpValue < 350) {
+        levelValue = "Siaga Tata";
+      } else if (xpValue < 500) {
+        levelValue = "Penggalang Ramu";
+      } else if (xpValue < 750) {
+        levelValue = "Penggalang Rakit";
+      } else if (xpValue < 1000) {
+        levelValue = "Penggalang Terap";
+      } else if (xpValue < 1500) {
+        levelValue = "Penegak Bantara";
+      } else {
+        levelValue = "Penegak Laksana";
+      }
+    }
+
+    debugPrint(
+      '📊 [LEADERBOARD_USER] Parsed: rank=$rankValue, id=$idValue, name=$nameValue, xp=$xpValue, level=$levelValue, avatar=${avatarValue ?? 'null'}',
+    );
 
     return LeaderboardUser(
       rank: rankValue,
@@ -84,6 +118,7 @@ class LeaderboardUser {
       name: nameValue,
       xp: xpValue,
       avatar: avatarValue,
+      level: levelValue,
     );
   }
 
@@ -94,6 +129,7 @@ class LeaderboardUser {
       'name': name,
       'xp': xp,
       'avatar': avatar,
+      'level': level,
     };
   }
 }
@@ -102,14 +138,11 @@ class MyRank {
   final int rank;
   final int xp;
 
-  MyRank({
-    required this.rank,
-    required this.xp,
-  });
+  MyRank({required this.rank, required this.xp});
 
   factory MyRank.fromJson(Map<String, dynamic> json) {
     debugPrint('📊 [MY_RANK] Raw JSON: $json');
-    
+
     // Defensive type casting for rank
     int rankValue;
     if (json['rank'] is int) {
@@ -119,10 +152,13 @@ class MyRank {
     } else {
       rankValue = (json['rank'] as num?)?.toInt() ?? 0;
     }
-    
+
     // ✅ CRITICAL: If rank is 0 but should not be, log warning
     // Only warn if rank is 0 but raw JSON was not null (meaning backend potential issue)
-    if (rankValue == 0 && json['rank'] != null && json['xp'] != null && (json['xp'] as int) > 0) {
+    if (rankValue == 0 &&
+        json['rank'] != null &&
+        json['xp'] != null &&
+        (json['xp'] as int) > 0) {
       debugPrint('⚠️ [MY_RANK] WARNING: Parsed rank=0 for user with XP!');
     }
 
@@ -150,23 +186,19 @@ class MyRank {
     }
 
     debugPrint('📊 [MY_RANK] Parsed: rank=$rankValue, xp=$xpValue');
-    
+
     // ✅ CRITICAL: Validate rank >= 1 if xp > 0
     if (xpValue > 0 && rankValue == 0) {
-      debugPrint('❌ [MY_RANK] ERROR: User has XP=$xpValue but rank=0! This should not happen.');
+      debugPrint(
+        '❌ [MY_RANK] ERROR: User has XP=$xpValue but rank=0! This should not happen.',
+      );
     }
 
-    return MyRank(
-      rank: rankValue,
-      xp: xpValue,
-    );
+    return MyRank(rank: rankValue, xp: xpValue);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'rank': rank,
-      'xp': xp,
-    };
+    return {'rank': rank, 'xp': xp};
   }
 }
 
@@ -174,10 +206,7 @@ class LeaderboardData {
   final List<LeaderboardUser> topUsers;
   final MyRank? myRank;
 
-  LeaderboardData({
-    required this.topUsers,
-    this.myRank,
-  });
+  LeaderboardData({required this.topUsers, this.myRank});
 
   factory LeaderboardData.fromJson(Map<String, dynamic> json) {
     // Defensive parsing for top_users
@@ -189,7 +218,9 @@ class LeaderboardData {
               try {
                 return LeaderboardUser.fromJson(item as Map<String, dynamic>);
               } catch (e) {
-                debugPrint('⚠️ [LEADERBOARD_DATA] Error parsing user: $e, data: $item');
+                debugPrint(
+                  '⚠️ [LEADERBOARD_DATA] Error parsing user: $e, data: $item',
+                );
                 return null;
               }
             })
@@ -210,12 +241,11 @@ class LeaderboardData {
       }
     }
 
-    debugPrint('📊 [LEADERBOARD_DATA] Parsed: ${topUsersList.length} users, myRank=${myRankValue != null ? 'present' : 'null'}');
-
-    return LeaderboardData(
-      topUsers: topUsersList,
-      myRank: myRankValue,
+    debugPrint(
+      '📊 [LEADERBOARD_DATA] Parsed: ${topUsersList.length} users, myRank=${myRankValue != null ? 'present' : 'null'}',
     );
+
+    return LeaderboardData(topUsers: topUsersList, myRank: myRankValue);
   }
 
   Map<String, dynamic> toJson() {

@@ -4,12 +4,11 @@ import 'package:scout_os_app/features/mission/subfeatures/sku/models/sku_model.d
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 
 /// SKU Repository - Handles all SKU-related API calls
-/// 
+///
 /// ✅ Uses ApiDioProvider which automatically handles JWT token
 /// ✅ Google login only - no LocalAuthService needed
 class SkuRepository {
-  SkuRepository({Dio? dio})
-      : _dio = dio ?? ApiDioProvider.getDio();
+  SkuRepository({Dio? dio}) : _dio = dio ?? ApiDioProvider.getDio();
 
   final Dio _dio;
   final AuthRepository _authRepo = AuthRepository();
@@ -23,7 +22,11 @@ class SkuRepository {
     final response = await _dio.get('/sku/$level/points');
     final data = response.data as Map<String, dynamic>;
     final points = data['points'] as List<dynamic>;
-    return points.map((item) => SkuPointStatusModel.fromJson(item as Map<String, dynamic>)).toList();
+    return points
+        .map(
+          (item) => SkuPointStatusModel.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   Future<SkuPointDetailModel> fetchPointDetail(String pointId) async {
@@ -43,12 +46,11 @@ class SkuRepository {
     } catch (e) {
       throw Exception('User not authenticated. Please login again.');
     }
-    
-    final response = await _dio.post('/sku/submit', data: {
-      'user_id': userId,
-      'sku_point_id': pointId,
-      'answers': answers,
-    });
+
+    final response = await _dio.post(
+      '/sku/submit',
+      data: {'user_id': userId, 'sku_point_id': pointId, 'answers': answers},
+    );
     return SkuSubmitResultModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

@@ -23,7 +23,7 @@ class TrainingRepositoryV2 {
   // ==================== LEARNING PATH ====================
 
   /// Get learning path for a section
-  /// 
+  ///
   /// Pure pass-through: API → Model
   Future<LearningPathResponse> getLearningPath(String sectionId) async {
     return await _apiService.getLearningPath(sectionId);
@@ -32,7 +32,7 @@ class TrainingRepositoryV2 {
   // ==================== QUESTIONS ====================
 
   /// Get questions for a level
-  /// 
+  ///
   /// Pure pass-through: API → Model
   Future<QuestionListResponse> getLevelQuestions(String levelId) async {
     return await _apiService.getLevelQuestions(levelId);
@@ -41,23 +41,23 @@ class TrainingRepositoryV2 {
   // ==================== PROGRESS ====================
 
   /// Get progress state
-  /// 
+  ///
   /// Pure pass-through: API → Model
-  /// 
+  ///
   /// TODO: Uncomment when backend endpoint is ready
   Future<ProgressStateResponse> getProgressState() async {
     // TODO: Implement when backend ready
     // final json = await _apiService.getProgressState();
     // return ProgressStateResponse.fromJson(json);
-    
+
     // TEMPORARY: Return empty progress
     return ProgressStateResponse(sections: []);
   }
 
   /// Submit progress
-  /// 
+  ///
   /// Pure pass-through: Data → API
-  /// 
+  ///
   /// TODO: Implement when backend endpoint is ready
   Future<Map<String, dynamic>> submitProgress({
     required String levelId,

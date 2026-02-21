@@ -1,8 +1,8 @@
 /// Survival Repository - OFFLINE ONLY
-/// 
+///
 /// This repository is NO LONGER used for API calls.
 /// All sensor data is handled directly by the SurvivalToolsController.
-/// 
+///
 /// This file is kept for compatibility, but all methods are disabled
 /// or return local-only data.
 

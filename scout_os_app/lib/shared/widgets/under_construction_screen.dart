@@ -3,17 +3,13 @@ import 'package:google_fonts/google_fonts.dart'; // Added for fonts if needed, t
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 
-enum ConstructionType {
-  sku,
-  skk,
-  general,
-}
+enum ConstructionType { sku, skk, general }
 
 class UnderConstructionScreen extends StatelessWidget {
   final ConstructionType type;
 
   const UnderConstructionScreen({
-    super.key, 
+    super.key,
     this.type = ConstructionType.general,
   });
 
@@ -31,7 +27,8 @@ class UnderConstructionScreen extends StatelessWidget {
       case ConstructionType.sku:
         // VARIAN 1: SKU
         title = "Akar Pengabdian\nSedang Menghunjam Luas";
-        description = "Setiap butir SKU adalah langkah kaki menuju kedewasaan. Kami sedang memahat peta perjalanan ini agar setiap tanda yang Kakak raih kelak bukan sekadar hiasan di lengan, melainkan bukti nyata keteguhan jiwa. Berilah kami waktu untuk menajamkan setiap maknanya.";
+        description =
+            "Setiap butir SKU adalah langkah kaki menuju kedewasaan. Kami sedang memahat peta perjalanan ini agar setiap tanda yang Kakak raih kelak bukan sekadar hiasan di lengan, melainkan bukti nyata keteguhan jiwa. Berilah kami waktu untuk menajamkan setiap maknanya.";
         buttonText = "SAYA SIAP BERPROSES";
         icon = Icons.forest_rounded;
         buttonColor = const Color(0xFF4B9F38); // Scout Green
@@ -41,7 +38,8 @@ class UnderConstructionScreen extends StatelessWidget {
       case ConstructionType.skk:
         // VARIAN 2: SKK (Survival & Koleksi TKK)
         title = "Menajamkan Kapak,\nMenyiapkan Keahlian";
-        description = "Seorang Pramuka dikenal dari kecakapannya merespons tantangan alam. Koleksi tanda kecakapan ini sedang kami asah agar siap Kakak gunakan saat terjun ke medan bakti yang sesungguhnya. Kesabaran adalah ujian pertama dari seorang ahli.";
+        description =
+            "Seorang Pramuka dikenal dari kecakapannya merespons tantangan alam. Koleksi tanda kecakapan ini sedang kami asah agar siap Kakak gunakan saat terjun ke medan bakti yang sesungguhnya. Kesabaran adalah ujian pertama dari seorang ahli.";
         buttonText = "SAYA TERUS BERLATIH";
         icon = Icons.construction_rounded; // Or handyman
         buttonColor = const Color(0xFFFF9800); // Orange for Skills
@@ -52,7 +50,8 @@ class UnderConstructionScreen extends StatelessWidget {
       default:
         // DEFAULT
         title = "Fitur Sedang Dirakit! 🚧";
-        description = "Sabar ya Kak, Kakak Developer sedang lembur menyempurnakan materi ini biar makin eksklusif buat Kakak.";
+        description =
+            "Sabar ya Kak, Kakak Developer sedang lembur menyempurnakan materi ini biar makin eksklusif buat Kakak.";
         buttonText = "Oke, Saya Tunggu";
         icon = Icons.engineering_rounded;
         buttonColor = const Color(0xFF4B9F38);
@@ -66,7 +65,10 @@ class UnderConstructionScreen extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32.0,
+                vertical: 24.0,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -87,7 +89,7 @@ class UnderConstructionScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-          
+
                   // 2. Typography
                   Text(
                     title,
@@ -110,7 +112,7 @@ class UnderConstructionScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 48),
-          
+
                   // 3. 3D Button
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -122,7 +124,7 @@ class UnderConstructionScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border(
                           bottom: BorderSide(
-                            color: buttonShadowColor, 
+                            color: buttonShadowColor,
                             width: 6.0, // 3D Effect
                           ),
                         ),

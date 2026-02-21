@@ -17,9 +17,7 @@ class TrainingLesson {
     required this.status,
   });
 
-  TrainingLesson copyWith({
-    String? status,
-  }) {
+  TrainingLesson copyWith({String? status}) {
     return TrainingLesson(
       id: id,
       pathId: pathId,

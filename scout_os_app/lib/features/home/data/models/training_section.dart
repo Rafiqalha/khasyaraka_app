@@ -1,7 +1,7 @@
 import 'training_path.dart';
 
 /// Training Section Model
-/// 
+///
 /// 1:1 mapping with backend TrainingSectionResponse schema.
 /// DO NOT modify field names or types - must match backend exactly.
 class TrainingSection {
@@ -56,10 +56,7 @@ class SectionListResponse {
   final int total;
   final List<TrainingSection> sections;
 
-  SectionListResponse({
-    required this.total,
-    required this.sections,
-  });
+  SectionListResponse({required this.total, required this.sections});
 
   factory SectionListResponse.fromJson(Map<String, dynamic> json) {
     return SectionListResponse(
@@ -84,10 +81,7 @@ class SectionWithUnits {
   final TrainingSection section;
   final List<UnitModel> units;
 
-  SectionWithUnits({
-    required this.section,
-    required this.units,
-  });
+  SectionWithUnits({required this.section, required this.units});
 
   String get id => section.id;
   String get title => section.title;

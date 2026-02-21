@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/theme/cyber_theme.dart';
 
 class GlitchText extends StatefulWidget {
-  const GlitchText(
-    this.text, {
-    super.key,
-    this.style,
-    this.maxLines = 2,
-  });
+  const GlitchText(this.text, {super.key, this.style, this.maxLines = 2});
 
   final String text;
   final TextStyle? style;

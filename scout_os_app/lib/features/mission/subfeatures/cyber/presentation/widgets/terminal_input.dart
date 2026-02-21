@@ -4,11 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/theme/cyber_theme.dart';
 
 class TerminalInput extends StatefulWidget {
-  const TerminalInput({
-    super.key,
-    required this.controller,
-    this.onSubmitted,
-  });
+  const TerminalInput({super.key, required this.controller, this.onSubmitted});
 
   final TextEditingController controller;
   final VoidCallback? onSubmitted;

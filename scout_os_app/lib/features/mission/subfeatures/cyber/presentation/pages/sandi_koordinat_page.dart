@@ -6,16 +6,13 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/the
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/widgets/cyber_container.dart';
 
 /// Sandi Koordinat (Coordinate Cipher) Tool
-/// 
+///
 /// Uses a 6x6 grid with keywords in the first row and column.
 /// Encodes letters to coordinate pairs (ColumnHeader + RowHeader).
 class SandiKoordinatPage extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiKoordinatPage({
-    super.key,
-    required this.sandi,
-  });
+  const SandiKoordinatPage({super.key, required this.sandi});
 
   @override
   State<SandiKoordinatPage> createState() => _SandiKoordinatPageState();
@@ -24,16 +21,22 @@ class SandiKoordinatPage extends StatefulWidget {
 class _SandiKoordinatPageState extends State<SandiKoordinatPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final TextEditingController _keyRowController = TextEditingController(text: 'MERAH');
-  final TextEditingController _keyColController = TextEditingController(text: 'PUTIH');
+  final TextEditingController _keyRowController = TextEditingController(
+    text: 'MERAH',
+  );
+  final TextEditingController _keyColController = TextEditingController(
+    text: 'PUTIH',
+  );
   final TextEditingController _encodeController = TextEditingController();
   final TextEditingController _decodeController = TextEditingController();
-  
+
   String _keyRow = 'MERAH';
   String _keyCol = 'PUTIH';
   String _currentEncodeChar = ''; // For highlighting
-  Map<String, String> _coordinateMap = {}; // Letter -> Coordinate (e.g., 'A' -> 'MP')
-  Map<String, String> _reverseMap = {}; // Coordinate -> Letter (e.g., 'MP' -> 'A')
+  Map<String, String> _coordinateMap =
+      {}; // Letter -> Coordinate (e.g., 'A' -> 'MP')
+  Map<String, String> _reverseMap =
+      {}; // Coordinate -> Letter (e.g., 'MP' -> 'A')
 
   @override
   void initState() {
@@ -57,7 +60,10 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
   }
 
   void _onKeyRowChanged() {
-    final text = _keyRowController.text.toUpperCase().replaceAll(RegExp(r'[^A-Z]'), '');
+    final text = _keyRowController.text.toUpperCase().replaceAll(
+      RegExp(r'[^A-Z]'),
+      '',
+    );
     if (text.length <= 5) {
       setState(() {
         _keyRowController.value = TextEditingValue(
@@ -71,7 +77,10 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
   }
 
   void _onKeyColChanged() {
-    final text = _keyColController.text.toUpperCase().replaceAll(RegExp(r'[^A-Z]'), '');
+    final text = _keyColController.text.toUpperCase().replaceAll(
+      RegExp(r'[^A-Z]'),
+      '',
+    );
     if (text.length <= 5) {
       setState(() {
         _keyColController.value = TextEditingValue(
@@ -112,11 +121,11 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
     // Ensure keys are exactly 5 characters, pad with X if needed
     String keyRow = _keyRow.padRight(5, 'X').substring(0, 5).toUpperCase();
     String keyCol = _keyCol.padRight(5, 'X').substring(0, 5).toUpperCase();
-    
+
     // Remove duplicates while preserving order
     keyRow = _removeDuplicates(keyRow);
     keyCol = _removeDuplicates(keyCol);
-    
+
     // Pad again if needed after removing duplicates
     while (keyRow.length < 5) {
       keyRow += _getNextAvailableLetter(keyRow + keyCol);
@@ -124,16 +133,19 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
     while (keyCol.length < 5) {
       keyCol += _getNextAvailableLetter(keyRow + keyCol);
     }
-    
+
     keyRow = keyRow.substring(0, 5);
     keyCol = keyCol.substring(0, 5);
 
     // Generate alphabet A-Y (25 letters for 5x5 grid)
-    final alphabet = List.generate(25, (i) => String.fromCharCode(65 + i)); // A-Y
-    
+    final alphabet = List.generate(
+      25,
+      (i) => String.fromCharCode(65 + i),
+    ); // A-Y
+
     _coordinateMap.clear();
     _reverseMap.clear();
-    
+
     // Fill the 5x5 grid with A-Y
     int letterIndex = 0;
     for (int row = 0; row < 5; row++) {
@@ -147,7 +159,7 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
         }
       }
     }
-    
+
     setState(() {});
   }
 
@@ -210,7 +222,7 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
   String _encodeText(String text) {
     final upperText = text.toUpperCase();
     final result = <String>[];
-    
+
     for (int i = 0; i < upperText.length; i++) {
       final char = upperText[i];
       if (char == ' ') {
@@ -225,7 +237,7 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
         }
       }
     }
-    
+
     return result.join(' ');
   }
 
@@ -233,7 +245,7 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
     // Remove spaces and split into pairs
     final cleanText = text.replaceAll(' ', '').toUpperCase();
     final result = <String>[];
-    
+
     for (int i = 0; i < cleanText.length; i += 2) {
       if (i + 1 < cleanText.length) {
         final pair = cleanText.substring(i, i + 2);
@@ -244,7 +256,7 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
         }
       }
     }
-    
+
     return result.join('');
   }
 
@@ -283,10 +295,7 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildEncodeTab(),
-          _buildDecodeTab(),
-        ],
+        children: [_buildEncodeTab(), _buildDecodeTab()],
       ),
     );
   }
@@ -510,7 +519,11 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
                       style: CyberTheme.headline().copyWith(fontSize: 16),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClear,
                       tooltip: 'Clear',
                     ),
@@ -556,7 +569,10 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
                           final encoded = _encodeText(_encodeController.text);
                           _copyToClipboard(encoded);
@@ -793,7 +809,11 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
                       style: CyberTheme.headline().copyWith(fontSize: 16),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.clear, color: CyberTheme.neonCyan, size: 20),
+                      icon: const Icon(
+                        Icons.clear,
+                        color: CyberTheme.neonCyan,
+                        size: 20,
+                      ),
                       onPressed: _onClear,
                       tooltip: 'Clear',
                     ),
@@ -808,7 +828,8 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
                     letterSpacing: 2,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Enter coordinate pairs (e.g., MP UT IH AR AH)...',
+                    hintText:
+                        'Enter coordinate pairs (e.g., MP UT IH AR AH)...',
                     hintStyle: GoogleFonts.courierPrime(
                       fontSize: 14,
                       color: CyberTheme.textSecondary,
@@ -839,7 +860,10 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         onPressed: () {
                           final decoded = _decodeText(_decodeController.text);
                           if (decoded.isNotEmpty) {
@@ -880,17 +904,17 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
     // Ensure keys are exactly 5 characters
     String keyRow = _keyRow.padRight(5, 'X').substring(0, 5).toUpperCase();
     String keyCol = _keyCol.padRight(5, 'X').substring(0, 5).toUpperCase();
-    
+
     keyRow = _removeDuplicates(keyRow);
     keyCol = _removeDuplicates(keyCol);
-    
+
     while (keyRow.length < 5) {
       keyRow += _getNextAvailableLetter(keyRow + keyCol);
     }
     while (keyCol.length < 5) {
       keyCol += _getNextAvailableLetter(keyRow + keyCol);
     }
-    
+
     keyRow = keyRow.substring(0, 5);
     keyCol = keyCol.substring(0, 5);
 
@@ -898,8 +922,9 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
     String? highlightCoord;
     int? highlightRow;
     int? highlightCol;
-    
-    if (_currentEncodeChar.isNotEmpty && _coordinateMap.containsKey(_currentEncodeChar)) {
+
+    if (_currentEncodeChar.isNotEmpty &&
+        _coordinateMap.containsKey(_currentEncodeChar)) {
       highlightCoord = _coordinateMap[_currentEncodeChar];
       if (highlightCoord != null && highlightCoord.length == 2) {
         final colChar = highlightCoord[0];
@@ -965,15 +990,12 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
         color: isCorner
             ? Colors.transparent
             : isHeader
-                ? CyberTheme.neonCyan.withOpacity(0.2)
-                : isHighlighted
-                    ? Colors.yellow.withOpacity(0.3)
-                    : Colors.transparent,
+            ? CyberTheme.neonCyan.withOpacity(0.2)
+            : isHighlighted
+            ? Colors.yellow.withOpacity(0.3)
+            : Colors.transparent,
         border: isHighlighted
-            ? Border.all(
-                color: Colors.yellow,
-                width: 2,
-              )
+            ? Border.all(color: Colors.yellow, width: 2)
             : null,
       ),
       child: Center(
@@ -985,8 +1007,8 @@ class _SandiKoordinatPageState extends State<SandiKoordinatPage>
             color: isHeader
                 ? CyberTheme.neonCyan
                 : isHighlighted
-                    ? Colors.yellow
-                    : Colors.white,
+                ? Colors.yellow
+                : Colors.white,
             letterSpacing: 1,
           ),
         ),

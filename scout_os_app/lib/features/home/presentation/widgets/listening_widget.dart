@@ -24,19 +24,19 @@ class _ListeningWidgetState extends State<ListeningWidget> {
 
   Future<void> _play() async {
     if (isPlaying) return;
-    
+
     setState(() => isPlaying = true);
     try {
       await _player.play(UrlSource(widget.audioUrl));
       // Reset icon setelah selesai (simple timeout untuk contoh)
       // Idealnya pakai onPlayerComplete listener
-      await Future.delayed(const Duration(seconds: 2)); 
+      await Future.delayed(const Duration(seconds: 2));
     } catch (e) {
       if (kDebugMode) {
         debugPrint("Error playing audio: $e");
       }
     } finally {
-      if(mounted) setState(() => isPlaying = false);
+      if (mounted) setState(() => isPlaying = false);
     }
   }
 
@@ -57,8 +57,8 @@ class _ListeningWidgetState extends State<ListeningWidget> {
                   BoxShadow(
                     color: AppColors.actionOrange.withValues(alpha: 0.3),
                     blurRadius: 20,
-                    spreadRadius: 5
-                  )
+                    spreadRadius: 5,
+                  ),
                 ],
               ),
               child: Icon(
@@ -69,7 +69,10 @@ class _ListeningWidgetState extends State<ListeningWidget> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text("Ketuk untuk mendengarkan", style: TextStyle(color: AppColors.textGrey)),
+          const Text(
+            "Ketuk untuk mendengarkan",
+            style: TextStyle(color: AppColors.textGrey),
+          ),
         ],
       ),
     );

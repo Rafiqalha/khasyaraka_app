@@ -61,7 +61,7 @@ class TrainingControllerV2 extends ChangeNotifier {
   TrainingControllerV2() {
     // Initialize API Service with centralized Dio provider (handles JWT)
     _apiService = TrainingApiService(dio: ApiDioProvider.getDio());
-    
+
     // Load initial data
     loadInitialData();
   }
@@ -76,10 +76,7 @@ class TrainingControllerV2 extends ChangeNotifier {
 
     try {
       // Load both path and progress in parallel
-      await Future.wait([
-        fetchPath(sectionId),
-        fetchProgress(),
-      ]);
+      await Future.wait([fetchPath(sectionId), fetchProgress()]);
     } catch (e) {
       errorMessage = _formatError(e);
       debugPrint("❌ Error loading initial data: $e");
@@ -90,15 +87,17 @@ class TrainingControllerV2 extends ChangeNotifier {
   }
 
   /// Fetch learning path from backend
-  /// 
+  ///
   /// Endpoint: GET /training/sections/{sectionId}/path
-  /// 
+  ///
   /// CRITICAL: This is the ONLY source of path data.
   /// NO local computation or transformation.
   Future<void> fetchPath(String sectionId) async {
     try {
       // ✅ 1. CACHE FIRST (Instant Load)
-      final cachedJson = await LocalCacheService.get('learning_path_$sectionId');
+      final cachedJson = await LocalCacheService.get(
+        'learning_path_$sectionId',
+      );
       if (cachedJson != null) {
         final cachedPath = LearningPathResponse.fromJson(cachedJson);
         _applySorting(cachedPath); // ✅ SORTING WAJIB
@@ -108,15 +107,18 @@ class TrainingControllerV2 extends ChangeNotifier {
 
       // ✅ 2. NETWORK FETCH (Background Revalidation)
       final apiPath = await _apiService.getLearningPath(sectionId);
-      
+
       // ✅ 3. SORTING WAJIB (Ascending)
       _applySorting(apiPath);
-      
+
       // ✅ 4. UPDATE CACHE & STATE
       // Only notify if data changed or was null
       _learningPath = apiPath;
-      await LocalCacheService.put('learning_path_$sectionId', apiPath.toJson()); // Need toJson()
-      
+      await LocalCacheService.put(
+        'learning_path_$sectionId',
+        apiPath.toJson(),
+      ); // Need toJson()
+
       errorMessage = null;
       notifyListeners(); // Rebuild UI with fresh data
     } catch (e) {
@@ -130,7 +132,7 @@ class TrainingControllerV2 extends ChangeNotifier {
   void _applySorting(LearningPathResponse path) {
     // 1. Sort Units by Order
     path.units.sort((a, b) => a.order.compareTo(b.order));
-    
+
     // 2. Sort Levels within Units by LevelNumber
     for (var unit in path.units) {
       unit.levels.sort((a, b) => a.levelNumber.compareTo(b.levelNumber));
@@ -138,17 +140,18 @@ class TrainingControllerV2 extends ChangeNotifier {
   }
 
   /// Fetch progress state from backend
-  /// 
+  ///
   /// Endpoint: GET /training/progress/state
-  /// 
+  ///
   /// CRITICAL: This is the ONLY source of progress/unlock state.
   /// NO local computation.
   Future<void> fetchProgress() async {
     try {
       // ✅ 1. CACHE FIRST
-      final sectionId = _learningPath?.sectionId ?? 'puk'; // Default to loaded section
+      final sectionId =
+          _learningPath?.sectionId ?? 'puk'; // Default to loaded section
       final cacheKey = 'progress_$sectionId';
-      
+
       final cachedJson = await LocalCacheService.get(cacheKey);
       if (cachedJson != null) {
         _progressState = ProgressStateResponse.fromJson(cachedJson);
@@ -157,11 +160,11 @@ class TrainingControllerV2 extends ChangeNotifier {
 
       // ✅ 2. NETWORK FETCH
       final json = await _apiService.getProgressState();
-      
+
       // ✅ 3. UPDATE CACHE & STATE
       _progressState = ProgressStateResponse.fromJson(json);
       await LocalCacheService.put(cacheKey, json);
-      
+
       errorMessage = null;
       notifyListeners(); // ✅ Update UI Realtime
     } catch (e) {
@@ -169,7 +172,7 @@ class TrainingControllerV2 extends ChangeNotifier {
       debugPrint("⚠️ Progress endpoint not available: $e");
       // Keep cached state if available
       if (_progressState == null) {
-         _progressState = ProgressStateResponse(sections: []);
+        _progressState = ProgressStateResponse(sections: []);
       }
     }
   }
@@ -183,13 +186,13 @@ class TrainingControllerV2 extends ChangeNotifier {
 
   String _formatError(dynamic error) {
     final errorString = error.toString();
-    
+
     if (errorString.contains('404') || errorString.contains('not found')) {
       return "Path training tidak ditemukan di server.";
     } else if (errorString.contains('timeout')) {
       return "Koneksi timeout. Periksa koneksi internet Anda.";
-    } else if (errorString.contains('NetworkException') || 
-               errorString.contains('connection')) {
+    } else if (errorString.contains('NetworkException') ||
+        errorString.contains('connection')) {
       return "Tidak dapat terhubung ke server. Pastikan backend berjalan.";
     } else if (errorString.contains('500')) {
       return "Server error. Database atau Redis bermasalah.";

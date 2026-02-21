@@ -14,8 +14,8 @@ class ClinometerToolPage extends StatefulWidget {
 
 class _ClinometerToolPageState extends State<ClinometerToolPage> {
   // Theme (Exclusive Dark Purple)
-  static const Color _bgTop = Color(0xFF2E004B);   
-  static const Color _bgBottom = Color(0xFF0D001A); 
+  static const Color _bgTop = Color(0xFF2E004B);
+  static const Color _bgBottom = Color(0xFF0D001A);
   static const Color _accentCyan = Color(0xFF00E5FF);
   static const Color _accentYellow = Color(0xFFFFD600);
   static const Color _glassWhite = Colors.white;
@@ -25,7 +25,7 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
   double _currentAngle = 0.0;
   bool _isLocked = false;
   double? _lockedAngle;
-  
+
   // Inputs
   final TextEditingController _distanceCtrl = TextEditingController();
   final TextEditingController _eyeHeightCtrl = TextEditingController();
@@ -45,12 +45,12 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
 
       // Calculate angle (Pitch)
       double angle = math.atan2(event.y, event.z) * (180 / math.pi);
-      
+
       if (mounted) {
         setState(() {
           _currentAngle = angle;
           // Real-time update if not locked
-          _calculateHeight(); 
+          _calculateHeight();
         });
       }
     });
@@ -59,12 +59,12 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
   void _calculateHeight() {
     double dist = double.tryParse(_distanceCtrl.text.replaceAll(',', '.')) ?? 0;
     double eye = double.tryParse(_eyeHeightCtrl.text.replaceAll(',', '.')) ?? 0;
-    
+
     // Formula: (tan(angle) * distance) + eye_height_meters
     // Use absolute angle for calculation to avoid negative heights
     double angleRad = _currentAngle.abs() * (math.pi / 180);
     double height = (math.tan(angleRad) * dist) + (eye / 100);
-    
+
     _calculatedHeight = height;
   }
 
@@ -74,7 +74,10 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
     if (!_isLocked && dist <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Masukkan Jarak ke Objek terlebih dahulu!", style: GoogleFonts.fredoka()),
+          content: Text(
+            "Masukkan Jarak ke Objek terlebih dahulu!",
+            style: GoogleFonts.fredoka(),
+          ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -122,13 +125,21 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: Text(
           "KALKULATOR TINGGI",
-          style: GoogleFonts.fredoka(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: 1.2),
+          style: GoogleFonts.fredoka(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            letterSpacing: 1.2,
+          ),
         ),
       ),
       body: Container(
@@ -143,7 +154,7 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              
+
               // -------------------------------------------------------------
               // A. HEADER & VISUAL SUDUT (THE HERO)
               // -------------------------------------------------------------
@@ -163,18 +174,38 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
                         angle: -displayAngle * (math.pi / 180),
                         alignment: Alignment.bottomCenter,
                         child: Container(
-                          width: 4, height: 140,
+                          width: 4,
+                          height: 140,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: [_accentCyan.withOpacity(0), _accentCyan], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+                            gradient: LinearGradient(
+                              colors: [_accentCyan.withOpacity(0), _accentCyan],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
                             borderRadius: BorderRadius.circular(4),
-                            boxShadow: [BoxShadow(color: _accentCyan.withOpacity(0.5), blurRadius: 10)],
+                            boxShadow: [
+                              BoxShadow(
+                                color: _accentCyan.withOpacity(0.5),
+                                blurRadius: 10,
+                              ),
+                            ],
                           ),
                         ),
                       ),
                       // Pivot
                       Container(
-                        width: 20, height: 20,
-                        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 10)]),
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.5),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
                       ),
                       // Real-time Angle Text (Floating)
                       Positioned(
@@ -183,11 +214,20 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
                           children: [
                             Text(
                               "${displayAngle.toStringAsFixed(1)}°",
-                              style: GoogleFonts.fredoka(color: Colors.white, fontSize: 42, fontWeight: FontWeight.bold, height: 1.0),
+                              style: GoogleFonts.fredoka(
+                                color: Colors.white,
+                                fontSize: 42,
+                                fontWeight: FontWeight.bold,
+                                height: 1.0,
+                              ),
                             ),
                             Text(
                               "SUDUT PELUNCUR", // Pitch
-                              style: GoogleFonts.fredoka(color: Colors.white54, fontSize: 10, letterSpacing: 1.5),
+                              style: GoogleFonts.fredoka(
+                                color: Colors.white54,
+                                fontSize: 10,
+                                letterSpacing: 1.5,
+                              ),
                             ),
                           ],
                         ),
@@ -203,7 +243,10 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
               Expanded(
                 flex: 3,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 10,
+                  ),
                   padding: const EdgeInsets.all(20),
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -216,17 +259,28 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
                     children: [
                       Text(
                         "PERKIRAAN TINGGI OBJEK",
-                        style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 12, letterSpacing: 1.2),
+                        style: GoogleFonts.fredoka(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       // Result Display
                       Text(
                         "${_calculatedHeight.toStringAsFixed(2)} METER",
                         style: GoogleFonts.fredoka(
-                          color: _isLocked ? _accentYellow : Colors.white30, 
+                          color: _isLocked ? _accentYellow : Colors.white30,
                           fontSize: 40,
                           fontWeight: FontWeight.w700,
-                          shadows: _isLocked ? [BoxShadow(color: _accentYellow.withOpacity(0.3), blurRadius: 20)] : [],
+                          shadows: _isLocked
+                              ? [
+                                  BoxShadow(
+                                    color: _accentYellow.withOpacity(0.3),
+                                    blurRadius: 20,
+                                  ),
+                                ]
+                              : [],
                         ),
                       ),
                     ],
@@ -275,15 +329,27 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
                     duration: const Duration(milliseconds: 200),
                     height: 60,
                     decoration: BoxDecoration(
-                      color: _isLocked ? Colors.orange[800] : const Color(0xFF00C853), // Orange (Reset) vs Green (Lock)
+                      color: _isLocked
+                          ? Colors.orange[800]
+                          : const Color(
+                              0xFF00C853,
+                            ), // Orange (Reset) vs Green (Lock)
                       borderRadius: BorderRadius.circular(20),
                       border: Border(
                         bottom: BorderSide(
-                          color: _isLocked ? Colors.orange[900]! : const Color(0xFF007E33), 
+                          color: _isLocked
+                              ? Colors.orange[900]!
+                              : const Color(0xFF007E33),
                           width: 6,
                         ),
-                      ), 
-                      boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 4))],
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black45,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -295,7 +361,12 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
                         const SizedBox(width: 8),
                         Text(
                           _isLocked ? "ULANGI PENGUKURAN" : "KUNCI HASIL UKUR",
-                          style: GoogleFonts.fredoka(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                          style: GoogleFonts.fredoka(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ],
                     ),
@@ -319,18 +390,26 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
       children: [
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.fredoka(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
+          style: GoogleFonts.fredoka(
+            color: Colors.white70,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           onChanged: (v) {
-             if (!_isLocked) {
-                _calculateHeight();
-             }
+            if (!_isLocked) {
+              _calculateHeight();
+            }
           },
-          style: GoogleFonts.fredoka(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w700), // Black on White
+          style: GoogleFonts.fredoka(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ), // Black on White
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white, // Pure White Background
@@ -339,7 +418,10 @@ class _ClinometerToolPageState extends State<ClinometerToolPage> {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none, // Clean look
             ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
             hintText: "0",
             hintStyle: GoogleFonts.fredoka(color: Colors.grey),
           ),
@@ -378,7 +460,7 @@ class _ProtractorPainter extends CustomPainter {
 
     // Draw Background
     canvas.drawArc(rect, math.pi, math.pi, true, paintBg);
-    
+
     // Draw Border Gradient
     canvas.drawArc(rect, math.pi, math.pi, false, paintArc);
 
@@ -392,17 +474,29 @@ class _ProtractorPainter extends CustomPainter {
       final angle = (180 + i) * (math.pi / 180);
       final isMajor = i % 45 == 0;
       final len = isMajor ? 15.0 : 8.0;
-      
-      final p1 = Offset(center.dx + math.cos(angle) * (radius - len), center.dy + math.sin(angle) * (radius - len));
-      final p2 = Offset(center.dx + math.cos(angle) * radius, center.dy + math.sin(angle) * radius);
-      
+
+      final p1 = Offset(
+        center.dx + math.cos(angle) * (radius - len),
+        center.dy + math.sin(angle) * (radius - len),
+      );
+      final p2 = Offset(
+        center.dx + math.cos(angle) * radius,
+        center.dy + math.sin(angle) * radius,
+      );
+
       paintTick.color = isMajor ? Colors.white : Colors.white24;
       paintTick.strokeWidth = isMajor ? 3 : 1;
       canvas.drawLine(p1, p2, paintTick);
     }
-    
+
     // Base Line
-    canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), paintTick..color = Colors.white24..strokeWidth=1);
+    canvas.drawLine(
+      Offset(0, size.height),
+      Offset(size.width, size.height),
+      paintTick
+        ..color = Colors.white24
+        ..strokeWidth = 1,
+    );
   }
 
   @override

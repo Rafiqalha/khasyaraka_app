@@ -12,9 +12,6 @@ class DashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: padding,
-      child: child,
-    );
+    return SingleChildScrollView(padding: padding, child: child);
   }
 }

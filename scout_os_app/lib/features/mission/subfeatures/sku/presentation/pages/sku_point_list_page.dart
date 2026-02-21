@@ -1,3 +1,4 @@
+import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -41,7 +42,7 @@ class _SkuPointListPageState extends State<SkuPointListPage> {
         ),
       ),
       body: controller.isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFD600)))
+          ? const Center(child: GrassSosLoader(color: Color(0xFFFFD600)))
           : Padding(
               padding: const EdgeInsets.all(16),
               child: GridView.builder(
@@ -65,7 +66,9 @@ class _SkuPointListPageState extends State<SkuPointListPage> {
                         context: rootContext,
                         backgroundColor: const Color(0xFF3E2723),
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
                         ),
                         builder: (_) => BriefingSheet(pointId: point.id),
                       );
@@ -87,7 +90,9 @@ class SkuPointCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompleted = point.isCompleted;
-    final baseColor = isCompleted ? const Color(0xFF2E7D32) : const Color(0xFF4E4E4E);
+    final baseColor = isCompleted
+        ? const Color(0xFF2E7D32)
+        : const Color(0xFF4E4E4E);
     final glowColor = isCompleted ? const Color(0xFFFFD600) : Colors.black26;
     final categoryColor = _categoryColor(point.category);
 
@@ -139,10 +144,7 @@ class SkuPointCard extends StatelessWidget {
               point.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(
-                fontSize: 11,
-                color: Colors.white70,
-              ),
+              style: GoogleFonts.poppins(fontSize: 11, color: Colors.white70),
             ),
           ],
         ),
@@ -221,10 +223,7 @@ class _BriefingSheetState extends State<BriefingSheet> {
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            description,
-            style: GoogleFonts.poppins(color: Colors.white70),
-          ),
+          Text(description, style: GoogleFonts.poppins(color: Colors.white70)),
           if (officialRef != null && officialRef.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
@@ -256,7 +255,9 @@ class _BriefingSheetState extends State<BriefingSheet> {
                 backgroundColor: const Color(0xFFFFD600),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: _ready
                   ? () {
@@ -271,7 +272,10 @@ class _BriefingSheetState extends State<BriefingSheet> {
                   : null,
               child: Text(
                 'UJI MATERI',
-                style: GoogleFonts.cinzel(fontWeight: FontWeight.w700, letterSpacing: 1.2),
+                style: GoogleFonts.cinzel(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
           ),

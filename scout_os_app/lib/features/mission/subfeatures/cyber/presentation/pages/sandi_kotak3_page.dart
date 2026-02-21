@@ -14,10 +14,7 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/wid
 class SandiKotak3Page extends StatefulWidget {
   final SandiModel sandi;
 
-  const SandiKotak3Page({
-    super.key,
-    required this.sandi,
-  });
+  const SandiKotak3Page({super.key, required this.sandi});
 
   @override
   State<SandiKotak3Page> createState() => _SandiKotak3PageState();
@@ -78,8 +75,10 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
   void _onBackspace() {
     if (_decodeController.text.isEmpty) return;
     setState(() {
-      _decodeController.text =
-          _decodeController.text.substring(0, _decodeController.text.length - 1);
+      _decodeController.text = _decodeController.text.substring(
+        0,
+        _decodeController.text.length - 1,
+      );
       if (_decodeHistory.isNotEmpty) _decodeHistory.removeLast();
     });
   }
@@ -134,11 +133,7 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildReferenceTab(),
-          _buildEncodeTab(),
-          _buildDecodeTab(),
-        ],
+        children: [_buildReferenceTab(), _buildEncodeTab(), _buildDecodeTab()],
       ),
     );
   }
@@ -183,9 +178,7 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
             padding: const EdgeInsets.all(12),
             child: AspectRatio(
               aspectRatio: 1,
-              child: CustomPaint(
-                painter: Kotak3ReferenceBoardPainter(),
-              ),
+              child: CustomPaint(painter: Kotak3ReferenceBoardPainter()),
             ),
           ),
         ],
@@ -249,9 +242,14 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
                         style: CyberTheme.headline().copyWith(fontSize: 16),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
+                        icon: const Icon(
+                          Icons.copy,
+                          color: CyberTheme.neonCyan,
+                        ),
                         tooltip: 'Copy text',
-                        onPressed: encoded.isEmpty ? null : () => _copyToClipboard(encoded),
+                        onPressed: encoded.isEmpty
+                            ? null
+                            : () => _copyToClipboard(encoded),
                       ),
                     ],
                   ),
@@ -323,7 +321,9 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
                 IconButton(
                   icon: const Icon(Icons.copy, color: CyberTheme.neonCyan),
                   tooltip: 'Copy',
-                  onPressed: decoded.isEmpty ? null : () => _copyToClipboard(decoded),
+                  onPressed: decoded.isEmpty
+                      ? null
+                      : () => _copyToClipboard(decoded),
                 ),
               ],
             ),
@@ -373,7 +373,9 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
                   icon: const Icon(Icons.backspace_outlined),
                   label: Text(
                     'BACKSPACE',
-                    style: GoogleFonts.courierPrime(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.courierPrime(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -388,7 +390,9 @@ class _SandiKotak3PageState extends State<SandiKotak3Page>
                   icon: const Icon(Icons.space_bar),
                   label: Text(
                     'SPACE',
-                    style: GoogleFonts.courierPrime(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.courierPrime(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -430,9 +434,7 @@ bool _isAZ(String c) => RegExp(r'^[A-Z]$').hasMatch(c);
 class _Kotak3Keyboard extends StatelessWidget {
   final void Function(String letter) onTap;
 
-  const _Kotak3Keyboard({
-    required this.onTap,
-  });
+  const _Kotak3Keyboard({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -521,10 +523,7 @@ class Kotak3Painter extends CustomPainter {
     Offset c(double x, double y) => Offset(x, y);
 
     void dotAtTriangle(Offset a, Offset b, Offset c0) {
-      final d = Offset(
-        (a.dx + b.dx + c0.dx) / 3,
-        (a.dy + b.dy + c0.dy) / 3,
-      );
+      final d = Offset((a.dx + b.dx + c0.dx) / 3, (a.dy + b.dy + c0.dy) / 3);
       canvas.drawCircle(d, size.shortestSide * 0.04, dotPaint);
     }
 
@@ -836,14 +835,30 @@ class Kotak3ReferenceBoardPainter extends CustomPainter {
     // Horizontal lines through the top/bottom edges of the center square
     final yTop = cy - a;
     final yBot = cy + a;
-    canvas.drawLine(Offset(cx - b - ext, yTop), Offset(cx + b + ext, yTop), paint);
-    canvas.drawLine(Offset(cx - b - ext, yBot), Offset(cx + b + ext, yBot), paint);
+    canvas.drawLine(
+      Offset(cx - b - ext, yTop),
+      Offset(cx + b + ext, yTop),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(cx - b - ext, yBot),
+      Offset(cx + b + ext, yBot),
+      paint,
+    );
 
     // Vertical lines through the left/right edges of the center square
     final xLeft = cx - a;
     final xRight = cx + a;
-    canvas.drawLine(Offset(xLeft, cy - b - ext), Offset(xLeft, cy + b + ext), paint);
-    canvas.drawLine(Offset(xRight, cy - b - ext), Offset(xRight, cy + b + ext), paint);
+    canvas.drawLine(
+      Offset(xLeft, cy - b - ext),
+      Offset(xLeft, cy + b + ext),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(xRight, cy - b - ext),
+      Offset(xRight, cy + b + ext),
+      paint,
+    );
 
     // Center square
     canvas.drawRect(center, paint);
@@ -861,40 +876,215 @@ class Kotak3ReferenceBoardPainter extends CustomPainter {
     final fontSize = size.shortestSide * 0.055;
 
     // "AB" in the center
-    _drawLabel(canvas, size, 'AB', Offset(cx, cy), fontSize: size.shortestSide * 0.08, color: Colors.black);
+    _drawLabel(
+      canvas,
+      size,
+      'AB',
+      Offset(cx, cy),
+      fontSize: size.shortestSide * 0.08,
+      color: Colors.black,
+    );
 
     // Labels positioned to match the provided diagram (approximate but faithful structure)
     // Top group
-    _drawLabel(canvas, size, 'F', topV + Offset(0, fontSize * 0.10), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'E', Offset(cx - a * 0.55, cy - a * 1.55), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'G', Offset(cx + a * 0.55, cy - a * 1.55), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'D', Offset(xLeft - fontSize * 0.6, yTop - fontSize * 1.05), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'H', Offset(xRight + fontSize * 0.6, yTop - fontSize * 1.05), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'C', Offset(xLeft - fontSize * 1.35, yTop - fontSize * 0.25), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'I', Offset(xRight + fontSize * 1.35, yTop - fontSize * 0.25), fontSize: fontSize, color: Colors.black);
+    _drawLabel(
+      canvas,
+      size,
+      'F',
+      topV + Offset(0, fontSize * 0.10),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'E',
+      Offset(cx - a * 0.55, cy - a * 1.55),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'G',
+      Offset(cx + a * 0.55, cy - a * 1.55),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'D',
+      Offset(xLeft - fontSize * 0.6, yTop - fontSize * 1.05),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'H',
+      Offset(xRight + fontSize * 0.6, yTop - fontSize * 1.05),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'C',
+      Offset(xLeft - fontSize * 1.35, yTop - fontSize * 0.25),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'I',
+      Offset(xRight + fontSize * 1.35, yTop - fontSize * 0.25),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
 
     // Right side group
-    _drawLabel(canvas, size, 'L', rightV + Offset(-fontSize * 0.2, 0), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'J', Offset(xRight + a * 0.65, yTop + a * 0.30), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'K', Offset(xRight + fontSize * 0.55, cy - fontSize * 0.45), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'M', Offset(xRight + fontSize * 0.55, cy + fontSize * 0.65), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'N', Offset(xRight + fontSize * 1.35, yBot + fontSize * 0.25), fontSize: fontSize, color: Colors.black);
+    _drawLabel(
+      canvas,
+      size,
+      'L',
+      rightV + Offset(-fontSize * 0.2, 0),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'J',
+      Offset(xRight + a * 0.65, yTop + a * 0.30),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'K',
+      Offset(xRight + fontSize * 0.55, cy - fontSize * 0.45),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'M',
+      Offset(xRight + fontSize * 0.55, cy + fontSize * 0.65),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'N',
+      Offset(xRight + fontSize * 1.35, yBot + fontSize * 0.25),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
 
     // Bottom group
-    _drawLabel(canvas, size, 'R', bottomV + Offset(0, -fontSize * 0.10), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'Q', Offset(cx + a * 0.55, cy + a * 1.55), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'S', Offset(cx - a * 0.55, cy + a * 1.55), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'P', Offset(xRight + a * 0.05, yBot + a * 0.30), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'T', Offset(xLeft - a * 0.05, yBot + a * 0.30), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'O', Offset(xRight + fontSize * 1.35, yBot + fontSize * 0.25), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'U', Offset(xLeft - fontSize * 1.35, yBot + fontSize * 0.25), fontSize: fontSize, color: Colors.black);
+    _drawLabel(
+      canvas,
+      size,
+      'R',
+      bottomV + Offset(0, -fontSize * 0.10),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'Q',
+      Offset(cx + a * 0.55, cy + a * 1.55),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'S',
+      Offset(cx - a * 0.55, cy + a * 1.55),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'P',
+      Offset(xRight + a * 0.05, yBot + a * 0.30),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'T',
+      Offset(xLeft - a * 0.05, yBot + a * 0.30),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'O',
+      Offset(xRight + fontSize * 1.35, yBot + fontSize * 0.25),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'U',
+      Offset(xLeft - fontSize * 1.35, yBot + fontSize * 0.25),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
 
     // Left side group
-    _drawLabel(canvas, size, 'X', leftV + Offset(fontSize * 0.2, 0), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'Z', Offset(xLeft - fontSize * 1.35, yTop - fontSize * 0.25 + fontSize * 0.95), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'Y', Offset(xLeft - fontSize * 0.55, cy - fontSize * 0.45), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'W', Offset(xLeft - fontSize * 0.55, cy + fontSize * 0.65), fontSize: fontSize, color: Colors.black);
-    _drawLabel(canvas, size, 'V', Offset(xLeft - fontSize * 1.35, yBot + fontSize * 0.25 - fontSize * 0.95), fontSize: fontSize, color: Colors.black);
+    _drawLabel(
+      canvas,
+      size,
+      'X',
+      leftV + Offset(fontSize * 0.2, 0),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'Z',
+      Offset(xLeft - fontSize * 1.35, yTop - fontSize * 0.25 + fontSize * 0.95),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'Y',
+      Offset(xLeft - fontSize * 0.55, cy - fontSize * 0.45),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'W',
+      Offset(xLeft - fontSize * 0.55, cy + fontSize * 0.65),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
+    _drawLabel(
+      canvas,
+      size,
+      'V',
+      Offset(xLeft - fontSize * 1.35, yBot + fontSize * 0.25 - fontSize * 0.95),
+      fontSize: fontSize,
+      color: Colors.black,
+    );
 
     // Safety: avoid unused var warning
     // ignore: unused_local_variable
@@ -926,6 +1116,6 @@ class Kotak3ReferenceBoardPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant Kotak3ReferenceBoardPainter oldDelegate) => false;
+  bool shouldRepaint(covariant Kotak3ReferenceBoardPainter oldDelegate) =>
+      false;
 }
-

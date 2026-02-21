@@ -1,5 +1,5 @@
 name: scout_os_app
-description: "A new Flutter project."
+description: "Khasyaraka - Platform pembelajaran digital Pramuka terlengkap dengan sistem interaktif, tracking progress, dan aktivitas outdoor."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.2+3
+version: 1.1.0+7
 
 environment:
   sdk: ^3.10.4
@@ -41,6 +41,7 @@ dependencies:
   google_sign_in: ^6.2.0
   http: ^1.6.0
   dio: ^5.4.0
+  cached_network_image: ^3.3.1
   audioplayers: ^6.5.1
   flutter_tts: ^4.0.2
   flutter_svg: ^2.2.3
@@ -48,6 +49,7 @@ dependencies:
   shared_preferences: ^2.2.0
   flutter_custom_clippers: ^2.1.0
   flutter_animate: ^4.5.0
+  flutter_secure_storage: ^9.0.0
   sensors_plus: ^5.0.1
   flutter_compass: ^0.8.1
   flutter_map: ^6.1.0
@@ -61,6 +63,9 @@ dependencies:
   image_picker: ^1.2.1
   pedometer: ^4.1.1
   torch_light: ^1.1.0
+  animated_text_kit: ^4.3.0
+  google_mobile_ads: ^7.0.0
+  in_app_update: ^4.2.5
 
 
 dev_dependencies:
@@ -91,6 +96,8 @@ flutter:
     - assets/icons/cyber/cyber_logo.png
     - assets/icons/production/
     - assets/icons/google/
+    - assets/icons/training/
+    - assets/icons/navbar/
     - assets/images/logo.png
     - assets/images/icon-khasyaraka.png
     - assets/images/tunas_kelapa.png

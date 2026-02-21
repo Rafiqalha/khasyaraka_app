@@ -29,11 +29,15 @@ class ScoutCyberBackground extends StatelessWidget {
         centerTitle: true,
         leading: showBackArrow
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.scoutBrown),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.scoutBrown,
+                ),
                 onPressed: () => Navigator.pop(context),
               )
             : null,
-        title: customTitle ??
+        title:
+            customTitle ??
             (title != null
                 ? Text(
                     title!.toUpperCase(),
@@ -50,7 +54,7 @@ class ScoutCyberBackground extends StatelessWidget {
       body: Stack(
         children: [
           // --- DEKORASI LATAR BELAKANG (Cyber Pattern) ---
-          
+
           // 1. Lingkaran Dekorasi Atas Kanan (Ganti Ungu jadi Kuning Penegak)
           Positioned(
             top: -50,
@@ -61,7 +65,9 @@ class ScoutCyberBackground extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.penegakYellow.withValues(alpha: 0.2), // Tidak pakai const
+                  color: AppColors.penegakYellow.withValues(
+                    alpha: 0.2,
+                  ), // Tidak pakai const
                   width: 2,
                 ),
               ),
@@ -76,7 +82,9 @@ class ScoutCyberBackground extends StatelessWidget {
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: AppColors.hasdukRed.withValues(alpha: 0.1), // Tidak pakai const
+                color: AppColors.hasdukRed.withValues(
+                  alpha: 0.1,
+                ), // Tidak pakai const
                 shape: BoxShape.circle,
               ),
             ),
@@ -90,7 +98,9 @@ class ScoutCyberBackground extends StatelessWidget {
               width: 100,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.scoutBrown.withValues(alpha: 0.05), // Tidak pakai const
+                color: AppColors.scoutBrown.withValues(
+                  alpha: 0.05,
+                ), // Tidak pakai const
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -102,7 +112,9 @@ class ScoutCyberBackground extends StatelessWidget {
               width: 60,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.scoutBrown.withValues(alpha: 0.05), // Tidak pakai const
+                color: AppColors.scoutBrown.withValues(
+                  alpha: 0.05,
+                ), // Tidak pakai const
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -123,9 +135,7 @@ class ScoutCyberBackground extends StatelessWidget {
           ),
 
           // --- KONTEN UTAMA ---
-          SafeArea(
-            child: child,
-          ),
+          SafeArea(child: child),
         ],
       ),
       floatingActionButton: floatingActionButton,

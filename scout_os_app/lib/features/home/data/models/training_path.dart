@@ -20,7 +20,7 @@ class UnitModel {
   });
 
   /// Parse from backend API response
-  /// 
+  ///
   /// Backend structure from /api/v1/training/sections/{id}/path:
   /// ```json
   /// {
@@ -35,9 +35,12 @@ class UnitModel {
     // Parse levels as lessons
     final levelsJson = json['levels'] as List<dynamic>? ?? [];
     final lessons = levelsJson
-        .map((levelJson) => LessonNode.fromBackendJson(levelJson as Map<String, dynamic>))
+        .map(
+          (levelJson) =>
+              LessonNode.fromBackendJson(levelJson as Map<String, dynamic>),
+        )
         .toList();
-    
+
     // Extract section_id from json or from unit_id (e.g., "puk_u1" -> "puk")
     String sectionId = json['section_id'] as String? ?? '';
     if (sectionId.isEmpty) {
@@ -46,7 +49,7 @@ class UnitModel {
         sectionId = unitId.split('_').first;
       }
     }
-    
+
     return UnitModel(
       id: json['order'] as int? ?? 0,
       unitId: json['unit_id'] as String? ?? '',
@@ -75,14 +78,16 @@ class UnitModel {
   factory UnitModel.fromJson(Map<String, dynamic> json) {
     var rawList = json['khasyaraka_training_lessons'] ?? json['lessons'];
     var list = rawList as List? ?? [];
-    
-    List<LessonNode> lessonsList = list.map((i) => LessonNode.fromJson(i)).toList();
+
+    List<LessonNode> lessonsList = list
+        .map((i) => LessonNode.fromJson(i))
+        .toList();
     lessonsList.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
     // Extract unitId from legacy format if available, or generate from id
     String unitId = json['unit_id'] as String? ?? '';
     String sectionId = json['section_id'] as String? ?? '';
-    
+
     if (unitId.isEmpty && json['id'] != null) {
       // Try to extract from lessons if available
       final lessons = (json['lessons'] as List<dynamic>? ?? []);
@@ -99,12 +104,12 @@ class UnitModel {
         }
       }
     }
-    
+
     // Fallback: extract section from unitId
     if (sectionId.isEmpty && unitId.contains('_')) {
       sectionId = unitId.split('_').first;
     }
-    
+
     return UnitModel(
       id: json['id'] ?? 0,
       unitId: unitId,
@@ -155,7 +160,7 @@ class LessonNode {
   });
 
   /// Parse from backend API response
-  /// 
+  ///
   /// Backend structure from /api/v1/training/sections/{id}/path:
   /// ```json
   /// {
@@ -171,18 +176,18 @@ class LessonNode {
     final levelNumber = json['level_number'] as int? ?? 1;
     final difficulty = json['difficulty'] as String? ?? 'easy';
     final backendStatus = json['status'] as String? ?? 'LOCKED';
-    
+
     // Map backend status to frontend status
     // Backend: "LOCKED" | "UNLOCKED" | "COMPLETED"
     // Frontend: "LOCKED" | "UNLOCKED" | "COMPLETED"
     String status;
     final normalizedStatus = backendStatus.toUpperCase();
-    
+
     switch (normalizedStatus) {
-      case 'UNLOCKED': 
+      case 'UNLOCKED':
       case 'AVAILABLE': // Legacy support
       case 'IN_PROGRESS': // Legacy/Alt support
-        status = 'UNLOCKED'; 
+        status = 'UNLOCKED';
         break;
       case 'COMPLETED':
         status = 'COMPLETED';
@@ -192,7 +197,7 @@ class LessonNode {
         status = 'LOCKED';
         break;
     }
-    
+
     return LessonNode(
       id: levelNumber,
       pathId: 1, // Will be set by parent unit
@@ -208,7 +213,16 @@ class LessonNode {
 
   /// Get icon based on level number
   static String _getIconForLevel(int levelNumber) {
-    const icons = ['square', 'grass', 'radio', 'signal', 'school', 'link', 'anchor', 'history'];
+    const icons = [
+      'square',
+      'grass',
+      'radio',
+      'signal',
+      'school',
+      'link',
+      'anchor',
+      'history',
+    ];
     return icons[(levelNumber - 1) % icons.length];
   }
 

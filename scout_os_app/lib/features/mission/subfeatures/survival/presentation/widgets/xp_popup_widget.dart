@@ -44,12 +44,7 @@ class _XpPopupWidgetState extends State<XpPopupWidget>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: const Offset(0, -1.0),
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.2).animate(
       CurvedAnimation(
@@ -83,7 +78,10 @@ class _XpPopupWidgetState extends State<XpPopupWidget>
             child: ScaleTransition(
               scale: _scaleAnimation,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: widget.isLevelUp
                       ? const Color(0xFFFFD600).withValues(alpha: 0.95)
@@ -103,10 +101,12 @@ class _XpPopupWidgetState extends State<XpPopupWidget>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.isLevelUp) ...[
-                      Icon(
-                        Icons.star,
+                      Image.asset(
+                        'assets/icons/training/star.png',
+                        height: 32,
+                        width: 32,
                         color: Colors.black,
-                        size: 32,
+                        colorBlendMode: BlendMode.srcIn,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -142,7 +142,9 @@ class _XpPopupWidgetState extends State<XpPopupWidget>
                           style: GoogleFonts.poppins(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
-                            color: widget.isLevelUp ? Colors.black : Colors.white,
+                            color: widget.isLevelUp
+                                ? Colors.black
+                                : Colors.white,
                           ),
                         ),
                       ],

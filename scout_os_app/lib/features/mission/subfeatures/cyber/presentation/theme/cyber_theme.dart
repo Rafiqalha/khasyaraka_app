@@ -5,13 +5,13 @@ class CyberTheme {
   // Deep Dark Blue Background
   static const Color background = Color(0xFF0A0E27);
   static const Color surface = Color(0xFF1A1F3A);
-  
+
   // Neon Colors
   static const Color neonCyan = Color(0xFF00FFFF);
   static const Color matrixGreen = Color(0xFF00FF88);
   static const Color alertOrange = Color(0xFFFF6B35);
   static const Color neonYellow = Color(0xFFFFD600);
-  
+
   // Legacy colors (for compatibility)
   static const Color primary = neonCyan;
   static const Color onPrimary = Color(0xFF000000);
