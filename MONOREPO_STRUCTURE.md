@@ -17,7 +17,7 @@ khasyaraka/
 ## 📱 Frontend: `scout_os_app/`
 
 **Technology:** Flutter (Dart)  
-**Platform:** Android, iOS, Web
+**Platform:** Android, iOS, Web dll
 
 ### Struktur Utama
 
