@@ -1,0 +1,45 @@
+package leaderboard
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+)
+
+type Handler struct {
+	svc *Service
+}
+
+func NewHandler(svc *Service) *Handler {
+	return &Handler{svc: svc}
+}
+
+func (h *Handler) GetTop(c *gin.Context) {
+	limit := 20
+	if l := c.Query("limit"); l != "" {
+		if n, err := strconv.Atoi(l); err == nil && n > 0 {
+			limit = n
+		}
+	}
+	entries, err := h.svc.GetTop(limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": entries})
+}
+
+func (h *Handler) GetRank(c *gin.Context) {
+	uid, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
+	rank, err := h.svc.GetUserRank(uid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
+		return
+	}
+	if rank == nil {
+		c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"rank": nil, "total_xp": 0}})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": rank})
+}

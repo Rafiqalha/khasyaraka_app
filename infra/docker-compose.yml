@@ -1,27 +1,55 @@
 version: '3.8'
 
 services:
-  # Database PostgreSQL
   db:
     image: postgres:15-alpine
-    container_name: scout_os_db
-    restart: always
+    container_name: khasyaraka_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: scout_admin
       POSTGRES_PASSWORD: scout_password_local
-      POSTGRES_DB: scout_os_local
+      POSTGRES_DB: scout_os
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scout_admin -d scout_os"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Cache Redis
   redis:
     image: redis:alpine
-    container_name: scout_os_redis
-    restart: always
+    container_name: khasyaraka_redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: khasyaraka_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      ENVIRONMENT: development
+      DATABASE_URL: postgres://scout_admin:scout_password_local@db:5432/scout_os?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: dev-secret-key-change-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:

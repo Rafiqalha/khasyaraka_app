@@ -38,7 +38,7 @@ class UserRepository extends BaseRepository<UserStats> {
 
       // ✅ API Call Logic
       apiCall: () async {
-        final response = await _dio.get('/users/me');
+        final response = await _dio.get('/me');
         final data = response.data['data'];
 
         if (data == null) throw Exception('No data from API');

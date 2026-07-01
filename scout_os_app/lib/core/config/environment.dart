@@ -4,10 +4,10 @@ class Environment {
   // Production API URL (Cloud Run)
   // - Production: https://khasyaraka-890949539640.asia-southeast2.run.app/api/v1
   // - Development: http://192.168.100.95:8000/api/v1 (local dev)
-  static const String apiBaseUrl =
-      "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1";
   // static const String apiBaseUrl =
-  //     "http://192.168.100.95:8000/api/v1"; // LOCAL DEV
+  //     "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1";
+  static const String apiBaseUrl =
+      "http://168.110.201.112:8080/api/v1"; // ORACLE CLOUD
 
   /// Resolve a URL that may be relative (e.g. /api/v1/users/me/avatar/file.jpg)
   /// to a full URL by prepending the API host.

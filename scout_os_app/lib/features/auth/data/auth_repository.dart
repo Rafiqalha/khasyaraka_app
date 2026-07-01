@@ -241,6 +241,9 @@ class AuthRepository {
         if (error is String) {
           return error;
         }
+        if (error is Map<String, dynamic> && error.containsKey('message')) {
+          return error['message'] as String? ?? 'Data tidak valid.';
+        }
       }
 
       // Handle nested error objects
@@ -286,7 +289,7 @@ class AuthRepository {
     }
 
     try {
-      final response = await _dio.get('/users/me');
+      final response = await _dio.get('/me');
 
       // Handle nested response structure: { "success": true, "data": { ... } }
       final responseData = response.data as Map<String, dynamic>;

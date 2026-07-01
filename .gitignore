@@ -18,3 +18,4 @@ postgres_data/
 
 # Deprecated data files (use modular JSON structure instead)
 scout_os_backend/scout_data.json
+tmp/

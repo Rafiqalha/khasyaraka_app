@@ -132,7 +132,7 @@ class ProfileRepository {
 
       debugPrint('📊 [PROFILE] Fetching user stats from API...');
 
-      final response = await _dio.get('/users/me');
+      final response = await _dio.get('/me');
 
       // Backend returns: { "success": true, "data": {...}, "message": "..." }
       final responseData = response.data as Map<String, dynamic>;
@@ -211,7 +211,7 @@ class ProfileRepository {
     Future(() async {
       try {
         debugPrint('🔄 [SWR] Background revalidating user stats...');
-        final response = await _dio.get('/users/me');
+        final response = await _dio.get('/me');
         final responseData = response.data as Map<String, dynamic>;
         if (responseData['success'] == true && responseData['data'] != null) {
           final data = responseData['data'] as Map<String, dynamic>;
@@ -252,7 +252,7 @@ class ProfileRepository {
     try {
       debugPrint('📝 [PROFILE] Updating name on server: $newName');
       final response = await _dio.patch(
-        '/users/me/profile',
+        '/me/profile',
         data: {'full_name': newName},
       );
       final responseData = response.data as Map<String, dynamic>;
@@ -283,7 +283,7 @@ class ProfileRepository {
           filename: imageFile.path.split('/').last,
         ),
       });
-      final response = await _dio.post('/users/me/avatar', data: formData);
+      final response = await _dio.post('/me/avatar', data: formData);
       final responseData = response.data as Map<String, dynamic>;
       if (responseData['success'] == true && responseData['data'] != null) {
         final data = responseData['data'] as Map<String, dynamic>;
@@ -329,7 +329,7 @@ class ProfileRepository {
       );
 
       final response = await _dio.put(
-        '/users/me/stats',
+        '/me/stats',
         data: {
           // ✅ CRITICAL: Do NOT send total_xp - XP is updated via POST /training/progress/submit only
           // 'total_xp': newXp, // ❌ REMOVED: XP must ONLY come from backend via submit_progress
