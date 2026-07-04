@@ -44,11 +44,14 @@ class AuthRepository {
       // Fetch user profile
       final user = await getCurrentUser();
 
+      final mustChangePassword = data['must_change_password'] == true;
+
       return AuthResponse(
         success: true,
         token: token,
         tokenType: tokenType,
         user: user,
+        mustChangePassword: mustChangePassword,
       );
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
@@ -142,11 +145,14 @@ class AuthRepository {
       // Fetch user profile
       final user = await getCurrentUser();
 
+      final mustChangePassword = data['must_change_password'] == true;
+
       return AuthResponse(
         success: true,
         token: token,
         tokenType: tokenType,
         user: user,
+        mustChangePassword: mustChangePassword,
       );
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
@@ -353,11 +359,14 @@ class AuthRepository {
       // Fetch user profile
       final user = await getCurrentUser();
 
+      final mustChangePassword = data['must_change_password'] == true;
+
       return AuthResponse(
         success: true,
         token: token,
         tokenType: tokenType,
         user: user,
+        mustChangePassword: mustChangePassword,
       );
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
@@ -472,11 +481,13 @@ class AuthResponse {
   final String token;
   final String tokenType;
   final ApiUser user;
+  final bool mustChangePassword;
 
   AuthResponse({
     required this.success,
     required this.token,
     required this.tokenType,
     required this.user,
+    this.mustChangePassword = false,
   });
 }

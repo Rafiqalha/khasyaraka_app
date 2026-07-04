@@ -58,8 +58,69 @@ class LoginController extends ChangeNotifier {
       await Future.delayed(const Duration(milliseconds: 200));
 
       if (context.mounted) {
-        debugPrint('🚀 [LOGIN] Navigating to home...');
-        Navigator.pushReplacementNamed(context, '/penegak');
+        if (authController.mustChangePassword) {
+          debugPrint('🚀 [LOGIN] Navigating to change password...');
+          Navigator.pushReplacementNamed(context, '/change-password');
+        } else {
+          debugPrint('🚀 [LOGIN] Navigating to home...');
+          Navigator.pushReplacementNamed(context, '/penegak');
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ [LOGIN] Error: $e');
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorMessage ?? 'Login Gagal'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loginWithUsername(
+      BuildContext context, String username, String password) async {
+    if (_isLoading) return;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      debugPrint('🔵 [LOGIN] Authenticating with backend (Username)...');
+      final authController = context.read<AuthController>();
+      final success = await authController.loginWithUsername(username, password);
+
+      if (!success) {
+        throw Exception(
+          authController.errorMessage ?? 'Username atau password salah',
+        );
+      }
+
+      debugPrint('✅ [LOGIN] Backend authentication successful');
+
+      // Cleanup cache untuk fresh data
+      await LocalCacheService.clear();
+      if (!context.mounted) return;
+
+      // Force refresh & navigate
+      authController.notifyListeners();
+      await Future.delayed(const Duration(milliseconds: 200));
+
+      if (context.mounted) {
+        if (authController.mustChangePassword) {
+          debugPrint('🚀 [LOGIN] Navigating to change password...');
+          Navigator.pushReplacementNamed(context, '/change-password');
+        } else {
+          debugPrint('🚀 [LOGIN] Navigating to home...');
+          Navigator.pushReplacementNamed(context, '/penegak');
+        }
       }
     } catch (e) {
       debugPrint('❌ [LOGIN] Error: $e');

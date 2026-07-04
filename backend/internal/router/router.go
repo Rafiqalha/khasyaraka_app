@@ -44,6 +44,13 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 		authGroup.POST("/google", authH.GoogleSignIn)
 	}
 
+	// Auth routes that require authentication
+	authProtected := api.Group("/auth")
+	authProtected.Use(middleware.Auth(cfg.JWTSecret))
+	{
+		authProtected.POST("/change-password", authH.ChangePassword)
+	}
+
 	usersRepo := users.NewRepository(db)
 	usersSvc := users.NewService(usersRepo)
 	usersH := users.NewHandler(usersSvc)

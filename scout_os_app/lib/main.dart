@@ -9,6 +9,7 @@ import 'features/auth/logic/login_controller.dart';
 
 import 'package:scout_os_app/features/auth/presentation/login_screen.dart';
 import 'package:scout_os_app/features/auth/presentation/register_page.dart';
+import 'package:scout_os_app/features/auth/presentation/change_password_screen.dart';
 import 'package:scout_os_app/core/widgets/duo_main_scaffold.dart';
 import 'package:scout_os_app/features/intro/logic/intro_controller.dart';
 import 'package:scout_os_app/features/intro/presentation/pages/onboarding_page.dart';
@@ -23,11 +24,16 @@ import 'package:scout_os_app/core/services/local_cache_service.dart';
 import 'package:scout_os_app/core/services/in_app_update_service.dart';
 import 'package:scout_os_app/core/network/api_dio_provider.dart';
 import 'package:scout_os_app/shared/theme/theme_controller.dart'; // [NEW]
+import 'package:firebase_core/firebase_core.dart';
+import 'package:scout_os_app/core/services/analytics_service.dart';
 
 void main() async {
   // Force rebuild
   // Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
 
   // Initialize local cache (Hive) for SWR pattern
   await LocalCacheService.init();
@@ -139,6 +145,9 @@ class ScoutOSApp extends StatelessWidget {
                 // Route based on auth state
                 final isLoggedIn = snapshot.data!;
                 if (isLoggedIn) {
+                  if (authController.mustChangePassword) {
+                    return const ChangePasswordScreen();
+                  }
                   return const DuoMainScaffold();
                 } else {
                   return const OnboardingPage();
@@ -156,9 +165,13 @@ class ScoutOSApp extends StatelessWidget {
               '/onboarding': (context) => const OnboardingPage(),
               '/login': (context) => const LoginScreen(),
               '/register': (context) => const RegisterPage(),
+              '/change-password': (context) => const ChangePasswordScreen(),
               '/dashboard': (context) => const DuoMainScaffold(),
               '/penegak': (context) => const DuoMainScaffold(),
             },
+            navigatorObservers: [
+              AnalyticsService.observer,
+            ],
             onGenerateRoute: AppRoutes.generateRoute,
           );
         },

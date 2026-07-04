@@ -105,12 +105,13 @@ func (s *Service) Register(name, username, password string) (*AuthResponse, erro
 	}
 
 	return &AuthResponse{
-		AccessToken: token,
-		TokenType:   "bearer",
-		ID:          user.ID,
-		Name:        user.FullName.String,
-		Username:    user.Email,
-		IsPro:       false,
+		AccessToken:        token,
+		TokenType:          "bearer",
+		ID:                 user.ID,
+		Name:               user.FullName.String,
+		Username:            user.Email,
+		IsPro:              false,
+		MustChangePassword: user.MustChangePassword,
 	}, nil
 }
 
@@ -139,12 +140,13 @@ func (s *Service) Login(username, password string) (*AuthResponse, error) {
 	}
 
 	return &AuthResponse{
-		AccessToken: token,
-		TokenType:   "bearer",
-		ID:          user.ID,
-		Name:        user.FullName.String,
-		Username:    user.Email,
-		IsPro:       false,
+		AccessToken:        token,
+		TokenType:          "bearer",
+		ID:                 user.ID,
+		Name:               user.FullName.String,
+		Username:            user.Email,
+		IsPro:              false,
+		MustChangePassword: user.MustChangePassword,
 	}, nil
 }
 
@@ -177,12 +179,13 @@ func (s *Service) GoogleSignIn(idToken string) (*GoogleAuthResponse, error) {
 		}
 
 		return &GoogleAuthResponse{
-			ID:          user.ID,
-			Email:       user.Email,
-			FullName:    user.FullName.String,
-			PictureURL:  user.PictureURL,
-			AccessToken: token,
-			TokenType:   "bearer",
+			ID:                 user.ID,
+			Email:              user.Email,
+			FullName:           user.FullName.String,
+			PictureURL:         user.PictureURL,
+			AccessToken:        token,
+			TokenType:          "bearer",
+			MustChangePassword: user.MustChangePassword,
 		}, nil
 	}
 
@@ -202,11 +205,37 @@ func (s *Service) GoogleSignIn(idToken string) (*GoogleAuthResponse, error) {
 	}
 
 	return &GoogleAuthResponse{
-		ID:          newUser.ID,
-		Email:       newUser.Email,
-		FullName:    newUser.FullName.String,
-		PictureURL:  newUser.PictureURL,
-		AccessToken: token,
-		TokenType:   "bearer",
+		ID:                 newUser.ID,
+		Email:              newUser.Email,
+		FullName:           newUser.FullName.String,
+		PictureURL:         newUser.PictureURL,
+		AccessToken:        token,
+		TokenType:          "bearer",
+		MustChangePassword: newUser.MustChangePassword,
 	}, nil
+}
+
+func (s *Service) ChangePassword(userID int64, oldPassword, newPassword string) error {
+	user, err := s.repo.GetByID(userID)
+	if err != nil {
+		return fmt.Errorf("find user: %w", err)
+	}
+	if user == nil {
+		return fmt.Errorf("user not found")
+	}
+
+	if !s.verifyPassword(oldPassword, user.HashedPassword) {
+		return fmt.Errorf("password lama salah")
+	}
+
+	if len(newPassword) < 6 {
+		return fmt.Errorf("password baru minimal 6 karakter")
+	}
+
+	hashed, err := s.hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.UpdatePassword(userID, hashed)
 }

@@ -66,6 +66,8 @@ dependencies:
   animated_text_kit: ^4.3.0
   google_mobile_ads: ^7.0.0
   in_app_update: ^4.2.5
+  firebase_core: ^4.11.0
+  firebase_analytics: ^12.4.3
 
 
 dev_dependencies:

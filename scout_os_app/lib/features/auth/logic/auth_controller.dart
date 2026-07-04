@@ -16,11 +16,13 @@ class AuthController extends ChangeNotifier {
   String? _errorMessage;
   ApiUser? _currentUser;
   bool _isInitialized = false;
+  bool _mustChangePassword = false;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   ApiUser? get currentUser => _currentUser;
   bool get isInitialized => _isInitialized;
+  bool get mustChangePassword => _mustChangePassword;
 
   // Initialize auth service with auto-login check
   AuthController() {
@@ -71,6 +73,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await _authRepo.googleSignIn(idToken: idToken);
       _currentUser = response.user;
+      _mustChangePassword = response.mustChangePassword;
 
       // Save user data to secure storage for persistence
       await SecureStorageService.saveUserData(_currentUser!);
@@ -114,6 +117,7 @@ class AuthController extends ChangeNotifier {
         password: password,
       );
       _currentUser = response.user;
+      _mustChangePassword = response.mustChangePassword;
 
       // Save user data to secure storage for persistence
       await SecureStorageService.saveUserData(_currentUser!);
@@ -154,6 +158,7 @@ class AuthController extends ChangeNotifier {
         gugusDepan: gugusDepan,
       );
       _currentUser = response.user;
+      _mustChangePassword = response.mustChangePassword;
 
       // Save user data to secure storage for persistence
       await SecureStorageService.saveUserData(_currentUser!);
