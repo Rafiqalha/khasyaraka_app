@@ -93,7 +93,30 @@ class LeaderboardRepository {
       }
 
       if (responseData['success'] == true && responseData['data'] != null) {
-        final data = responseData['data'] as Map<String, dynamic>;
+        final rawData = responseData['data'];
+        Map<String, dynamic> data;
+
+        if (rawData is List) {
+          data = {
+            'top_users': rawData,
+            'my_rank': null,
+          };
+
+          // Fetch my_rank separately since backend separates them
+          try {
+            final token = await ApiDioProvider.getToken();
+            if (token != null && token.isNotEmpty) {
+              final rankResponse = await _dio.get('/leaderboard/me');
+              if (rankResponse.data['success'] == true && rankResponse.data['data'] != null) {
+                data['my_rank'] = rankResponse.data['data'];
+              }
+            }
+          } catch (e) {
+            debugPrint('⚠️ [LEADERBOARD_REPO] Failed to fetch my_rank: $e');
+          }
+        } else {
+          data = rawData as Map<String, dynamic>;
+        }
 
         debugPrint(
           '✅ [LEADERBOARD_REPO] Response structure OK: success=true, data is Map',

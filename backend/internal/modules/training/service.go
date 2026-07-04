@@ -57,6 +57,7 @@ func (s *Service) GetSectionDetail(id string, userID *int64) (*Section, error) {
 					ID:             l.ID,
 					UnitID:         l.UnitID,
 					LevelNumber:    l.LevelNumber,
+					Title:          fmt.Sprintf("Level %d", l.LevelNumber),
 					Difficulty:     l.Difficulty,
 					TotalQuestions: l.TotalQuestions,
 					MinCorrect:     l.MinCorrect,
@@ -88,6 +89,7 @@ func (s *Service) GetSectionDetail(id string, userID *int64) (*Section, error) {
 					ID:             l.ID,
 					UnitID:         l.UnitID,
 					LevelNumber:    l.LevelNumber,
+					Title:          fmt.Sprintf("Level %d", l.LevelNumber),
 					Difficulty:     l.Difficulty,
 					TotalQuestions: l.TotalQuestions,
 					MinCorrect:     l.MinCorrect,
@@ -134,6 +136,7 @@ func (s *Service) GetUnitDetail(id string, userID *int64) (*Unit, error) {
 			ID:             l.ID,
 			UnitID:         l.UnitID,
 			LevelNumber:    l.LevelNumber,
+			Title:          fmt.Sprintf("Level %d", l.LevelNumber),
 			Difficulty:     l.Difficulty,
 			TotalQuestions: l.TotalQuestions,
 			MinCorrect:     l.MinCorrect,
@@ -188,6 +191,109 @@ func (s *Service) GetLevelQuestions(id string, userID int64) (*Level, []Question
 	return l, questions, nil
 }
 
+func (s *Service) GetQuestionsByUnit(unitID string) ([]Question, error) {
+	questions, err := s.repo.GetQuestionsByUnit(unitID)
+	if err != nil {
+		return nil, err
+	}
+	for i := range questions {
+		questions[i].Payload = stripCorrectAnswer(questions[i].Payload)
+	}
+	return questions, nil
+}
+
+func (s *Service) GetQuestionsByLevel(levelID string) ([]Question, error) {
+	questions, err := s.repo.GetQuestionsByLevel(levelID)
+	if err != nil {
+		return nil, err
+	}
+	for i := range questions {
+		questions[i].Payload = stripCorrectAnswer(questions[i].Payload)
+	}
+	return questions, nil
+}
+
+func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*LearningPathResponse, error) {
+	sec, err := s.repo.GetSectionByID(sectionID)
+	if err != nil {
+		return nil, err
+	}
+	if sec == nil {
+		return nil, nil
+	}
+
+	units, err := s.repo.GetUnitsBySection(sectionID)
+	if err != nil {
+		return nil, err
+	}
+
+	var allLevelIDs []string
+	learningUnits := make([]LearningUnit, len(units))
+	
+	for i, u := range units {
+		levels, err := s.repo.GetLevelsByUnit(u.ID)
+		if err != nil {
+			return nil, err
+		}
+		
+		levelResps := make([]LevelResp, len(levels))
+		for j, l := range levels {
+			allLevelIDs = append(allLevelIDs, l.ID)
+			levelResps[j] = LevelResp{
+				ID:             l.ID,
+				UnitID:         l.UnitID,
+				LevelNumber:    l.LevelNumber,
+				Title:          fmt.Sprintf("Level %d", l.LevelNumber),
+				Difficulty:     l.Difficulty,
+				TotalQuestions: l.TotalQuestions,
+				MinCorrect:     l.MinCorrect,
+				XpReward:       l.XpReward,
+				Status:         "LOCKED", // default
+			}
+			if l.LevelNumber == 1 {
+				levelResps[j].Status = "AVAILABLE"
+			}
+		}
+		
+		learningUnits[i] = LearningUnit{
+			ID:          u.ID,
+			SectionID:   sectionID,
+			Title:       u.Title,
+			Ord:         u.Ord,
+			TotalLevels: u.TotalLevels,
+			Levels:      levelResps,
+		}
+	}
+
+	userProgress := make(map[string]string)
+	if userID != nil {
+		progressMap, err := s.repo.GetUserProgressByLevelIDs(*userID, allLevelIDs)
+		if err != nil {
+			return nil, err
+		}
+		for _, up := range progressMap {
+			userProgress[up.LevelID] = up.Status
+		}
+		
+		// Update statuses in the response tree
+		for i := range learningUnits {
+			for j := range learningUnits[i].Levels {
+				lID := learningUnits[i].Levels[j].ID
+				if status, ok := userProgress[lID]; ok {
+					learningUnits[i].Levels[j].Status = status
+				}
+			}
+		}
+	}
+
+	return &LearningPathResponse{
+		SectionID:    sec.ID,
+		SectionTitle: sec.Title,
+		Units:        learningUnits,
+		UserProgress: userProgress,
+	}, nil
+}
+
 // SubmitResult holds the result of a level submission including streak info.
 type SubmitResult struct {
 	Score         int                 `json:"score"`
@@ -196,7 +302,7 @@ type SubmitResult struct {
 	Streak        *users.StreakResult  `json:"streak,omitempty"`
 }
 
-func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (*SubmitResult, error) {
+func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (map[string]interface{}, error) {
 	l, err := s.repo.GetLevelByID(levelID)
 	if err != nil {
 		return nil, err
@@ -210,34 +316,29 @@ func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (
 		return nil, err
 	}
 
-	answerMap := make(map[string]string, len(req.Answers))
-	for _, a := range req.Answers {
-		answerMap[a.QuestionID] = a.Answer
-	}
-
+	// Calculate XP earned purely from correct_question_ids to prevent manipulation
 	correct := 0
 	xpEarned := 0
+	
+	correctIDs := make(map[string]bool)
+	for _, id := range req.CorrectQuestionIDs {
+		correctIDs[id] = true
+	}
+	
 	for _, q := range questions {
-		if userAns, ok := answerMap[q.ID]; ok {
-			payload, ok := q.Payload.(map[string]interface{})
-			if ok {
-				if correctAns, exists := payload["correct_answer"]; exists {
-					if fmt.Sprintf("%v", correctAns) == userAns {
-						correct++
-						xpEarned += q.Xp
-					}
-				}
-			}
+		if correctIDs[q.ID] {
+			correct++
+			xpEarned += q.Xp
 		}
 	}
 
 	total := len(questions)
-	score := 0
-	if total > 0 {
+	score := req.Score // take score from client, but XP is verified
+	if total > 0 && req.Score == 0 && correct > 0 {
 		score = (correct * 100) / total
 	}
 
-	if err := s.repo.UpsertProgress(userID, levelID, score, correct, total, xpEarned, req.TimeSpent); err != nil {
+	if err := s.repo.UpsertProgress(userID, levelID, score, correct, total, xpEarned, req.TimeSpentSec); err != nil {
 		return nil, err
 	}
 
@@ -255,14 +356,26 @@ func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (
 	if err == nil {
 		streakResult = sr
 	}
-	// Don't fail the submission if streak update fails
+	
+	// Create result map that matches the Python backend response expected by Flutter
+	result := map[string]interface{}{
+		"success": true,
+		"level_id": levelID,
+		"status": "COMPLETED",
+		"score": score,
+		"correct_answers": correct,
+		"total_questions": total,
+		"xp_earned": xpEarned,
+		"total_xp": 0, // In full app we might fetch updated user total_xp here
+	}
+	
+	if streakResult != nil {
+		result["streak"] = streakResult.Streak
+		result["longest_streak"] = streakResult.LongestStreak
+		result["last_active_date"] = streakResult.LastActiveDate
+	}
 
-	return &SubmitResult{
-		Score:    score,
-		Correct:  correct,
-		XpEarned: xpEarned,
-		Streak:   streakResult,
-	}, nil
+	return result, nil
 }
 
 func (s *Service) GetProgress(userID int64) ([]ProgressSummary, error) {

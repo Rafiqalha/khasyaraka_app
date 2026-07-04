@@ -5,16 +5,22 @@ type Section struct {
 	Title       string `json:"title" db:"title"`
 	Description string `json:"description" db:"description"`
 	Tier        string `json:"tier" db:"tier"`
-	Ord         int    `json:"ord" db:"ord"`
+	Ord         int    `json:"order" db:"ord"`
 	IsActive    bool   `json:"is_active" db:"is_active"`
+	CreatedAt   string `json:"created_at,omitempty" db:"created_at"`
 	Units       []Unit `json:"units,omitempty"`
+}
+
+type SectionListResponse struct {
+	Total    int       `json:"total"`
+	Sections []Section `json:"sections"`
 }
 
 type Unit struct {
 	ID          string      `json:"id" db:"id"`
 	SectionID   string      `json:"section_id" db:"section_id"`
 	Title       string      `json:"title" db:"title"`
-	Description string      `json:"description" db:"description"`
+	Description *string     `json:"description" db:"description"`
 	Ord         int         `json:"ord" db:"ord"`
 	TotalLevels int         `json:"total_levels" db:"total_levels"`
 	IsActive    bool        `json:"is_active" db:"is_active"`
@@ -34,9 +40,10 @@ type Level struct {
 }
 
 type LevelResp struct {
-	ID             string `json:"id"`
+	ID             string `json:"level_id"`
 	UnitID         string `json:"unit_id"`
 	LevelNumber    int    `json:"level_number"`
+	Title          string `json:"title,omitempty"`
 	Difficulty     string `json:"difficulty"`
 	TotalQuestions int    `json:"total_questions"`
 	MinCorrect     int    `json:"min_correct"`
@@ -69,8 +76,12 @@ type UserProgress struct {
 }
 
 type SubmitRequest struct {
-	Answers   []AnswerItem `json:"answers" binding:"required"`
-	TimeSpent int          `json:"time_spent_seconds" binding:"required"`
+	LevelID            string   `json:"level_id" binding:"required"`
+	Score              int      `json:"score"`
+	TotalQuestions     int      `json:"total_questions"`
+	CorrectAnswers     int      `json:"correct_answers"`
+	CorrectQuestionIDs []string `json:"correct_question_ids"`
+	TimeSpentSec       int      `json:"time_spent_seconds"`
 }
 
 type AnswerItem struct {
@@ -83,4 +94,20 @@ type ProgressSummary struct {
 	SectionTitle string `json:"section_title" db:"section_title"`
 	Completed    int    `json:"completed" db:"completed"`
 	Total        int    `json:"total" db:"total"`
+}
+
+type LearningPathResponse struct {
+	SectionID    string              `json:"section_id"`
+	SectionTitle string              `json:"section_title"`
+	Units        []LearningUnit      `json:"units"`
+	UserProgress map[string]string   `json:"user_progress"`
+}
+
+type LearningUnit struct {
+	ID          string      `json:"unit_id"`
+	SectionID   string      `json:"section_id,omitempty"`
+	Title       string      `json:"unit_title"`
+	Ord         int         `json:"order"`
+	TotalLevels int         `json:"total_levels"`
+	Levels      []LevelResp `json:"levels"`
 }

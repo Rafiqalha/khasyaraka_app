@@ -150,13 +150,19 @@ class _QuizPageState extends State<QuizPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.error_outline,
+                        controller.errorMessage!.contains('belum memiliki soal')
+                            ? Icons.construction_rounded
+                            : Icons.error_outline,
                         size: 80,
-                        color: AppColors.alertRed,
+                        color: controller.errorMessage!.contains('belum memiliki soal')
+                            ? AppColors.primary
+                            : AppColors.alertRed,
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Oops! Terjadi Kesalahan',
+                        controller.errorMessage!.contains('belum memiliki soal')
+                            ? 'Materi Segera Hadir!'
+                            : 'Oops! Terjadi Kesalahan',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

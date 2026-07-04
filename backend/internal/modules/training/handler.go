@@ -47,7 +47,10 @@ func (h *Handler) ListSections(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": sections})
+	c.JSON(http.StatusOK, SectionListResponse{
+		Total:    len(sections),
+		Sections: sections,
+	})
 }
 
 func (h *Handler) GetSection(c *gin.Context) {
@@ -93,8 +96,48 @@ func (h *Handler) GetLevel(c *gin.Context) {
 	}})
 }
 
-func (h *Handler) SubmitLevel(c *gin.Context) {
+func (h *Handler) GetUnitQuestions(c *gin.Context) {
 	id := c.Param("id")
+
+	questions, err := h.svc.GetQuestionsByUnit(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "success": false})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "questions": questions})
+}
+
+func (h *Handler) GetLevelQuestions(c *gin.Context) {
+	id := c.Param("id")
+
+	questions, err := h.svc.GetQuestionsByLevel(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "success": false})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "questions": questions})
+}
+
+func (h *Handler) GetLearningPath(c *gin.Context) {
+	id := c.Param("id")
+	uid := userIDFromCtx(c) // Optional auth
+
+	path, err := h.svc.GetLearningPathForSection(id, uid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "success": false})
+		return
+	}
+	if path == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "section not found", "success": false})
+		return
+	}
+
+	c.JSON(http.StatusOK, path) // Flutter expects exactly LearningPathResponse shape at root
+}
+
+func (h *Handler) SubmitProgress(c *gin.Context) {
 	uid, ok := requireUserID(c)
 	if !ok {
 		return
@@ -106,17 +149,13 @@ func (h *Handler) SubmitLevel(c *gin.Context) {
 		return
 	}
 
-	result, err := h.svc.SubmitLevel(uid, id, req)
+	result, err := h.svc.SubmitLevel(uid, req.LevelID, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "success": false})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    result,
-		"message": "Level submitted",
-	})
+	c.JSON(http.StatusOK, result)
 }
 
 func (h *Handler) GetProgress(c *gin.Context) {

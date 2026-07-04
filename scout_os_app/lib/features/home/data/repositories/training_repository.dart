@@ -167,29 +167,9 @@ class TrainingRepository {
     final cacheKey = '${LocalCacheService.keyUnitsPrefix}$sectionId';
 
     try {
-      // ✅ SWR: Try cached data first
-      final cachedData = await LocalCacheService.get<dynamic>(cacheKey);
-      if (cachedData != null) {
-        debugPrint('📦 [SWR] Returning cached units for section: $sectionId');
-
-        final Map<String, dynamic> pathData = cachedData is String
-            ? jsonDecode(cachedData) as Map<String, dynamic>
-            : cachedData as Map<String, dynamic>;
-        final units =
-            (pathData['units'] as List<dynamic>?)
-                ?.map(
-                  (unitJson) => UnitModel.fromBackendJson(
-                    unitJson as Map<String, dynamic>,
-                  ),
-                )
-                .toList() ??
-            [];
-
-        // Revalidate in background
-        _revalidateUnitsInBackground(sectionId);
-
-        return units;
-      }
+      // 🚫 DISABLED CACHE READ TEMPORARILY TO BYPASS POISONED CACHE
+      // final cachedData = await LocalCacheService.get<dynamic>(cacheKey);
+      // if (cachedData != null) { ... }
 
       // No cache - fetch from API
       debugPrint('🌐 [SWR] Fetching units for section: $sectionId from API...');
@@ -211,17 +191,21 @@ class TrainingRepository {
       final staleCache = await LocalCacheService.get<dynamic>(cacheKey);
       if (staleCache != null) {
         debugPrint('📦 [SWR] Returning stale cache for section: $sectionId');
-        final Map<String, dynamic> pathData = staleCache is String
-            ? jsonDecode(staleCache) as Map<String, dynamic>
-            : staleCache as Map<String, dynamic>;
-        return (pathData['units'] as List<dynamic>?)
-                ?.map(
-                  (unitJson) => UnitModel.fromBackendJson(
-                    unitJson as Map<String, dynamic>,
-                  ),
-                )
-                .toList() ??
-            [];
+        try {
+          final Map<String, dynamic> pathData = staleCache is String
+              ? jsonDecode(staleCache) as Map<String, dynamic>
+              : staleCache as Map<String, dynamic>;
+          return (pathData['units'] as List<dynamic>?)
+                  ?.map(
+                    (unitJson) => UnitModel.fromBackendJson(
+                      unitJson as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList() ??
+              [];
+        } catch (e) {
+          debugPrint('⚠️ [SWR] Offline stale cache is poisoned: $e');
+        }
       }
       rethrow;
     }

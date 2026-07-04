@@ -18,7 +18,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 
 func (r *Repository) GetActiveSections() ([]Section, error) {
 	var sections []Section
-	err := r.db.Select(&sections, "SELECT id, title, description, tier, ord, is_active FROM training_sections WHERE is_active = TRUE ORDER BY ord")
+	err := r.db.Select(&sections, "SELECT id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE is_active = TRUE ORDER BY ord")
 	if err != nil {
 		return nil, fmt.Errorf("get sections: %w", err)
 	}
@@ -27,7 +27,7 @@ func (r *Repository) GetActiveSections() ([]Section, error) {
 
 func (r *Repository) GetSectionByID(id string) (*Section, error) {
 	var s Section
-	err := r.db.Get(&s, "SELECT id, title, description, tier, ord, is_active FROM training_sections WHERE id = $1 AND is_active = TRUE", id)
+	err := r.db.Get(&s, "SELECT id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE id = $1 AND is_active = TRUE", id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -84,6 +84,37 @@ func (r *Repository) GetQuestionsByLevel(levelID string) ([]Question, error) {
 	rows, err := r.db.Queryx("SELECT id, level_id, type, question, payload, xp, ord FROM training_questions WHERE level_id = $1 AND is_active = TRUE ORDER BY ord", levelID)
 	if err != nil {
 		return nil, fmt.Errorf("get questions: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var q Question
+		var payloadStr string
+		err := rows.Scan(&q.ID, &q.LevelID, &q.Type, &q.Question, &payloadStr, &q.Xp, &q.Ord)
+		if err != nil {
+			return nil, fmt.Errorf("scan question: %w", err)
+		}
+		var payload interface{}
+		if err := json.Unmarshal([]byte(payloadStr), &payload); err != nil {
+			return nil, fmt.Errorf("parse question payload: %w", err)
+		}
+		q.Payload = payload
+		questions = append(questions, q)
+	}
+	return questions, nil
+}
+
+func (r *Repository) GetQuestionsByUnit(unitID string) ([]Question, error) {
+	var questions []Question
+	rows, err := r.db.Queryx(`
+		SELECT q.id, q.level_id, q.type, q.question, q.payload, q.xp, q.ord 
+		FROM training_questions q
+		JOIN training_levels l ON q.level_id = l.id
+		WHERE l.unit_id = $1 AND l.is_active = TRUE AND q.is_active = TRUE 
+		ORDER BY l.level_number, q.ord
+	`, unitID)
+	if err != nil {
+		return nil, fmt.Errorf("get questions by unit: %w", err)
 	}
 	defer rows.Close()
 

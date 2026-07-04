@@ -80,13 +80,17 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 
 	api.GET("/training/sections", trainingH.ListSections)
 	api.GET("/training/sections/:id", trainingH.GetSection)
+	api.GET("/training/sections/:id/path", trainingH.GetLearningPath) // Flutter uses this
 	api.GET("/training/units/:id", trainingH.GetUnit)
+	api.GET("/training/units/:id/levels", trainingH.GetUnit) // Added fallback
+	api.GET("/training/units/:id/questions", trainingH.GetUnitQuestions) // Flutter uses this
+	api.GET("/training/levels/:id", trainingH.GetLevel)
+	api.GET("/training/levels/:id/questions", trainingH.GetLevelQuestions) // Flutter uses this
 
 	authTraining := api.Group("/training")
 	authTraining.Use(middleware.Auth(cfg.JWTSecret))
 	{
-		authTraining.GET("/levels/:id", trainingH.GetLevel)
-		authTraining.POST("/levels/:id/submit", trainingH.SubmitLevel)
+		authTraining.POST("/progress/submit", trainingH.SubmitProgress) // Flutter uses this
 		authTraining.GET("/progress", trainingH.GetProgress)
 	}
 

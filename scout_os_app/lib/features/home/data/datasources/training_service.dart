@@ -135,7 +135,7 @@ class TrainingService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final questionsJson = data['questions'] as List<dynamic>;
+        final questionsJson = data['questions'] as List<dynamic>? ?? [];
 
         if (questionsJson.isEmpty) {
           return []; // Empty list, bukan error
@@ -196,7 +196,7 @@ class TrainingService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final questionsJson = data['questions'] as List<dynamic>;
+        final questionsJson = data['questions'] as List<dynamic>? ?? [];
 
         if (questionsJson.isEmpty) {
           return []; // Empty list, bukan error

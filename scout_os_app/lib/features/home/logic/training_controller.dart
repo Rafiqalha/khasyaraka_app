@@ -86,6 +86,14 @@ class TrainingController extends ChangeNotifier {
     }
     _isPathLoading = true;
 
+    // 🔥 NUKE ALL CACHE TO FIX POISONED CACHE BUG 🔥
+    try {
+      debugPrint('🧹 [CACHE] Clearing all local cache forcefully...');
+      await LocalCacheService.clear();
+    } catch (e) {
+      debugPrint('⚠️ [CACHE] Failed to clear cache: $e');
+    }
+
     // Only set global isLoading if sections are empty (first load)
     if (sectionsWithUnits.isEmpty) {
       isLoading = true;
@@ -116,87 +124,38 @@ class TrainingController extends ChangeNotifier {
           .map((s) => SectionWithUnits(section: s, units: []))
           .toList();
 
-      // Check if we have cached units to populate immediately (Hybrid Strategy)
-      // This keeps the "Fast Startup" but restores state if available
-      final cachedUnitsJson = await LocalCacheService.get('units_cache');
-      if (cachedUnitsJson != null) {
-        try {
-          final cachedUnits = (cachedUnitsJson as List)
-              .map((e) => UnitModel.fromJson(e as Map<String, dynamic>))
-              .toList();
+      // ✅ Rely purely on TrainingRepository's SWR (Stale-While-Revalidate) cache
+      // This fetches cached data instantly per section, and revalidates in the background.
+      debugPrint('🌐 [LOAD_UNITS] Delegating unit fetching to Repository (SWR)...');
 
-          // Distribute cached units to sections
-          for (var i = 0; i < sectionsWithUnits.length; i++) {
-            final sectionId = sectionsWithUnits[i].section.id;
-            final sectionUnits = cachedUnits
-                .where((u) => u.sectionId == sectionId)
-                .toList();
+      // Fetch all sections in parallel
+      await Future.wait(
+        sectionsWithUnits.map((s) async {
+          try {
+            final fetchedUnits = await _repository.getLearningPathBySection(
+              s.section.id,
+            );
 
-            if (sectionUnits.isNotEmpty) {
-              sectionsWithUnits[i] = SectionWithUnits(
-                section: sectionsWithUnits[i].section,
-                units: sectionUnits,
+            // Find and update the section in our list
+            final index = sectionsWithUnits.indexWhere(
+              (item) => item.section.id == s.section.id,
+            );
+            if (index != -1) {
+              sectionsWithUnits[index] = SectionWithUnits(
+                section: s.section,
+                units: fetchedUnits,
               );
             }
+          } catch (e) {
+            debugPrint(
+              '⚠️ [LOAD_UNITS] Failed to fetch units for ${s.section.id}: $e',
+            );
           }
+        }),
+      );
 
-          // Rebuild flattened units from the segregated sections (Ensures correct order)
-          _rebuildFlattenedUnits();
-          debugPrint('📦 [LOAD_UNITS] Restored units from cache');
-        } catch (e) {
-          debugPrint('⚠️ [LOAD_UNITS] Cache parse failed: $e');
-          units = [];
-        }
-      } else {
-        units = [];
-      }
-
-      // ✅ FALLBACK: If cache is empty/failed/missing, fetch from API immediately
-      if (units.isEmpty) {
-        debugPrint(
-          '🌐 [LOAD_UNITS] Cache miss. Fetching units for all ${sectionsWithUnits.length} sections...',
-        );
-
-        // Fetch all sections in parallel
-        await Future.wait(
-          sectionsWithUnits.map((s) async {
-            try {
-              final fetchedUnits = await _repository.getLearningPathBySection(
-                s.section.id,
-              );
-
-              // Find and update the section in our list
-              final index = sectionsWithUnits.indexWhere(
-                (item) => item.section.id == s.section.id,
-              );
-              if (index != -1) {
-                sectionsWithUnits[index] = SectionWithUnits(
-                  section: s.section,
-                  units: fetchedUnits,
-                );
-              }
-            } catch (e) {
-              debugPrint(
-                '⚠️ [LOAD_UNITS] Failed to fetch units for ${s.section.id}: $e',
-              );
-            }
-          }),
-        );
-
-        // Rebuild flattened list from the updated sections
-        _rebuildFlattenedUnits();
-
-        // Cache the fresh result
-        if (units.isNotEmpty) {
-          await LocalCacheService.put(
-            'units_cache',
-            units.map((e) => e.toJson()).toList(),
-          );
-          debugPrint(
-            '✅ [LOAD_UNITS] Fetched and cached ${units.length} total units',
-          );
-        }
-      }
+      // Rebuild flattened list from the updated sections
+      _rebuildFlattenedUnits();
 
       if (sectionsWithUnits.isEmpty) {
         errorMessage = "Belum ada path training yang tersedia.";
@@ -251,12 +210,6 @@ class TrainingController extends ChangeNotifier {
 
       // Rebuild flattened units list
       _rebuildFlattenedUnits();
-
-      // Save to cache
-      await LocalCacheService.put(
-        'units_cache',
-        units.map((e) => e.toJson()).toList(),
-      );
 
       notifyListeners();
       debugPrint(
