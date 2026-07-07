@@ -20,7 +20,8 @@ func (r *Repository) GetByID(id int64) (*Profile, error) {
 	var p Profile
 	err := r.db.Get(&p, `SELECT id, full_name, email, picture_url, total_xp, hack_level,
 		decrypted_count, streak, longest_streak, hearts, last_active_date, timezone,
-		is_superuser, created_at, updated_at
+		is_superuser, location_set, kecamatan_id, kabupaten_id, provinsi_id,
+		created_at, updated_at
 		FROM users WHERE id = $1`, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
