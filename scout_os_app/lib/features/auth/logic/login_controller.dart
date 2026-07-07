@@ -61,6 +61,9 @@ class LoginController extends ChangeNotifier {
         if (authController.mustChangePassword) {
           debugPrint('🚀 [LOGIN] Navigating to change password...');
           Navigator.pushReplacementNamed(context, '/change-password');
+        } else if (authController.currentUser != null && !authController.currentUser!.locationSet) {
+          debugPrint('🚀 [LOGIN] Navigating to location setup...');
+          Navigator.pushReplacementNamed(context, '/location-setup');
         } else {
           debugPrint('🚀 [LOGIN] Navigating to home...');
           Navigator.pushReplacementNamed(context, '/penegak');
@@ -117,6 +120,9 @@ class LoginController extends ChangeNotifier {
         if (authController.mustChangePassword) {
           debugPrint('🚀 [LOGIN] Navigating to change password...');
           Navigator.pushReplacementNamed(context, '/change-password');
+        } else if (authController.currentUser != null && !authController.currentUser!.locationSet) {
+          debugPrint('🚀 [LOGIN] Navigating to location setup...');
+          Navigator.pushReplacementNamed(context, '/location-setup');
         } else {
           debugPrint('🚀 [LOGIN] Navigating to home...');
           Navigator.pushReplacementNamed(context, '/penegak');

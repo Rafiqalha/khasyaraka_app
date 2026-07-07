@@ -17,6 +17,9 @@ class LeaderboardController extends ChangeNotifier {
   String? _errorMessage;
   LeaderboardData? _leaderboardData;
   String? _currentUserId;
+  
+  String _activeCategory = 'rank';
+  String _activeScope = 'global';
 
   LeaderboardController({
     LeaderboardRepository? repository,
@@ -29,32 +32,51 @@ class LeaderboardController extends ChangeNotifier {
   LeaderboardData? get leaderboardData => _leaderboardData;
   List<LeaderboardUser> get topUsers => _leaderboardData?.topUsers ?? [];
   MyRank? get myRank => _leaderboardData?.myRank;
+  String get activeCategory => _activeCategory;
+  String get activeScope => _activeScope;
 
   /// Load leaderboard from remote API
   ///
   /// Fetches top users and current user's rank from backend.
   /// Purely API-driven - no local storage fallback.
-  Future<void> loadLeaderboard({int limit = 50}) async {
+  Future<void> loadLeaderboard({
+    int limit = 50, 
+    String? category, 
+    String? scope,
+  }) async {
+    if (category != null) _activeCategory = category;
+    if (scope != null) _activeScope = scope;
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      debugPrint('🔄 [LEADERBOARD] Loading leaderboard from API...');
+      debugPrint('🔄 [LEADERBOARD] Loading leaderboard from API (category: $_activeCategory, scope: $_activeScope)...');
 
-      // Get current user ID for rank calculation (from JWT)
+      // Get current user ID and Location ID for rank calculation
+      String userLocationId = '';
       try {
         final currentUser = await _authRepo.getCurrentUser();
         _currentUserId = currentUser.id;
-        debugPrint('✅ [LEADERBOARD] Current user ID: $_currentUserId');
+        if (_activeScope == 'kecamatan') {
+          userLocationId = currentUser.kecamatanId ?? '';
+        } else if (_activeScope == 'provinsi') {
+          userLocationId = currentUser.provinsiId ?? '';
+        }
+        debugPrint('✅ [LEADERBOARD] Current user ID: $_currentUserId, LocationID: $userLocationId');
       } catch (e) {
         debugPrint('⚠️ [LEADERBOARD] Could not get current user: $e');
         _currentUserId = null;
-        // Continue anyway - backend will handle myRank if user is authenticated
       }
 
       // Fetch leaderboard from API
-      _leaderboardData = await _repository.fetchLeaderboard(limit: limit);
+      _leaderboardData = await _repository.fetchLeaderboard(
+        limit: limit,
+        category: _activeCategory,
+        scope: _activeScope,
+        locationId: userLocationId,
+      );
 
       debugPrint(
         '✅ [LEADERBOARD] Loaded ${_leaderboardData!.topUsers.length} users from API',
@@ -93,7 +115,11 @@ class LeaderboardController extends ChangeNotifier {
 
   /// Refresh leaderboard data
   Future<void> refresh({int limit = 50}) async {
-    await loadLeaderboard(limit: limit);
+    await loadLeaderboard(
+      limit: limit, 
+      category: _activeCategory, 
+      scope: _activeScope,
+    );
   }
 
   /// Clear state (useful for logout)

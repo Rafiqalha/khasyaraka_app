@@ -4,6 +4,51 @@
 
 import 'package:flutter/foundation.dart';
 
+class RankInfo {
+  final String rankName;
+  final String subTier;
+  final int stars;
+  final int maxStars;
+  final int totalStars;
+
+  RankInfo({
+    required this.rankName,
+    required this.subTier,
+    required this.stars,
+    required this.maxStars,
+    required this.totalStars,
+  });
+
+  factory RankInfo.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return RankInfo(
+        rankName: 'Kasta Siaga',
+        subTier: 'III',
+        stars: 0,
+        maxStars: 3,
+        totalStars: 0,
+      );
+    }
+    return RankInfo(
+      rankName: json['rank_name']?.toString() ?? 'Kasta Siaga',
+      subTier: json['sub_tier']?.toString() ?? 'III',
+      stars: json['stars'] ?? 0,
+      maxStars: json['max_stars'] ?? 3,
+      totalStars: json['total_stars'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'rank_name': rankName,
+      'sub_tier': subTier,
+      'stars': stars,
+      'max_stars': maxStars,
+      'total_stars': totalStars,
+    };
+  }
+}
+
 class LeaderboardUser {
   final int rank;
   final String id;
@@ -11,6 +56,7 @@ class LeaderboardUser {
   final int xp;
   final String? avatar;
   final String level; // "Siaga", "Penggalang", "Penegak"
+  final RankInfo rankInfo;
 
   LeaderboardUser({
     required this.rank,
@@ -19,6 +65,7 @@ class LeaderboardUser {
     required this.xp,
     this.avatar,
     this.level = 'Siaga', // Default to Siaga
+    required this.rankInfo,
   });
 
   factory LeaderboardUser.fromJson(Map<String, dynamic> json) {
@@ -119,6 +166,7 @@ class LeaderboardUser {
       xp: xpValue,
       avatar: avatarValue,
       level: levelValue,
+      rankInfo: RankInfo.fromJson(json['rank_info']),
     );
   }
 
@@ -130,6 +178,7 @@ class LeaderboardUser {
       'xp': xp,
       'avatar': avatar,
       'level': level,
+      'rank_info': rankInfo.toJson(),
     };
   }
 }
@@ -137,8 +186,9 @@ class LeaderboardUser {
 class MyRank {
   final int rank;
   final int xp;
+  final RankInfo rankInfo;
 
-  MyRank({required this.rank, required this.xp});
+  MyRank({required this.rank, required this.xp, required this.rankInfo});
 
   factory MyRank.fromJson(Map<String, dynamic> json) {
     debugPrint('📊 [MY_RANK] Raw JSON: $json');
@@ -194,11 +244,19 @@ class MyRank {
       );
     }
 
-    return MyRank(rank: rankValue, xp: xpValue);
+    return MyRank(
+      rank: rankValue, 
+      xp: xpValue,
+      rankInfo: RankInfo.fromJson(json['rank_info']),
+    );
   }
 
   Map<String, dynamic> toJson() {
-    return {'rank': rank, 'xp': xp};
+    return {
+      'rank': rank, 
+      'xp': xp,
+      'rank_info': rankInfo.toJson(),
+    };
   }
 }
 

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scout_os_app/features/dashboard/presentation/providers/dashboard_view_model.dart';
-import 'package:scout_os_app/features/dashboard/data/repositories/user_repository.dart'; // For UserStats model
+import 'package:scout_os_app/features/dashboard/data/repositories/user_repository.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Dashboard Screen (Offline-First Implementation)
 class DashboardScreen extends StatelessWidget {
@@ -42,17 +43,18 @@ class _DashboardViewState extends State<_DashboardView> {
     final viewModel = context.watch<DashboardViewModel>();
 
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Light background
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text('DASHBOARD', style: GoogleFonts.fredoka(color: const Color(0xFF1CB0F6), fontWeight: FontWeight.bold)),
         elevation: 0,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.black),
+        centerTitle: true,
         actions: [
           if (viewModel.isBackgroundUpdating)
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: SizedBox(width: 16, height: 16, child: GrassSosLoader()),
+              child: SizedBox(width: 16, height: 16, child: GrassSosLoader(color: Color(0xFF1CB0F6))),
             ),
         ],
       ),
@@ -103,7 +105,7 @@ class _DashboardViewState extends State<_DashboardView> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      style: GoogleFonts.fredoka(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
     );
   }
 
@@ -111,14 +113,15 @@ class _DashboardViewState extends State<_DashboardView> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFF58CC02).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF58CC02), width: 2),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.flag),
-          SizedBox(width: 8),
-          Text("Mission Data Loaded (Mock)"),
+          const Icon(Icons.flag, color: Color(0xFF58CC02)),
+          const SizedBox(width: 12),
+          Text("Data Misi (Mock)", style: GoogleFonts.nunito(color: const Color(0xFF58CC02), fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -128,14 +131,15 @@ class _DashboardViewState extends State<_DashboardView> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFFF9600).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFF9600), width: 2),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.leaderboard),
-          SizedBox(width: 8),
-          Text("Leaderboard Data Loaded (Mock)"),
+          const Icon(Icons.leaderboard, color: Color(0xFFFF9600)),
+          const SizedBox(width: 12),
+          Text("Data Leaderboard (Mock)", style: GoogleFonts.nunito(color: const Color(0xFFFF9600), fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -154,11 +158,12 @@ class _UserProfileCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: const Color(0xFFE5E5E5),
+            blurRadius: 0,
             offset: const Offset(0, 4),
           ),
         ],
@@ -167,7 +172,7 @@ class _UserProfileCard extends StatelessWidget {
         children: [
           const CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Color(0xFF1CB0F6),
             child: Icon(Icons.person, color: Colors.white),
           ),
           const SizedBox(width: 16),
@@ -176,16 +181,19 @@ class _UserProfileCard extends StatelessWidget {
             children: [
               Text(
                 'Total XP: ${stats.totalXp}',
-                style: const TextStyle(
-                  fontSize: 16,
+                style: GoogleFonts.fredoka(
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
-                'Streak: 🔥 ${stats.streak} Days',
-                style: TextStyle(
-                  color: Colors.orange[700],
-                  fontWeight: FontWeight.w600,
+                'Streak: 🔥 ${stats.streak} Hari',
+                style: GoogleFonts.nunito(
+                  color: const Color(0xFFFF9600),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
             ],
@@ -203,12 +211,13 @@ class _ErrorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red[50],
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFFF4B4B).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFF4B4B), width: 2),
       ),
-      child: const Text(
-        'Failed to load data. Tap to retry.',
-        style: TextStyle(color: Colors.red),
+      child: Text(
+        'Gagal memuat data. Ketuk untuk mengulang.',
+        style: GoogleFonts.nunito(color: const Color(0xFFFF4B4B), fontWeight: FontWeight.bold),
       ),
     );
   }

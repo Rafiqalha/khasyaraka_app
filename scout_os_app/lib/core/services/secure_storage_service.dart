@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 
 /// SecureStorageService - Manages secure persistent storage
@@ -35,8 +36,11 @@ class SecureStorageService {
       );
       print('✅ [SECURE_STORAGE] Token saved securely');
     } catch (e) {
-      print('❌ [SECURE_STORAGE] Failed to save token: $e');
-      rethrow;
+      print('⚠️ [SECURE_STORAGE] Failed to save token securely, falling back to SharedPreferences: $e');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_accessTokenKey, token);
+      await prefs.setString(_tokenTypeKey, tokenType);
+      await prefs.setString(_lastLoginKey, DateTime.now().toIso8601String());
     }
   }
 
@@ -44,21 +48,27 @@ class SecureStorageService {
   static Future<String?> getToken() async {
     try {
       final token = await _storage.read(key: _accessTokenKey);
-      return token;
+      if (token != null) return token;
+      // Also check fallback
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_accessTokenKey);
     } catch (e) {
-      print('❌ [SECURE_STORAGE] Failed to get token: $e');
-      return null;
+      print('⚠️ [SECURE_STORAGE] Failed to get token, falling back to SharedPreferences: $e');
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_accessTokenKey);
     }
   }
 
   /// Get token type
   static Future<String> getTokenType() async {
     try {
-      final tokenType = await _storage.read(key: _tokenTypeKey);
-      return tokenType ?? 'bearer';
+      final type = await _storage.read(key: _tokenTypeKey);
+      if (type != null) return type;
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_tokenTypeKey) ?? 'bearer';
     } catch (e) {
-      print('❌ [SECURE_STORAGE] Failed to get token type: $e');
-      return 'bearer';
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_tokenTypeKey) ?? 'bearer';
     }
   }
 
@@ -129,7 +139,18 @@ class SecureStorageService {
       final token = await getToken();
       if (token == null || token.isEmpty) return false;
 
-      final lastLoginString = await _storage.read(key: _lastLoginKey);
+      String? lastLoginString;
+      try {
+        lastLoginString = await _storage.read(key: _lastLoginKey);
+      } catch (e) {
+        // Fallback triggered
+      }
+      
+      if (lastLoginString == null) {
+        final prefs = await SharedPreferences.getInstance();
+        lastLoginString = prefs.getString(_lastLoginKey);
+      }
+      
       if (lastLoginString == null) return false;
 
       final lastLogin = DateTime.parse(lastLoginString);

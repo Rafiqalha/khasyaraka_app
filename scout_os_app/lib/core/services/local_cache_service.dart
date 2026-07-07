@@ -36,7 +36,7 @@ class LocalCacheService {
     if (_isInitialized) return;
 
     try {
-      await Hive.initFlutter();
+      await Hive.initFlutter('scout_os_cache');
       _cacheBox = await Hive.openBox(_boxName);
       _metaBox = await Hive.openBox(_metaBoxName);
       _isInitialized = true;

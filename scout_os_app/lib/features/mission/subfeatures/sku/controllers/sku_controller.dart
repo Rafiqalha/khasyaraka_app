@@ -10,6 +10,9 @@ class SkuController extends ChangeNotifier {
 
   double bantaraProgress = 0;
   bool isLaksanaUnlocked = false;
+  int timeGateDaysActive = 0;
+  int timeGateDaysRemaining = 90;
+  bool timeGateEligible = false;
   bool isLoading = false;
   String? errorMessage;
 
@@ -24,6 +27,15 @@ class SkuController extends ChangeNotifier {
       final overview = await _repository.fetchOverview();
       bantaraProgress = overview.bantaraProgress;
       isLaksanaUnlocked = overview.isLaksanaUnlocked;
+
+      try {
+        final timeGate = await _repository.fetchTimeGateStatus();
+        timeGateEligible = timeGate['eligible'] ?? false;
+        timeGateDaysActive = timeGate['days_active'] ?? 0;
+        timeGateDaysRemaining = timeGate['days_remaining'] ?? 90;
+      } catch (e) {
+        // Silently ignore if time gate fails, default values will be used
+      }
     } catch (e) {
       errorMessage = 'Gagal memuat overview SKU.';
     } finally {

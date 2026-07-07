@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/models/sku_model.dart';
+import 'package:scout_os_app/core/widgets/duo_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SkuQuizPage extends StatefulWidget {
   const SkuQuizPage({super.key, required this.pointId});
@@ -41,13 +43,14 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5DC),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F5DC),
+        backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           point.title,
-          style: const TextStyle(color: Color(0xFF3E2723)),
+          style: GoogleFonts.fredoka(color: const Color(0xFF1CB0F6), fontWeight: FontWeight.bold),
         ),
       ),
       body: _showBriefing ? _buildBriefing(point) : _buildQuiz(point),
@@ -60,38 +63,28 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Briefing Materi',
-            style: TextStyle(
-              fontSize: 18,
+            style: GoogleFonts.fredoka(
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF3E2723),
+              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             point.description,
-            style: const TextStyle(color: Color(0xFF3E2723)),
+            style: GoogleFonts.nunito(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFD600),
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () {
-                setState(() {
-                  _showBriefing = false;
-                });
-              },
-              child: const Text('MULAI QUIZ'),
-            ),
+          DuoButton(
+            text: 'MULAI QUIZ',
+            onPressed: () {
+              setState(() {
+                _showBriefing = false;
+              });
+            },
+            variant: DuoButtonVariant.green,
           ),
         ],
       ),
@@ -107,15 +100,15 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
         children: [
           Text(
             'Pertanyaan ${_currentIndex + 1} / ${point.questions.length}',
-            style: const TextStyle(color: Color(0xFF3E2723)),
+            style: GoogleFonts.nunito(color: Colors.grey.shade500, fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 12),
           Text(
             question.question,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF3E2723),
+            style: GoogleFonts.fredoka(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 16),
@@ -127,25 +120,21 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
               if (_currentIndex > 0)
                 TextButton(
                   onPressed: () => setState(() => _currentIndex -= 1),
-                  child: const Text('Kembali'),
+                  child: Text('KEMBALI', style: GoogleFonts.nunito(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
                 ),
               const Spacer(),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3E2723),
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () {
-                  if (_currentIndex < point.questions.length - 1) {
-                    setState(() => _currentIndex += 1);
-                    return;
-                  }
-                  _submit(point);
-                },
-                child: Text(
-                  _currentIndex < point.questions.length - 1
-                      ? 'Lanjut'
-                      : 'Kirim',
+              SizedBox(
+                width: 150,
+                child: DuoButton(
+                  text: _currentIndex < point.questions.length - 1 ? 'LANJUT' : 'KIRIM',
+                  onPressed: () {
+                    if (_currentIndex < point.questions.length - 1) {
+                      setState(() => _currentIndex += 1);
+                      return;
+                    }
+                    _submit(point);
+                  },
+                  variant: DuoButtonVariant.blue,
                 ),
               ),
             ],
@@ -162,12 +151,13 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
       child: InkWell(
         onTap: () => setState(() => _answers[_currentIndex] = index),
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFFFF2B3) : Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            color: selected ? const Color(0xFF1CB0F6).withValues(alpha: 0.1) : Colors.white,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF3E2723).withValues(alpha: 0.3),
+              color: selected ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5),
+              width: selected ? 2 : 2,
             ),
           ),
           child: Row(
@@ -176,10 +166,10 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
                 selected
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color: const Color(0xFF3E2723),
+                color: selected ? const Color(0xFF1CB0F6) : Colors.grey.shade400,
               ),
-              const SizedBox(width: 10),
-              Expanded(child: Text(text)),
+              const SizedBox(width: 12),
+              Expanded(child: Text(text, style: GoogleFonts.nunito(color: selected ? const Color(0xFF1CB0F6) : Colors.black87, fontWeight: selected ? FontWeight.bold : FontWeight.w600, fontSize: 16))),
             ],
           ),
         ),
@@ -203,15 +193,26 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(result.isCompleted ? 'Lulus' : 'Belum Lulus'),
-        content: Text('Skor Anda: ${result.score}%'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color(0xFFE5E5E5), width: 2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          result.isCompleted ? 'LULUS!' : 'BELUM LULUS',
+          style: GoogleFonts.fredoka(color: result.isCompleted ? const Color(0xFF58CC02) : const Color(0xFFFF4B4B), fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Skor Anda: ${result.score}%',
+          style: GoogleFonts.nunito(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Kembali'),
+            child: Text('KEMBALI', style: GoogleFonts.nunito(color: const Color(0xFF1CB0F6), fontWeight: FontWeight.bold)),
           ),
         ],
       ),

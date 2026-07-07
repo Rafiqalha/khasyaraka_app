@@ -1,13 +1,24 @@
 package sku
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/khasyaraka/backend/internal/modules/chat"
+)
 
 type Service struct {
-	repo *Repository
+	repo        *Repository
+	chatService *chat.Service
 }
 
 func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
+}
+
+func (s *Service) SetChatService(cs *chat.Service) {
+	s.chatService = cs
 }
 
 func stripQuizAnswers(v interface{}) interface{} {
@@ -119,5 +130,49 @@ func (s *Service) SubmitQuiz(userID int64, pointID string, answers []string) (in
 		return 0, err
 	}
 
+	if s.chatService != nil && score >= 100 {
+		userRooms, _ := s.chatService.GetUserRooms(context.Background(), userID)
+		if userRooms != nil && userRooms.Kecamatan != nil {
+			content := fmt.Sprintf("🏆 Kamu baru saja melihat temanmu menyelesaikan %s! Selamat, Pramuka! 👏", p.Title)
+			s.chatService.SendSystemMessage(context.Background(), userRooms.Kecamatan.ID, content)
+		}
+	}
+
 	return score, nil
+}
+
+func (s *Service) CanUnlockHighestTier(ctx context.Context, userID int64) (bool, int, error) {
+	firstActive, err := s.repo.GetFirstActiveDate(userID)
+	if err != nil {
+		return false, 90, err
+	}
+	
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	now := time.Now().In(loc)
+
+	if !firstActive.Valid {
+		// New user or missing date, set to today
+		if err := s.repo.SetFirstActiveDateToToday(userID); err != nil {
+			return false, 90, err
+		}
+		return false, 90, nil
+	}
+
+	// Calculate days since first active
+	// Using end of today vs first active date midnight
+	faDate := firstActive.Time.In(loc)
+	faDateMidnight := time.Date(faDate.Year(), faDate.Month(), faDate.Day(), 0, 0, 0, 0, loc)
+	nowMidnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	
+	daysSinceFirstActive := int(nowMidnight.Sub(faDateMidnight).Hours() / 24)
+	if daysSinceFirstActive < 0 {
+		daysSinceFirstActive = 0
+	}
+
+	daysRemaining := 90 - daysSinceFirstActive
+	if daysRemaining < 0 {
+		daysRemaining = 0
+	}
+
+	return daysSinceFirstActive >= 90, daysRemaining, nil
 }

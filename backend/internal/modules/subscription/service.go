@@ -1,11 +1,20 @@
 package subscription
 
+import (
+	"context"
+	"github.com/khasyaraka/backend/internal/modules/token"
+)
+
 type Service struct {
-	repo *Repository
+	repo         *Repository
+	tokenService *token.TokenService
 }
 
-func NewService(repo *Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo *Repository, tokenService *token.TokenService) *Service {
+	return &Service{
+		repo:         repo,
+		tokenService: tokenService,
+	}
 }
 
 func (s *Service) GetStatus(userID int64) (*Subscription, error) {
@@ -13,7 +22,18 @@ func (s *Service) GetStatus(userID int64) (*Subscription, error) {
 }
 
 func (s *Service) Create(userID int64, tier, paymentRef, provider string) (*Subscription, error) {
-	return s.repo.Create(userID, tier, paymentRef, provider)
+	sub, err := s.repo.Create(userID, tier, paymentRef, provider)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Update token tier
+	err = s.tokenService.SetTierFromSubscription(context.Background(), userID, tier)
+	if err != nil {
+		// Log error but don't fail subscription
+	}
+
+	return sub, nil
 }
 
 func (s *Service) Cancel(userID int64) error {

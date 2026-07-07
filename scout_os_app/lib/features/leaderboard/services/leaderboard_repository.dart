@@ -23,7 +23,12 @@ class LeaderboardRepository {
   ///
   /// Throws:
   ///   Exception if API call fails
-  Future<LeaderboardData> fetchLeaderboard({int limit = 50}) async {
+  Future<LeaderboardData> fetchLeaderboard({
+    int limit = 50,
+    String category = 'rank',
+    String scope = 'global',
+    String locationId = '',
+  }) async {
     try {
       // ✅ CRITICAL DEBUG: Log endpoint and base URL
       final baseUrl = _dio.options.baseUrl;
@@ -55,7 +60,12 @@ class LeaderboardRepository {
 
       final response = await _dio.get(
         endpoint,
-        queryParameters: {'limit': limit},
+        queryParameters: {
+          'limit': limit,
+          'category': category,
+          'scope': scope,
+          if (locationId.isNotEmpty) 'location_id': locationId,
+        },
       );
 
       // ✅ CRITICAL DEBUG: Log response status and headers
@@ -106,7 +116,14 @@ class LeaderboardRepository {
           try {
             final token = await ApiDioProvider.getToken();
             if (token != null && token.isNotEmpty) {
-              final rankResponse = await _dio.get('/leaderboard/me');
+              final rankResponse = await _dio.get(
+                '/leaderboard/me',
+                queryParameters: {
+                  'category': category,
+                  'scope': scope,
+                  if (locationId.isNotEmpty) 'location_id': locationId,
+                },
+              );
               if (rankResponse.data['success'] == true && rankResponse.data['data'] != null) {
                 data['my_rank'] = rankResponse.data['data'];
               }

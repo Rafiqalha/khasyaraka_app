@@ -7,6 +7,7 @@ import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import 'package:scout_os_app/routes/app_routes.dart';
 import 'package:scout_os_app/shared/widgets/under_construction_screen.dart'; // Import Here
 import 'package:scout_os_app/shared/widgets/jamnas_construction_screen.dart'; // Import Jamnas Screen
+import 'package:scout_os_app/features/arena/presentation/pages/arena_home_page.dart';
 
 class MissionDashboardPage extends StatelessWidget {
   const MissionDashboardPage({super.key});
@@ -43,20 +44,21 @@ class MissionDashboardPage extends StatelessWidget {
                     );
                   },
                 ),
-                const SizedBox(
-                  height: 24,
-                ), // Extra spacing after exclusive card
-                _JalurPenegakCard(
+                const SizedBox(height: 24),
+                _Arena5v5Card(
                   onTap: () {
-                    // Navigate to Under Construction Screen -> SKU Variant
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const UnderConstructionScreen(
-                          type: ConstructionType.sku,
-                        ),
+                        builder: (context) => const ArenaHomePage(),
                       ),
                     );
+                  },
+                ),
+                const SizedBox(height: 24),
+                _JalurPenegakCard(
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.skuMap);
                   },
                 ),
                 const SizedBox(height: 16),
@@ -424,6 +426,121 @@ class _JamnasExclusiveCard extends StatelessWidget {
   }
 }
 
+class _Arena5v5Card extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _Arena5v5Card({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        _Gradient3DCard(
+          onTap: onTap,
+          height: 140, 
+          borderWidth: 6.0, 
+          colors: const [
+            Color(0xFFE91E63), // Pink
+            Color(0xFF9C27B0), // Purple
+            Color(0xFF3F51B5), // Indigo
+          ],
+          borderColor: const Color(0xFF283593), // Dark Indigo Shadow
+          patternIcons: const [
+            Icons.stadium,
+            Icons.electric_bolt,
+            Icons.rocket_launch,
+            Icons.sports_esports,
+            Icons.groups,
+          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Arena 5v5\nCyber-Scout',
+                      style: AppTextStyles.h3.copyWith(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        height: 1.2,
+                        shadows: [
+                          const Shadow(
+                            blurRadius: 2,
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Kompetisi Multiplayer!',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Colors.white.withOpacity(0.95),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        shadows: [
+                          const Shadow(
+                            blurRadius: 2,
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Transform.rotate(
+                angle: -0.1,
+                child: const Icon(
+                  Icons.stadium_rounded,
+                  color: Colors.white,
+                  size: 80,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.amber, 
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(20), 
+                bottomLeft: Radius.circular(12),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 4,
+                  offset: const Offset(-2, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              'NEW EVENT🔥',
+              style: AppTextStyles.caption.copyWith(
+                color: Colors.black,
+                fontWeight: FontWeight.w900,
+                fontSize: 10,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _JalurPenegakCard extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -457,7 +574,7 @@ class _JalurPenegakCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Jalur Penegak\nBantara',
+                  'Kitab Sandi\nNusantara',
                   style: AppTextStyles.h3.copyWith(
                     color: Colors.white,
                     fontSize: 22,

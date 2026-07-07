@@ -22,7 +22,11 @@ func (h *Handler) GetTop(c *gin.Context) {
 			limit = n
 		}
 	}
-	entries, err := h.svc.GetTop(limit)
+	category := c.Query("category")
+	scope := c.Query("scope")
+	locationID := c.Query("location_id")
+
+	entries, err := h.svc.GetTop(category, scope, locationID, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
 		return
@@ -32,7 +36,11 @@ func (h *Handler) GetTop(c *gin.Context) {
 
 func (h *Handler) GetRank(c *gin.Context) {
 	uid, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
-	rank, err := h.svc.GetUserRank(uid)
+	category := c.Query("category")
+	scope := c.Query("scope")
+	locationID := c.Query("location_id")
+
+	rank, err := h.svc.GetUserRank(uid, category, scope, locationID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
 		return

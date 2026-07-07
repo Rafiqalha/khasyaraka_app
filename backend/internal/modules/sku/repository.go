@@ -119,3 +119,14 @@ func (r *Repository) MarkCompleted(userID int64, pointID string, score int) erro
 	`, userID, pointID, score)
 	return err
 }
+
+func (r *Repository) GetFirstActiveDate(userID int64) (sql.NullTime, error) {
+	var firstActive sql.NullTime
+	err := r.db.QueryRow("SELECT first_active_date FROM users WHERE id = $1", userID).Scan(&firstActive)
+	return firstActive, err
+}
+
+func (r *Repository) SetFirstActiveDateToToday(userID int64) error {
+	_, err := r.db.Exec("UPDATE users SET first_active_date = CURRENT_DATE WHERE id = $1", userID)
+	return err
+}

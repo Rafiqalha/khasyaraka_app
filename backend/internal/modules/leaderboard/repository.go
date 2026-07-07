@@ -2,6 +2,7 @@ package leaderboard
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -9,13 +10,13 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const leaderboardKey = "leaderboard:xp"
-
 type userRow struct {
-	ID        int64  `db:"id"`
-	FullName  string `db:"full_name"`
-	TotalXP   int    `db:"total_xp"`
-	HackLevel string `db:"hack_level"`
+	ID          int64          `db:"id"`
+	FullName    string         `db:"full_name"`
+	TotalXP     int            `db:"total_xp"`
+	HackLevel   string         `db:"hack_level"`
+	ProvinsiID  sql.NullString `db:"provinsi_id"`
+	KecamatanID sql.NullString `db:"kecamatan_id"`
 }
 
 type Repository struct {
@@ -27,22 +28,69 @@ func NewRepository(db *sqlx.DB, rdb *redis.Client) *Repository {
 	return &Repository{db: db, rdb: rdb}
 }
 
-func (r *Repository) SyncUserXP(userID int64, totalXP int) error {
-	return r.rdb.ZAdd(context.Background(), leaderboardKey, redis.Z{
-		Score:  float64(totalXP),
-		Member: strconv.FormatInt(userID, 10),
-	}).Err()
+// getRedisKey constructs the dynamic redis key: leaderboard:[KATEGORI]:[WILAYAH_ID]
+func getRedisKey(category string, scope string, locationID string) string {
+	if category == "" {
+		category = "rank"
+	}
+	if scope == "global" || scope == "nasional" {
+		return fmt.Sprintf("leaderboard:%s:global", category)
+	}
+	if scope == "provinsi" && locationID != "" {
+		return fmt.Sprintf("leaderboard:%s:prop:%s", category, locationID)
+	}
+	if scope == "kecamatan" && locationID != "" {
+		return fmt.Sprintf("leaderboard:%s:kec:%s", category, locationID)
+	}
+	// Default to global
+	return fmt.Sprintf("leaderboard:%s:global", category)
 }
 
-func (r *Repository) GetTop(limit int) ([]Entry, error) {
-	results, err := r.rdb.ZRevRangeWithScores(context.Background(), leaderboardKey, 0, int64(limit-1)).Result()
+// SyncScore pushes the user's new score to all 3 scopes simultaneously.
+func (r *Repository) SyncScore(userID int64, category string, score float64) error {
+	// First, fetch the user's location
+	var u userRow
+	err := r.db.Get(&u, "SELECT id, provinsi_id, kecamatan_id FROM users WHERE id = $1", userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		return err
+	}
+
+	ctx := context.Background()
+	pipe := r.rdb.TxPipeline()
+
+	member := strconv.FormatInt(userID, 10)
+	z := redis.Z{Score: score, Member: member}
+
+	// 1. Global
+	pipe.ZAdd(ctx, getRedisKey(category, "global", ""), z)
+
+	// 2. Provinsi
+	if u.ProvinsiID.Valid && u.ProvinsiID.String != "" {
+		pipe.ZAdd(ctx, getRedisKey(category, "provinsi", u.ProvinsiID.String), z)
+	}
+
+	// 3. Kecamatan
+	if u.KecamatanID.Valid && u.KecamatanID.String != "" {
+		pipe.ZAdd(ctx, getRedisKey(category, "kecamatan", u.KecamatanID.String), z)
+	}
+
+	_, err = pipe.Exec(ctx)
+	return err
+}
+
+func (r *Repository) GetTop(category string, scope string, locationID string, limit int) ([]Entry, error) {
+	key := getRedisKey(category, scope, locationID)
+	
+	results, err := r.rdb.ZRevRangeWithScores(context.Background(), key, 0, int64(limit-1)).Result()
 	if err != nil {
 		return nil, fmt.Errorf("redis zrevrange: %w", err)
 	}
 
-	// Cold start fallback: if Redis is empty, load from PostgreSQL and warm cache
 	if len(results) == 0 {
-		return r.getTopFromDBAndWarm(limit)
+		return []Entry{}, nil
 	}
 
 	var entries []Entry
@@ -61,7 +109,7 @@ func (r *Repository) GetTop(limit int) ([]Entry, error) {
 
 	var users []userRow
 	if len(userIDs) > 0 {
-		q, args, _ := sqlx.In("SELECT id, COALESCE(full_name, email) AS full_name, total_xp, hack_level FROM users WHERE id IN (?) ORDER BY total_xp DESC", userIDs)
+		q, args, _ := sqlx.In("SELECT id, COALESCE(full_name, email) AS full_name, total_xp, hack_level, provinsi_id, kecamatan_id FROM users WHERE id IN (?)", userIDs)
 		q = r.db.Rebind(q)
 		if err := r.db.Select(&users, q, args...); err != nil {
 			return nil, fmt.Errorf("get users: %w", err)
@@ -78,72 +126,44 @@ func (r *Repository) GetTop(limit int) ([]Entry, error) {
 		if !ok {
 			continue
 		}
+		
+		// For rank calculation, we assume total_xp is total stars. 
+		// If category != rank, we might need a different calculator, but we'll use CalculateRank for all for now or just for rank.
+		var totalStars int
+		if category == "rank" || category == "" {
+			totalStars = int(results[rank].Score) // The actual ZSET score
+		} else {
+			totalStars = u.TotalXP // Fallback or if total_xp is used differently
+		}
+		
+		provId := ""
+		if u.ProvinsiID.Valid {
+			provId = u.ProvinsiID.String
+		}
+		kecId := ""
+		if u.KecamatanID.Valid {
+			kecId = u.KecamatanID.String
+		}
+
 		entries = append(entries, Entry{
-			Rank:      rank + 1,
-			UserID:    u.ID,
-			FullName:  u.FullName,
-			TotalXP:   u.TotalXP,
-			HackLevel: u.HackLevel,
+			Rank:        rank + 1,
+			UserID:      u.ID,
+			FullName:    u.FullName,
+			TotalXP:     int(results[rank].Score),
+			HackLevel:   u.HackLevel,
+			ProvinsiID:  provId,
+			KecamatanID: kecId,
+			RankInfo:    CalculateRank(totalStars),
 		})
 	}
 	return entries, nil
 }
 
-// getTopFromDBAndWarm queries PostgreSQL for top users and warms the Redis cache.
-// This is the cold-start fallback when Redis has no leaderboard data.
-func (r *Repository) getTopFromDBAndWarm(limit int) ([]Entry, error) {
-	var users []userRow
-	err := r.db.Select(&users,
-		`SELECT id, COALESCE(full_name, email) AS full_name, total_xp, hack_level
-		 FROM users WHERE is_active = TRUE AND total_xp > 0
-		 ORDER BY total_xp DESC LIMIT $1`, limit)
-	if err != nil {
-		return nil, fmt.Errorf("get top from db: %w", err)
-	}
-
-	// Warm Redis cache with all active users (not just top N)
-	go r.warmCacheFromDB()
-
-	entries := make([]Entry, 0, len(users))
-	for rank, u := range users {
-		entries = append(entries, Entry{
-			Rank:      rank + 1,
-			UserID:    u.ID,
-			FullName:  u.FullName,
-			TotalXP:   u.TotalXP,
-			HackLevel: u.HackLevel,
-		})
-	}
-	return entries, nil
-}
-
-// warmCacheFromDB loads all users with XP into the Redis ZSET.
-func (r *Repository) warmCacheFromDB() {
-	var users []struct {
-		ID      int64 `db:"id"`
-		TotalXP int   `db:"total_xp"`
-	}
-	if err := r.db.Select(&users, "SELECT id, total_xp FROM users WHERE is_active = TRUE AND total_xp > 0"); err != nil {
-		return
-	}
-
-	ctx := context.Background()
-	members := make([]redis.Z, 0, len(users))
-	for _, u := range users {
-		members = append(members, redis.Z{
-			Score:  float64(u.TotalXP),
-			Member: strconv.FormatInt(u.ID, 10),
-		})
-	}
-
-	if len(members) > 0 {
-		r.rdb.ZAdd(ctx, leaderboardKey, members...)
-	}
-}
-
-func (r *Repository) GetUserRank(userID int64) (*UserRank, error) {
+func (r *Repository) GetUserRank(userID int64, category string, scope string, locationID string) (*UserRank, error) {
+	key := getRedisKey(category, scope, locationID)
 	uidStr := strconv.FormatInt(userID, 10)
-	rank, err := r.rdb.ZRevRank(context.Background(), leaderboardKey, uidStr).Result()
+	
+	rank, err := r.rdb.ZRevRank(context.Background(), key, uidStr).Result()
 	if err == redis.Nil {
 		return nil, nil
 	}
@@ -151,19 +171,25 @@ func (r *Repository) GetUserRank(userID int64) (*UserRank, error) {
 		return nil, fmt.Errorf("redis zrevrank: %w", err)
 	}
 
-	score, err := r.rdb.ZScore(context.Background(), leaderboardKey, uidStr).Result()
+	score, err := r.rdb.ZScore(context.Background(), key, uidStr).Result()
 	if err != nil {
 		return nil, fmt.Errorf("redis zscore: %w", err)
 	}
 
-	total, err := r.rdb.ZCard(context.Background(), leaderboardKey).Result()
+	total, err := r.rdb.ZCard(context.Background(), key).Result()
 	if err != nil {
 		return nil, fmt.Errorf("redis zcard: %w", err)
+	}
+
+	var totalStars int
+	if category == "rank" || category == "" {
+		totalStars = int(score)
 	}
 
 	return &UserRank{
 		Rank:     int(rank) + 1,
 		TotalXP:  int(score),
 		TopCount: int(total),
+		RankInfo: CalculateRank(totalStars),
 	}, nil
 }

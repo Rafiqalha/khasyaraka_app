@@ -155,7 +155,7 @@ class _QuizPageState extends State<QuizPage> {
                             : Icons.error_outline,
                         size: 80,
                         color: controller.errorMessage!.contains('belum memiliki soal')
-                            ? AppColors.primary
+                            ? AppColors.scoutBrown
                             : AppColors.alertRed,
                       ),
                       const SizedBox(height: 24),

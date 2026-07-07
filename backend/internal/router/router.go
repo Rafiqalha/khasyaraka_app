@@ -11,9 +11,12 @@ import (
 	"github.com/khasyaraka/backend/internal/modules/admin"
 	"github.com/khasyaraka/backend/internal/modules/auth"
 	"github.com/khasyaraka/backend/internal/modules/callbacks"
+	"github.com/khasyaraka/backend/internal/modules/arena"
+	"github.com/khasyaraka/backend/internal/modules/chat"
 	"github.com/khasyaraka/backend/internal/modules/cyber"
 	"github.com/khasyaraka/backend/internal/modules/hearts"
 	"github.com/khasyaraka/backend/internal/modules/leaderboard"
+	"github.com/khasyaraka/backend/internal/modules/location"
 	"github.com/khasyaraka/backend/internal/modules/sandi"
 	"github.com/khasyaraka/backend/internal/modules/sku"
 	"github.com/khasyaraka/backend/internal/modules/subscription"
@@ -21,6 +24,9 @@ import (
 	"github.com/khasyaraka/backend/internal/modules/tkk"
 	"github.com/khasyaraka/backend/internal/modules/training"
 	"github.com/khasyaraka/backend/internal/modules/users"
+	"github.com/khasyaraka/backend/internal/modules/token"
+	"github.com/khasyaraka/backend/internal/modules/ai"
+	"github.com/khasyaraka/backend/internal/modules/ctf"
 )
 
 func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logger) *gin.Engine {
@@ -129,6 +135,44 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	skuH := sku.NewHandler(skuSvc)
 	api.GET("/sku/points", skuH.ListPoints)
 	api.GET("/sku/points/:id", skuH.GetPoint)
+	
+	// Location
+	locationRepo := location.NewRepository(db)
+	locationSvc := location.NewService(locationRepo)
+	locationH := location.NewHandler(locationSvc)
+
+	api.GET("/location/provinsi", locationH.GetProvinsi)
+	api.GET("/location/kabupaten", locationH.GetKabupaten)
+	api.GET("/location/kecamatan", locationH.GetKecamatan)
+
+	// Chat (Hierarchical) MUST be initialized BEFORE SKU so we can inject it
+	chatRepo := chat.NewRepository(db)
+	chatSvc := chat.NewService(chatRepo, rdb)
+	chatH := chat.NewHandler(chatSvc)
+	locationSvc.SetChatService(chatSvc)
+	skuSvc.SetChatService(chatSvc)
+
+	authChat := api.Group("/chat")
+	authChat.Use(middleware.Auth(cfg.JWTSecret))
+	{
+		authChat.GET("/rooms", chatH.GetUserRooms)
+		authChat.GET("/rooms/:room_id/messages", chatH.GetMessages)
+		authChat.POST("/rooms/:room_id/messages", chatH.SendMessage)
+		authChat.GET("/rooms/:room_id/info", chatH.GetRoomInfo)
+		authChat.GET("/ws", chatH.ServeWS)
+	}
+
+	authLoc := api.Group("/location")
+	authLoc.Use(middleware.Auth(cfg.JWTSecret))
+	{
+		authLoc.POST("/set", locationH.SetLocation)
+		authLoc.GET("/me", locationH.GetMyLocation)
+	}
+
+	authAll := api.Group("")
+	authAll.Use(middleware.Auth(cfg.JWTSecret))
+	{
+		authAll.GET("/sku/time-gate-status", skuH.TimeGateStatus)
 
 	// Survival
 	survivalRepo := survival.NewRepository(db)
@@ -142,9 +186,33 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	api.GET("/leaderboard", lbH.GetTop)
 	api.GET("/survival/leaderboard", survivalH.GetLeaderboard)
 
-	authAll := api.Group("")
-	authAll.Use(middleware.Auth(cfg.JWTSecret))
+
+
+	// Arena 5v5 & 1v1
+	arenaRepo := arena.NewRepository(db)
+	arenaSvc := arena.NewService(arenaRepo, rdb)
+	arenaH := arena.NewHandler(arenaSvc, arenaRepo)
+
+	authArena := api.Group("/arena")
+	authArena.Use(middleware.Auth(cfg.JWTSecret))
 	{
+		authArena.GET("/rooms", arenaH.GetWaitingRooms)
+		authArena.POST("/rooms", arenaH.CreateRoom)
+		authArena.GET("/rooms/:code", arenaH.GetRoomStatus)
+		authArena.POST("/rooms/:code/teams", arenaH.CreateTeam)
+		authArena.POST("/rooms/:code/teams/:slot/join", arenaH.JoinTeam)
+		authArena.POST("/rooms/:code/start", arenaH.StartRoom)
+		authArena.GET("/rooms/:code/state", arenaH.GetRoomState)
+		authArena.POST("/rooms/:code/answer", arenaH.SubmitAnswer)
+
+		// 1v1
+		authArena.POST("/matchmake/join", arenaH.Matchmake1v1)
+		authArena.GET("/matchmake/status", arenaH.GetMatchmakeStatus)
+		authArena.DELETE("/matchmake/cancel", arenaH.CancelMatchmake)
+		authArena.POST("/matchmake/bot", arenaH.CreateBotMatch)
+	}
+
+
 		// TKK
 		tkkRepo := tkk.NewRepository(db)
 		tkkSvc := tkk.NewService(tkkRepo)
@@ -159,13 +227,33 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 		// SKU submit (auth)
 		authAll.POST("/sku/points/:id/submit", skuH.SubmitQuiz)
 
+		// Token
+		tokenRepo := token.NewPostgresTokenRepository(db)
+		tokenSvc := token.NewTokenService(tokenRepo)
+		tokenH := token.NewTokenHandler(tokenSvc)
+		
+		authAll.GET("/tokens/me", tokenH.GetStatus)
+		authAll.POST("/tokens/consume", tokenH.ConsumeOne)
+
 		// Subscription
 		subRepo := subscription.NewRepository(db)
-		subSvc := subscription.NewService(subRepo)
+		subSvc := subscription.NewService(subRepo, tokenSvc)
 		subH := subscription.NewHandler(subSvc)
 		authAll.GET("/subscription", subH.GetStatus)
 		authAll.POST("/subscription/create", subH.Create)
 		authAll.POST("/subscription/cancel", subH.Cancel)
+
+		// AI
+		aiClient := ai.NewGeminiClient(cfg.GeminiAPIKey, cfg.GeminiModel)
+		aiSvc := ai.NewAIService(aiClient, tokenSvc, cfg.AIMaxOutputTokens, cfg.AITemperature)
+		aiH := ai.NewAIHandler(aiSvc)
+		authAll.POST("/ai/chat", aiH.Chat)
+
+		// CTF
+		ctfRepo := ctf.NewPostgresCTFRepository(db)
+		ctfSvc := ctf.NewCTFService(ctfRepo, arenaRepo, aiSvc, tokenSvc)
+		ctfH := ctf.NewCTFHandler(ctfSvc)
+		ctf.RegisterCTFRoutes(api, ctfH, middleware.Auth(cfg.JWTSecret))
 
 		// Leaderboard (user rank requires auth)
 		authAll.GET("/leaderboard/me", lbH.GetRank)

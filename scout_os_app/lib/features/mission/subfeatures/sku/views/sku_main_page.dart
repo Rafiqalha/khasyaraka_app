@@ -25,16 +25,16 @@ class _SkuMainPageState extends State<SkuMainPage> {
     final controller = context.watch<SkuController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF3E2723),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF3E2723),
+        backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'PILIH TINGKATAN',
-          style: GoogleFonts.cinzel(
-            color: const Color(0xFFFFD600),
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
+          'PILIH KASTA',
+          style: GoogleFonts.fredoka(
+            color: const Color(0xFF1CB0F6),
+            fontWeight: FontWeight.w800,
+            letterSpacing: 2.0,
           ),
         ),
       ),
@@ -44,8 +44,9 @@ class _SkuMainPageState extends State<SkuMainPage> {
           children: [
             Expanded(
               child: PillarWidget(
-                title: 'BANTARA',
-                color: const Color(0xFF2E7D32),
+                title: 'SCOUT\nINFILTRATOR',
+                color: const Color(0xFF58CC02),
+                borderColor: const Color(0xFF58CC02),
                 isLocked: false,
                 onTap: () {
                   Navigator.push(
@@ -55,25 +56,23 @@ class _SkuMainPageState extends State<SkuMainPage> {
                     ),
                   );
                 },
-                child: Image.asset(
-                  'assets/images/tunas_kelapa.png',
-                  width: 90,
-                  height: 90,
-                  color: const Color(0xFFFFD600),
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.spa, color: Color(0xFFFFD600), size: 64),
-                ),
+                child: const Icon(Icons.security, size: 80, color: Color(0xFF58CC02)),
               ),
             ),
             const SizedBox(width: 20),
             Expanded(
               child: PillarWidget(
-                title: 'LAKSANA',
-                color: const Color(0xFFB71C1C),
+                title: 'CYBER\nSENTINEL',
+                color: const Color(0xFFFF4B4B),
+                borderColor: const Color(0xFFFF4B4B),
                 isLocked: !controller.isLaksanaUnlocked,
                 onTap: () {
                   if (!controller.isLaksanaUnlocked) {
-                    _showLockedDialog(context);
+                    _showLockedDialog(context, 'Selesaikan semua Node Quest [Scout Infiltrator] untuk membuka Kasta ini.');
+                    return;
+                  }
+                  if (!controller.timeGateEligible) {
+                    _showLockedDialog(context, 'Kasta ini memiliki Time Gate 90 Hari.\nKamu baru aktif ${controller.timeGateDaysActive} hari.\nSisa waktu: ${controller.timeGateDaysRemaining} hari lagi.');
                     return;
                   }
                   Navigator.push(
@@ -83,7 +82,30 @@ class _SkuMainPageState extends State<SkuMainPage> {
                     ),
                   );
                 },
-                child: Icon(Icons.lock, size: 64, color: Colors.grey.shade400),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 80, color: Colors.grey.shade400),
+                    if (controller.isLaksanaUnlocked && !controller.timeGateEligible) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'TIME GATE',
+                        style: GoogleFonts.fredoka(color: const Color(0xFFFF9600), fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      LinearProgressIndicator(
+                        value: controller.timeGateDaysActive / 90.0,
+                        backgroundColor: const Color(0xFFE5E5E5),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF9600)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${controller.timeGateDaysActive}/90 Hari',
+                        style: GoogleFonts.nunito(color: Colors.grey.shade600, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ]
+                  ],
+                ),
               ),
             ),
           ],
@@ -92,25 +114,29 @@ class _SkuMainPageState extends State<SkuMainPage> {
     );
   }
 
-  void _showLockedDialog(BuildContext context) {
+  void _showLockedDialog(BuildContext context, String message) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF3E2723),
-        title: const Text(
-          'LAKSANA TERKUNCI',
-          style: TextStyle(color: Color(0xFFFFD600)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color(0xFFE5E5E5), width: 2),
+          borderRadius: BorderRadius.circular(16),
         ),
-        content: const Text(
-          'Selesaikan semua poin Bantara untuk membuka Laksana.',
-          style: TextStyle(color: Colors.white70),
+        title: Text(
+          'KASTA TERKUNCI',
+          style: GoogleFonts.fredoka(color: const Color(0xFFFF4B4B), fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          style: GoogleFonts.nunito(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Kembali',
-              style: TextStyle(color: Color(0xFFFFD600)),
+            child: Text(
+              'Tutup',
+              style: GoogleFonts.nunito(color: const Color(0xFF1CB0F6), fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -124,6 +150,7 @@ class PillarWidget extends StatelessWidget {
     super.key,
     required this.title,
     required this.color,
+    required this.borderColor,
     required this.child,
     required this.onTap,
     required this.isLocked,
@@ -131,6 +158,7 @@ class PillarWidget extends StatelessWidget {
 
   final String title;
   final Color color;
+  final Color borderColor;
   final Widget child;
   final VoidCallback onTap;
   final bool isLocked;
@@ -138,7 +166,6 @@ class PillarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.72;
-    final borderColor = const Color(0xFFFFD600);
 
     return GestureDetector(
       onTap: onTap,
@@ -146,24 +173,9 @@ class PillarWidget extends StatelessWidget {
         height: height,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor, width: 4),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              color.withValues(alpha: isLocked ? 0.55 : 0.9),
-              color,
-              color.withValues(alpha: isLocked ? 0.45 : 0.8),
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: borderColor.withValues(alpha: 0.4),
-              blurRadius: 18,
-              spreadRadius: 2,
-            ),
-          ],
+          color: isLocked ? const Color(0xFFF7F7F7) : color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: isLocked ? const Color(0xFFE5E5E5) : borderColor, width: 3),
         ),
         child: Column(
           children: [
@@ -172,12 +184,12 @@ class PillarWidget extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: GoogleFonts.playfairDisplay(
-                color: isLocked
-                    ? Colors.grey.shade300
-                    : const Color(0xFFFFD600),
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.fredoka(
+                color: isLocked ? Colors.grey.shade400 : borderColor,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: 16),

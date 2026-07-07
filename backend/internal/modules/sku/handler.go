@@ -78,3 +78,28 @@ func (h *Handler) SubmitQuiz(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"score": score}, "message": "Quiz submitted"})
 }
+
+func (h *Handler) TimeGateStatus(c *gin.Context) {
+	uid := userID(c)
+	if uid == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
+		return
+	}
+
+	eligible, daysRemaining, err := h.svc.CanUnlockHighestTier(c.Request.Context(), *uid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get time gate status"})
+		return
+	}
+
+	daysActive := 90 - daysRemaining
+	if eligible {
+		daysActive = 90 // or more, just simplified for this UI
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"eligible":       eligible,
+		"days_active":    daysActive,
+		"days_remaining": daysRemaining,
+	})
+}

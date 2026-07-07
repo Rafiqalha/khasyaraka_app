@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
+import 'package:scout_os_app/core/widgets/duo_button.dart';
 import 'login_screen.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -112,166 +113,47 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 if (authController.errorMessage != null)
                   const SizedBox(height: 16),
-                TextField(
+                _buildDuoInput(
                   controller: _nameController,
                   enabled: !authController.isLoading,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Lengkap',
-                    prefixIcon: const Icon(Icons.badge_outlined),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.blueGrey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF00E5FF),
-                        width: 2,
-                      ),
-                    ),
-                  ),
+                  labelText: 'Nama Lengkap',
+                  icon: Icons.badge_rounded,
                 ),
                 const SizedBox(height: 16),
-                TextField(
+                _buildDuoInput(
                   controller: _usernameController,
                   enabled: !authController.isLoading,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    prefixIcon: const Icon(Icons.person_outline),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.blueGrey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF00E5FF),
-                        width: 2,
-                      ),
-                    ),
-                  ),
+                  labelText: 'Username',
+                  icon: Icons.person_rounded,
                 ),
                 const SizedBox(height: 16),
-                TextField(
+                _buildDuoInput(
                   controller: _passwordController,
                   enabled: !authController.isLoading,
+                  labelText: 'Password',
+                  icon: Icons.lock_rounded,
+                  isPassword: true,
                   obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.blueGrey,
-                      ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.blueGrey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF00E5FF),
-                        width: 2,
-                      ),
-                    ),
-                  ),
+                  onTogglePassword: () {
+                    setState(() => _obscurePassword = !_obscurePassword);
+                  },
                 ),
                 const SizedBox(height: 16),
-                TextField(
+                _buildDuoInput(
                   controller: _gudepController,
                   enabled: !authController.isLoading,
-                  decoration: InputDecoration(
-                    labelText: 'Gugus Depan (Opsional)',
-                    prefixIcon: const Icon(Icons.flag_outlined),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.blueGrey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF00E5FF),
-                        width: 2,
-                      ),
-                    ),
-                  ),
+                  labelText: 'Gugus Depan (Opsional)',
+                  icon: Icons.flag_rounded,
                 ),
                 const SizedBox(height: 24),
-                SizedBox(
-                  height: 52,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF00695C), Color(0xFF00E5FF)],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: authController.isLoading
-                          ? null
-                          : _handleRegister,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: authController.isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              'DAFTAR SEKARANG',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                    ),
+                if (authController.isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  DuoButton(
+                    text: 'DAFTAR SEKARANG',
+                    variant: DuoButtonVariant.green,
+                    onPressed: _handleRegister,
                   ),
-                ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -301,10 +183,63 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildDuoInput({
+    required TextEditingController controller,
+    required bool enabled,
+    required String labelText,
+    required IconData icon,
+    bool isPassword = false,
+    bool? obscureText,
+    VoidCallback? onTogglePassword,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xFFE5E5E5),
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        obscureText: obscureText ?? false,
+        style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: GoogleFonts.nunito(
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.w700,
+          ),
+          prefixIcon: Icon(icon, color: Colors.grey),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    (obscureText ?? false)
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
+                    color: Colors.grey.shade500,
+                  ),
+                  onPressed: onTogglePassword,
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
       ),
     );
   }

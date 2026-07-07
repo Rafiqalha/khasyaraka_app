@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import '../logic/login_controller.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
+import 'package:scout_os_app/core/widgets/duo_button.dart';
 import 'register_page.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -115,75 +116,90 @@ class _LoginScreenState extends State<LoginScreen>
                   const SizedBox(height: 32),
                   
                   // Username Field
-                  TextField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0xFFE5E5E5),
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _usernameController,
+                      style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        labelStyle: GoogleFonts.nunito(
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        prefixIcon: const Icon(Icons.person_rounded, color: Colors.grey),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   
                   // Password Field
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.blueGrey,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0xFFE5E5E5),
+                          offset: Offset(0, 4),
                         ),
-                        onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: GoogleFonts.nunito(
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        prefixIcon: const Icon(Icons.lock_rounded, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                            color: Colors.grey.shade500,
+                          ),
+                          onPressed: () {
+                            setState(() => _obscurePassword = !_obscurePassword);
+                          },
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                   
                   // Login Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-                          context.read<LoginController>().loginWithUsername(
-                            context,
-                            _usernameController.text,
-                            _passwordController.text,
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: brandPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(
-                        "MASUK",
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  DuoButton(
+                    text: "MASUK",
+                    variant: DuoButtonVariant.green,
+                    onPressed: () {
+                      if (_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+                        context.read<LoginController>().loginWithUsername(
+                          context,
+                          _usernameController.text,
+                          _passwordController.text,
+                        );
+                      }
+                    },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   
                   // Register Link
                   Row(

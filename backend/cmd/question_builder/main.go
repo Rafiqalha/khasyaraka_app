@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 type Question struct {
@@ -116,12 +117,13 @@ func writeSQLFiles(questions []Question) {
 		payloadBytes, _ := json.Marshal(q.Payload)
 		payloadStr := string(payloadBytes)
 		
-		// Escape single quotes in question text
-		escapedQuestion := q.Question
+		// Escape single quotes in question text and payload
+		escapedQuestion := strings.ReplaceAll(q.Question, "'", "''")
+		escapedPayload := strings.ReplaceAll(payloadStr, "'", "''")
 		
 		// Write UP
 		fmt.Fprintf(fUp, "INSERT INTO training_questions (id, level_id, type, question, payload, xp, ord) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d) ON CONFLICT(id) DO UPDATE SET type = EXCLUDED.type, question = EXCLUDED.question, payload = EXCLUDED.payload, ord = EXCLUDED.ord;\n", 
-			q.ID, q.LevelID, q.Type, escapedQuestion, payloadStr, q.XP, q.Order)
+			q.ID, q.LevelID, q.Type, escapedQuestion, escapedPayload, q.XP, q.Order)
 			
 		// Write DOWN
 		fmt.Fprintf(fDown, "DELETE FROM training_questions WHERE id = '%s';\n", q.ID)

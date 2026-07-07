@@ -18,6 +18,11 @@ class SkuRepository {
     return SkuOverviewModel.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<Map<String, dynamic>> fetchTimeGateStatus() async {
+    final response = await _dio.get('/sku/time-gate-status');
+    return response.data as Map<String, dynamic>;
+  }
+
   Future<List<SkuPointStatusModel>> fetchPoints(String level) async {
     final response = await _dio.get('/sku/$level/points');
     final data = response.data as Map<String, dynamic>;

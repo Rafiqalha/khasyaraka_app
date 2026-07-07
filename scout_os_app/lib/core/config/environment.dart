@@ -7,7 +7,7 @@ class Environment {
   // static const String apiBaseUrl =
   //     "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1";
   static const String apiBaseUrl =
-      "http://168.110.201.112:8080/api/v1"; // ORACLE CLOUD
+      "http://127.0.0.1:8080/api/v1"; // LOCALHOST FOR DESKTOP
 
   /// Resolve a URL that may be relative (e.g. /api/v1/users/me/avatar/file.jpg)
   /// to a full URL by prepending the API host.

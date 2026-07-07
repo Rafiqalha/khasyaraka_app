@@ -1,5 +1,6 @@
 import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
@@ -8,6 +9,7 @@ import '../../data/models/training_path.dart';
 import '../widgets/top_stats_bar.dart';
 import '../widgets/active_unit_header_delegate.dart';
 import '../widgets/path_road_painter.dart';
+import 'package:scout_os_app/core/widgets/zoo_3d_circle.dart';
 import 'quiz_page.dart';
 
 class TrainingPathPage extends StatefulWidget {
@@ -222,7 +224,6 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
                   pinned: true,
                   delegate: (() {
                     final sectionNum = _getSectionNumber(activeUnit);
-                    final unitNum = activeUnit.orderIndex;
                     return ActiveUnitHeaderDelegate(
                       unit: activeUnit,
                       sectionIndex: sectionNum,
@@ -278,17 +279,6 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
     for (int i = 0; i < sections.length; i++) {
       final currentSection = sections[i];
 
-      // 1. Render Section Header
-      slivers.add(
-        SliverToBoxAdapter(
-          child: _PartHeader(
-            partNumber: currentSection.section.order,
-            sectionId: currentSection.id,
-            // title: currentSection.title, // Optional: Add title if needed
-          ),
-        ),
-      );
-
       // 2. Render Units for this section
       for (int j = 0; j < currentSection.units.length; j++) {
         final unit = currentSection.units[j];
@@ -311,7 +301,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
         if (j < currentSection.units.length - 1) {
           slivers.add(
             SliverToBoxAdapter(
-              child: _buildDivider(j, currentSection.units.length),
+              child: _buildDivider(j, currentSection.units.length, context),
             ),
           );
         }
@@ -326,7 +316,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
     return slivers;
   }
 
-  Widget _buildDivider(int index, int total) {
+  Widget _buildDivider(int index, int total, BuildContext context) {
     final isLast = index >= total - 1;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 40),
@@ -334,7 +324,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(3, (_) => _dot()),
+            children: List.generate(3, (_) => _dot(context)),
           ),
           const SizedBox(height: 16),
           Text(
@@ -353,7 +343,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
     );
   }
 
-  Widget _dot() {
+  Widget _dot(BuildContext context) {
     return Container(
       width: 6,
       height: 6,
@@ -414,7 +404,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
           final controller = context.read<TrainingController>();
           Future.microtask(() async {
             try {
-              await Future.wait([
+              await Future.wait<void>([
                 controller.loadProgress(),
                 controller.loadUserStats(),
                 controller.refreshHearts(),
@@ -506,9 +496,9 @@ class _LevelActionDialog extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade200, width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 0,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
@@ -558,8 +548,8 @@ class _LevelActionDialog extends StatelessWidget {
                 border: Border.all(color: Colors.white, width: 4),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 0,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -595,7 +585,6 @@ class _Dialog3DButtonState extends State<_Dialog3DButton> {
   Widget build(BuildContext context) {
     final double lipHeight = 4.0;
 
-    // Darken color for lip
     final HSLColor hsl = HSLColor.fromColor(widget.color);
     final Color lipColor = hsl
         .withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0))
@@ -658,21 +647,21 @@ class _PartHeader extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: const Color(0xFF58CC02),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+                color: const Color(0xFF46A302),
+                blurRadius: 0,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.flag_rounded, color: Colors.white, size: 22),
-              const SizedBox(width: 10),
+              const Icon(Icons.flag_rounded, color: Colors.white, size: 28),
+              const SizedBox(width: 12),
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -681,15 +670,15 @@ class _PartHeader extends StatelessWidget {
                     'BAGIAN $partNumber',
                     style: AppTextStyles.h2.copyWith(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 18,
                       letterSpacing: 1.5,
                     ),
                   ),
                   Text(
                     sectionId.toUpperCase(),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 11,
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 12,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -750,9 +739,10 @@ class _UnitPathSection extends StatelessWidget {
               child: Center(
                 child: Transform.translate(
                   offset: Offset(offsetX, 0),
-                  child: _AnimatedLevelButton(
+                  child: _LevelNodeWidget(
                     lesson: lesson,
                     onTap: () => onLessonTap(lesson),
+                    unitColor: unitColor,
                   ),
                 ),
               ),
@@ -764,193 +754,31 @@ class _UnitPathSection extends StatelessWidget {
   }
 }
 
-/// Animated level button
-class _AnimatedLevelButton extends StatefulWidget {
+class _LevelNodeWidget extends StatelessWidget {
   final LessonNode lesson;
   final VoidCallback onTap;
+  final Color unitColor;
 
-  const _AnimatedLevelButton({required this.lesson, required this.onTap});
-
-  @override
-  State<_AnimatedLevelButton> createState() => _AnimatedLevelButtonState();
-}
-
-class _AnimatedLevelButtonState extends State<_AnimatedLevelButton>
-    with TickerProviderStateMixin {
-  late AnimationController _tapController;
-  late AnimationController _pulseController;
-  late AnimationController _rotateController;
-  late AnimationController _shimmerController;
-
-  late Animation<double> _depressionAnimation;
-  late Animation<double> _scaleAnimation; // New Bounce Animation
-  late Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    // Faster animation for snappy feel (70ms) - Good for bounce too
-    _tapController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    ); // Slightly slower for visible bounce
-
-    // Animate depression from 0.0 (unpressed) to 1.0 (fully pressed)
-    _depressionAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _tapController,
-        curve: Curves.easeInOutCubic,
-      ), // More bounce in curve
-    );
-
-    // Animate scale from 1.0 to 0.9 (Bounce effect)
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(parent: _tapController, curve: Curves.easeInOutCubic),
-    );
-
-    // Scale pulse for active
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    // Rotation for active star
-    _rotateController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
-
-    // Shimmer for completed
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
-    _updateAnimations();
-  }
-
-  void _updateAnimations() {
-    final status = widget.lesson.status.toUpperCase();
-    final isActive = status == 'UNLOCKED';
-    final isCompleted = status == 'COMPLETED';
-
-    if (isActive) {
-      _pulseController.repeat(reverse: true);
-      _rotateController.repeat();
-    } else {
-      _pulseController.stop();
-      _pulseController.reset();
-      _rotateController.stop();
-      _rotateController.reset();
-    }
-
-    if (isCompleted) {
-      _shimmerController.repeat();
-    } else {
-      _shimmerController.stop();
-      _shimmerController.reset();
-    }
-  }
-
-  @override
-  void didUpdateWidget(_AnimatedLevelButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.lesson.status != widget.lesson.status) _updateAnimations();
-  }
-
-  @override
-  void dispose() {
-    _tapController.dispose();
-    _pulseController.dispose();
-    _rotateController.dispose();
-    _shimmerController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final status = widget.lesson.status.toUpperCase();
-    final isLocked = status == 'LOCKED' || status.isEmpty;
-    final isCompleted = status == 'COMPLETED';
-    final isActive = status == 'UNLOCKED';
-
-    return GestureDetector(
-      onTapDown: (_) => _tapController.forward(),
-      onTapUp: (_) {
-        _tapController.reverse();
-        widget.onTap();
-      },
-      onTapCancel: () => _tapController.reverse(),
-      child: AnimatedBuilder(
-        animation: Listenable.merge([
-          _depressionAnimation,
-          _scaleAnimation,
-          _pulseAnimation,
-          _rotateController,
-          _shimmerController,
-        ]),
-        builder: (context, _) {
-          // Pulse scale only for active state
-          final pulseRatio = isActive ? _pulseAnimation.value : 1.0;
-          // Tap scale (bounce) - multiplies with pulse
-          final bounceRatio = _scaleAnimation.value;
-
-          final totalScale = pulseRatio * bounceRatio;
-
-          return Transform.scale(
-            scale: totalScale,
-            child: _LevelButton3D(
-              isLocked: isLocked,
-              isCompleted: isCompleted,
-              isActive: isActive,
-              rotateAnim: _rotateController,
-              shimmerAnim: _shimmerController,
-              depression: _depressionAnimation
-                  .value, // Pass depression value (0.0 - 1.0)
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// 3D level button visual
-class _LevelButton3D extends StatelessWidget {
-  final bool isLocked, isCompleted, isActive;
-  final Animation<double> rotateAnim;
-  final Animation<double> shimmerAnim;
-  final double depression; // 0.0 = Unpressed, 1.0 = Fully Pressed
-
-  const _LevelButton3D({
-    required this.isLocked,
-    required this.isCompleted,
-    required this.isActive,
-    required this.rotateAnim,
-    required this.shimmerAnim,
-    this.depression = 0.0,
+  const _LevelNodeWidget({
+    required this.lesson,
+    required this.onTap,
+    required this.unitColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    Gradient bodyGradient;
-    Color lipColor;
+    final status = lesson.status.toUpperCase();
+    final isLocked = status == 'LOCKED' || status.isEmpty;
+    final isCompleted = status == 'COMPLETED';
+    final isActive = status == 'UNLOCKED';
+
+    Color faceColor;
     Color iconColor = Colors.white;
     Widget icon;
 
-    // --- COLOR PALETTE ---
     if (isCompleted) {
-      // Golden / Yellow Gradient
-      bodyGradient = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xFFFFD600), Color(0xFFFFC107)], // Bright Gold -> Amber
-      );
-      lipColor = const Color(0xFFC79100); // Darker Gold
-      iconColor = const Color(0xFFC79100);
+      faceColor = unitColor;
+      iconColor = Colors.white;
       icon = Image.asset(
         'assets/icons/training/star.png',
         width: 32,
@@ -959,17 +787,8 @@ class _LevelButton3D extends StatelessWidget {
         colorBlendMode: BlendMode.srcIn,
       );
     } else if (isLocked) {
-      // Grey Gradient (Solid, no transparency)
-      bodyGradient = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Color(0xFFE0E0E0),
-          Color(0xFFBDBDBD),
-        ], // Light Gray -> Medium Gray
-      );
-      lipColor = const Color(0xFF9E9E9E); // Solid Dark Gray Lip
-      iconColor = const Color(0xFF757575); // Icon Gray
+      faceColor = const Color(0xFFE0E0E0);
+      iconColor = const Color(0xFF757575);
       icon = Image.asset(
         'assets/icons/training/star.png',
         width: 32,
@@ -978,16 +797,7 @@ class _LevelButton3D extends StatelessWidget {
         colorBlendMode: BlendMode.srcIn,
       );
     } else if (isActive) {
-      // Active Green Gradient
-      bodyGradient = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Color(0xFF58CC02),
-          Color(0xFF46A302),
-        ], // Light Green -> Dark Green
-      );
-      lipColor = const Color(0xFF46A302);
+      faceColor = unitColor;
       iconColor = Colors.white;
       icon = Image.asset(
         'assets/icons/training/star.png',
@@ -995,13 +805,7 @@ class _LevelButton3D extends StatelessWidget {
         height: 32,
       );
     } else {
-      // Default / Fallback
-      bodyGradient = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [AppColors.primary, Color(0xFF2E7D32)],
-      );
-      lipColor = const Color(0xFF1B5E20);
+      faceColor = unitColor;
       icon = Image.asset(
         'assets/icons/training/star.png',
         width: 32,
@@ -1009,203 +813,85 @@ class _LevelButton3D extends StatelessWidget {
       );
     }
 
-    const double size = 72.0;
-    const double lipHeight = 6.0;
+    Widget node = Zoo3DCircle(
+      size: 72,
+      color: faceColor,
+      style: Zoo3DCircleStyle.duolingo,
+      onPressed: isLocked ? null : onTap,
+      child: icon,
+    );
 
-    // Calculate animated values based on depression (0.0 -> 1.0)
-    final double currentFaceOffset =
-        lipHeight * depression; // Simply moves down by lip height
-    final double currentShadowOpacity =
-        0.4 * (1.0 - depression); // Shadow fades out
-    final double currentShadowOffset =
-        4.0 * (1.0 - depression); // Shadow shrinks
-    final double currentShadowBlur =
-        4.0 * (1.0 - depression); // Shadow sharpens/disappears
-
-    return SizedBox(
-      height: size + lipHeight,
-      width: size,
-      child: Stack(
+    if (isActive) {
+      node = Stack(
+        alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // 1. LIP (Bottom layer - The 3D Depth)
           Positioned(
-            top: lipHeight,
-            child: Container(
-              height: size,
-              width: size,
-              decoration: BoxDecoration(
-                color: lipColor, // Darker shade
-                borderRadius: BorderRadius.circular(size / 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(
-                      currentShadowOpacity,
-                    ), // Animated Shadow
-                    blurRadius: currentShadowBlur,
-                    offset: Offset(0, currentShadowOffset),
-                  ),
-                ],
+            child: CustomPaint(
+              size: const Size(108, 108), // 72 + 36
+              painter: _DashedRingPainter(
+                color: faceColor,
+                strokeWidth: 8.0,
               ),
             ),
           ),
-
-          // 2. FACE (Top layer - Main Button)
-          // Animated Position: Moves DOWN when pressed
-          Positioned(
-            top: currentFaceOffset,
-            child: Container(
-              height: size,
-              width: size,
-              decoration: BoxDecoration(
-                gradient: bodyGradient,
-                borderRadius: BorderRadius.circular(size / 2),
-              ),
-              child: Stack(
-                children: [
-                  // 2.1 PATTERN TEXTURE (Scout Icons)
-                  ClipOval(
-                    child: Stack(
-                      children: [
-                        // Top Left - Hiking
-                        Positioned(
-                          top: 8,
-                          left: 10,
-                          child: Transform.rotate(
-                            angle: -0.2,
-                            child: Icon(
-                              Icons.hiking,
-                              size: 20,
-                              color: Colors.white.withOpacity(0.2),
-                            ),
-                          ),
-                        ),
-                        // Top Right - Forest/Nature
-                        Positioned(
-                          top: 12,
-                          right: 12,
-                          child: Transform.rotate(
-                            angle: 0.1,
-                            child: Icon(
-                              Icons.forest,
-                              size: 16,
-                              color: Colors.white.withOpacity(0.15),
-                            ),
-                          ),
-                        ),
-                        // Bottom Left - Terrain/Mountain
-                        Positioned(
-                          bottom: 14,
-                          left: 14,
-                          child: Transform.rotate(
-                            angle: 0.1,
-                            child: Icon(
-                              Icons.terrain,
-                              size: 18,
-                              color: Colors.white.withOpacity(0.18),
-                            ),
-                          ),
-                        ),
-                        // Bottom Right - Water/Camp
-                        Positioned(
-                          bottom: 8,
-                          right: 14,
-                          child: Transform.rotate(
-                            angle: -0.15,
-                            child: Icon(
-                              Icons.holiday_village,
-                              size: 16,
-                              color: Colors.white.withOpacity(0.15),
-                            ),
-                          ),
-                        ),
-                        // Center Top - Cloud
-                        Positioned(
-                          top: 4,
-                          left: size / 2 - 8,
-                          child: Icon(
-                            Icons.cloud,
-                            size: 14,
-                            color: Colors.white.withOpacity(0.12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // 2.2 ICON CENTERED (On top of pattern)
-                  Center(
-                    child: isCompleted
-                        ? _buildCompletedStar(icon, iconColor)
-                        : (isActive
-                              ? RotationTransition(
-                                  turns: rotateAnim,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Glow
-                                      Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.white.withOpacity(
-                                                0.4,
-                                              ),
-                                              blurRadius: 10,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      // Star
-                                      Image.asset(
-                                        'assets/icons/training/star.png',
-                                        width: 40,
-                                        height: 40,
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : icon),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Label 'MULAI' dihapus agar seragam dengan node yang lain
+          node,
         ],
-      ),
-    );
+      );
+    }
+
+    return node;
+  }
+}
+
+class _DashedRingPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double dashLength;
+  final double gapLength;
+
+  _DashedRingPainter({
+    required this.color,
+    this.strokeWidth = 4.0,
+    this.dashLength = 12.0,
+    this.gapLength = 8.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final double radius = size.width / 2;
+    final center = Offset(radius, radius);
+    
+    // Exactly 4 arcs (quadrants)
+    final double sweepAngle = (math.pi / 2) * 0.65; // 65% of a quadrant is the arc
+    final double gapAngle = (math.pi / 2) * 0.35; // 35% is the gap
+    
+    // Start slightly offset so the gaps align diagonally (like an X)
+    double startAngle = -math.pi / 2 - (sweepAngle / 2);
+
+    for (int i = 0; i < 4; i++) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+      startAngle += sweepAngle + gapAngle;
+    }
   }
 
-  Widget _buildCompletedStar(Widget icon, Color color) {
-    return AnimatedBuilder(
-      animation: shimmerAnim,
-      builder: (context, child) {
-        // Create a sweeping gradient mask for shimmer
-        return ShaderMask(
-          shaderCallback: (bounds) {
-            return LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [color, Colors.white, color],
-              stops: [
-                0.0,
-                shimmerAnim.value, // Sweep across based on 0..1 loop
-                1.0,
-              ],
-              transform: const GradientRotation(0.5),
-            ).createShader(bounds);
-          },
-          blendMode: BlendMode.srcATop,
-          child: icon,
-        );
-      },
-    );
+  @override
+  bool shouldRepaint(covariant _DashedRingPainter oldDelegate) {
+    return color != oldDelegate.color ||
+        strokeWidth != oldDelegate.strokeWidth ||
+        dashLength != oldDelegate.dashLength ||
+        gapLength != oldDelegate.gapLength;
   }
 }

@@ -438,6 +438,9 @@ class ApiUser {
   final String? pictureUrl;
   final bool isPro;
   final String? gugusDepan;
+  final bool locationSet;
+  final String? kecamatanId;
+  final String? provinsiId;
 
   ApiUser({
     required this.id,
@@ -446,6 +449,9 @@ class ApiUser {
     this.pictureUrl,
     this.isPro = false,
     this.gugusDepan,
+    this.locationSet = false,
+    this.kecamatanId,
+    this.provinsiId,
   });
 
   factory ApiUser.fromJson(Map<String, dynamic> json) {
@@ -471,6 +477,9 @@ class ApiUser {
       pictureUrl: json['picture_url']?.toString(),
       isPro: json['is_pro'] == true || json['isPro'] == true,
       gugusDepan: json['gugus_depan']?.toString(),
+      locationSet: json['location_set'] == true,
+      kecamatanId: json['kecamatan_id']?.toString(),
+      provinsiId: json['provinsi_id']?.toString(),
     );
   }
 }

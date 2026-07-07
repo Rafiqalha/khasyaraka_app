@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart'; // Force Rebuild 2
 import 'package:provider/provider.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:scout_os_app/shared/theme/app_theme.dart';
 // Import from features structure
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
@@ -12,6 +14,9 @@ import 'package:scout_os_app/features/auth/presentation/register_page.dart';
 import 'package:scout_os_app/features/auth/presentation/change_password_screen.dart';
 import 'package:scout_os_app/core/widgets/duo_main_scaffold.dart';
 import 'package:scout_os_app/features/intro/logic/intro_controller.dart';
+import 'package:scout_os_app/features/location/logic/location_controller.dart'; // [NEW]
+import 'package:scout_os_app/features/group_chat/logic/group_chat_controller.dart'; // [NEW]
+import 'package:scout_os_app/features/location/presentation/pages/location_setup_page.dart'; // [NEW]
 import 'package:scout_os_app/features/intro/presentation/pages/onboarding_page.dart';
 import 'package:scout_os_app/features/intro/presentation/pages/splash_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/logic/survival_mastery_controller.dart';
@@ -32,8 +37,14 @@ void main() async {
   // Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  // Initialize Firebase (safely for Linux desktop testing)
+  try {
+    if (kIsWeb || (!Platform.isLinux && !Platform.isWindows)) {
+      await Firebase.initializeApp();
+    }
+  } catch (e) {
+    debugPrint('Firebase initialization skipped: \$e');
+  }
 
   // Initialize local cache (Hive) for SWR pattern
   await LocalCacheService.init();
@@ -79,6 +90,8 @@ class ScoutOSApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => SkuController()),
         ChangeNotifierProvider(create: (_) => IntroController()),
+        ChangeNotifierProvider(create: (_) => LocationController()), // [NEW]
+        ChangeNotifierProvider(create: (_) => GroupChatController()), // [NEW]
 
         ChangeNotifierProvider(create: (_) => SurvivalMasteryController()),
         ChangeNotifierProvider(create: (_) => SurvivalToolsController()),
@@ -148,6 +161,9 @@ class ScoutOSApp extends StatelessWidget {
                   if (authController.mustChangePassword) {
                     return const ChangePasswordScreen();
                   }
+                  if (authController.currentUser != null && !authController.currentUser!.locationSet) {
+                    return const LocationSetupPage();
+                  }
                   return const DuoMainScaffold();
                 } else {
                   return const OnboardingPage();
@@ -166,11 +182,12 @@ class ScoutOSApp extends StatelessWidget {
               '/login': (context) => const LoginScreen(),
               '/register': (context) => const RegisterPage(),
               '/change-password': (context) => const ChangePasswordScreen(),
+              '/location-setup': (context) => const LocationSetupPage(),
               '/dashboard': (context) => const DuoMainScaffold(),
               '/penegak': (context) => const DuoMainScaffold(),
             },
             navigatorObservers: [
-              AnalyticsService.observer,
+              if (AnalyticsService.observer != null) AnalyticsService.observer!,
             ],
             onGenerateRoute: AppRoutes.generateRoute,
           );

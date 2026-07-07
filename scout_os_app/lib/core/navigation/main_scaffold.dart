@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 import 'package:scout_os_app/features/home/presentation/pages/training_map_page.dart';
 import 'package:scout_os_app/features/mission/presentation/mission_dashboard_page.dart';
-import 'package:scout_os_app/features/leaderboard/presentation/pages/rank_page.dart';
+import 'package:scout_os_app/features/arena/presentation/pages/arena_home_page.dart';
+import 'package:scout_os_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:scout_os_app/features/profile/presentation/pages/profile_page.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -19,7 +20,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   final List<Widget> _pages = [
     const TrainingMapPage(),
     const MissionDashboardPage(),
-    const RankPage(),
+    const ArenaHomePage(),
+    const ChatPage(),
     const ProfilePage(),
   ];
 
@@ -67,9 +69,14 @@ class _MainScaffoldState extends State<MainScaffold> {
             label: 'Misi',
           ),
           NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events, color: AppColors.scoutBrown),
-            label: 'Rank',
+            icon: Icon(Icons.stadium_outlined),
+            selectedIcon: Icon(Icons.stadium, color: AppColors.scoutBrown),
+            label: 'Arena',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.forum_outlined),
+            selectedIcon: Icon(Icons.forum, color: AppColors.scoutBrown),
+            label: 'Chat',
           ),
           NavigationDestination(
             icon: Image.asset(

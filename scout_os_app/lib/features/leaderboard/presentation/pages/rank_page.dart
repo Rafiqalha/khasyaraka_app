@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+  import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 
 /// Rank Page — Real-time leaderboard powered by Redis Sorted Sets
 ///
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
 import 'package:scout_os_app/features/leaderboard/models/leaderboard_model.dart';
 import 'package:scout_os_app/core/config/environment.dart';
@@ -92,7 +93,7 @@ class _RankPageState extends State<RankPage>
         builder: (context, controller, _) {
           // LOADING STATE
           if (controller.isLoading) {
-            return Center(child: GrassSosLoader(color: _scoutGreen));
+            return _buildShimmerLoading();
           }
 
           // ERROR STATE
@@ -141,6 +142,11 @@ class _RankPageState extends State<RankPage>
                       color: _scoutGreen,
                       child: CustomScrollView(
                         slivers: [
+                          // SELECTORS
+                          SliverToBoxAdapter(
+                            child: _buildSelectors(controller),
+                          ),
+
                           // PODIUM SECTION
                           if (top3.isNotEmpty)
                             SliverToBoxAdapter(
@@ -353,6 +359,170 @@ class _RankPageState extends State<RankPage>
   // HELPER METHODS
   // ---------------------------------------------------------------------------
 
+  Widget _buildSelectors(LeaderboardController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Column(
+        children: [
+          // SCOPE SELECTOR
+          _buildScopeToggle(controller),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScopeToggle(LeaderboardController controller) {
+    final scopes = [
+      {'key': 'kecamatan', 'label': 'Kecamatan'},
+      {'key': 'provinsi', 'label': 'Provinsi'},
+      {'key': 'nasional', 'label': 'Nasional'},
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: _itemBorder,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: scopes.map((scope) {
+          final isSelected = controller.activeScope == scope['key'] || 
+              (controller.activeScope == 'global' && scope['key'] == 'nasional');
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                final newScope = scope['key'] == 'nasional' ? 'global' : scope['key']!;
+                if (controller.activeScope != newScope) {
+                  controller.loadLeaderboard(scope: newScope, category: controller.activeCategory);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutBack,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  scope['label']!,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.nunito(
+                    color: isSelected ? _scoutGreenDark : Colors.grey[600],
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Column(
+      children: [
+        _build3DHeader(),
+        Expanded(
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(child: _buildShimmerPodium(160)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildShimmerPodium(200)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildShimmerPodium(130)),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      childCount: 5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerPodium(double height) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          width: 55,
+          height: 55,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: 60,
+          height: 12,
+          color: Colors.white,
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: height,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+        ),
+      ],
+    );
+  }
+
   Color _getLevelColor(String level) {
     if (level.contains('Siaga')) {
       return const Color(0xFF58CC02); // Green
@@ -479,22 +649,54 @@ class _RankPageState extends State<RankPage>
                 ),
               ),
 
-              // XP Pill
+              // Rank & Stars Pill
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      offset: const Offset(0, 2),
+                      blurRadius: 2,
+                    ),
+                  ],
                 ),
-                child: Text(
-                  "${user.xp} XP",
-                  style: GoogleFonts.fredoka(
-                    color: Colors.grey,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "${user.rankInfo.rankName} ${user.rankInfo.subTier}",
+                      style: GoogleFonts.fredoka(
+                        color: Colors.grey[700],
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 12,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          "${user.rankInfo.stars}/${user.rankInfo.maxStars}",
+                          style: GoogleFonts.nunito(
+                            color: Colors.amber[700],
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -614,7 +816,7 @@ class _RankPageState extends State<RankPage>
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          user.level,
+                          "${user.rankInfo.rankName} ${user.rankInfo.subTier}",
                           style: GoogleFonts.fredoka(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -627,7 +829,7 @@ class _RankPageState extends State<RankPage>
                     ),
                   ),
 
-                  // XP
+                  // STARS
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -639,13 +841,24 @@ class _RankPageState extends State<RankPage>
                       ), // Semi-transparent pill
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      "${user.xp} XP",
-                      style: GoogleFonts.fredoka(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${user.rankInfo.stars}/${user.rankInfo.maxStars}",
+                          style: GoogleFonts.fredoka(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -699,13 +912,38 @@ class _RankPageState extends State<RankPage>
               ),
             ),
             const Spacer(),
-            Text(
-              "${myRank.xp} XP",
-              style: GoogleFonts.fredoka(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  "${myRank.rankInfo.rankName} ${myRank.rankInfo.subTier}",
+                  style: GoogleFonts.fredoka(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${myRank.rankInfo.stars}/${myRank.rankInfo.maxStars}",
+                      style: GoogleFonts.fredoka(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),

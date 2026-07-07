@@ -5,60 +5,50 @@ import 'app_colors.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  static const String _fontFamily = 'Fredoka';
-
   // Headings
-  static TextStyle h1 = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle h1 = GoogleFonts.fredoka(
     fontSize: 32,
-    fontWeight: FontWeight.w600, // SemiBold
+    fontWeight: FontWeight.w700, // Bold
   );
 
-  static TextStyle h2 = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle h2 = GoogleFonts.fredoka(
     fontSize: 24,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
   );
 
-  static TextStyle h3 = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle h3 = GoogleFonts.fredoka(
     fontSize: 20,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
   );
 
   // Body Text
-  static TextStyle bodyLarge = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle bodyLarge = GoogleFonts.nunito(
     fontSize: 16,
-    fontWeight: FontWeight.w400, // Regular
+    fontWeight: FontWeight.w700, // Bold for readability like Duolingo
   );
 
-  static TextStyle bodyMedium = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle bodyMedium = GoogleFonts.nunito(
     fontSize: 14,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w700,
   );
 
   // Captions/Labels
-  static TextStyle caption = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle caption = GoogleFonts.nunito(
     fontSize: 12,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w700,
     color: Colors.grey,
   );
 
   // Buttons
-  static TextStyle button = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle button = GoogleFonts.fredoka(
     fontSize: 14,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     letterSpacing: 0.5,
   );
 
   // Currency/Points
-  static TextStyle currency = TextStyle(
-    fontFamily: _fontFamily,
+  static TextStyle currency = GoogleFonts.fredoka(
     fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
   );
 }

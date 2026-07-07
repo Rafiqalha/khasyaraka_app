@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/models/sku_model.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_quiz_page.dart';
+import 'package:scout_os_app/core/widgets/duo_button.dart';
 
 class SkuPointListPage extends StatefulWidget {
   const SkuPointListPage({super.key, required this.level});
@@ -28,21 +29,22 @@ class _SkuPointListPageState extends State<SkuPointListPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<SkuController>();
     return Scaffold(
-      backgroundColor: const Color(0xFF3E2723),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF3E2723),
+        backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           '23 SYARAT KECAKAPAN',
-          style: GoogleFonts.cinzel(
-            color: const Color(0xFFFFD600),
-            fontWeight: FontWeight.w700,
+          style: GoogleFonts.fredoka(
+            color: const Color(0xFF1CB0F6),
+            fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
         ),
       ),
       body: controller.isLoading
-          ? const Center(child: GrassSosLoader(color: Color(0xFFFFD600)))
+          ? const Center(child: GrassSosLoader(color: Color(0xFF1CB0F6)))
           : Padding(
               padding: const EdgeInsets.all(16),
               child: GridView.builder(
@@ -64,10 +66,10 @@ class _SkuPointListPageState extends State<SkuPointListPage> {
                       if (!rootContext.mounted) return;
                       showModalBottomSheet(
                         context: rootContext,
-                        backgroundColor: const Color(0xFF3E2723),
+                        backgroundColor: Colors.white,
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
+                            top: Radius.circular(24),
                           ),
                         ),
                         builder: (_) => BriefingSheet(pointId: point.id),
@@ -91,60 +93,67 @@ class SkuPointCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCompleted = point.isCompleted;
     final baseColor = isCompleted
-        ? const Color(0xFF2E7D32)
-        : const Color(0xFF4E4E4E);
-    final glowColor = isCompleted ? const Color(0xFFFFD600) : Colors.black26;
+        ? const Color(0xFF58CC02)
+        : const Color(0xFFE5E5E5);
+    final borderColor = isCompleted ? const Color(0xFF58A700) : const Color(0xFFCECECE);
+    final textColor = isCompleted ? Colors.white : Colors.grey.shade400;
     final categoryColor = _categoryColor(point.category);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: baseColor.withValues(alpha: isCompleted ? 0.8 : 0.3),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFFFD600), width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: glowColor.withValues(alpha: isCompleted ? 0.4 : 0.1),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
-          ],
+          color: baseColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border(
+            top: BorderSide(color: borderColor, width: 2),
+            left: BorderSide(color: borderColor, width: 2),
+            right: BorderSide(color: borderColor, width: 2),
+            bottom: BorderSide(color: borderColor, width: 4),
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               '${point.number}',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFFFFD600),
+              style: GoogleFonts.fredoka(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: categoryColor.withValues(alpha: 0.2),
+                color: isCompleted ? Colors.white.withValues(alpha: 0.2) : Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: categoryColor, width: 1),
+                border: Border.all(color: isCompleted ? Colors.white : categoryColor, width: 1),
               ),
               child: Text(
                 point.category,
-                style: GoogleFonts.poppins(
-                  fontSize: 9,
-                  color: categoryColor,
-                  fontWeight: FontWeight.w600,
+                style: GoogleFonts.nunito(
+                  fontSize: 10,
+                  color: isCompleted ? Colors.white : categoryColor,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              point.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(fontSize: 11, color: Colors.white70),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                point.title,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.nunito(
+                  fontSize: 11, 
+                  color: isCompleted ? Colors.white : Colors.grey.shade600,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ],
         ),
@@ -155,15 +164,15 @@ class SkuPointCard extends StatelessWidget {
   Color _categoryColor(String category) {
     switch (category.toLowerCase()) {
       case 'intelektual':
-        return const Color(0xFFFFD600);
+        return const Color(0xFFFF9600);
       case 'spiritual':
-        return const Color(0xFF9C27B0);
+        return const Color(0xFFCE82FF);
       case 'sosial':
-        return const Color(0xFF2E7D32);
+        return const Color(0xFF1CB0F6);
       case 'fisik':
-        return const Color(0xFFB71C1C);
+        return const Color(0xFFFF4B4B);
       default:
-        return const Color(0xFFFFD600);
+        return const Color(0xFFFF9600);
     }
   }
 }
@@ -216,68 +225,53 @@ class _BriefingSheetState extends State<BriefingSheet> {
         children: [
           Text(
             detail?.title ?? 'Briefing',
-            style: GoogleFonts.playfairDisplay(
-              color: const Color(0xFFFFD600),
-              fontWeight: FontWeight.w700,
-              fontSize: 18,
+            style: GoogleFonts.fredoka(
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
             ),
           ),
-          const SizedBox(height: 10),
-          Text(description, style: GoogleFonts.poppins(color: Colors.white70)),
+          const SizedBox(height: 12),
+          Text(description, style: GoogleFonts.nunito(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.w600)),
           if (officialRef != null && officialRef.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               'Referensi: $officialRef',
-              style: GoogleFonts.poppins(
-                color: Colors.white54,
+              style: GoogleFonts.nunito(
+                color: Colors.grey.shade500,
                 fontSize: 12,
                 fontStyle: FontStyle.italic,
               ),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           LinearProgressIndicator(
             value: _ready ? 1 : (1 - (_remaining / 10)).clamp(0, 1),
-            minHeight: 8,
-            backgroundColor: Colors.white12,
-            color: const Color(0xFFFFD600),
+            minHeight: 12,
+            backgroundColor: const Color(0xFFE5E5E5),
+            color: const Color(0xFF58CC02),
+            borderRadius: BorderRadius.circular(6),
           ),
           const SizedBox(height: 8),
           Text(
             _ready ? 'Siap diuji' : 'Uji materi dalam ${_remaining}s',
-            style: GoogleFonts.poppins(color: Colors.white54, fontSize: 12),
+            style: GoogleFonts.nunito(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFD600),
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: _ready
-                  ? () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SkuQuizPage(pointId: widget.pointId),
-                        ),
-                      );
-                    }
-                  : null,
-              child: Text(
-                'UJI MATERI',
-                style: GoogleFonts.cinzel(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
+          const SizedBox(height: 24),
+          DuoButton(
+            text: 'UJI MATERI',
+            onPressed: _ready
+                ? () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SkuQuizPage(pointId: widget.pointId),
+                      ),
+                    );
+                  }
+                : null,
+            variant: _ready ? DuoButtonVariant.green : DuoButtonVariant.outline,
           ),
         ],
       ),

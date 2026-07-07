@@ -32,6 +32,15 @@ type Config struct {
 
 	// CORS
 	CORSOrigins []string `mapstructure:"CORS_ORIGINS"`
+
+	// AI (Gemini)
+	GeminiAPIKey      string  `mapstructure:"GEMINI_API_KEY"`
+	GeminiModel       string  `mapstructure:"GEMINI_MODEL"`
+	AIMaxOutputTokens int     `mapstructure:"AI_MAX_OUTPUT_TOKENS"`
+	AITemperature     float64 `mapstructure:"AI_TEMPERATURE"`
+
+	// Features
+	EnableTeamMode bool `mapstructure:"ENABLE_TEAM_MODE"`
 }
 
 func Load() (*Config, error) {
@@ -43,6 +52,11 @@ func Load() (*Config, error) {
 	v.SetDefault("REDIS_URL", "redis://localhost:6379/0")
 	v.SetDefault("ACCESS_TOKEN_EXPIRE_MINUTES", 10080)
 	v.SetDefault("CORS_ORIGINS", []string{"*"})
+	
+	v.SetDefault("GEMINI_MODEL", "gemini-1.5-flash")
+	v.SetDefault("AI_MAX_OUTPUT_TOKENS", 300)
+	v.SetDefault("AI_TEMPERATURE", 0.7)
+	v.SetDefault("ENABLE_TEAM_MODE", false)
 
 	v.AutomaticEnv()
 
