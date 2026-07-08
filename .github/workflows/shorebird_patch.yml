@@ -45,7 +45,7 @@ jobs:
 
       - name: ⚡ Push Shorebird Patch (Android)
         # Akan mem-push patch ke rilis Android terbaru
-        run: shorebird patch android --force
+        run: shorebird patch android
         env:
           # Pastikan Anda menambahkan rahasia ini di pengaturan repository GitHub Anda!
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
