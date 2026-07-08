@@ -113,6 +113,7 @@ flutter:
     - assets/audio/morse/sos/dot.wav
     - assets/audio/morse/sos/dash.wav
     - assets/audio/semaphore/flag_flap.wav
+    - shorebird.yaml
 
   # To add assets to your application, add an assets section, like this:
   # assets:
