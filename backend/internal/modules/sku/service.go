@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/khasyaraka/backend/internal/modules/chat"
+	"github.com/pradigi/backend/internal/modules/chat"
 )
 
 type Service struct {

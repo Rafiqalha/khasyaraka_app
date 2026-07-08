@@ -2,7 +2,7 @@ package subscription
 
 import (
 	"context"
-	"github.com/khasyaraka/backend/internal/modules/token"
+	"github.com/pradigi/backend/internal/modules/token"
 )
 
 type Service struct {

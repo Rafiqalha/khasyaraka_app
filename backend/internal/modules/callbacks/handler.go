@@ -11,7 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 
-	"github.com/khasyaraka/backend/internal/modules/hearts"
+	"github.com/pradigi/backend/internal/modules/hearts"
 )
 
 // Handler holds callback HTTP handlers.

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/khasyaraka/backend/internal/modules/token"
+	"github.com/pradigi/backend/internal/modules/token"
 )
 
 type AIService struct {

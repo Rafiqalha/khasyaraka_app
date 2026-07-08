@@ -19,7 +19,7 @@
     <!-- Pedometer/Activity Recognition - REMOVED -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" tools:node="remove" />
     <application
-        android:label="Khasyaraka"
+        android:label="Pradigi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:enableOnBackInvokedCallback="true">

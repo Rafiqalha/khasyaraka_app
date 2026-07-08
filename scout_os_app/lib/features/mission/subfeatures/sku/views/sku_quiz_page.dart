@@ -146,33 +146,59 @@ class _SkuQuizPageState extends State<SkuQuizPage> {
 
   Widget _buildOptionTile(int index, String text) {
     final selected = _answers[_currentIndex] == index;
+    final color = selected ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5);
+    final bgColor = selected ? const Color(0xFF1CB0F6).withValues(alpha: 0.1) : Colors.white;
+    final shadowColor = selected ? const Color(0xFF1899D6) : const Color(0xFFCCCCCC);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        onTap: () => setState(() => _answers[_currentIndex] = index),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xFF1CB0F6).withValues(alpha: 0.1) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: selected ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5),
-              width: selected ? 2 : 2,
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                selected
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: selected ? const Color(0xFF1CB0F6) : Colors.grey.shade400,
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 1.0, end: selected ? 0.98 : 1.0),
+        duration: const Duration(milliseconds: 100),
+        builder: (context, scale, child) {
+          return Transform.scale(
+            scale: scale,
+            child: GestureDetector(
+              onTap: () => setState(() => _answers[_currentIndex] = index),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: color,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: shadowColor,
+                      offset: const Offset(0, 4), // 3D bottom lip
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                      color: selected ? const Color(0xFF1CB0F6) : Colors.grey.shade400,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: GoogleFonts.nunito(
+                          color: selected ? const Color(0xFF1CB0F6) : Colors.black87,
+                          fontWeight: selected ? FontWeight.bold : FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 12),
-              Expanded(child: Text(text, style: GoogleFonts.nunito(color: selected ? const Color(0xFF1CB0F6) : Colors.black87, fontWeight: selected ? FontWeight.bold : FontWeight.w600, fontSize: 16))),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

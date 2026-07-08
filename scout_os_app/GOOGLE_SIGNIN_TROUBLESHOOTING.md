@@ -13,7 +13,7 @@ Meskipun konfigurasi sudah benar di Google Cloud Console, Error 10 masih muncul.
 Pastikan di Google Cloud Console:
 
 1. **OAuth 2.0 Client ID (Android)** sudah dibuat
-2. **Package name:** `com.khasyaraka.scout_os` (sama persis, tanpa spasi)
+2. **Package name:** `com.pradigi.scout_os` (sama persis, tanpa spasi)
 3. **SHA-1:** `AC:6F:5E:A1:E5:22:53:6E:B5:BC:6D:1E:83:4F:B8:08:C2:A4:45:60`
 4. **Status:** Aktif (tidak dihapus atau dinonaktifkan)
 
@@ -26,13 +26,13 @@ Pastikan di Google Cloud Console:
 Error 10 bisa terjadi karena cache lama. Lakukan full rebuild:
 
 ```bash
-cd /home/rafiq/Projek/khasyaraka/scout_os_app
+cd /home/rafiq/Projek/pradigi/scout_os_app
 
 # 1. Stop aplikasi sepenuhnya
-adb shell am force-stop com.khasyaraka.scout_os
+adb shell am force-stop com.pradigi.scout_os
 
 # 2. Clear app data (menghapus semua cache dan data)
-adb shell pm clear com.khasyaraka.scout_os
+adb shell pm clear com.pradigi.scout_os
 
 # 3. Clean Flutter build
 flutter clean
@@ -97,7 +97,7 @@ Pastikan package name di `android/app/build.gradle.kts` sama dengan di Google Cl
 
 ```kotlin
 defaultConfig {
-    applicationId = "com.khasyaraka.scout_os"  // ← Harus sama persis!
+    applicationId = "com.pradigi.scout_os"  // ← Harus sama persis!
 }
 ```
 
@@ -122,7 +122,7 @@ Ini akan menampilkan error detail dari Google Play Services.
 
 - [ ] Konfigurasi di Google Cloud Console sudah benar (Package name + SHA-1)
 - [ ] Sudah menunggu minimal 10 menit setelah menambahkan SHA-1
-- [ ] Sudah clear app data: `adb shell pm clear com.khasyaraka.scout_os`
+- [ ] Sudah clear app data: `adb shell pm clear com.pradigi.scout_os`
 - [ ] Sudah clear Google Play Services cache
 - [ ] Sudah rebuild aplikasi (`flutter clean && flutter run`)
 - [ ] SHA-1 yang ditambahkan sesuai dengan keystore yang digunakan
@@ -136,7 +136,7 @@ Ini akan menampilkan error detail dari Google Play Services.
 
 1. Hapus OAuth Client ID Android yang lama di Google Cloud Console
 2. Buat OAuth Client ID Android baru dengan:
-   - Package name: `com.khasyaraka.scout_os`
+   - Package name: `com.pradigi.scout_os`
    - SHA-1: `AC:6F:5E:A1:E5:22:53:6E:B5:BC:6D:1E:83:4F:B8:08:C2:A4:45:60`
 3. Tunggu 10-15 menit
 4. Rebuild aplikasi

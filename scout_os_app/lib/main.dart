@@ -135,7 +135,7 @@ class ScoutOSApp extends StatelessWidget {
         builder: (context, authController, themeController, child) {
           return MaterialApp(
             // App Metadata
-            title: 'Khasyaraka - Scout OS',
+            title: 'Pradigi - Scout OS',
             debugShowCheckedModeBanner: false,
 
             // Global navigator key for Dio interceptor
@@ -166,7 +166,8 @@ class ScoutOSApp extends StatelessWidget {
                   }
                   return const DuoMainScaffold();
                 } else {
-                  return const OnboardingPage();
+                  // Bypass Onboarding, directly to Login
+                  return const LoginScreen();
                 }
               },
             ),

@@ -7,9 +7,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 
-	"github.com/khasyaraka/backend/internal/config"
-	"github.com/khasyaraka/backend/internal/database"
-	"github.com/khasyaraka/backend/internal/router"
+	"github.com/pradigi/backend/internal/config"
+	"github.com/pradigi/backend/internal/database"
+	"github.com/pradigi/backend/internal/router"
 )
 
 func main() {

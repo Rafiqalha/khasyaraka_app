@@ -12,7 +12,7 @@ class ScoutOSApp extends StatelessWidget {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => TrainingController())],
       child: MaterialApp(
-        title: 'Khasyaraka - Scout OS',
+        title: 'Pradigi - Scout OS',
         debugShowCheckedModeBanner: false,
 
         // --- PASANG TEMA DI SINI ---

@@ -5,7 +5,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/khasyaraka/backend/internal/xp"
+	"github.com/pradigi/backend/internal/xp"
 )
 
 type Service struct {

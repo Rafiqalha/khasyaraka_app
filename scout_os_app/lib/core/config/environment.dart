@@ -2,10 +2,10 @@ class Environment {
   // --- BACKEND API CONFIGURATION (FASTAPI + POSTGRESQL) ---
 
   // Production API URL (Cloud Run)
-  // - Production: https://khasyaraka-890949539640.asia-southeast2.run.app/api/v1
+  // - Production: https://pradigi-890949539640.asia-southeast2.run.app/api/v1
   // - Development: http://192.168.100.95:8000/api/v1 (local dev)
   // static const String apiBaseUrl =
-  //     "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1";
+  //     "https://pradigi-v2-890949539640.asia-southeast2.run.app/api/v1";
   static const String apiBaseUrl =
       "http://127.0.0.1:8080/api/v1"; // LOCALHOST FOR DESKTOP
 

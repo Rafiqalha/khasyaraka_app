@@ -23,7 +23,7 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.khasyaraka.scout_os"
+    namespace = "com.pradigi.scout_os"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -37,8 +37,8 @@ android {
     }
 
     defaultConfig {
-        // Application ID for Khasyaraka Scout OS
-        applicationId = "com.khasyaraka.scout_os"
+        // Application ID for Pradigi Scout OS
+        applicationId = "com.pradigi.scout_os"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

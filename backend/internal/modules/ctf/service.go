@@ -6,9 +6,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/khasyaraka/backend/internal/modules/ai"
-	"github.com/khasyaraka/backend/internal/modules/arena"
-	"github.com/khasyaraka/backend/internal/modules/token"
+	"github.com/pradigi/backend/internal/modules/ai"
+	"github.com/pradigi/backend/internal/modules/arena"
+	"github.com/pradigi/backend/internal/modules/token"
 )
 
 type CTFService struct {

@@ -57,7 +57,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget _buildStartButton() {
     return GestureDetector(
       onTap: () {
-        context.read<IntroController>().completeOnboarding(context);
+        Navigator.pushReplacementNamed(context, '/login');
       },
       child:
           Container(

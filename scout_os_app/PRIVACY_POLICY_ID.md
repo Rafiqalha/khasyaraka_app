@@ -1,8 +1,8 @@
-# Privacy Policy for Khasyaraka
+# Privacy Policy for Pradigi
 
 **Terakhir diperbarui: 26 Januari 2025**
 
-Khasyaraka ("kami," "kita," atau "kita") berkomitmen untuk melindungi privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana informasi pribadi Anda dikumpulkan, digunakan, dan diungkapkan oleh Khasyaraka saat Anda menggunakan aplikasi mobile kami ("Aplikasi").
+Pradigi ("kami," "kita," atau "kita") berkomitmen untuk melindungi privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana informasi pribadi Anda dikumpulkan, digunakan, dan diungkapkan oleh Pradigi saat Anda menggunakan aplikasi mobile kami ("Aplikasi").
 
 Dengan menggunakan Aplikasi kami, Anda menyetujui pengumpulan dan penggunaan informasi sesuai dengan kebijakan ini.
 
@@ -46,7 +46,7 @@ Jika Anda menggunakan fitur GPS Tracker kami (bagian dari alat Survival), kami d
 Kami dapat secara otomatis mengumpulkan informasi tertentu tentang perangkat Anda:
 
 - **Jenis Perangkat**: Model perangkat mobile dan versi sistem operasi
-- **Versi Aplikasi**: Versi Khasyaraka yang Anda gunakan
+- **Versi Aplikasi**: Versi Pradigi yang Anda gunakan
 - **Data Teknis**: Pengenal perangkat, alamat IP (untuk permintaan API), dan log crash
 
 Informasi ini membantu kami:
@@ -173,10 +173,10 @@ Anda disarankan untuk meninjau Kebijakan Privasi ini secara berkala untuk peruba
 
 Jika Anda memiliki pertanyaan, kekhawatiran, atau saran tentang Kebijakan Privasi ini atau praktik data kami, silakan hubungi kami di:
 
-**Email**: [MASUKKAN EMAIL KAMU, CONTOH: support@khasyaraka.com atau privacy@khasyaraka.com]
+**Email**: [MASUKKAN EMAIL KAMU, CONTOH: support@pradigi.com atau privacy@pradigi.com]
 
-**Nama Aplikasi**: Khasyaraka  
-**Nama Paket**: com.khasyaraka.scout_os
+**Nama Aplikasi**: Pradigi  
+**Nama Paket**: com.pradigi.scout_os
 
 ---
 

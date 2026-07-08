@@ -89,6 +89,18 @@ class _RankPageState extends State<RankPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor(context),
+      appBar: AppBar(
+        title: Text(
+          'Papan Juara',
+          style: GoogleFonts.fredoka(
+            color: Theme.of(context).textTheme.titleLarge?.color,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Consumer<LeaderboardController>(
         builder: (context, controller, _) {
           // LOADING STATE
@@ -132,9 +144,9 @@ class _RankPageState extends State<RankPage>
             children: [
               Column(
                 children: [
-                  // 1. CUSTOM 3D HEADER
-                  _build3DHeader(),
-
+                  // SELECTORS AT THE TOP (FIXED)
+                  _buildSelectors(controller),
+                  
                   // 2. SCROLLABLE CONTENT (Podium + List)
                   Expanded(
                     child: RefreshIndicator(
@@ -142,11 +154,6 @@ class _RankPageState extends State<RankPage>
                       color: _scoutGreen,
                       child: CustomScrollView(
                         slivers: [
-                          // SELECTORS
-                          SliverToBoxAdapter(
-                            child: _buildSelectors(controller),
-                          ),
-
                           // PODIUM SECTION
                           if (top3.isNotEmpty)
                             SliverToBoxAdapter(
@@ -155,7 +162,7 @@ class _RankPageState extends State<RankPage>
                                   top: 24,
                                   bottom: 32,
                                 ),
-                                child: _buildPodiumSection(top3),
+                                child: _buildPodiumSection(top3, controller.activeCategory),
                               ),
                             ),
 
@@ -172,7 +179,7 @@ class _RankPageState extends State<RankPage>
                                 context,
                                 index,
                               ) {
-                                return _build3DListItem(restUsers[index]);
+                                return _build3DListItem(restUsers[index], controller.activeCategory);
                               }, childCount: restUsers.length),
                             ),
                           ),
@@ -206,7 +213,7 @@ class _RankPageState extends State<RankPage>
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: _buildStickyMeBar(myRank),
+                  child: _buildStickyMeBar(myRank, controller.activeCategory),
                 ),
             ],
           );
@@ -219,141 +226,6 @@ class _RankPageState extends State<RankPage>
   // WIDGET COMPONENTS
   // ---------------------------------------------------------------------------
 
-  Widget _build3DHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        50,
-        20,
-        24,
-      ), // SafeArea top padding roughly
-      decoration: const BoxDecoration(
-        color: _headerGold,
-        border: Border(bottom: BorderSide(color: _headerGoldDark, width: 6.0)),
-      ),
-      child: Column(
-        children: [
-          // TITLE: CHAMPION BOARD / PAPAN JUARA
-          AnimatedBuilder(
-            animation: _shimmerController,
-            builder: (context, child) {
-              return ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    // White -> Pale Yellow -> White (Golden Glint effect)
-                    colors: const [
-                      Colors.white,
-                      Color(0xFFFFF59D),
-                      Colors.white,
-                    ],
-                    stops: [
-                      0.0,
-                      _shimmerController.value, // Sweep across
-                      1.0,
-                    ],
-                    transform: const GradientRotation(0.5),
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.srcATop,
-                child: Text(
-                  "PAPAN JUARA",
-                  style: GoogleFonts.fredoka(
-                    color: Colors.white,
-                    fontSize: 28, // Slightly larger
-                    fontWeight: FontWeight.w900, // Thicker
-                    letterSpacing: 1.0,
-                    shadows: [
-                      Shadow(
-                        color: _headerGoldDark,
-                        offset: const Offset(0, 2),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 8),
-
-          // LIVE BADGE with Shimmer
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.4),
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Pulsing Dot
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.red.withOpacity(0.6),
-                        blurRadius: 6,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-
-                // Shimmering Text
-                AnimatedBuilder(
-                  animation: _shimmerController,
-                  builder: (context, child) {
-                    return ShaderMask(
-                      shaderCallback: (bounds) {
-                        return LinearGradient(
-                          colors: const [
-                            Colors.white,
-                            Color(0xFFFFF9C4), // Light Yellow
-                            Colors.white,
-                          ],
-                          stops: const [0.0, 0.5, 1.0],
-                          begin: Alignment(
-                            -1.0 + (_shimmerController.value * 2),
-                            0.0,
-                          ),
-                          end: Alignment(
-                            1.0 + (_shimmerController.value * 2),
-                            0.0,
-                          ),
-                          tileMode: TileMode.clamp,
-                        ).createShader(bounds);
-                      },
-                      child: Text(
-                        "LIVE",
-                        style: GoogleFonts.nunito(
-                          color: Colors.white, // Fallback
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ---------------------------------------------------------------------------
   // HELPER METHODS
@@ -364,6 +236,9 @@ class _RankPageState extends State<RankPage>
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
         children: [
+          // MODE SELECTOR (Normal vs Ranked)
+          _buildCategoryToggle(controller),
+          const SizedBox(height: 12),
           // SCOPE SELECTOR
           _buildScopeToggle(controller),
         ],
@@ -371,10 +246,79 @@ class _RankPageState extends State<RankPage>
     );
   }
 
+  Widget _buildCategoryToggle(LeaderboardController controller) {
+    final categories = [
+      {'key': 'quiz', 'label': 'Normal Mode', 'icon': Icons.menu_book_rounded},
+      {'key': 'rank', 'label': 'Ranked Mode', 'icon': Icons.security_rounded},
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: _itemBorder,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: categories.map((cat) {
+          final isSelected = controller.activeCategory == cat['key'] || 
+              (controller.activeCategory == '' && cat['key'] == 'rank');
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (controller.activeCategory != cat['key']) {
+                  controller.loadLeaderboard(category: cat['key'] as String);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutBack,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      cat['icon'] as IconData,
+                      size: 16,
+                      color: isSelected ? _scoutGreenDark : Colors.grey[600],
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      cat['label'] as String,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.nunito(
+                        color: isSelected ? _scoutGreenDark : Colors.grey[600],
+                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildScopeToggle(LeaderboardController controller) {
     final scopes = [
-      {'key': 'kecamatan', 'label': 'Kecamatan'},
-      {'key': 'provinsi', 'label': 'Provinsi'},
+      {'key': 'kecamatan', 'label': 'Kec'},
+      {'key': 'kota', 'label': 'Kota'},
+      {'key': 'provinsi', 'label': 'Prov'},
       {'key': 'nasional', 'label': 'Nasional'},
     ];
 
@@ -433,7 +377,6 @@ class _RankPageState extends State<RankPage>
   Widget _buildShimmerLoading() {
     return Column(
       children: [
-        _build3DHeader(),
         Expanded(
           child: Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
@@ -545,7 +488,7 @@ class _RankPageState extends State<RankPage>
     return const Color(0xFF46A302); // Default
   }
 
-  Widget _buildPodiumSection(List<LeaderboardUser> top3) {
+  Widget _buildPodiumSection(List<LeaderboardUser> top3, String category) {
     // We expect 1 to 3 users
     LeaderboardUser? rank1 = top3.isNotEmpty ? top3[0] : null;
     LeaderboardUser? rank2 = top3.length > 1 ? top3[1] : null;
@@ -567,6 +510,7 @@ class _RankPageState extends State<RankPage>
                 height: 160,
                 color: _getLevelColor(rank2.level),
                 shadowColor: _getLevelShadowColor(rank2.level),
+                category: category,
               ),
             ),
 
@@ -582,6 +526,7 @@ class _RankPageState extends State<RankPage>
                 color: _getLevelColor(rank1.level),
                 shadowColor: _getLevelShadowColor(rank1.level),
                 isCenter: true,
+                category: category,
               ),
             ),
 
@@ -596,6 +541,7 @@ class _RankPageState extends State<RankPage>
                 height: 130,
                 color: _getLevelColor(rank3.level),
                 shadowColor: _getLevelShadowColor(rank3.level),
+                category: category,
               ),
             ),
         ],
@@ -610,7 +556,10 @@ class _RankPageState extends State<RankPage>
     required Color color,
     required Color shadowColor,
     bool isCenter = false,
+    required String category,
   }) {
+    bool isNormalMode = category == 'quiz';
+
     return GestureDetector(
       onTap: () => _showPublicProfileSheet(context, user.id),
       child: Column(
@@ -665,39 +614,48 @@ class _RankPageState extends State<RankPage>
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "${user.rankInfo.rankName} ${user.rankInfo.subTier}",
-                      style: GoogleFonts.fredoka(
-                        color: Colors.grey[700],
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Colors.amber,
-                          size: 12,
+                child: isNormalMode
+                    ? Text(
+                        "${user.xp} XP",
+                        style: GoogleFonts.fredoka(
+                          color: Colors.grey[700],
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
                         ),
-                        const SizedBox(width: 2),
-                        Text(
-                          "${user.rankInfo.stars}/${user.rankInfo.maxStars}",
-                          style: GoogleFonts.nunito(
-                            color: Colors.amber[700],
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "${user.rankInfo.rankName} ${user.rankInfo.subTier}",
+                            style: GoogleFonts.fredoka(
+                              color: Colors.grey[700],
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                          const SizedBox(height: 2),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber,
+                                size: 12,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                "${user.rankInfo.stars}/${user.rankInfo.maxStars}",
+                                style: GoogleFonts.nunito(
+                                  color: Colors.amber[700],
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),
@@ -747,7 +705,8 @@ class _RankPageState extends State<RankPage>
     );
   }
 
-  Widget _build3DListItem(LeaderboardUser user) {
+  Widget _build3DListItem(LeaderboardUser user, String category) {
+    bool isNormalMode = category == 'quiz';
     final levelColor = _getLevelColor(user.level);
     final levelShadow = _getLevelShadowColor(user.level);
 
@@ -800,7 +759,7 @@ class _RankPageState extends State<RankPage>
                   ),
                   const SizedBox(width: 16),
 
-                  // NAME & LEVEL
+                  // NAME & LEVEL / XP
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -815,52 +774,75 @@ class _RankPageState extends State<RankPage>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                          "${user.rankInfo.rankName} ${user.rankInfo.subTier}",
-                          style: GoogleFonts.fredoka(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withOpacity(
-                              0.9,
-                            ), // Slightly transparent white
+                        if (!isNormalMode)
+                          Text(
+                            "${user.rankInfo.rankName} ${user.rankInfo.subTier}",
+                            style: GoogleFonts.fredoka(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(
+                                0.9,
+                              ), // Slightly transparent white
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
 
-                  // STARS
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(
-                        0.2,
-                      ), // Semi-transparent pill
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Colors.amber,
-                          size: 16,
+                  // STARS OR XP
+                  if (isNormalMode)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(
+                          0.2,
+                        ), // Semi-transparent pill
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        "${user.xp} XP",
+                        style: GoogleFonts.fredoka(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "${user.rankInfo.stars}/${user.rankInfo.maxStars}",
-                          style: GoogleFonts.fredoka(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(
+                          0.2,
+                        ), // Semi-transparent pill
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 16,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            "${user.rankInfo.stars}/${user.rankInfo.maxStars}",
+                            style: GoogleFonts.fredoka(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -870,7 +852,9 @@ class _RankPageState extends State<RankPage>
     );
   }
 
-  Widget _buildStickyMeBar(MyRank myRank) {
+  Widget _buildStickyMeBar(MyRank myRank, String category) {
+    bool isNormalMode = category == 'quiz';
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       decoration: BoxDecoration(
@@ -894,15 +878,17 @@ class _RankPageState extends State<RankPage>
         ),
         child: Row(
           children: [
-            Text(
-              myRank.rank > 0 ? "#${myRank.rank}" : "Unranked",
-              style: GoogleFonts.fredoka(
-                color: Colors.white,
-                fontSize: myRank.rank > 0 ? 20 : 16,
-                fontWeight: FontWeight.w800,
+            if (!isNormalMode)
+              Text(
+                myRank.rank > 0 ? "#${myRank.rank}" : "Unranked",
+                style: GoogleFonts.fredoka(
+                  color: Colors.white,
+                  fontSize: myRank.rank > 0 ? 20 : 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
+            if (!isNormalMode)
+              const SizedBox(width: 16),
             Text(
               "KAMU",
               style: GoogleFonts.fredoka(
@@ -912,39 +898,49 @@ class _RankPageState extends State<RankPage>
               ),
             ),
             const Spacer(),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  "${myRank.rankInfo.rankName} ${myRank.rankInfo.subTier}",
-                  style: GoogleFonts.fredoka(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+            if (isNormalMode)
+              Text(
+                "${myRank.xp} XP",
+                style: GoogleFonts.fredoka(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              )
+            else
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "${myRank.rankInfo.rankName} ${myRank.rankInfo.subTier}",
+                    style: GoogleFonts.fredoka(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${myRank.rankInfo.stars}/${myRank.rankInfo.maxStars}",
-                      style: GoogleFonts.fredoka(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 16,
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${myRank.rankInfo.stars}/${myRank.rankInfo.maxStars}",
+                        style: GoogleFonts.fredoka(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
           ],
         ),
       ),

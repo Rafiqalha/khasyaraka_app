@@ -147,7 +147,7 @@ scout_os_app/
 3. **`GOOGLE_SIGNIN_SETUP_GUIDE.md`** - Step-by-step setup instructions
 4. **`TESTING_CHECKLIST.md`** - Testing procedures & validation
 
-All in: `/home/rafiq/Projek/khasyaraka/`
+All in: `/home/rafiq/Projek/pradigi/`
 
 ---
 

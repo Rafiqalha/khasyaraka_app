@@ -67,7 +67,7 @@ static const String _webClientId = '890949539640-3gqau7hr96fmdsls1jsv1rukevek0nl
 ### Di Google Cloud Console:
 - **Web Client ID:** `890949539640-3gqau7hr96fmdsls1jsv1rukevek0nlb.apps.googleusercontent.com`
 - **Android Client ID:** `890949539640-b6pggk05brv780fott32uq1leckbkg80.apps.googleusercontent.com` (baru)
-- **Package name:** `com.khasyaraka.scout_os`
+- **Package name:** `com.pradigi.scout_os`
 - **SHA-1:** `AC:6F:5E:A1:E5:22:53:6E:B5:BC:6D:1E:83:4F:B8:08:C2:A4:45:60`
 
 ---

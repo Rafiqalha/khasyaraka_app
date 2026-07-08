@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/khasyaraka/backend/data"
+	"github.com/pradigi/backend/data"
 )
 
 type ChatService interface {

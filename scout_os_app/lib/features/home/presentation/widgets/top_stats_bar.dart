@@ -1,6 +1,5 @@
 import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
-import 'package:scout_os_app/core/widgets/realistic_fire_icon.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
@@ -22,56 +21,98 @@ class TopStatsBar extends StatelessWidget {
       builder: (context, controller, child) {
         final streak = controller.userStreak;
         final xp = controller.userXp;
-        final hearts = controller.userHearts; // REMOVED: bonusHearts
+        final hearts = controller.userHearts;
         final isLoading = controller.isLoading;
 
         return Container(
-          color: Theme.of(context).cardColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Refresh Button
-              _buildRefreshButton(context, controller, isLoading),
-
-              // Fire / Streak 🔥
+              // 1. STREAK (Fire)
               _buildStatItem(
                 context,
-                customIcon: RealisticFireIcon(size: 28, isActive: streak > 0),
-                color: streak > 0 ? Colors.orange : Colors.grey,
+                iconWidget: _build3DIcon(
+                  icon: Icons.local_fire_department_rounded,
+                  faceColor: streak > 0 ? const Color(0xFFFF9600) : const Color(0xFFE5E5E5),
+                  lipColor: streak > 0 ? const Color(0xFFCC7800) : const Color(0xFFCCCCCC),
+                  shadowColor: streak > 0 ? const Color(0xFFFF9600).withOpacity(0.3) : Colors.transparent,
+                ),
+                color: streak > 0 ? const Color(0xFFFF9600) : const Color(0xFFAFAFAF),
                 text: '$streak',
               ),
 
-              // XP ⭐
+              // 2. XP (Star / Gems)
               _buildStatItem(
                 context,
-                customIcon: Image.asset(
-                  'assets/icons/training/star.png',
-                  height: 28,
-                  width: 28,
+                iconWidget: _build3DIcon(
+                  icon: Icons.star_rounded,
+                  faceColor: const Color(0xFFFFC800),
+                  lipColor: const Color(0xFFDDA600),
+                  shadowColor: const Color(0xFFFFC800).withOpacity(0.3),
                 ),
-                color: const Color(0xFFFFD700),
+                color: const Color(0xFFFFC800),
                 text: '$xp',
               ),
 
-              // Hearts / Lives ❤️
+              // 3. HEARTS (Lives)
               _buildStatItem(
                 context,
-                customIcon: Image.asset(
-                  'assets/icons/training/heart.png',
-                  height: 28,
-                  width: 28,
-                  color: hearts > 0 ? null : Colors.grey,
-                  colorBlendMode: hearts > 0 ? null : BlendMode.srcIn,
+                iconWidget: _build3DIcon(
+                  icon: Icons.favorite_rounded,
+                  faceColor: hearts > 0 ? const Color(0xFFFF4B4B) : const Color(0xFFE5E5E5),
+                  lipColor: hearts > 0 ? const Color(0xFFCC3C3C) : const Color(0xFFCCCCCC),
+                  shadowColor: hearts > 0 ? const Color(0xFFFF4B4B).withOpacity(0.3) : Colors.transparent,
                 ),
-                color: hearts > 0 ? Colors.red : Colors.grey,
+                color: hearts > 0 ? const Color(0xFFFF4B4B) : const Color(0xFFAFAFAF),
                 text: hearts < controller.maxHearts ? '$hearts+' : '$hearts',
                 onTap: () => _showAdDialog(context, controller),
               ),
+
+              // 4. REFRESH
+              _buildRefreshButton(context, controller, isLoading),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _build3DIcon({
+    required IconData icon,
+    required Color faceColor,
+    required Color lipColor,
+    required Color shadowColor,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          if (shadowColor != Colors.transparent)
+            BoxShadow(
+              color: shadowColor,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Lip / Bottom Shadow (Slightly larger and shifted down)
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Icon(icon, color: lipColor, size: 28),
+          ),
+          // Face / Highlight
+          Icon(icon, color: faceColor, size: 28),
+          // Tiny glint/highlight using a slightly lighter color and offset up
+          Padding(
+            padding: const EdgeInsets.only(bottom: 2, right: 2),
+            child: Icon(icon, color: Colors.white.withOpacity(0.2), size: 26),
+          ),
+        ],
+      ),
     );
   }
 
@@ -86,7 +127,6 @@ class TopStatsBar extends StatelessWidget {
           : () async {
               debugPrint('🔄 [REFRESH] Manual refresh triggered by user');
 
-              // 1. Show Loading Overlay
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -112,175 +152,51 @@ class TopStatsBar extends StatelessWidget {
                 ),
               );
 
-              // 2. Perform Data Fetching
               await Future.wait([
                 controller.loadProgress(),
                 controller.loadUserStats(forceRefresh: true),
               ]);
 
-              // 3. Dismiss Loading Overlay
               if (context.mounted) {
                 Navigator.pop(context); // Close loading dialog
               }
-
-              // 4. Show Success Premium Dialog
-              if (context.mounted) {
-                showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 320),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E2640),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF58CC02).withOpacity(0.2),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.only(top: 24, bottom: 20),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF2C3558),
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(22),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF58CC02),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.2),
-                                      width: 2,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFF58CC02,
-                                        ).withOpacity(0.4),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.check_rounded,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'Siap Melanjutkan!',
-                                  style: TextStyle(
-                                    fontFamily: 'Fredoka',
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Data pencapaian dan petualanganmu berhasil disinkronisasi.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.7),
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                GestureDetector(
-                                  onTap: () => Navigator.pop(context),
-                                  child: Container(
-                                    height: 50,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF46A302),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 5),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF58CC02),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: const Center(
-                                        child: Text(
-                                          'Lanjutkan',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 15,
-                                            letterSpacing: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }
             },
-      child: const Icon(Icons.refresh_rounded, color: Colors.grey, size: 28),
+      child: _build3DIcon(
+        icon: Icons.sync_rounded,
+        faceColor: const Color(0xFF1CB0F6),
+        lipColor: const Color(0xFF1899D6),
+        shadowColor: const Color(0xFF1CB0F6).withOpacity(0.3),
+      ),
     );
   }
 
   Widget _buildStatItem(
     BuildContext context, {
-    IconData? icon,
-    Widget? customIcon,
+    required Widget iconWidget,
     required Color color,
-    String? text,
+    required String text,
     VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (customIcon != null)
-            customIcon
-          else if (icon != null)
-            Icon(icon, color: color, size: 28),
-          if (text != null) ...[
-            const SizedBox(width: 4),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            iconWidget,
+            const SizedBox(width: 8),
             Text(
               text,
-              style: AppTextStyles.h3.copyWith(color: color, fontSize: 16),
+              style: AppTextStyles.h3.copyWith(
+                color: color,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

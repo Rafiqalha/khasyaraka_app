@@ -1,11 +1,11 @@
-# 📁 Khasyaraka Monorepo Structure
+# 📁 Pradigi Monorepo Structure
 
 ## 🏗️ Overview
 
-Monorepo untuk aplikasi **Scout OS (Khasyaraka)** - Platform pembelajaran Pramuka dengan fitur Training, Cyber (Sandi), SKU, dan Survival.
+Monorepo untuk aplikasi **Scout OS (Pradigi)** - Platform pembelajaran Pramuka dengan fitur Training, Cyber (Sandi), SKU, dan Survival.
 
 ```
-khasyaraka/
+pradigi/
 ├── scout_os_app/          # Flutter Mobile App (Frontend)
 ├── scout_os_backend/      # FastAPI Backend (Backend)
 ├── docs/                  # Dokumentasi proyek

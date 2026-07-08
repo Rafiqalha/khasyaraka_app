@@ -440,6 +440,7 @@ class ApiUser {
   final String? gugusDepan;
   final bool locationSet;
   final String? kecamatanId;
+  final String? kabupatenId;
   final String? provinsiId;
 
   ApiUser({
@@ -451,6 +452,7 @@ class ApiUser {
     this.gugusDepan,
     this.locationSet = false,
     this.kecamatanId,
+    this.kabupatenId,
     this.provinsiId,
   });
 
@@ -479,6 +481,7 @@ class ApiUser {
       gugusDepan: json['gugus_depan']?.toString(),
       locationSet: json['location_set'] == true,
       kecamatanId: json['kecamatan_id']?.toString(),
+      kabupatenId: json['kabupaten_id']?.toString(),
       provinsiId: json['provinsi_id']?.toString(),
     );
   }

@@ -1,4 +1,4 @@
-# ⚜️ Scout OS (Khasyaraka)
+# ⚜️ Scout OS (Pradigi)
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)](https://flutter.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
@@ -6,7 +6,7 @@
 [![Redis](https://img.shields.io/badge/Redis-7.x-red?logo=redis)](https://redis.io)
 [![Cloud Run](https://img.shields.io/badge/Google_Cloud_Run-Deployed-4285F4?logo=google-cloud)](https://cloud.google.com/run)
 
-**Scout OS (Khasyaraka)** adalah platform pembelajaran dan manajemen Pramuka modern yang menggabungkan gamifikasi, materi interaktif (Sandi, SKU, TKK), dan alat survive digital dalam satu ekosistem.
+**Scout OS (Pradigi)** adalah platform pembelajaran dan manajemen Pramuka modern yang menggabungkan gamifikasi, materi interaktif (Sandi, SKU, TKK), dan alat survive digital dalam satu ekosistem.
 
 Project ini menggunakan arsitektur **Monorepo** yang terdiri dari Mobile App (Flutter) dan Backend API (FastAPI).
 
@@ -41,7 +41,7 @@ Project ini menggunakan arsitektur **Monorepo** yang terdiri dari Mobile App (Fl
 ## 📂 Struktur Monorepo
 
 ```bash
-khasyaraka/
+pradigi/
 ├── scout_os_app/          # 📱 Flutter Mobile Application
 │   ├── lib/               # Source code
 │   ├── assets/            # Images, Icons, Animations
@@ -73,8 +73,8 @@ Ikuti langkah-langkah ini untuk menjalankan project di komputer lokal Anda.
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/username/khasyaraka.git
-cd khasyaraka
+git clone https://github.com/username/pradigi.git
+cd pradigi
 ```
 
 ### 2. Setup Backend (FastAPI)

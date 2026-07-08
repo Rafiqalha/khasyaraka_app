@@ -6,8 +6,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/khasyaraka/backend/internal/modules/users"
-	"github.com/khasyaraka/backend/internal/xp"
+	"github.com/pradigi/backend/internal/modules/users"
+	"github.com/pradigi/backend/internal/xp"
 )
 
 type Service struct {

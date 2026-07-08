@@ -65,7 +65,7 @@ import 'package:scout_os_app/services/api/auth_service.dart';
 // BEFORE
 import 'package:supabase_flutter/supabase_flutter.dart';
 final SupabaseClient _supabase = Supabase.instance.client;
-await _supabase.from('khasyaraka_training_paths').select();
+await _supabase.from('pradigi_training_paths').select();
 
 // AFTER
 // NO Supabase imports!

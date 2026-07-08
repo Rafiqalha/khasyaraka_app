@@ -95,7 +95,7 @@ class _GpsTrackerToolPageState extends State<GpsTrackerToolPage>
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.khasyaraka.scout_os',
+                userAgentPackageName: 'com.pradigi.scout_os',
               ),
 
               MarkerLayer(

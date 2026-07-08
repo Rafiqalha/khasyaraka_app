@@ -6,27 +6,27 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 
-	"github.com/khasyaraka/backend/internal/config"
-	"github.com/khasyaraka/backend/internal/middleware"
-	"github.com/khasyaraka/backend/internal/modules/admin"
-	"github.com/khasyaraka/backend/internal/modules/auth"
-	"github.com/khasyaraka/backend/internal/modules/callbacks"
-	"github.com/khasyaraka/backend/internal/modules/arena"
-	"github.com/khasyaraka/backend/internal/modules/chat"
-	"github.com/khasyaraka/backend/internal/modules/cyber"
-	"github.com/khasyaraka/backend/internal/modules/hearts"
-	"github.com/khasyaraka/backend/internal/modules/leaderboard"
-	"github.com/khasyaraka/backend/internal/modules/location"
-	"github.com/khasyaraka/backend/internal/modules/sandi"
-	"github.com/khasyaraka/backend/internal/modules/sku"
-	"github.com/khasyaraka/backend/internal/modules/subscription"
-	"github.com/khasyaraka/backend/internal/modules/survival"
-	"github.com/khasyaraka/backend/internal/modules/tkk"
-	"github.com/khasyaraka/backend/internal/modules/training"
-	"github.com/khasyaraka/backend/internal/modules/users"
-	"github.com/khasyaraka/backend/internal/modules/token"
-	"github.com/khasyaraka/backend/internal/modules/ai"
-	"github.com/khasyaraka/backend/internal/modules/ctf"
+	"github.com/pradigi/backend/internal/config"
+	"github.com/pradigi/backend/internal/middleware"
+	"github.com/pradigi/backend/internal/modules/admin"
+	"github.com/pradigi/backend/internal/modules/auth"
+	"github.com/pradigi/backend/internal/modules/callbacks"
+	"github.com/pradigi/backend/internal/modules/arena"
+	"github.com/pradigi/backend/internal/modules/chat"
+	"github.com/pradigi/backend/internal/modules/cyber"
+	"github.com/pradigi/backend/internal/modules/hearts"
+	"github.com/pradigi/backend/internal/modules/leaderboard"
+	"github.com/pradigi/backend/internal/modules/location"
+	"github.com/pradigi/backend/internal/modules/sandi"
+	"github.com/pradigi/backend/internal/modules/sku"
+	"github.com/pradigi/backend/internal/modules/subscription"
+	"github.com/pradigi/backend/internal/modules/survival"
+	"github.com/pradigi/backend/internal/modules/tkk"
+	"github.com/pradigi/backend/internal/modules/training"
+	"github.com/pradigi/backend/internal/modules/users"
+	"github.com/pradigi/backend/internal/modules/token"
+	"github.com/pradigi/backend/internal/modules/ai"
+	"github.com/pradigi/backend/internal/modules/ctf"
 )
 
 func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logger) *gin.Engine {
@@ -98,6 +98,7 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	{
 		authTraining.POST("/progress/submit", trainingH.SubmitProgress) // Flutter uses this
 		authTraining.GET("/progress", trainingH.GetProgress)
+		authTraining.GET("/progress/state", trainingH.GetProgress) // Alias for Flutter
 	}
 
 	cyberRepo := cyber.NewRepository(db)
@@ -172,6 +173,10 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	authAll := api.Group("")
 	authAll.Use(middleware.Auth(cfg.JWTSecret))
 	{
+		// Aliases for Flutter
+		authAll.GET("/users/:id/hearts", heartsH.GetHearts)
+		authAll.POST("/users/:id/hearts/decrement", heartsH.Decrement)
+
 		authAll.GET("/sku/time-gate-status", skuH.TimeGateStatus)
 
 	// Survival

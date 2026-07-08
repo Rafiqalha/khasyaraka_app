@@ -15,14 +15,14 @@ Backend sudah memiliki endpoint `/cyber/seed` untuk seed data. Jalankan:
 cd scout_os_backend
 
 # Seed data via API
-curl -X POST "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1/cyber/seed" \
+curl -X POST "https://pradigi-v2-890949539640.asia-southeast2.run.app/api/v1/cyber/seed" \
   -H "Content-Type: application/json" \
   -d '{"force": false}'
 ```
 
 **Atau dengan force (jika sudah ada data):**
 ```bash
-curl -X POST "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1/cyber/seed" \
+curl -X POST "https://pradigi-v2-890949539640.asia-southeast2.run.app/api/v1/cyber/seed" \
   -H "Content-Type: application/json" \
   -d '{"force": true}'
 ```
@@ -53,7 +53,7 @@ Setelah seed, cek apakah data sudah masuk:
 
 ```bash
 # Cek via API
-curl "https://khasyaraka-v2-890949539640.asia-southeast2.run.app/api/v1/cyber/modules"
+curl "https://pradigi-v2-890949539640.asia-southeast2.run.app/api/v1/cyber/modules"
 ```
 
 Seharusnya mengembalikan:

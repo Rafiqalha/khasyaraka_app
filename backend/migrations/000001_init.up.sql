@@ -87,7 +87,7 @@ CREATE INDEX idx_user_progress_user_id ON user_progress(user_id);
 CREATE INDEX idx_user_progress_level_id ON user_progress(level_id);
 
 -- Legacy training paths
-CREATE TABLE khasyaraka_training_paths (
+CREATE TABLE pradigi_training_paths (
     id          UUID PRIMARY KEY,
     title       VARCHAR(100) NOT NULL,
     description TEXT,
@@ -208,7 +208,7 @@ CREATE TABLE sku_progress (
 );
 
 -- Special Missions (SKK)
-CREATE TABLE khasyaraka_special_missions (
+CREATE TABLE pradigi_special_missions (
     id              BIGSERIAL PRIMARY KEY,
     mission_title   VARCHAR(200) NOT NULL,
     level_category  VARCHAR(50) NOT NULL,
@@ -216,11 +216,11 @@ CREATE TABLE khasyaraka_special_missions (
     is_premium      BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_khasyaraka_special_missions_id ON khasyaraka_special_missions(id);
+CREATE INDEX idx_pradigi_special_missions_id ON pradigi_special_missions(id);
 
-CREATE TABLE khasyaraka_mission_tasks (
+CREATE TABLE pradigi_mission_tasks (
     id             BIGSERIAL PRIMARY KEY,
-    mission_id     INTEGER NOT NULL REFERENCES khasyaraka_special_missions(id),
+    mission_id     INTEGER NOT NULL REFERENCES pradigi_special_missions(id),
     type           VARCHAR(30) NOT NULL,
     question       TEXT NOT NULL,
     options        JSONB,
@@ -229,7 +229,7 @@ CREATE TABLE khasyaraka_mission_tasks (
     explanation    TEXT
 );
 
-CREATE INDEX idx_khasyaraka_mission_tasks_id ON khasyaraka_mission_tasks(id);
+CREATE INDEX idx_pradigi_mission_tasks_id ON pradigi_mission_tasks(id);
 
 -- Survival Mastery
 CREATE TYPE tool_type AS ENUM ('compass', 'clinometer', 'pedometer', 'morse', 'leveler', 'gps_tracker');

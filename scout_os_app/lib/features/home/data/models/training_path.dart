@@ -76,7 +76,7 @@ class UnitModel {
 
   /// Parse from local database (Supabase legacy format)
   factory UnitModel.fromJson(Map<String, dynamic> json) {
-    var rawList = json['khasyaraka_training_lessons'] ?? json['lessons'];
+    var rawList = json['pradigi_training_lessons'] ?? json['lessons'];
     var list = rawList as List? ?? [];
 
     List<LessonNode> lessonsList = list

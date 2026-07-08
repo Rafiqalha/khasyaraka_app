@@ -1,6 +1,6 @@
 DESKRIPSI LENGKAP
 
-Khasyaraka adalah platform pembelajaran kepramukaan digital yang menggabungkan konsep gamifikasi dengan alat praktis untuk membantu anggota pramuka menguasai berbagai keterampilan kepramukaan. Aplikasi ini dirancang dengan antarmuka yang menarik dan mudah digunakan, mengadopsi pendekatan pembelajaran bertahap seperti aplikasi pembelajaran bahasa populer.
+Pradigi adalah platform pembelajaran kepramukaan digital yang menggabungkan konsep gamifikasi dengan alat praktis untuk membantu anggota pramuka menguasai berbagai keterampilan kepramukaan. Aplikasi ini dirancang dengan antarmuka yang menarik dan mudah digunakan, mengadopsi pendekatan pembelajaran bertahap seperti aplikasi pembelajaran bahasa populer.
 
 FITUR UTAMA
 
@@ -53,7 +53,7 @@ Aplikasi dibangun menggunakan Flutter untuk antarmuka pengguna yang responsif da
 
 TUJUAN APLIKASI
 
-Khasyaraka bertujuan untuk memodernisasi pembelajaran kepramukaan dengan memanfaatkan teknologi digital. Aplikasi ini membantu anggota pramuka belajar secara mandiri, melacak kemajuan mereka, dan menguasai berbagai keterampilan kepramukaan melalui pendekatan yang menyenangkan dan interaktif. Dengan kombinasi pembelajaran teori dan alat praktis, aplikasi ini menjadi pendamping yang sempurna untuk kegiatan kepramukaan baik di dalam maupun di luar ruangan.
+Pradigi bertujuan untuk memodernisasi pembelajaran kepramukaan dengan memanfaatkan teknologi digital. Aplikasi ini membantu anggota pramuka belajar secara mandiri, melacak kemajuan mereka, dan menguasai berbagai keterampilan kepramukaan melalui pendekatan yang menyenangkan dan interaktif. Dengan kombinasi pembelajaran teori dan alat praktis, aplikasi ini menjadi pendamping yang sempurna untuk kegiatan kepramukaan baik di dalam maupun di luar ruangan.
 
 TARGET PENGGUNA
 

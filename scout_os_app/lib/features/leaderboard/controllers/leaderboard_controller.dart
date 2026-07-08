@@ -61,6 +61,8 @@ class LeaderboardController extends ChangeNotifier {
         _currentUserId = currentUser.id;
         if (_activeScope == 'kecamatan') {
           userLocationId = currentUser.kecamatanId ?? '';
+        } else if (_activeScope == 'kota') {
+          userLocationId = currentUser.kabupatenId ?? '';
         } else if (_activeScope == 'provinsi') {
           userLocationId = currentUser.provinsiId ?? '';
         }

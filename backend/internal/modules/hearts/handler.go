@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/khasyaraka/backend/internal/httputil"
+	"github.com/pradigi/backend/internal/httputil"
 )
 
 // Handler holds hearts HTTP handlers.

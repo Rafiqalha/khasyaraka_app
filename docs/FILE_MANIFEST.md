@@ -1,6 +1,6 @@
 # 📋 Complete File Manifest - All Changes
 
-## Location: `/home/rafiq/Projek/khasyaraka`
+## Location: `/home/rafiq/Projek/pradigi`
 
 ---
 

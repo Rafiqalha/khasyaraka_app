@@ -1,4 +1,4 @@
-module github.com/khasyaraka/backend
+module github.com/pradigi/backend
 
 go 1.22
 

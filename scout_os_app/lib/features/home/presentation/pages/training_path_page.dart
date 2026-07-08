@@ -475,89 +475,53 @@ class _LevelActionDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        clipBehavior: Clip.none,
-        children: [
-          // Card Body
-          Container(
-            padding: const EdgeInsets.fromLTRB(
-              24,
-              64,
-              24,
-              24,
-            ), // Top padding for icon
-            margin: const EdgeInsets.only(
-              top: 40,
-            ), // Push down for icon overlap
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.shade200, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 0,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+      child: Container(
+        padding: const EdgeInsets.all(32), // Uniform padding
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.shade200, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 10,
+              spreadRadius: 2,
+              offset: const Offset(0, 8),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.h2.copyWith(
-                    color: Colors.black87,
-                    fontSize: 22,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  message,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.grey.shade600,
-                    fontSize: 16,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-
-                // Action Button (3D Style)
-                // Use GestureDetector for custom 3D button or standard ElevatedButton with style
-                _Dialog3DButton(
-                  text: buttonText,
-                  color: color,
-                  onPressed: isLocked ? () => Navigator.pop(context) : onPlay,
-                ),
-              ],
-            ),
-          ),
-
-          // Floating Icon Top
-          Positioned(
-            top: 0,
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 0,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.h2.copyWith(
+                color: Colors.black87,
+                fontSize: 22,
               ),
-              child: icon,
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Colors.grey.shade600,
+                fontSize: 16,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+
+            // Action Button (3D Style)
+            // Use GestureDetector for custom 3D button or standard ElevatedButton with style
+            _Dialog3DButton(
+              text: buttonText,
+              color: color,
+              onPressed: isLocked ? () => Navigator.pop(context) : onPlay,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -821,77 +785,6 @@ class _LevelNodeWidget extends StatelessWidget {
       child: icon,
     );
 
-    if (isActive) {
-      node = Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            child: CustomPaint(
-              size: const Size(108, 108), // 72 + 36
-              painter: _DashedRingPainter(
-                color: faceColor,
-                strokeWidth: 8.0,
-              ),
-            ),
-          ),
-          node,
-        ],
-      );
-    }
-
     return node;
-  }
-}
-
-class _DashedRingPainter extends CustomPainter {
-  final Color color;
-  final double strokeWidth;
-  final double dashLength;
-  final double gapLength;
-
-  _DashedRingPainter({
-    required this.color,
-    this.strokeWidth = 4.0,
-    this.dashLength = 12.0,
-    this.gapLength = 8.0,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    final double radius = size.width / 2;
-    final center = Offset(radius, radius);
-    
-    // Exactly 4 arcs (quadrants)
-    final double sweepAngle = (math.pi / 2) * 0.65; // 65% of a quadrant is the arc
-    final double gapAngle = (math.pi / 2) * 0.35; // 35% is the gap
-    
-    // Start slightly offset so the gaps align diagonally (like an X)
-    double startAngle = -math.pi / 2 - (sweepAngle / 2);
-
-    for (int i = 0; i < 4; i++) {
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        false,
-        paint,
-      );
-      startAngle += sweepAngle + gapAngle;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedRingPainter oldDelegate) {
-    return color != oldDelegate.color ||
-        strokeWidth != oldDelegate.strokeWidth ||
-        dashLength != oldDelegate.dashLength ||
-        gapLength != oldDelegate.gapLength;
   }
 }

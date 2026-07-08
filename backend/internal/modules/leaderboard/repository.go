@@ -16,6 +16,7 @@ type userRow struct {
 	TotalXP     int            `db:"total_xp"`
 	HackLevel   string         `db:"hack_level"`
 	ProvinsiID  sql.NullString `db:"provinsi_id"`
+	KabupatenID sql.NullString `db:"kabupaten_id"`
 	KecamatanID sql.NullString `db:"kecamatan_id"`
 }
 
@@ -39,6 +40,9 @@ func getRedisKey(category string, scope string, locationID string) string {
 	if scope == "provinsi" && locationID != "" {
 		return fmt.Sprintf("leaderboard:%s:prop:%s", category, locationID)
 	}
+	if scope == "kota" && locationID != "" {
+		return fmt.Sprintf("leaderboard:%s:kota:%s", category, locationID)
+	}
 	if scope == "kecamatan" && locationID != "" {
 		return fmt.Sprintf("leaderboard:%s:kec:%s", category, locationID)
 	}
@@ -50,7 +54,7 @@ func getRedisKey(category string, scope string, locationID string) string {
 func (r *Repository) SyncScore(userID int64, category string, score float64) error {
 	// First, fetch the user's location
 	var u userRow
-	err := r.db.Get(&u, "SELECT id, provinsi_id, kecamatan_id FROM users WHERE id = $1", userID)
+	err := r.db.Get(&u, "SELECT id, provinsi_id, kabupaten_id, kecamatan_id FROM users WHERE id = $1", userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil
@@ -72,7 +76,12 @@ func (r *Repository) SyncScore(userID int64, category string, score float64) err
 		pipe.ZAdd(ctx, getRedisKey(category, "provinsi", u.ProvinsiID.String), z)
 	}
 
-	// 3. Kecamatan
+	// 3. Kota / Kabupaten
+	if u.KabupatenID.Valid && u.KabupatenID.String != "" {
+		pipe.ZAdd(ctx, getRedisKey(category, "kota", u.KabupatenID.String), z)
+	}
+
+	// 4. Kecamatan
 	if u.KecamatanID.Valid && u.KecamatanID.String != "" {
 		pipe.ZAdd(ctx, getRedisKey(category, "kecamatan", u.KecamatanID.String), z)
 	}
@@ -109,7 +118,7 @@ func (r *Repository) GetTop(category string, scope string, locationID string, li
 
 	var users []userRow
 	if len(userIDs) > 0 {
-		q, args, _ := sqlx.In("SELECT id, COALESCE(full_name, email) AS full_name, total_xp, hack_level, provinsi_id, kecamatan_id FROM users WHERE id IN (?)", userIDs)
+		q, args, _ := sqlx.In("SELECT id, COALESCE(full_name, email) AS full_name, total_xp, hack_level, provinsi_id, kabupaten_id, kecamatan_id FROM users WHERE id IN (?)", userIDs)
 		q = r.db.Rebind(q)
 		if err := r.db.Select(&users, q, args...); err != nil {
 			return nil, fmt.Errorf("get users: %w", err)
@@ -140,6 +149,10 @@ func (r *Repository) GetTop(category string, scope string, locationID string, li
 		if u.ProvinsiID.Valid {
 			provId = u.ProvinsiID.String
 		}
+		kotaId := ""
+		if u.KabupatenID.Valid {
+			kotaId = u.KabupatenID.String
+		}
 		kecId := ""
 		if u.KecamatanID.Valid {
 			kecId = u.KecamatanID.String
@@ -152,6 +165,7 @@ func (r *Repository) GetTop(category string, scope string, locationID string, li
 			TotalXP:     int(results[rank].Score),
 			HackLevel:   u.HackLevel,
 			ProvinsiID:  provId,
+			KabupatenID: kotaId,
 			KecamatanID: kecId,
 			RankInfo:    CalculateRank(totalStars),
 		})

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:scout_os_app/core/widgets/duo_button.dart';
 
 class QuizFeedbackSheet extends StatelessWidget {
   final bool isCorrect;
@@ -100,40 +101,10 @@ class QuizFeedbackSheet extends StatelessWidget {
                 ],
 
                 // Continue Button (Full Width)
-                SizedBox(
-                  width: double.infinity,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: shadowColor,
-                          offset: const Offset(0, 4),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: onContinue,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0, // Custom shadow
-                      ),
-                      child: const Text(
-                        "LANJUTKAN",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
+                DuoButton(
+                  text: 'LANJUTKAN',
+                  onPressed: onContinue,
+                  variant: isCorrect ? DuoButtonVariant.green : DuoButtonVariant.red,
                 ),
               ],
             ),

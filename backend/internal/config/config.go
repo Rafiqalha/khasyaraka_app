@@ -50,7 +50,7 @@ func Load() (*Config, error) {
 	v.SetDefault("ENVIRONMENT", "development")
 	v.SetDefault("DATABASE_URL", "postgres://scout_admin:scout_password_local@localhost:5433/scout_os?sslmode=disable")
 	v.SetDefault("REDIS_URL", "redis://localhost:6379/0")
-	v.SetDefault("ACCESS_TOKEN_EXPIRE_MINUTES", 10080)
+	v.SetDefault("ACCESS_TOKEN_EXPIRE_MINUTES", 52560000)
 	v.SetDefault("CORS_ORIGINS", []string{"*"})
 	
 	v.SetDefault("GEMINI_MODEL", "gemini-1.5-flash")

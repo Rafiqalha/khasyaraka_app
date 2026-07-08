@@ -16,49 +16,49 @@ All code files have been generated and are ready for integration:
 
 ### Backend Files Generated
 - [x] `router_new.py` - Simplified offline-ready router
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_backend/app/modules/survival/router_new.py`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_backend/app/modules/survival/router_new.py`
   - Status: ✓ Ready
 
 ### Frontend Files Generated
 - [x] `survival_tools_controller.dart` - Main sensor controller
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_app/lib/features/mission/subfeatures/survival/logic/survival_tools_controller.dart`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_app/lib/features/mission/subfeatures/survival/logic/survival_tools_controller.dart`
   - Status: ✓ Ready
 
 - [x] `survival_dashboard_page.dart` - Grid dashboard UI
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/survival_dashboard_page.dart`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/survival_dashboard_page.dart`
   - Status: ✓ Ready
 
 - [x] `compass_tool_page.dart` - Compass visualization
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/compass_tool_page.dart`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/compass_tool_page.dart`
   - Status: ✓ Ready
 
 - [x] `clinometer_tool_page.dart` - Angle measurement
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/clinometer_tool_page.dart`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/clinometer_tool_page.dart`
   - Status: ✓ Ready
 
 - [x] `gps_tracker_tool_page.dart` - GPS location tracking
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/gps_tracker_tool_page.dart`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_app/lib/features/mission/subfeatures/survival/presentation/pages/gps_tracker_tool_page.dart`
   - Status: ✓ Ready
 
 - [x] `survival_repository_new.dart` - Deprecated repository
-  - Location: `/home/rafiq/Projek/khasyaraka/scout_os_app/lib/features/mission/subfeatures/survival/data/survival_repository_new.dart`
+  - Location: `/home/rafiq/Projek/pradigi/scout_os_app/lib/features/mission/subfeatures/survival/data/survival_repository_new.dart`
   - Status: ✓ Ready
 
 ### Documentation Files Generated
 - [x] `SURVIVAL_MODULE_REFACTORING.md` - Complete refactoring guide
-  - Location: `/home/rafiq/Projek/khasyaraka/docs/SURVIVAL_MODULE_REFACTORING.md`
+  - Location: `/home/rafiq/Projek/pradigi/docs/SURVIVAL_MODULE_REFACTORING.md`
   - Status: ✓ Comprehensive
 
 - [x] `SURVIVAL_MODULE_QUICK_START.md` - Quick implementation guide
-  - Location: `/home/rafiq/Projek/khasyaraka/docs/SURVIVAL_MODULE_QUICK_START.md`
+  - Location: `/home/rafiq/Projek/pradigi/docs/SURVIVAL_MODULE_QUICK_START.md`
   - Status: ✓ Ready
 
 - [x] `SURVIVAL_ARCHITECTURE_DIAGRAMS.md` - Architecture diagrams
-  - Location: `/home/rafiq/Projek/khasyaraka/docs/SURVIVAL_ARCHITECTURE_DIAGRAMS.md`
+  - Location: `/home/rafiq/Projek/pradigi/docs/SURVIVAL_ARCHITECTURE_DIAGRAMS.md`
   - Status: ✓ Complete
 
 - [x] `SURVIVAL_CODE_REFERENCE.md` - Complete code examples
-  - Location: `/home/rafiq/Projek/khasyaraka/docs/SURVIVAL_CODE_REFERENCE.md`
+  - Location: `/home/rafiq/Projek/pradigi/docs/SURVIVAL_CODE_REFERENCE.md`
   - Status: ✓ Complete
 
 ---

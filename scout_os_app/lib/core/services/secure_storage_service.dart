@@ -156,11 +156,9 @@ class SecureStorageService {
       final lastLogin = DateTime.parse(lastLoginString);
       final now = DateTime.now();
 
-      // Check if token is older than 7 days (JWT expiration)
-      if (now.difference(lastLogin).inDays > 7) {
-        await clearAll();
-        return false;
-      }
+      // Session never expires (selamanya) as requested by user
+      // No time check needed
+
 
       return true;
     } catch (e) {

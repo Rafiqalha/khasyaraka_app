@@ -11,7 +11,7 @@ _ "github.com/lib/pq"
 )
 
 func main() {
-db, err := sqlx.Connect("postgres", "host=localhost port=5432 user=khasyaraka dbname=khasyaraka password=khasyaraka sslmode=disable")
+db, err := sqlx.Connect("postgres", "host=localhost port=5432 user=pradigi dbname=pradigi password=pradigi sslmode=disable")
 if err != nil {
 log.Fatal(err)
 }

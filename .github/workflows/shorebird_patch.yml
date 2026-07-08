@@ -1,0 +1,51 @@
+name: Shorebird Patch (OTA Update)
+
+on:
+  push:
+    branches:
+      - main
+    # Opsional: Hanya jalan jika ada perubahan di folder aplikasi Flutter
+    paths:
+      - 'scout_os_app/**'
+
+jobs:
+  patch:
+    name: Build & Push Patch to Shorebird
+    runs-on: ubuntu-latest
+    
+    # Masuk ke direktori aplikasi Flutter
+    defaults:
+      run:
+        working-directory: ./scout_os_app
+
+    steps:
+      - name: 📚 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      # (Opsional) Jika Anda ingin menjalankan Unit Test sebelum Patch
+      # - name: 🧪 Run Tests
+      #   run: flutter test
+
+      - name: 🚀 Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+
+      - name: ⚡ Push Shorebird Patch (Android)
+        # Akan mem-push patch ke rilis Android terbaru
+        run: shorebird patch android --force
+        env:
+          # Pastikan Anda menambahkan rahasia ini di pengaturan repository GitHub Anda!
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}

@@ -7,6 +7,7 @@ type Entry struct {
 	TotalXP    int    `json:"total_xp"`
 	HackLevel  string `json:"hack_level"`
 	ProvinsiID string `json:"provinsi_id"`
+	KabupatenID string `json:"kabupaten_id"`
 	KecamatanID string `json:"kecamatan_id"`
 	RankInfo   RankInfo `json:"rank_info"`
 }

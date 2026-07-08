@@ -18,7 +18,7 @@ static const String apiBaseUrl = "http://192.168.1.18:8000/api/v1";
 
 **After:**
 ```dart
-static const String apiBaseUrl = "https://khasyaraka-890949539640.asia-southeast2.run.app/api/v1";
+static const String apiBaseUrl = "https://pradigi-890949539640.asia-southeast2.run.app/api/v1";
 ```
 
 ---
@@ -34,7 +34,7 @@ static const String apiBaseUrl = "https://khasyaraka-890949539640.asia-southeast
 
 **After:**
 ```dart
-/// Base URL: Environment.apiBaseUrl (Production: https://khasyaraka-890949539640.asia-southeast2.run.app/api/v1)
+/// Base URL: Environment.apiBaseUrl (Production: https://pradigi-890949539640.asia-southeast2.run.app/api/v1)
 ```
 
 ---
@@ -88,9 +88,9 @@ All files use `Environment.apiBaseUrl` (no hardcoded URLs):
 
 ## 📋 Production URL Details
 
-- **Base URL:** `https://khasyaraka-890949539640.asia-southeast2.run.app`
+- **Base URL:** `https://pradigi-890949539640.asia-southeast2.run.app`
 - **API Prefix:** `/api/v1`
-- **Full API URL:** `https://khasyaraka-890949539640.asia-southeast2.run.app/api/v1`
+- **Full API URL:** `https://pradigi-890949539640.asia-southeast2.run.app/api/v1`
 - **Region:** `asia-southeast2` (Jakarta)
 
 ---

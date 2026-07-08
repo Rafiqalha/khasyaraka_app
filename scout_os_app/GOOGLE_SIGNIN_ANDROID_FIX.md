@@ -35,8 +35,8 @@ keytool -list -v -keystore android/app/upload-keystore.jks -alias upload
 4. **Cari OAuth 2.0 Client ID** dengan nama "Android client" atau buat baru:
    - Klik **"+ CREATE CREDENTIALS"** → **"OAuth client ID"**
    - Application type: **"Android"**
-   - Name: `Khasyaraka Android` (atau nama lain)
-   - Package name: `com.khasyaraka.scout_os`
+   - Name: `Pradigi Android` (atau nama lain)
+   - Package name: `com.pradigi.scout_os`
    - **SHA-1 certificate fingerprint:** `AC:6F:5E:A1:E5:22:53:6E:B5:BC:6D:1E:83:4F:B8:08:C2:A4:45:60`
 5. **Klik "CREATE"**
 
@@ -51,7 +51,7 @@ Pastikan di Google Cloud Console Anda memiliki:
    - ✅ Sudah dikonfigurasi di `login_page.dart`
 
 2. **OAuth 2.0 Client ID (Android)** ← **INI YANG PERLU DITAMBAHKAN**
-   - Package name: `com.khasyaraka.scout_os`
+   - Package name: `com.pradigi.scout_os`
    - SHA-1: `AC:6F:5E:A1:E5:22:53:6E:B5:BC:6D:1E:83:4F:B8:08:C2:A4:45:60`
 
 ---
@@ -68,7 +68,7 @@ Pastikan di Google Cloud Console Anda memiliki:
 
 ### **Package Name**
 Pastikan package name di Google Cloud Console sama dengan:
-- `com.khasyaraka.scout_os` (dari `android/app/build.gradle.kts`)
+- `com.pradigi.scout_os` (dari `android/app/build.gradle.kts`)
 
 ### **SHA-1 untuk Release Build**
 Jika Anda akan build release APK/AAB, tambahkan juga SHA-1 dari release keystore:
@@ -85,7 +85,7 @@ Anda bisa menambahkan beberapa SHA-1 (debug + release) ke satu OAuth Client ID A
 
 ### Masih Error 10?
 1. ✅ Pastikan SHA-1 sudah ditambahkan (tanpa spasi, format: `XX:XX:XX:...`)
-2. ✅ Pastikan package name sama persis: `com.khasyaraka.scout_os`
+2. ✅ Pastikan package name sama persis: `com.pradigi.scout_os`
 3. ✅ Tunggu 5-10 menit setelah menambahkan SHA-1 (propagasi Google)
 4. ✅ Restart aplikasi (bukan hot restart)
 5. ✅ Clear app data dan coba lagi
@@ -100,7 +100,7 @@ Anda bisa menambahkan beberapa SHA-1 (debug + release) ke satu OAuth Client ID A
 ## ✅ Checklist
 
 - [ ] SHA-1 fingerprint sudah ditambahkan ke Google Cloud Console
-- [ ] Package name di Google Cloud Console: `com.khasyaraka.scout_os`
+- [ ] Package name di Google Cloud Console: `com.pradigi.scout_os`
 - [ ] OAuth Client ID Android sudah dibuat
 - [ ] Sudah menunggu 5-10 menit setelah konfigurasi
 - [ ] Sudah restart aplikasi (full restart, bukan hot restart)

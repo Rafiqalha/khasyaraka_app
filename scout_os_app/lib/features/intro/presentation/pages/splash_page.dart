@@ -13,18 +13,7 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Ensure minimum 3-second delay for branding visibility before checking auth state
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
-          context.read<IntroController>().checkAppState(context);
-        }
-      });
-    });
-  }
+  // Timer and initState removed as main.dart FutureBuilder handles routing
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +21,7 @@ class _SplashPageState extends State<SplashPage> {
     const backgroundColor = Color(0xFFF0EAD6); // Eggshell / Light Khaki
 
     // 2. Brand Color: Vibrant Purple (Duolingo Style)
-    const brandColor = Color(0xFF562F00); // Purple
+    const brandColor = Color(0xFF562F00); // Pramuka Dark Brown
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -40,29 +29,12 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo Icon: Vibrant Purple (or Original PNG)
-            Image.asset(
-                  'assets/images/icon-khasyaraka.png',
-                  width:
-                      MediaQuery.of(context).size.width *
-                      0.65, // Responsive Width
-                  fit: BoxFit.contain,
-                  // color: brandColor, // Removed color filter to show original PNG colors. Uncomment if tint is needed.
-                )
-                .animate()
-                .fadeIn(duration: 800.ms)
-                .scale(
-                  begin: const Offset(0.5, 0.5),
-                  end: const Offset(1, 1),
-                  curve: Curves.elasticOut,
-                  duration: 1200.ms,
-                ),
 
             const SizedBox(height: 40),
 
-            // Text Brand: "KHASYARAKA"
+            // Text Brand: "PRADIGI"
             Text(
-                  "KHASYARAKA",
+                  "PRADIGI",
                   style: TextStyle(
                     fontFamily:
                         'Fredoka', // Using the local asset defined in pubspec.yaml

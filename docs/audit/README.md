@@ -1,6 +1,6 @@
-# KHASYARAKA (Scout OS)
+# PRADIGI (Scout OS)
 
-KHASYARAKA is a Scout-focused learning and progression platform inspired by Duolingo-style learning paths,
+PRADIGI is a Scout-focused learning and progression platform inspired by Duolingo-style learning paths,
 built with a clear separation between Freemium and Premium features.
 
 This repository follows strict architectural and coding rules.
@@ -196,10 +196,10 @@ Violations must be corrected immediately.
 
 ---
 
-# 🧠 `.cursorrules` — KHASYARAKA (UNTUK CODEX)
+# 🧠 `.cursorrules` — PRADIGI (UNTUK CODEX)
 
 ```txt
-You are an AI engineer working on the KHASYARAKA (Scout OS) monorepo.
+You are an AI engineer working on the PRADIGI (Scout OS) monorepo.
 
 GLOBAL RULES:
 - This is a monorepo.

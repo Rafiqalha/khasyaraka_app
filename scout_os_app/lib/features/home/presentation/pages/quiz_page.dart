@@ -2,6 +2,7 @@ import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
+import 'package:scout_os_app/core/widgets/duo_button.dart';
 import '../../logic/lesson_controller.dart';
 import '../../logic/training_controller.dart';
 import '../widgets/lesson_progress_header.dart';
@@ -325,13 +326,14 @@ class _QuizPageState extends State<QuizPage> {
             appBar: LessonProgressHeader(
               current: controller.currentQuestionIndex,
               total: controller.questions.length,
+              userHearts: controller.userHearts,
+              maxHearts: controller.maxHearts,
               onExit: () => _showExitDialog(context, controller),
             ),
             body: Stack(
               children: [
                 Column(
                   children: [
-                    _buildHeartsBar(controller),
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(
@@ -375,97 +377,6 @@ class _QuizPageState extends State<QuizPage> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildHeartsBar(LessonController controller) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      color: AppColors.hasdukWhite,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: List.generate(
-              controller.maxHearts,
-              (index) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Image.asset(
-                  'assets/icons/training/heart.png',
-                  width: 24,
-                  height: 24,
-                  color: index < controller.userHearts ? null : Colors.grey,
-                  colorBlendMode: index < controller.userHearts
-                      ? null
-                      : BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              if (controller.userXp > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.goldBadge.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/icons/training/star.png',
-                        width: 18,
-                        height: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '+${controller.userXp} XP',
-                        style: const TextStyle(
-                          color: AppColors.goldBadge,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (controller.userStreak > 0) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.actionOrange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/icons/training/fire.png',
-                        width: 18,
-                        height: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${controller.userStreak}',
-                        style: const TextStyle(
-                          color: AppColors.actionOrange,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -833,26 +744,59 @@ class _QuizPageState extends State<QuizPage> {
   void _showExitDialog(BuildContext context, LessonController controller) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Keluar dari Latihan?'),
-        content: const Text('Progress kamu akan hilang jika keluar sekarang.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
           ),
-          ElevatedButton(
-            onPressed: () {
-              controller.exitLesson();
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.alertRed,
-            ),
-            child: const Text('Keluar'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Tunggu Dulu!',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textDark,
+                  fontFamily: 'Nunito',
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Progress kamu akan hilang jika keluar sekarang.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textGrey,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Nunito',
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              DuoButton(
+                text: 'TETAP BELAJAR',
+                variant: DuoButtonVariant.green,
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(height: 12),
+              DuoButton(
+                text: 'AKHIRI SESI',
+                variant: DuoButtonVariant.red,
+                onPressed: () {
+                  controller.exitLesson();
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context); // Go back
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

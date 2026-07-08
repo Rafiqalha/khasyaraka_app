@@ -1,14 +1,14 @@
-# 📋 Laporan Proyek Khasyaraka (Scout OS)
+# 📋 Laporan Proyek Pradigi (Scout OS)
 
 **Tanggal:** 3 Juli 2026  
 **Versi:** 1.0  
-**Penulis:** Tim Pengembang Khasyaraka
+**Penulis:** Tim Pengembang Pradigi
 
 ---
 
 ## 1. Ringkasan Proyek
 
-**Khasyaraka (Scout OS)** adalah platform pembelajaran dan manajemen Pramuka modern yang menggabungkan gamifikasi, materi interaktif, dan alat survival digital. Proyek ini menggunakan arsitektur **Monorepo** dengan dua komponen utama:
+**Pradigi (Scout OS)** adalah platform pembelajaran dan manajemen Pramuka modern yang menggabungkan gamifikasi, materi interaktif, dan alat survival digital. Proyek ini menggunakan arsitektur **Monorepo** dengan dua komponen utama:
 
 | Komponen | Teknologi | Deskripsi |
 |----------|-----------|-----------|
@@ -255,9 +255,9 @@ backend/
 | Mobile App | Flutter APK | Distribusi manual / Play Store |
 
 **Docker Compose** digunakan untuk development lokal dengan 3 service:
-- `khasyaraka_db` (PostgreSQL, port 5433)
-- `khasyaraka_redis` (Redis, port 6379)
-- `khasyaraka_api` (Go backend, port 8080)
+- `pradigi_db` (PostgreSQL, port 5433)
+- `pradigi_redis` (Redis, port 6379)
+- `pradigi_api` (Go backend, port 8080)
 
 ---
 
@@ -429,4 +429,4 @@ backend/
 
 ---
 
-*Dokumen ini dibuat secara otomatis berdasarkan analisis kode sumber proyek Khasyaraka per tanggal 3 Juli 2026.*
+*Dokumen ini dibuat secara otomatis berdasarkan analisis kode sumber proyek Pradigi per tanggal 3 Juli 2026.*

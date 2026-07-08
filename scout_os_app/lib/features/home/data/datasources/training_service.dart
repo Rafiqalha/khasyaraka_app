@@ -8,7 +8,7 @@ import 'package:scout_os_app/features/home/data/models/training_question.dart';
 /// Training Service - Handles API calls to FastAPI backend for training content
 ///
 /// Architecture: Flutter App -> FastAPI Backend -> PostgreSQL
-/// Base URL: Environment.apiBaseUrl (Production: https://khasyaraka-890949539640.asia-southeast2.run.app/api/v1)
+/// Base URL: Environment.apiBaseUrl (Production: https://pradigi-890949539640.asia-southeast2.run.app/api/v1)
 class TrainingService {
   /// Fetch a specific level by ID
   ///

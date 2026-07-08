@@ -22,25 +22,36 @@ class AdMobService {
 
   void _loadRewardedAd() {
     if (_isLoading) return;
+
+    // Skip on desktop platforms as google_mobile_ads only supports Android/iOS
+    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
+      debugPrint('⚠️ [AdMob] Skipping ad load on desktop platforms');
+      return;
+    }
+
     _isLoading = true;
 
-    RewardedAd.load(
-      adUnitId: _adUnitId,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) {
-          debugPrint('🎬 [AdMob] Rewarded Ad loaded');
-          _rewardedAd = ad;
-          _isLoading = false;
-        },
-        onAdFailedToLoad: (error) {
-          debugPrint('❌ [AdMob] Failed to load Rewarded Ad: ${error.message}');
-          _rewardedAd = null;
-          _isLoading = false;
-          // Retry after delay?
-        },
-      ),
-    );
+    try {
+      RewardedAd.load(
+        adUnitId: _adUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) {
+            debugPrint('🎬 [AdMob] Rewarded Ad loaded');
+            _rewardedAd = ad;
+            _isLoading = false;
+          },
+          onAdFailedToLoad: (error) {
+            debugPrint('❌ [AdMob] Failed to load Rewarded Ad: ${error.message}');
+            _rewardedAd = null;
+            _isLoading = false;
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint('❌ [AdMob] Exception loading ad: $e');
+      _isLoading = false;
+    }
   }
 
   void showRewardedAd({

@@ -452,7 +452,7 @@ A: Yes, use SurvivalToolsController as template.
 All generated files are located in:
 
 ```
-/home/rafiq/Projek/khasyaraka/
+/home/rafiq/Projek/pradigi/
 
 Backend:
   scout_os_backend/app/modules/survival/router_new.py
