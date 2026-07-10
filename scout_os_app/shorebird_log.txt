@@ -1,0 +1,16 @@
+[Process.run] git for-each-ref --contains eafc511e43a5336d779c2463971b7bd69ff862eb --format %(refname:short) refs/remotes/origin/flutter_release/* (in /home/rafiqalha/.shorebird/bin/cache/flutter/eafc511e43a5336d779c2463971b7bd69ff862eb)
+Exited with code 0
+
+stdout:
+origin/flutter_release/3.44.5
+
+[Process.run] git for-each-ref --contains latest --format %(refname:short) refs/remotes/origin/flutter_release/* (in /home/rafiqalha/.shorebird/bin/cache/flutter/eafc511e43a5336d779c2463971b7bd69ff862eb)
+Exited with code 129
+
+stderr:
+error: malformed object name latest
+
+No checksum provided for patch, skipping file corruption validation
+No checksum provided for aot-tools.dill, skipping file corruption validation
+Starting Fetching apps...
+[HTTP] POST https://auth.shorebird.dev/token
