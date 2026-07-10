@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 import '../../data/models/training_path.dart';
 
 class DuoLessonButton extends StatelessWidget {
@@ -36,19 +37,19 @@ class DuoLessonButton extends StatelessWidget {
                     width: size,
                     height: size,
                     decoration: BoxDecoration(
-                      color: isLocked ? Colors.grey.shade400 : _darken(color),
+                      color: isLocked ? AppColors.lockedGreyDark : _darken(color),
                       shape: BoxShape.circle,
                     ),
                   ),
                 ),
-                // Layer Utama (Atas)
+                // Tombol Utama (Lebih Tinggi)
                 Positioned(
                   top: 0,
                   child: Container(
                     width: size,
                     height: size,
                     decoration: BoxDecoration(
-                      color: isLocked ? Colors.grey.shade300 : color,
+                      color: isLocked ? AppColors.lockedGrey : color,
                       shape: BoxShape.circle,
                       border: Border.all(
                         // PERBAIKAN DEPRECATED: Ganti withOpacity jadi withValues
@@ -77,7 +78,7 @@ class DuoLessonButton extends StatelessWidget {
                     right: 0,
                     bottom: 0,
                     child: CircleAvatar(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.scoutBrownDark,
                       radius: 12,
                       child: Icon(Icons.check, size: 16, color: color),
                     ),

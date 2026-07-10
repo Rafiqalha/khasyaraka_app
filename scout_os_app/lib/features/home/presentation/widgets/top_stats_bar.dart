@@ -2,7 +2,10 @@ import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
+import 'package:scout_os_app/features/home/data/models/training_course.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// TopStatsBar - Duolingo-style stats bar
 ///
@@ -25,53 +28,52 @@ class TopStatsBar extends StatelessWidget {
         final isLoading = controller.isLoading;
 
         return Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: AppColors.deepCharcoal,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 1. STREAK (Fire)
+              // 1. COURSE PICKER (REMOVED: Only one Cyber Scout course now)
+
+              // 2. STREAK (Fire)
               _buildStatItem(
                 context,
                 iconWidget: _build3DIcon(
-                  icon: Icons.local_fire_department_rounded,
-                  faceColor: streak > 0 ? const Color(0xFFFF9600) : const Color(0xFFE5E5E5),
-                  lipColor: streak > 0 ? const Color(0xFFCC7800) : const Color(0xFFCCCCCC),
-                  shadowColor: streak > 0 ? const Color(0xFFFF9600).withOpacity(0.3) : Colors.transparent,
+                  icon: FontAwesomeIcons.fire,
+                  faceColor: streak > 0 ? AppColors.statFire : AppColors.lockedGrey,
+                  lipColor: streak > 0 ? AppColors.statFireDark : AppColors.lockedGreyDark,
+                  shadowColor: Colors.transparent,
                 ),
-                color: streak > 0 ? const Color(0xFFFF9600) : const Color(0xFFAFAFAF),
+                color: streak > 0 ? AppColors.statFire : AppColors.lockedGrey,
                 text: '$streak',
               ),
 
-              // 2. XP (Star / Gems)
+              // 3. XP (Star / Gems)
               _buildStatItem(
                 context,
                 iconWidget: _build3DIcon(
-                  icon: Icons.star_rounded,
-                  faceColor: const Color(0xFFFFC800),
-                  lipColor: const Color(0xFFDDA600),
-                  shadowColor: const Color(0xFFFFC800).withOpacity(0.3),
+                  icon: FontAwesomeIcons.solidStar,
+                  faceColor: AppColors.statStar,
+                  lipColor: AppColors.statStarDark,
+                  shadowColor: Colors.transparent,
                 ),
-                color: const Color(0xFFFFC800),
+                color: AppColors.statStar,
                 text: '$xp',
               ),
 
-              // 3. HEARTS (Lives)
+              // 4. HEARTS (Lives)
               _buildStatItem(
                 context,
                 iconWidget: _build3DIcon(
-                  icon: Icons.favorite_rounded,
-                  faceColor: hearts > 0 ? const Color(0xFFFF4B4B) : const Color(0xFFE5E5E5),
-                  lipColor: hearts > 0 ? const Color(0xFFCC3C3C) : const Color(0xFFCCCCCC),
-                  shadowColor: hearts > 0 ? const Color(0xFFFF4B4B).withOpacity(0.3) : Colors.transparent,
+                  icon: FontAwesomeIcons.solidHeart,
+                  faceColor: hearts > 0 ? AppColors.statHeart : AppColors.lockedGrey,
+                  lipColor: hearts > 0 ? AppColors.statHeartDark : AppColors.lockedGreyDark,
+                  shadowColor: Colors.transparent,
                 ),
-                color: hearts > 0 ? const Color(0xFFFF4B4B) : const Color(0xFFAFAFAF),
+                color: hearts > 0 ? AppColors.statHeart : AppColors.lockedGrey,
                 text: hearts < controller.maxHearts ? '$hearts+' : '$hearts',
                 onTap: () => _showAdDialog(context, controller),
               ),
-
-              // 4. REFRESH
-              _buildRefreshButton(context, controller, isLoading),
             ],
           ),
         );
@@ -80,7 +82,7 @@ class TopStatsBar extends StatelessWidget {
   }
 
   Widget _build3DIcon({
-    required IconData icon,
+    required dynamic icon,
     required Color faceColor,
     required Color lipColor,
     required Color shadowColor,
@@ -102,70 +104,16 @@ class TopStatsBar extends StatelessWidget {
           // Lip / Bottom Shadow (Slightly larger and shifted down)
           Padding(
             padding: const EdgeInsets.only(top: 3),
-            child: Icon(icon, color: lipColor, size: 28),
+            child: FaIcon(icon, color: lipColor, size: 28),
           ),
           // Face / Highlight
-          Icon(icon, color: faceColor, size: 28),
+          FaIcon(icon, color: faceColor, size: 28),
           // Tiny glint/highlight using a slightly lighter color and offset up
           Padding(
             padding: const EdgeInsets.only(bottom: 2, right: 2),
-            child: Icon(icon, color: Colors.white.withOpacity(0.2), size: 26),
+            child: FaIcon(icon, color: Colors.white.withOpacity(0.2), size: 26),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildRefreshButton(
-    BuildContext context,
-    TrainingController controller,
-    bool isLoading,
-  ) {
-    return GestureDetector(
-      onTap: isLoading
-          ? null
-          : () async {
-              debugPrint('🔄 [REFRESH] Manual refresh triggered by user');
-
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                barrierColor: Colors.black87,
-                builder: (context) => const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GrassSosLoader(),
-                      SizedBox(height: 24),
-                      Text(
-                        "MEMPERBARUI DATA...",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Fredoka',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-
-              await Future.wait([
-                controller.loadProgress(),
-                controller.loadUserStats(forceRefresh: true),
-              ]);
-
-              if (context.mounted) {
-                Navigator.pop(context); // Close loading dialog
-              }
-            },
-      child: _build3DIcon(
-        icon: Icons.sync_rounded,
-        faceColor: const Color(0xFF1CB0F6),
-        lipColor: const Color(0xFF1899D6),
-        shadowColor: const Color(0xFF1CB0F6).withOpacity(0.3),
       ),
     );
   }
@@ -214,8 +162,8 @@ class TopStatsBar extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(maxWidth: 400),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E2640), // Darker slate card background
-            borderRadius: BorderRadius.circular(28),
+            color: AppColors.charcoalSurface,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withOpacity(0.1), width: 2),
             boxShadow: [
               BoxShadow(
@@ -234,9 +182,7 @@ class TopStatsBar extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.only(top: 32, bottom: 24),
                 decoration: BoxDecoration(
-                  color: const Color(
-                    0xFF2C3558,
-                  ), // Slightly lighter top section
+                  color: AppColors.deepCharcoal,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(26),
                   ),
@@ -246,8 +192,8 @@ class TopStatsBar extends StatelessWidget {
                     // 3D Heart Icon Container
                     Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFB71C1C), // Deep Red Lip
-                        borderRadius: BorderRadius.circular(24),
+                        color: AppColors.statHeartDark,
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.redAccent.withOpacity(0.3),
@@ -261,8 +207,8 @@ class TopStatsBar extends StatelessWidget {
                         margin: const EdgeInsets.only(bottom: 6),
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF4B4B), // Bright Red Face
-                          borderRadius: BorderRadius.circular(24),
+                          color: AppColors.statHeart,
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.2),
                             width: 2,
@@ -408,15 +354,15 @@ class TopStatsBar extends StatelessWidget {
                         height: 56,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2C3558), // Dark Blue-Grey Lip
+                          color: AppColors.scoutBrownDark,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Container(
-                          height: 50,
+                          height: 48,
                           width: double.infinity,
                           margin: const EdgeInsets.only(bottom: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF38446E), // Blue-Grey Face
+                            color: AppColors.scoutBrown,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Center(

@@ -6,6 +6,7 @@ import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import '../../logic/training_controller.dart';
 import '../../data/models/training_path.dart';
+import '../../data/models/training_section.dart';
 import '../widgets/top_stats_bar.dart';
 import '../widgets/active_unit_header_delegate.dart';
 import '../widgets/path_road_painter.dart';
@@ -148,8 +149,12 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
     }
 
     if (newActiveUnit != _activeUnitIndex) {
-      setState(() {
-        _activeUnitIndex = newActiveUnit;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _activeUnitIndex = newActiveUnit;
+          });
+        }
       });
     }
   }
@@ -172,7 +177,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor(context),
+      backgroundColor: AppColors.deepCharcoal,
       body: SafeArea(
         child: Consumer<TrainingController>(
           builder: (context, controller, child) {
@@ -213,7 +218,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
                   snap: false,
                   automaticallyImplyLeading: false,
                   elevation: 0,
-                  backgroundColor: Theme.of(context).cardColor,
+                  backgroundColor: AppColors.deepCharcoal,
                   toolbarHeight: _statsBarHeight,
                   title: const TopStatsBar(),
                   titleSpacing: 0,
@@ -223,10 +228,10 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: (() {
-                    final sectionNum = _getSectionNumber(activeUnit);
                     return ActiveUnitHeaderDelegate(
                       unit: activeUnit,
-                      sectionIndex: sectionNum,
+                      sectionIndex: controller.activeSectionIndex + 1,
+                      unitNumber: safeActiveIndex + 1,
                       color: unitColor,
                       height: _activeHeaderHeight,
                     );
@@ -287,6 +292,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
 
         slivers.add(
           SliverToBoxAdapter(
+            key: ValueKey('unit_${unit.id}'),
             child: _UnitPathSection(
               lessons: unit.lessons,
               unitColor: unitColor,
@@ -308,12 +314,186 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
 
         globalIndexCounter++;
       }
+
+      // Divider between different Bagian (Sections)
+      if (i < sections.length - 1) {
+        slivers.add(
+          SliverToBoxAdapter(
+            child: _buildSectionDivider(i, sections[i + 1], context),
+          ),
+        );
+      }
     }
 
-    // Bottom padding
+    // Pagination Controls at the bottom
+    slivers.add(
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Row(
+            children: [
+              if (controller.activeSectionIndex > 0)
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      _resetScrollState();
+                      controller.previousSection();
+                    },
+                    child: Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.scoutBrownDark, // Darker lip
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Container(
+                        height: 54,
+                        margin: const EdgeInsets.only(bottom: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.scoutBrown, // Main face
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'KEMBALI KE\nBAGIAN ${controller.activeSectionIndex}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                const Spacer(),
+                
+              const SizedBox(width: 16),
+              
+              if (controller.activeSectionIndex + 1 < controller.totalSectionsCount)
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      _resetScrollState();
+                      controller.nextSection();
+                    },
+                    child: Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.wosmPurpleDark, // Darker lip
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Container(
+                        height: 54,
+                        margin: const EdgeInsets.only(bottom: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.wosmPurple, // Main face
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'LANJUTKAN KE\nBAGIAN ${controller.activeSectionIndex + 2}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                const Spacer(),
+            ],
+          ),
+        ),
+      ),
+    );
+
     slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 120)));
 
     return slivers;
+  }
+
+  Widget _buildSectionDivider(int sectionIndex, SectionWithUnits nextSection, BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.scoutBrown,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.scoutBrownDark, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.scoutBrownDark,
+            offset: const Offset(0, 8),
+            blurRadius: 0, // Strict flat 3D shadow, no blur
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.star_rounded,
+              color: Colors.white,
+              size: 48,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              "BAGIAN ${sectionIndex + 2}",
+              style: AppTextStyles.h3.copyWith(
+                color: AppColors.scoutBrownDark,
+                fontSize: 14,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            nextSection.section.title,
+            style: AppTextStyles.h2.copyWith(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (nextSection.section.description != null && nextSection.section.description!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              nextSection.section.description!,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildDivider(int index, int total, BuildContext context) {
@@ -356,15 +536,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
   }
 
   Color _getUnitColor(int index) {
-    const colors = [
-      AppColors.primary,
-      Color(0xFF58CC02),
-      Color(0xFFCE82FF),
-      Color(0xFFFF9600),
-      Color(0xFFFF4B4B),
-      Color(0xFF2B70C9),
-    ];
-    return colors[index % colors.length];
+    return AppColors.wosmPurple;
   }
 
   void _handleLessonTap(BuildContext context, LessonNode lesson) {
@@ -446,22 +618,22 @@ class _LevelActionDialog extends StatelessWidget {
       message =
           "Kamu sudah menyelesaikannya. Mau latihan lagi untuk memantapkan ingatan?";
       buttonText = "ULANGI LATIHAN";
-      color = const Color(0xFFFFC107); // Amber/Gold
+      color = AppColors.accent; // Gold
       icon = Icon(Icons.check_circle_rounded, size: 40, color: color);
-      iconBgColor = const Color(0xFFFFF8E1); // Light Amber
+      iconBgColor = AppColors.charcoalSurface;
     } else if (isLocked) {
       title = "Level Terkunci";
       message = "Selesaikan level sebelumnya untuk membuka teka-teki ini!";
       buttonText = "KEMBALI";
-      color = const Color(0xFF9E9E9E); // Grey
+      color = AppColors.lockedGrey;
       icon = Icon(Icons.lock_rounded, size: 40, color: color);
-      iconBgColor = const Color(0xFFF5F5F5); // Light Grey
+      iconBgColor = AppColors.deepCharcoal;
     } else {
       // Active / Unlocked
       title = "Mulai Petualangan?";
       message = "Siap untuk mendapatkan XP dan melatih kemampuan kepanduanmu?";
       buttonText = "MULAI";
-      color = const Color(0xFF58CC02); // Green
+      color = AppColors.wosmPurple;
       icon = Image.asset(
         'assets/icons/training/star.png',
         height: 40,
@@ -469,7 +641,7 @@ class _LevelActionDialog extends StatelessWidget {
         color: color,
         colorBlendMode: BlendMode.srcIn,
       );
-      iconBgColor = const Color(0xFFE8F5E9); // Light Green
+      iconBgColor = AppColors.charcoalSurface;
     }
 
     return Dialog(
@@ -478,14 +650,14 @@ class _LevelActionDialog extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(32), // Uniform padding
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.charcoalSurface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.shade200, width: 2),
+          border: Border.all(color: AppColors.lockedGrey, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 10,
-              spreadRadius: 2,
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 0, // Flat shadow rule
+              spreadRadius: 0,
               offset: const Offset(0, 8),
             ),
           ],
@@ -496,7 +668,7 @@ class _LevelActionDialog extends StatelessWidget {
             Text(
               title,
               style: AppTextStyles.h2.copyWith(
-                color: Colors.black87,
+                color: Colors.white,
                 fontSize: 22,
               ),
               textAlign: TextAlign.center,
@@ -505,7 +677,7 @@ class _LevelActionDialog extends StatelessWidget {
             Text(
               message,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: Colors.grey.shade600,
+                color: Colors.white70,
                 fontSize: 16,
                 height: 1.4,
               ),
@@ -611,12 +783,12 @@ class _PartHeader extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFF58CC02),
+            color: AppColors.wosmPurple,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF46A302),
-                blurRadius: 0,
+                color: AppColors.wosmPurpleDark,
+                blurRadius: 0, // flat shadow
                 offset: const Offset(0, 6),
               ),
             ],

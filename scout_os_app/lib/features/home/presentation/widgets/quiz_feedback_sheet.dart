@@ -18,105 +18,151 @@ class QuizFeedbackSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Theme colors based on correctness
-    final bgColor = isCorrect
-        ? const Color(0xFFD7FFB8)
-        : const Color(0xFFFFDFE0); // Lighter variants
-    final contentColor = isCorrect ? AppColors.duoSuccess : AppColors.duoError;
-    final buttonColor = isCorrect ? AppColors.duoSuccess : AppColors.duoError;
-    final shadowColor = isCorrect
-        ? AppColors.duoSuccessShadow
-        : AppColors.duoErrorShadow;
-
-    final icon = isCorrect ? Icons.check_circle : Icons.cancel;
-    final titleText = isCorrect ? "Benar!" : "Kurang Tepat";
+    final bgColor = const Color(0xFF242424); // charcoalSurface
+    final headerColor = const Color(0xFF161616); // deepCharcoal
+    
+    final iconColor = isCorrect ? AppColors.duoSuccess : AppColors.duoError;
+    final shadowColor = isCorrect ? AppColors.duoSuccessShadow : AppColors.duoErrorShadow;
+    
+    final icon = isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded;
+    final titleText = isCorrect ? "Luar Biasa!" : "Kurang Tepat";
 
     return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: 24,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 30,
+            spreadRadius: 10,
+            offset: const Offset(0, -10),
           ),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, -5),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Premium Header with 3D Icon
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(top: 32, bottom: 24),
+              decoration: BoxDecoration(
+                color: headerColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(32),
+                ),
               ),
-            ],
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Wrap content
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Row: Icon + Title
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
+              child: Column(
+                children: [
+                  // 3D Icon Container
+                  Container(
+                    decoration: BoxDecoration(
+                      color: shadowColor,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: iconColor.withOpacity(0.4),
+                          blurRadius: 24,
+                          spreadRadius: 4,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: iconColor,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 2.5,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
                         color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(icon, color: contentColor, size: 32),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      titleText,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: contentColor,
+                        size: 56,
                       ),
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // Content for Incorrect Answer
-                if (!isCorrect && correctAnswer != null) ...[
+                  ),
+                  const SizedBox(height: 24),
                   Text(
-                    "Jawaban yang benar:",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: contentColor,
+                    titleText,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                      fontFamily: 'Nunito',
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    correctAnswer!,
-                    style: TextStyle(fontSize: 18, color: contentColor),
-                  ),
-                  const SizedBox(height: 24),
-                ] else ...[
-                  const SizedBox(height: 24),
                 ],
-
-                // Continue Button (Full Width)
-                DuoButton(
-                  text: 'LANJUTKAN',
-                  onPressed: onContinue,
-                  variant: isCorrect ? DuoButtonVariant.green : DuoButtonVariant.red,
-                ),
-              ],
+              ),
             ),
-          ),
-        )
-        .animate()
-        .moveY(
-          begin: 100,
-          end: 0,
-          duration: 400.ms,
-          curve: Curves.elasticOut,
-        ) // Bouncing entry
-        .fadeIn(duration: 200.ms);
+            
+            // Content & Action Section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+              child: Column(
+                children: [
+                  if (!isCorrect && correctAnswer != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Jawaban yang benar:",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white.withOpacity(0.5),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            correctAnswer!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                  
+                  DuoButton(
+                    text: 'LANJUTKAN',
+                    onPressed: onContinue,
+                    variant: isCorrect ? DuoButtonVariant.green : DuoButtonVariant.red,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().moveY(
+      begin: 100,
+      end: 0,
+      duration: 400.ms,
+      curve: Curves.elasticOut,
+    ).fadeIn(duration: 200.ms);
   }
 }

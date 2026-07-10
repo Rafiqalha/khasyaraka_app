@@ -87,12 +87,12 @@ class _ArenaHomeViewState extends State<_ArenaHomeView> {
     final controller = context.watch<ArenaController>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(FeatureFlags.enableTeamMode ? 'CYBER-SCOUT ARENA 5v5' : 'ARENA DUEL 1v1', style: GoogleFonts.fredoka(color: const Color(0xFF1CB0F6), fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
       body: Padding(
@@ -139,7 +139,7 @@ class _ArenaHomeViewState extends State<_ArenaHomeView> {
               const SizedBox(height: 24),
               TextField(
                 controller: _codeController,
-                style: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                style: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Kode Arena (Misal: PRDA7X)',
                   labelStyle: GoogleFonts.nunito(color: Colors.grey.shade500, fontWeight: FontWeight.bold),

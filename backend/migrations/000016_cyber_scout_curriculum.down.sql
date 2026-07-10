@@ -1,0 +1,1 @@
+DELETE FROM training_courses WHERE id = 'cyber';\n

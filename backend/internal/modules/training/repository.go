@@ -16,9 +16,27 @@ func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) GetActiveSections() ([]Section, error) {
+func (r *Repository) GetActiveCourses() ([]Course, error) {
+	var courses []Course
+	err := r.db.Select(&courses, "SELECT id, title, description, icon, ord, is_active, created_at FROM training_courses WHERE is_active = TRUE ORDER BY ord")
+	if err != nil {
+		return nil, fmt.Errorf("get courses: %w", err)
+	}
+	return courses, nil
+}
+
+func (r *Repository) GetActiveSections(courseID string) ([]Section, error) {
 	var sections []Section
-	err := r.db.Select(&sections, "SELECT id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE is_active = TRUE ORDER BY ord")
+	query := "SELECT id, course_id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE is_active = TRUE"
+	args := []interface{}{}
+	
+	if courseID != "" {
+		query += " AND course_id = $1"
+		args = append(args, courseID)
+	}
+	query += " ORDER BY ord"
+	
+	err := r.db.Select(&sections, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("get sections: %w", err)
 	}
@@ -27,7 +45,7 @@ func (r *Repository) GetActiveSections() ([]Section, error) {
 
 func (r *Repository) GetSectionByID(id string) (*Section, error) {
 	var s Section
-	err := r.db.Get(&s, "SELECT id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE id = $1 AND is_active = TRUE", id)
+	err := r.db.Get(&s, "SELECT id, course_id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE id = $1 AND is_active = TRUE", id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

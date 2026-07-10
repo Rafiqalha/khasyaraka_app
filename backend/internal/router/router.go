@@ -84,6 +84,7 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	trainingSvc := training.NewService(trainingRepo, rdb, db)
 	trainingH := training.NewHandler(trainingSvc)
 
+	api.GET("/training/courses", trainingH.ListCourses)
 	api.GET("/training/sections", trainingH.ListSections)
 	api.GET("/training/sections/:id", trainingH.GetSection)
 	api.GET("/training/sections/:id/path", trainingH.GetLearningPath) // Flutter uses this

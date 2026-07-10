@@ -7,6 +7,7 @@ import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
 import '../data/repositories/training_repository.dart';
 import '../data/models/training_path.dart';
 import '../data/models/training_section.dart';
+import '../data/models/training_course.dart';
 import 'package:scout_os_app/features/profile/data/repositories/profile_repository.dart';
 import 'package:scout_os_app/core/services/local_cache_service.dart';
 import '../data/datasources/training_service.dart';
@@ -26,6 +27,10 @@ class TrainingController extends ChangeNotifier {
   String? errorMessage;
   List<UnitModel> units = [];
   List<SectionWithUnits> sectionsWithUnits = []; // Backend-driven sections
+  List<TrainingCourse> courses = []; // Backend-driven courses
+  String? selectedCourseId; // Currently active course
+  int activeSectionIndex = 0; // The currently displayed section (paginated)
+  int totalSectionsCount = 0; // Total sections available for current course
 
   // Duolingo-style progress tracking
   int userXp = 0;
@@ -103,11 +108,18 @@ class TrainingController extends ChangeNotifier {
     errorMessage = null;
 
     try {
-      debugPrint('🔄 [LOAD_UNITS] Fetching sections from backend...');
+      debugPrint('🔄 [LOAD_UNITS] Fetching courses from backend...');
+      final fetchedCourses = await _repository.getCourses();
+      courses = fetchedCourses.map((c) => TrainingCourse.fromJson(c)).toList();
+      if (courses.isNotEmpty && selectedCourseId == null) {
+        selectedCourseId = courses[0].id;
+      }
+
+      debugPrint('🔄 [LOAD_UNITS] Fetching sections from backend for course $selectedCourseId...');
 
       // Fetch sections with backend order
       // TODO: Add caching for sections list itself if needed
-      final sectionsResponse = await _repository.getSections();
+      final sectionsResponse = await _repository.getSections(courseId: selectedCourseId);
       var sections = sectionsResponse.sections;
 
       // DEDUPLICATE sections by ID (Safety check)
@@ -117,12 +129,21 @@ class TrainingController extends ChangeNotifier {
       // Sort by backend order field
       sections.sort((a, b) => a.order.compareTo(b.order));
 
-      debugPrint('📚 [LOAD_UNITS] Fetched ${sections.length} sections');
+      totalSectionsCount = sections.length;
+      
+      // Protect against out-of-bounds index
+      if (activeSectionIndex >= totalSectionsCount) {
+        activeSectionIndex = totalSectionsCount > 0 ? totalSectionsCount - 1 : 0;
+      }
+      
+      final activeSection = sections.isNotEmpty ? sections[activeSectionIndex] : null;
 
-      // Initialize sectionsWithUnits with empty units (Lazy Loading)
-      sectionsWithUnits = sections
-          .map((s) => SectionWithUnits(section: s, units: []))
-          .toList();
+      debugPrint('📚 [LOAD_UNITS] Fetched $totalSectionsCount sections, active index: $activeSectionIndex');
+
+      // Initialize sectionsWithUnits with only the active section
+      sectionsWithUnits = activeSection != null 
+          ? [SectionWithUnits(section: activeSection, units: [])] 
+          : [];
 
       // ✅ Rely purely on TrainingRepository's SWR (Stale-While-Revalidate) cache
       // This fetches cached data instantly per section, and revalidates in the background.
@@ -156,7 +177,6 @@ class TrainingController extends ChangeNotifier {
 
       // Rebuild flattened list from the updated sections
       _rebuildFlattenedUnits();
-
       if (sectionsWithUnits.isEmpty) {
         errorMessage = "Belum ada path training yang tersedia.";
       }
@@ -180,6 +200,61 @@ class TrainingController extends ChangeNotifier {
       _isPathLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Change the selected course and reload data
+  Future<void> setCourse(String courseId) async {
+    if (selectedCourseId == courseId) return;
+    
+    selectedCourseId = courseId;
+    activeSectionIndex = 0; // Reset pagination to first section
+    sectionsWithUnits.clear(); // Clear current path
+    units.clear();
+    
+    // Nuke the path loading cache for this course
+    _isPathLoading = false;
+    
+    // Nuke the local cache to ensure fresh sections load for this course
+    await LocalCacheService.delete(LocalCacheService.keySections);
+    await LocalCacheService.delete('training_sections_$courseId');
+    
+    notifyListeners();
+    
+    // Reload path
+    await loadUnitsOnly();
+    await loadProgress(); // Reload progress since units changed
+  }
+
+  /// Navigate to next section
+  Future<void> nextSection() async {
+    if (activeSectionIndex + 1 >= totalSectionsCount) return;
+    
+    activeSectionIndex += 1;
+    
+    // Nuke the path loading cache to allow reload
+    _isPathLoading = false;
+    
+    notifyListeners();
+    
+    // Reload path
+    await loadUnitsOnly();
+    await loadProgress();
+  }
+
+  /// Navigate to previous section
+  Future<void> previousSection() async {
+    if (activeSectionIndex <= 0) return;
+    
+    activeSectionIndex -= 1;
+    
+    // Nuke the path loading cache to allow reload
+    _isPathLoading = false;
+    
+    notifyListeners();
+    
+    // Reload path
+    await loadUnitsOnly();
+    await loadProgress();
   }
 
   /// Lazy Load Units for a specific Section

@@ -58,10 +58,10 @@ class _ArenaResultsPageState extends State<ArenaResultsPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('HASIL AKHIR', style: GoogleFonts.fredoka(color: const Color(0xFFFF9600), fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: true,

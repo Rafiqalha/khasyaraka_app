@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:torch_light/torch_light.dart';
 
 class MorseTouchScreen extends StatefulWidget {
@@ -223,20 +224,20 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.deepCharcoal,
       appBar: AppBar(
         title: Text(
           "Morse Touch Data",
           style: GoogleFonts.fredoka(
-            color: Colors.grey.shade800,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.deepCharcoal,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.grey),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -247,20 +248,23 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
             // 1. Text Input
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: AppColors.charcoalSurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade300, width: 2),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 2),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _textController,
                 onChanged: _onTextChanged,
                 enabled: !_isTransmitting,
-                style: GoogleFonts.fredoka(fontSize: 18, color: Colors.black87),
+                style: GoogleFonts.fredoka(fontSize: 18, color: Colors.white),
                 decoration: InputDecoration(
+                  filled: false, // Override global theme
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                   hintText: "Ketik pesan (e.g. SOS)...",
-                  hintStyle: GoogleFonts.fredoka(color: Colors.grey),
+                  hintStyle: GoogleFonts.fredoka(color: Colors.white54),
                 ),
               ),
             ),
@@ -296,7 +300,7 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _isFlashOn ? _duoYellow : Colors.grey.shade300,
+                color: _isFlashOn ? _duoYellow : const Color(0xFF333333),
                 boxShadow: _isFlashOn
                     ? [
                         BoxShadow(
@@ -312,20 +316,20 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                       ]
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
                 border: Border.all(
-                  color: _isFlashOn ? Colors.white : Colors.grey.shade400,
+                  color: _isFlashOn ? Colors.white : Colors.white.withValues(alpha: 0.1),
                   width: 4,
                 ),
               ),
               child: Icon(
                 _isFlashOn ? Icons.light_mode : Icons.light_mode_outlined,
                 size: 80,
-                color: _isFlashOn ? Colors.white : Colors.grey,
+                color: _isFlashOn ? Colors.white : Colors.white54,
               ),
             ),
             const SizedBox(height: 40),
@@ -334,12 +338,7 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _build3DButton(
-                    label: _isTransmitting ? "STOP" : "KIRIM",
-                    color: _isTransmitting ? Colors.grey : _duoGreen,
-                    shadowColor: _isTransmitting
-                        ? Colors.grey.shade700
-                        : _duoGreenShadow,
+                  child: _Bouncing3DTextButton(
                     onTap: () {
                       if (_isTransmitting) {
                         _stopTransmission();
@@ -350,14 +349,26 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                         }
                       }
                     },
+                    baseColor: _isTransmitting ? Colors.grey : _duoGreen,
+                    shadowColor: _isTransmitting
+                        ? Colors.grey.shade700
+                        : _duoGreenShadow,
+                    height: 56,
+                    shadowHeight: 6,
+                    borderRadius: 16,
+                    child: Text(
+                      _isTransmitting ? "STOP" : "KIRIM",
+                      style: GoogleFonts.fredoka(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _build3DButton(
-                    label: "SOS LOOP",
-                    color: _duoRed,
-                    shadowColor: _duoRedShadow,
+                  child: _Bouncing3DTextButton(
                     onTap: () {
                       if (_isTransmitting) {
                         _stopTransmission();
@@ -368,6 +379,19 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
                         _transmitMorseSequence("SOS", loop: true);
                       }
                     },
+                    baseColor: _duoRed,
+                    shadowColor: _duoRedShadow,
+                    height: 56,
+                    shadowHeight: 6,
+                    borderRadius: 16,
+                    child: Text(
+                      "SOS LOOP",
+                      style: GoogleFonts.fredoka(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -376,38 +400,30 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
             const SizedBox(height: 20),
 
             // 5. Manual Touch
-            GestureDetector(
-              onTapDown: (_) async {
+            _Bouncing3DTextButton(
+              onTap: () {},
+              onTapDown: () async {
                 await _playSignal('.');
               },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                decoration: BoxDecoration(
-                  color: _duoBlue,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: _duoBlueShadow,
-                      offset: Offset(0, 6),
-                      blurRadius: 0,
+              baseColor: _duoBlue,
+              shadowColor: _duoBlueShadow,
+              height: 100,
+              shadowHeight: 8,
+              borderRadius: 20,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.touch_app, color: Colors.white, size: 40),
+                  const SizedBox(height: 8),
+                  Text(
+                    "MANUAL TOUCH (DOT)",
+                    style: GoogleFonts.fredoka(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const Icon(Icons.touch_app, color: Colors.white, size: 40),
-                    const SizedBox(height: 8),
-                    Text(
-                      "MANUAL TOUCH (DOT)",
-                      style: GoogleFonts.fredoka(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -415,37 +431,120 @@ class _MorseTouchScreenState extends State<MorseTouchScreen> {
       ),
     );
   }
+}
 
-  Widget _build3DButton({
-    required String label,
-    required Color color,
-    required Color shadowColor,
-    required VoidCallback onTap,
-  }) {
+class _Bouncing3DTextButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+  final VoidCallback? onTapDown;
+  final Color baseColor;
+  final Color shadowColor;
+  final double height;
+  final double shadowHeight;
+  final double borderRadius;
+
+  const _Bouncing3DTextButton({
+    required this.child,
+    required this.onTap,
+    this.onTapDown,
+    required this.baseColor,
+    required this.shadowColor,
+    this.height = 56,
+    this.shadowHeight = 6,
+    this.borderRadius = 16,
+  });
+
+  @override
+  State<_Bouncing3DTextButton> createState() => _Bouncing3DTextButtonState();
+}
+
+class _Bouncing3DTextButtonState extends State<_Bouncing3DTextButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    setState(() => _isPressed = true);
+    _controller.forward();
+    if (widget.onTapDown != null) widget.onTapDown!();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    setState(() => _isPressed = false);
+    _controller.reverse();
+    widget.onTap();
+  }
+
+  void _onTapCancel() {
+    setState(() => _isPressed = false);
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor,
-              offset: const Offset(0, 4),
-              blurRadius: 0,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: SizedBox(
+              height: widget.height + widget.shadowHeight,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: widget.shadowHeight,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.shadowColor,
+                        borderRadius: BorderRadius.circular(widget.borderRadius),
+                      ),
+                    ),
+                  ),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 100),
+                    top: _isPressed ? widget.shadowHeight : 0,
+                    left: 0,
+                    right: 0,
+                    bottom: _isPressed ? 0 : widget.shadowHeight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.baseColor,
+                        borderRadius: BorderRadius.circular(widget.borderRadius),
+                      ),
+                      child: Center(child: widget.child),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: GoogleFonts.fredoka(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -20,8 +20,12 @@ func NewService(repo *Repository, rdb *redis.Client, db *sqlx.DB) *Service {
 	return &Service{repo: repo, rdb: rdb, db: db}
 }
 
-func (s *Service) GetSections() ([]Section, error) {
-	return s.repo.GetActiveSections()
+func (s *Service) GetCourses() ([]Course, error) {
+	return s.repo.GetActiveCourses()
+}
+
+func (s *Service) GetSections(courseID string) ([]Section, error) {
+	return s.repo.GetActiveSections(courseID)
 }
 
 func (s *Service) GetSectionDetail(id string, userID *int64) (*Section, error) {

@@ -23,13 +23,28 @@ class TrainingApiService {
     : _dio = dio,
       baseUrl = baseUrl ?? Environment.apiBaseUrl;
 
-  // ==================== SECTION ENDPOINTS ====================
+  // ==================== COURSE & SECTION ENDPOINTS ====================
+
+  /// GET /training/courses
+  /// Get all active training courses
+  Future<List<dynamic>> getCourses() async {
+    try {
+      final response = await _dio.get('/training/courses');
+      return response.data['courses'] as List<dynamic>? ?? [];
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
 
   /// GET /training/sections
-  /// Get all active training sections
-  Future<SectionListResponse> getSections() async {
+  /// Get all active training sections, optionally filtered by course
+  Future<SectionListResponse> getSections({String? courseId}) async {
     try {
-      final response = await _dio.get('/training/sections');
+      Map<String, dynamic> queryParameters = {};
+      if (courseId != null && courseId.isNotEmpty) {
+        queryParameters['course_id'] = courseId;
+      }
+      final response = await _dio.get('/training/sections', queryParameters: queryParameters);
       return SectionListResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);

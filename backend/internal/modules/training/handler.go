@@ -41,16 +41,23 @@ func requireUserID(c *gin.Context) (int64, bool) {
 	return id, true
 }
 
-func (h *Handler) ListSections(c *gin.Context) {
-	sections, err := h.svc.GetSections()
+func (h *Handler) ListCourses(c *gin.Context) {
+	courses, err := h.svc.GetCourses()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get courses", "success": false})
 		return
 	}
-	c.JSON(http.StatusOK, SectionListResponse{
-		Total:    len(sections),
-		Sections: sections,
-	})
+	c.JSON(http.StatusOK, gin.H{"courses": courses, "success": true})
+}
+
+func (h *Handler) ListSections(c *gin.Context) {
+	courseID := c.Query("course_id")
+	sections, err := h.svc.GetSections(courseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get sections", "success": false})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"sections": sections, "success": true})
 }
 
 func (h *Handler) GetSection(c *gin.Context) {

@@ -55,8 +55,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor(context),
-      
+      backgroundColor: AppColors.deepCharcoal,
 
 
       // Use IndexedStack to preserve state when switching tabs
@@ -110,7 +109,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
   Widget _buildDuoBottomNav() {
     return Container(
       height: 90, // Taller matching Duolingo
-      decoration: BoxDecoration(color: Theme.of(context).cardColor),
+      decoration: BoxDecoration(color: AppColors.deepCharcoal),
       child: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -122,7 +121,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
                 color: Colors.white,
               ),
               index: 0,
-              color: AppColors.primary,
+              color: AppColors.wosmPurple,
             ),
             _buildNavItem(
               iconWidget: const FaIcon(
@@ -131,7 +130,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
                 color: Colors.white,
               ),
               index: 1,
-              color: AppColors.warning,
+              color: AppColors.wosmPurple,
             ),
             _buildNavItem(
               iconWidget: const FaIcon(
@@ -140,7 +139,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
                 color: Colors.white,
               ),
               index: 2,
-              color: AppColors.accent,
+              color: AppColors.wosmPurple,
             ),
             _buildNavItem(
               iconWidget: const FaIcon(
@@ -149,7 +148,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
                 color: Colors.white,
               ),
               index: 3,
-              color: Colors.blue, // Chat color
+              color: AppColors.wosmPurple,
             ),
             _buildNavItem(
               iconWidget: const FaIcon(
@@ -158,7 +157,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
                 color: Colors.white,
               ),
               index: 4,
-              color: AppColors.info,
+              color: AppColors.wosmPurple,
             ),
           ],
         ),
@@ -172,9 +171,9 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
     required Color color,
   }) {
     final isSelected = _currentIndex == index;
-    // Duolingo cyan active styling
-    const Color activeBorderColor = Color(0xFF84D8FF);
-    const Color activeBgColor = Color(0xFFDDF4FF);
+    // Charcoal / Flat Theme styling
+    const Color activeBorderColor = AppColors.wosmPurpleDark;
+    const Color activeBgColor = AppColors.wosmPurple;
 
     return GestureDetector(
       onTap: () => _onTabSelected(index),
@@ -191,7 +190,7 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
               )
             : null,
         child: isSelected 
-          ? _buildGradientIconWrapper(iconWidget, color)
+          ? iconWidget
               .animate(key: ValueKey('active_$index'))
               .scale(
                 begin: const Offset(0.8, 0.8), 
@@ -206,26 +205,8 @@ class _DuoMainScaffoldState extends State<DuoMainScaffold> {
                 duration: 150.ms,
                 curve: Curves.easeInOut,
               )
-          : _buildGradientIconWrapper(iconWidget, color), // Inactive keeps color
+          : Opacity(opacity: 0.4, child: iconWidget), // Inactive uses dim flat color
       ),
-    );
-  }
-
-  // Wrapper to apply vibrant gradient to the active icon
-  Widget _buildGradientIconWrapper(Widget icon, Color baseColor) {
-    // Generate a slightly lighter/warmer color for the top of the gradient
-    final HSLColor hsl = HSLColor.fromColor(baseColor);
-    final Color lightColor = hsl.withLightness((hsl.lightness + 0.2).clamp(0.0, 1.0)).toColor();
-    
-    return ShaderMask(
-      shaderCallback: (Rect bounds) {
-        return LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [lightColor, baseColor],
-        ).createShader(bounds);
-      },
-      child: icon,
     );
   }
 }

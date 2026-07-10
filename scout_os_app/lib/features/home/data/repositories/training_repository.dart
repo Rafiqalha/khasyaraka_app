@@ -51,6 +51,19 @@ class TrainingRepository {
     }
   }
 
+  // ===============================================================
+  // 2. GET COURSES AND SECTIONS
+  // ===============================================================
+
+  /// Fetch all courses from backend
+  Future<List<dynamic>> getCourses() async {
+    try {
+      return await _apiService.getCourses();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Fetch all sections from backend with SWR caching
   ///
   /// SWR Pattern:
@@ -58,19 +71,17 @@ class TrainingRepository {
   /// 2. Revalidate from API in background
   /// 3. Update cache silently
   ///
-  /// Endpoint: GET /api/v1/training/sections
-  /// Returns: SectionListResponse with sections sorted by order
-  Future<SectionListResponse> getSections({bool forceRefresh = false}) async {
-    const cacheKey = LocalCacheService.keySections;
+  /// Returns: SectionListResponse
+  Future<SectionListResponse> getSections({bool forceRefresh = false, String? courseId}) async {
+    final cacheKey = courseId != null ? 'training_sections_$courseId' : LocalCacheService.keySections;
 
     try {
       // ✅ SWR Step 1: Try to return cached data first (instant <500ms)
       if (!forceRefresh) {
         final cachedData = await LocalCacheService.get<dynamic>(cacheKey);
         if (cachedData != null) {
-          debugPrint('📦 [SWR] Returning cached sections');
+          debugPrint('📦 [SWR] Returning cached sections${courseId != null ? " for course $courseId" : ""}');
 
-          // Parse cached JSON
           // Parse cached JSON (Handle both Map and List format)
           final dynamic parsedJson = cachedData is String
               ? jsonDecode(cachedData)
@@ -89,7 +100,7 @@ class TrainingRepository {
               .toList();
 
           // ✅ SWR Step 2: Revalidate in background (fire & forget)
-          _revalidateSectionsInBackground();
+          _revalidateSectionsInBackground(courseId: courseId);
 
           return SectionListResponse(
             total: sections.length,
@@ -99,8 +110,8 @@ class TrainingRepository {
       }
 
       // ✅ SWR Step 3: No cache or force refresh - fetch from API
-      debugPrint('🌐 [SWR] Fetching sections from API...');
-      final response = await _apiService.getSections();
+      debugPrint('🌐 [SWR] Fetching sections from API${courseId != null ? " for course $courseId" : ""}...');
+      final response = await _apiService.getSections(courseId: courseId);
 
       // ✅ Cache the response for future use
       // We encode the whole response model to JSON
@@ -142,13 +153,14 @@ class TrainingRepository {
   }
 
   /// Background revalidation for sections (fire & forget)
-  void _revalidateSectionsInBackground() {
+  void _revalidateSectionsInBackground({String? courseId}) {
     Future(() async {
+      final cacheKey = courseId != null ? 'training_sections_$courseId' : LocalCacheService.keySections;
       try {
-        debugPrint('🔄 [SWR] Background revalidating sections...');
-        final response = await _apiService.getSections();
+        debugPrint('🔄 [SWR] Background revalidating sections${courseId != null ? " for course $courseId" : ""}...');
+        final response = await _apiService.getSections(courseId: courseId);
         await LocalCacheService.put(
-          LocalCacheService.keySections,
+          cacheKey,
           jsonEncode(response.toJson()),
           ttl: LocalCacheService.longTtl,
         );

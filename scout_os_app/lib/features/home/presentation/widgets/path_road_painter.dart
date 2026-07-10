@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'dart:math' as math;
 
 /// A CustomPainter that draws a soft curved road connecting level nodes.
@@ -15,7 +16,7 @@ class PathRoadPainter extends CustomPainter {
     required this.itemCount,
     required this.itemHeight,
     required this.getOffsetX,
-    this.color = const Color(0xFFE8E8E8),
+    this.color = AppColors.lockedGreyDark,
     this.strokeWidth = 12.0,
     this.direction = 1.0,
   });

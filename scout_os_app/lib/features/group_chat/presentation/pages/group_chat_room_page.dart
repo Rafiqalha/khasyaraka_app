@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/group_chat/logic/group_chat_controller.dart';
 import 'package:scout_os_app/features/group_chat/data/group_chat_models.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 
 class GroupChatRoomPage extends StatefulWidget {
@@ -85,9 +86,9 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
     final userIdInt = int.tryParse(currentUserId) ?? 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 1,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +96,7 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
             Text(
               widget.room.name,
               style: GoogleFonts.nunito(
-                color: const Color(0xFF4B4B4B),
+                color: Colors.white,
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
               ),
@@ -104,14 +105,14 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
               Text(
                 widget.room.description!,
                 style: GoogleFonts.nunito(
-                  color: Colors.grey.shade600,
+                  color: Colors.white70,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
           ],
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF4B4B4B)),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
@@ -219,7 +220,7 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
                       style: GoogleFonts.nunito(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Colors.grey.shade600,
+                        color: Colors.white70,
                       ),
                     ),
                   ),
@@ -227,17 +228,17 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isMe ? const Color(0xFF1CB0F6) : Colors.white,
+                    color: isMe ? const Color(0xFF1CB0F6) : AppColors.charcoalSurface,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(20),
                       topRight: const Radius.circular(20),
                       bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(4),
                       bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(20),
                     ),
-                    border: isMe ? null : Border.all(color: const Color(0xFFE5E5E5), width: 2),
+                    border: isMe ? null : Border.all(color: Colors.white.withOpacity(0.1), width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: isMe ? const Color(0xFF1899D6) : const Color(0xFFE5E5E5),
+                        color: isMe ? const Color(0xFF1899D6) : Colors.black.withOpacity(0.4),
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -245,7 +246,7 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
                   child: Text(
                     msg.content,
                     style: GoogleFonts.nunito(
-                      color: isMe ? Colors.white : const Color(0xFF4B4B4B),
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -259,7 +260,7 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
                     style: GoogleFonts.nunito(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Colors.grey.shade500,
+                      color: Colors.white54,
                     ),
                   ),
                 ),
@@ -276,9 +277,9 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
   Widget _buildInputBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE5E5E5), width: 2)),
+      decoration: BoxDecoration(
+        color: AppColors.charcoalSurface,
+        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1), width: 2)),
       ),
       child: SafeArea(
         child: Row(
@@ -286,20 +287,20 @@ class _GroupChatRoomPageState extends State<GroupChatRoomPage> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FA),
+                  color: AppColors.deepCharcoal,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 2),
                 ),
                 child: TextField(
                   controller: _messageController,
                   style: GoogleFonts.nunito(
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF4B4B4B),
+                    color: Colors.white,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Ketik pesan...',
                     hintStyle: GoogleFonts.nunito(
-                      color: Colors.grey.shade500,
+                      color: Colors.white54,
                       fontWeight: FontWeight.w600,
                     ),
                     border: InputBorder.none,

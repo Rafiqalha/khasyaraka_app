@@ -4,10 +4,8 @@ class Environment {
   // Production API URL (Cloud Run)
   // - Production: https://pradigi-890949539640.asia-southeast2.run.app/api/v1
   // - Development: http://192.168.100.95:8000/api/v1 (local dev)
-  // static const String apiBaseUrl =
-  //     "https://pradigi-v2-890949539640.asia-southeast2.run.app/api/v1";
-  static const String apiBaseUrl =
-      "http://127.0.0.1:8080/api/v1"; // LOCALHOST FOR DESKTOP
+  // static const String baseUrl = 'http://13.228.77.213:8080/api/v1'; // Production
+  static const String apiBaseUrl = 'http://13.212.174.32:8080/api/v1'; // AWS EC2 SERVER
 
   /// Resolve a URL that may be relative (e.g. /api/v1/users/me/avatar/file.jpg)
   /// to a full URL by prepending the API host.

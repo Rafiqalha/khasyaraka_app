@@ -6,6 +6,7 @@ import 'training_path.dart';
 /// DO NOT modify field names or types - must match backend exactly.
 class TrainingSection {
   final String id;
+  final String courseId;
   final String title;
   final String? description;
   final String tier; // "free" | "premium"
@@ -15,6 +16,7 @@ class TrainingSection {
 
   TrainingSection({
     required this.id,
+    required this.courseId,
     required this.title,
     this.description,
     required this.tier,
@@ -28,18 +30,20 @@ class TrainingSection {
   factory TrainingSection.fromJson(Map<String, dynamic> json) {
     return TrainingSection(
       id: json['id'] as String,
+      courseId: json['course_id'] as String? ?? '',
       title: json['title'] as String,
       description: json['description'] as String?,
       tier: json['tier'] as String? ?? 'free',
       order: json['order'] as int? ?? 1,
       isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'course_id': courseId,
       'title': title,
       'description': description,
       'tier': tier,
@@ -59,9 +63,10 @@ class SectionListResponse {
   SectionListResponse({required this.total, required this.sections});
 
   factory SectionListResponse.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> sectionsList = json['sections'] ?? [];
     return SectionListResponse(
-      total: json['total'] as int,
-      sections: (json['sections'] as List<dynamic>)
+      total: json['total'] as int? ?? sectionsList.length,
+      sections: sectionsList
           .map((item) => TrainingSection.fromJson(item as Map<String, dynamic>))
           .toList(),
     );

@@ -140,7 +140,7 @@ class _CtfPatchingPageState extends State<CtfPatchingPage> with SingleTickerProv
   Widget build(BuildContext context) {
     if (_isLoading || _state == null || _state!.patchChallenge == null) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(child: CircularProgressIndicator(color: Color(0xFFFF4B4B))),
       );
     }
@@ -176,7 +176,7 @@ class _CtfPatchingPageState extends State<CtfPatchingPage> with SingleTickerProv
                         height: 100,
                         child: CircularProgressIndicator(
                           value: _timeLeft / 90.0,
-                          backgroundColor: Colors.white.withValues(alpha: 0.3),
+                          backgroundColor: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.3),
                           valueColor: AlwaysStoppedAnimation<Color>(
                             _timeLeft > 60 ? const Color(0xFF58CC02) : _timeLeft > 30 ? const Color(0xFFFF9600) : Colors.yellow,
                           ),

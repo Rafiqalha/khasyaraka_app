@@ -389,10 +389,59 @@ class _TrainingMapPageState extends State<TrainingMapPage>
                         ...units.asMap().entries.map((unitEntry) {
                           final index = unitEntry.key;
                           final unit = unitEntry.value;
-                          return _buildUnitSection(unit, index, units.length);
+                          return _buildUnitSection(unit, index, units.length, controller.activeSectionIndex);
                         }),
                     ];
                   }).toList(),
+
+                  // Pagination controls
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (controller.activeSectionIndex > 0)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => controller.previousSection(),
+                                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                                label: const Text('Sebelumnya', style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueGrey,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            const Spacer(),
+                            
+                          const SizedBox(width: 16),
+                          
+                          if (controller.activeSectionIndex < controller.totalSectionsCount - 1)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => controller.nextSection(),
+                                icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                                label: const Text('Selanjutnya', style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            const Spacer(),
+                        ],
+                      ),
+                    ),
+                  ),
 
                   // Spacer
                   const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -490,18 +539,18 @@ class _TrainingMapPageState extends State<TrainingMapPage>
   }
 
   /// BAGIAN UNIT (Header + Zigzag Path)
-  Widget _buildUnitSection(UnitModel unit, int unitIndex, int totalUnits) {
+  Widget _buildUnitSection(UnitModel unit, int unitIndex, int totalUnits, int activeSectionIndex) {
     return SliverList(
       delegate: SliverChildListDelegate([
-        _buildSectionCard(unit),
-        _buildUnitHeader(unit),
+        _buildSectionCard(unit, activeSectionIndex),
+        _buildUnitHeader(unit, unitIndex),
         _buildZigZagPath(unit),
         if (unitIndex < totalUnits - 1) SizedBox(height: 40),
       ]),
     );
   }
 
-  Widget _buildSectionCard(UnitModel unit) {
+  Widget _buildSectionCard(UnitModel unit, int activeSectionIndex) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
       child: Container(
@@ -537,7 +586,7 @@ class _TrainingMapPageState extends State<TrainingMapPage>
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
-                    'BAGIAN 1',
+                    'BAGIAN ${activeSectionIndex + 1}',
                     style: AppTextStyles.h3.copyWith(
                       // Titan One for label
                       color: AppColors.accent,
@@ -565,7 +614,7 @@ class _TrainingMapPageState extends State<TrainingMapPage>
     );
   }
 
-  Widget _buildUnitHeader(UnitModel unit) {
+  Widget _buildUnitHeader(UnitModel unit, int unitIndex) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Row(
@@ -579,12 +628,14 @@ class _TrainingMapPageState extends State<TrainingMapPage>
             ),
           ),
           const SizedBox(width: 10),
-          Text(
-            'Unit ${unit.orderIndex}: ${unit.title}',
-            style: AppTextStyles.h3.copyWith(
-              // Titan One
-              color: Colors.blueGrey.shade800,
-              fontSize: 18,
+          Expanded(
+            child: Text(
+              'Unit ${unitIndex + 1}: ${unit.title}',
+              style: AppTextStyles.h3.copyWith(
+                // Titan One
+                color: Colors.blueGrey.shade800,
+                fontSize: 18,
+              ),
             ),
           ),
         ],

@@ -572,14 +572,44 @@ class TrainingService {
     }
   }
 
+  /// Fetch all available courses
+  /// Endpoint: GET /api/v1/training/courses
+  Future<List<Map<String, dynamic>>> fetchCourses() async {
+    try {
+      final url = Uri.parse('${Environment.apiBaseUrl}/training/courses');
+      final response = await http
+          .get(url, headers: {'Content-Type': 'application/json'})
+          .timeout(
+            Duration(milliseconds: Environment.connectTimeout),
+            onTimeout: () => throw Exception('Connection timeout: Server tidak merespons'),
+          );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final coursesJson = data['courses'] as List<dynamic>? ?? [];
+        return coursesJson.map((s) => s as Map<String, dynamic>).toList();
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.reasonPhrase}');
+      }
+    } on http.ClientException catch (e) {
+      throw Exception('Jaringan bermasalah: $e');
+    } catch (e) {
+      throw Exception('Gagal memuat courses: $e');
+    }
+  }
+
   /// Fetch all available sections
   ///
-  /// Endpoint: GET /api/v1/training/sections
+  /// Endpoint: GET /api/v1/training/sections?course_id={courseId}
   ///
   /// Returns: List of sections with id, title, order
-  Future<List<Map<String, dynamic>>> fetchSections() async {
+  Future<List<Map<String, dynamic>>> fetchSections({String? courseId}) async {
     try {
-      final url = Uri.parse('${Environment.apiBaseUrl}/training/sections');
+      var urlStr = '${Environment.apiBaseUrl}/training/sections';
+      if (courseId != null && courseId.isNotEmpty) {
+        urlStr += '?course_id=$courseId';
+      }
+      final url = Uri.parse(urlStr);
 
       final response = await http
           .get(url, headers: {'Content-Type': 'application/json'})

@@ -115,7 +115,7 @@ class _CtfDefensePageState extends State<CtfDefensePage> {
   Widget build(BuildContext context) {
     if (_isLoading || _state == null) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(child: CircularProgressIndicator(color: Color(0xFF1CB0F6))),
       );
     }
@@ -125,9 +125,9 @@ class _CtfDefensePageState extends State<CtfDefensePage> {
     final secs = timeLeft % 60;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(

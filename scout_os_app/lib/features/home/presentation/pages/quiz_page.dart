@@ -12,6 +12,8 @@ import '../widgets/listening_widget.dart';
 import '../widgets/input_text_widget.dart';
 import '../widgets/sorting_widget.dart';
 import '../widgets/matching_widget.dart';
+import '../widgets/cipher_rotor_widget.dart';
+import '../widgets/log_anomaly_widget.dart'; // ✅ NEW
 import 'lesson_result_page.dart';
 import '../widgets/shake_animation.dart'; // ✅ NEW
 import 'package:scout_os_app/core/services/quiz_haptic_service.dart'; // ✅ NEW
@@ -126,7 +128,7 @@ class _QuizPageState extends State<QuizPage> {
         builder: (context, controller, _) {
           if (controller.isLoading) {
             return Scaffold(
-              backgroundColor: AppColors.scoutBg,
+              backgroundColor: AppColors.graphite,
               body: const Center(
                 child: GrassSosLoader(color: AppColors.forestGreen),
               ),
@@ -135,7 +137,7 @@ class _QuizPageState extends State<QuizPage> {
 
           if (controller.errorMessage != null) {
             return Scaffold(
-              backgroundColor: AppColors.scoutBg,
+              backgroundColor: AppColors.graphite,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 leading: IconButton(
@@ -219,7 +221,7 @@ class _QuizPageState extends State<QuizPage> {
           // CRITICAL: Handle case when questions are empty after loading
           if (!controller.isLoading && controller.questions.isEmpty) {
             return Scaffold(
-              backgroundColor: AppColors.scoutBg,
+              backgroundColor: AppColors.graphite,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 leading: IconButton(
@@ -292,7 +294,7 @@ class _QuizPageState extends State<QuizPage> {
 
           if (controller.currentQuestion == null) {
             return Scaffold(
-              backgroundColor: AppColors.scoutBg,
+              backgroundColor: AppColors.graphite,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 leading: IconButton(
@@ -322,7 +324,7 @@ class _QuizPageState extends State<QuizPage> {
           }
 
           return Scaffold(
-            backgroundColor: AppColors.scoutBg,
+            backgroundColor: AppColors.graphite,
             appBar: LessonProgressHeader(
               current: controller.currentQuestionIndex,
               total: controller.questions.length,
@@ -387,7 +389,7 @@ class _QuizPageState extends State<QuizPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.hasdukWhite,
+        color: const Color(0xFF1E1E24), // Dark card background
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -417,7 +419,7 @@ class _QuizPageState extends State<QuizPage> {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: AppColors.scoutBrown,
+              color: Colors.white, // White text for dark mode
               height: 1.4,
             ),
           ),
@@ -430,6 +432,33 @@ class _QuizPageState extends State<QuizPage> {
     final question = controller.currentQuestion!;
 
     switch (question.type) {
+      case 'cipher_rotor':
+        final encryptedText = question.payload['encrypted_text'] as String? ?? 'ERROR';
+        return CipherRotorWidget(
+          encryptedText: encryptedText,
+          onChanged: (shift) {
+            controller.selectOption(shift);
+          },
+        );
+      
+      case 'log_anomaly':
+        {
+          final lines = (question.payload['lines'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              [];
+          final correctIndex = question.payload['correct_index'] as int?;
+
+          return LogAnomalyWidget(
+            lines: lines,
+            selectedIndex: controller.selectedOptionIndex,
+            isChecked: controller.isChecked,
+            isCorrect: controller.isCorrect,
+            correctIndex: correctIndex,
+            onLineSelected: (index) => controller.selectOption(index),
+          );
+        }
+
       case 'multiple_choice':
         {
           final options = question.getMultipleChoiceOptions() ?? [];
@@ -625,7 +654,8 @@ class _QuizPageState extends State<QuizPage> {
     // Extract correct answer text based on type
     if (q.type == 'multiple_choice' ||
         q.type == 'listening' ||
-        q.type == 'true_false') {
+        q.type == 'true_false' ||
+        q.type == 'log_anomaly') {
       return q.payload['correct_answer']?.toString();
     } else if (q.type == 'arrange_words' || q.type == 'word_bank') {
       final correctOrder = (q.payload['correct_order'] as List<dynamic>?)
@@ -688,7 +718,7 @@ class _QuizPageState extends State<QuizPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.hasdukWhite,
+        color: const Color(0xFF1E1E24), // Dark container for cyber theme
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),

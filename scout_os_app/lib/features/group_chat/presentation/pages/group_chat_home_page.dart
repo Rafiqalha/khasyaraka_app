@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/group_chat/logic/group_chat_controller.dart';
 import 'package:scout_os_app/features/group_chat/data/group_chat_models.dart';
 import 'package:scout_os_app/features/group_chat/presentation/pages/group_chat_room_page.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 
 class GroupChatHomePage extends StatefulWidget {
   const GroupChatHomePage({super.key});
@@ -24,14 +25,14 @@ class _GroupChatHomePageState extends State<GroupChatHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         title: Text(
           'Grup Chat 💬',
           style: GoogleFonts.nunito(
-            color: const Color(0xFF2C3E50),
+            color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.w800,
           ),
@@ -86,14 +87,14 @@ class _GroupChatHomePageState extends State<GroupChatHomePage> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.charcoalSurface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-          boxShadow: const [
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 2),
+          boxShadow: [
             BoxShadow(
-              color: Color(0xFFE5E5E5),
-              offset: Offset(0, 4),
-              blurRadius: 0,
+              color: Colors.black.withOpacity(0.4),
+              offset: const Offset(0, 4),
+              blurRadius: 8,
             ),
           ],
         ),
@@ -122,7 +123,7 @@ class _GroupChatHomePageState extends State<GroupChatHomePage> {
                     style: GoogleFonts.nunito(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF4B4B4B),
+                      color: Colors.white,
                     ),
                   ),
                   if (room.description != null) ...[
@@ -132,7 +133,7 @@ class _GroupChatHomePageState extends State<GroupChatHomePage> {
                       style: GoogleFonts.nunito(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade600,
+                        color: Colors.white70,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -143,7 +144,7 @@ class _GroupChatHomePageState extends State<GroupChatHomePage> {
             ),
             const Icon(
               Icons.chevron_right_rounded,
-              color: Color(0xFFCECECE),
+              color: Colors.white54,
               size: 32,
             ),
           ],

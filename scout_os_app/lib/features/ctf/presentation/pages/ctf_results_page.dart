@@ -50,14 +50,14 @@ class _CtfResultsPageState extends State<CtfResultsPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(child: CircularProgressIndicator(color: Color(0xFFFF9600))),
       );
     }
 
     if (_finalScores.isEmpty) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(child: Text('Data tidak ditemukan', style: TextStyle(color: Colors.black87))),
       );
     }
@@ -65,9 +65,9 @@ class _CtfResultsPageState extends State<CtfResultsPage> {
     final isWinner = _finalScores.first.teamId == widget.myTeamId;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(

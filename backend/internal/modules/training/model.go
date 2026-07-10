@@ -1,7 +1,23 @@
 package training
 
+type Course struct {
+	ID          string `json:"id" db:"id"`
+	Title       string `json:"title" db:"title"`
+	Description string `json:"description" db:"description"`
+	Icon        string `json:"icon" db:"icon"`
+	Ord         int    `json:"ord" db:"ord"`
+	IsActive    bool   `json:"is_active" db:"is_active"`
+	CreatedAt   string `json:"created_at,omitempty" db:"created_at"`
+}
+
+type CourseListResponse struct {
+	Total   int      `json:"total"`
+	Courses []Course `json:"courses"`
+}
+
 type Section struct {
 	ID          string `json:"id" db:"id"`
+	CourseID    string `json:"course_id" db:"course_id"`
 	Title       string `json:"title" db:"title"`
 	Description string `json:"description" db:"description"`
 	Tier        string `json:"tier" db:"tier"`

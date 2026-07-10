@@ -51,6 +51,10 @@ class AppColors {
     0xFF6A1B9A,
   ); // Ungu WOSM (World Organization of the Scout Movement)
 
+  // --- CYBER THEME COLORS ---
+  static const Color cyberBlue = Color(0xFF00F0FF); // Cyberpunk blue neon
+  static const Color graphite = Color(0xFF16161A); // Dark studio graphite
+
   // --- 3. DUOLINGO-STYLE GAMIFIED UI COLORS ---
 
   // Success (Correct Answer)

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scout_os_app/routes/app_routes.dart';
+import 'package:scout_os_app/shared/theme/app_colors.dart';
 
 class SurvivalToolsPage extends StatelessWidget {
   const SurvivalToolsPage({super.key});
@@ -15,7 +16,7 @@ class SurvivalToolsPage extends StatelessWidget {
         subtitle: 'MAGNETOMETER',
         icon: Icons.explore,
         backgroundIcons: [Icons.navigation, Icons.map, Icons.wind_power],
-        gradientColors: [Colors.cyanAccent, Colors.blue.shade800],
+        gradientColors: [const Color(0xFF0A192F), const Color(0xFF020C1B)], // Deep Navy
         routeName: AppRoutes.survivalCompass,
         isAvailable: true,
       ),
@@ -28,7 +29,7 @@ class SurvivalToolsPage extends StatelessWidget {
           Icons.straighten,
           Icons.change_history,
         ],
-        gradientColors: [Colors.purpleAccent, Colors.indigo.shade800],
+        gradientColors: [const Color(0xFF23153C), const Color(0xFF10071E)], // Dark Purple
         routeName: AppRoutes.survivalClinometer,
         isAvailable: true,
       ),
@@ -37,7 +38,7 @@ class SurvivalToolsPage extends StatelessWidget {
         subtitle: 'COORD_FINDER',
         icon: Icons.gps_fixed,
         backgroundIcons: [Icons.satellite_alt, Icons.pin_drop, Icons.radar],
-        gradientColors: [Colors.tealAccent, Colors.green.shade800],
+        gradientColors: [const Color(0xFF0F2922), const Color(0xFF05130E)], // Dark Teal
         routeName: AppRoutes.survivalGpsTracker,
         isAvailable: true,
       ),
@@ -50,7 +51,7 @@ class SurvivalToolsPage extends StatelessWidget {
           Icons.linear_scale,
           Icons.construction,
         ],
-        gradientColors: [Colors.orangeAccent, Colors.deepOrange.shade800],
+        gradientColors: [const Color(0xFF3B1D0F), const Color(0xFF1A0A03)], // Dark Orange
         routeName: AppRoutes
             .survivalRiver, // Using 'River' route as placeholder for Leveler logic if applicable, or check routes
         isAvailable: true,
@@ -64,7 +65,7 @@ class SurvivalToolsPage extends StatelessWidget {
           Icons.timer,
           Icons.health_and_safety,
         ],
-        gradientColors: [Colors.pinkAccent, Colors.red.shade800],
+        gradientColors: [const Color(0xFF330E15), const Color(0xFF170408)], // Dark Red
         routeName: AppRoutes.survivalPedometer,
         isAvailable: true,
       ),
@@ -73,29 +74,29 @@ class SurvivalToolsPage extends StatelessWidget {
         subtitle: 'FLASHLIGHT',
         icon: Icons.flashlight_on,
         backgroundIcons: [Icons.lightbulb, Icons.highlight, Icons.more_horiz],
-        gradientColors: [Colors.amberAccent, Colors.orange.shade800],
+        gradientColors: [const Color(0xFF3D2A00), const Color(0xFF1C1300)], // Dark Amber
         routeName: AppRoutes.survivalMorse,
         isAvailable: true,
       ),
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.deepCharcoal,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.deepCharcoal,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.black87,
+            color: Colors.white,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'SURVIVAL KIT',
           style: GoogleFonts.fredoka(
-            color: Colors.black87,
+            color: Colors.white,
             fontWeight: FontWeight.w700,
             fontSize: 24,
             letterSpacing: 1.0,
@@ -237,17 +238,24 @@ class SurvivalToolsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Main Icon
-                    Container(
+                      Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(
-                          alpha: 0.2,
-                        ), // Glassy circle
+                        color: tool.gradientColors.first.withValues(
+                          alpha: 0.8,
+                        ), // Accent-tinted circle
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          width: 1.5,
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 2.0,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
                       ),
                       child: Icon(tool.icon, size: 40, color: Colors.white),
                     ),

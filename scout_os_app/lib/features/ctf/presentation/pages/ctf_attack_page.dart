@@ -179,7 +179,7 @@ class _CtfAttackPageState extends State<CtfAttackPage> with SingleTickerProvider
   Widget build(BuildContext context) {
     if (_isLoading || _state == null) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(child: CircularProgressIndicator(color: Color(0xFFFF4B4B))),
       );
     }
@@ -189,9 +189,9 @@ class _CtfAttackPageState extends State<CtfAttackPage> with SingleTickerProvider
     final secs = timeLeft % 60;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(

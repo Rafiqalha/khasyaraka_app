@@ -145,7 +145,25 @@ class LessonController extends ChangeNotifier {
         // CRITICAL: Sort by order field to maintain exact sequence from database
         // Backend already orders by order field, but we ensure it here as well
         filteredQuestions.sort((a, b) => a.order.compareTo(b.order));
-        questions = filteredQuestions;
+        
+        // INJECT MOCK CIPHER ROTOR QUESTION AT THE FRONT FOR TESTING
+        final mockCipherRotor = TrainingQuestion(
+          id: 'mock-cipher-rotor-123',
+          levelId: cleanLevelId,
+          type: 'cipher_rotor',
+          question: 'Pesan rahasia diterima! Putar roda sandi ke arah yang benar (Shift 3) untuk menemukan kode aslinya.',
+          payload: {
+            'encrypted_text': 'KHOOR',
+            'correct_shift': 3,
+            'hint': 'Geser roda sebanyak 3 angka ke depan.'
+          },
+          xp: 50,
+          order: 0,
+          isActive: true,
+          createdAt: DateTime.now(),
+        );
+        filteredQuestions.insert(0, mockCipherRotor);
+
         questions = filteredQuestions;
         debugPrint(
           '✅ Successfully loaded ${questions.length} questions for level "$cleanLevelId"',
@@ -371,6 +389,20 @@ class LessonController extends ChangeNotifier {
           isCorrect = allMatch;
         } else {
           debugPrint('❌ [CHECK_MATCHING] userMatchingPairs is NULL');
+        }
+        break;
+
+      case 'cipher_rotor':
+        if (selectedOptionIndex != null) {
+          final correctShift = q.payload['correct_shift'] as int?;
+          isCorrect = selectedOptionIndex == correctShift;
+        }
+        break;
+
+      case 'log_anomaly':
+        if (selectedOptionIndex != null) {
+          final correctIndex = q.payload['correct_index'] as int?;
+          isCorrect = selectedOptionIndex == correctIndex;
         }
         break;
 

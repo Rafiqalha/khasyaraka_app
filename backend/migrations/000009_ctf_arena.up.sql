@@ -1,7 +1,7 @@
 -- CTF Room extended state
 CREATE TABLE IF NOT EXISTS ctf_rooms (
     id              BIGSERIAL PRIMARY KEY,
-    room_id         BIGINT NOT NULL REFERENCES rooms(id) 
+    room_id         BIGINT NOT NULL REFERENCES arena_rooms(id) 
                     ON DELETE CASCADE,
     phase           VARCHAR(20) NOT NULL DEFAULT 'waiting',
                     -- waiting/defense/attack/patching/finished
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS ctf_teams (
     id              BIGSERIAL PRIMARY KEY,
     ctf_room_id     BIGINT NOT NULL REFERENCES ctf_rooms(id)
                     ON DELETE CASCADE,
-    team_id         BIGINT NOT NULL REFERENCES teams(id),
+    team_id         BIGINT NOT NULL REFERENCES arena_teams(id),
     flag            VARCHAR(100) NOT NULL DEFAULT '',
                     -- FORMAT: FLAG{PRADIGI_XXXXXX}
     defense_image_url TEXT NOT NULL DEFAULT '',
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS ctf_teams (
                     -- encryption key used (stored encrypted)
     flag_found      BOOLEAN NOT NULL DEFAULT FALSE,
     flag_found_at   TIMESTAMPTZ,
-    flag_found_by   BIGINT REFERENCES teams(id),
+    flag_found_by   BIGINT REFERENCES arena_teams(id),
     patch_completed BOOLEAN NOT NULL DEFAULT FALSE,
     patch_time_sec  INT,
     score           INT NOT NULL DEFAULT 0,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS ctf_teams (
 CREATE TABLE IF NOT EXISTS ctf_attack_logs (
     id              BIGSERIAL PRIMARY KEY,
     ctf_room_id     BIGINT NOT NULL REFERENCES ctf_rooms(id),
-    attacking_team_id BIGINT NOT NULL REFERENCES teams(id),
+    attacking_team_id BIGINT NOT NULL REFERENCES arena_teams(id),
     user_id         BIGINT NOT NULL REFERENCES users(id),
     prompt          TEXT NOT NULL,
     ai_response     TEXT NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS ctf_attack_logs (
 CREATE TABLE IF NOT EXISTS ctf_patch_challenges (
     id              BIGSERIAL PRIMARY KEY,
     ctf_room_id     BIGINT NOT NULL REFERENCES ctf_rooms(id),
-    team_id         BIGINT NOT NULL REFERENCES teams(id),
+    team_id         BIGINT NOT NULL REFERENCES arena_teams(id),
     challenge_type  VARCHAR(20) NOT NULL,
                     -- 'logic'/'cipher'/'binary'
     difficulty      VARCHAR(10) NOT NULL,
