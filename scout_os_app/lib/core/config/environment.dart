@@ -10,7 +10,7 @@ class Environment {
   /// Resolve a URL that may be relative (e.g. /api/v1/users/me/avatar/file.jpg)
   /// to a full URL by prepending the API host.
   static String resolveUrl(String url) {
-    if (url.startsWith('http')) return url;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
     // Extract host from apiBaseUrl (strip /api/v1 suffix)
     final host = apiBaseUrl.replaceAll(RegExp(r'/api/v\d+$'), '');
     return '$host$url';

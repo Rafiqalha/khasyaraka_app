@@ -13,43 +13,64 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  // Timer and initState removed as main.dart FutureBuilder handles routing
+  bool _showText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ganti ke teks setelah 2.5 detik
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted) {
+        setState(() {
+          _showText = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 1. Background: Light Khaki / Tan (Warm, Flat Color)
-    const backgroundColor = Color(0xFFF0EAD6); // Eggshell / Light Khaki
-
-    // 2. Brand Color: Vibrant Purple (Duolingo Style)
-    const brandColor = Color(0xFF562F00); // Pramuka Dark Brown
+    // Background gelap sesuai aplikasi
+    const backgroundColor = Color(0xFF16161A); // AppColors.graphite
+    // Warna biru cyber
+    const brandColor = Color(0xFF00F0FF); // AppColors.cyberBlue
 
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            const SizedBox(height: 40),
-
-            // Text Brand: "PRADIGI"
-            Text(
-                  "PRADIGI",
-                  style: TextStyle(
-                    fontFamily:
-                        'Fredoka', // Using the local asset defined in pubspec.yaml
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 800),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: !_showText
+              ? // Scene 1: Logo Pigi
+                Image.asset(
+                  'assets/images/logo/foreground-pigi.png',
+                  key: const ValueKey('logo'),
+                  width: 250,
+                  height: 250,
+                )
+                  .animate()
+                  .fadeIn(duration: 500.ms)
+                  .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack)
+              : // Scene 2: Teks PRADIGI
+                Text(
+                  "pradigi",
+                  key: const ValueKey('text'),
+                  style: const TextStyle(
+                    fontFamily: 'Fredoka',
                     color: brandColor,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w600, // Matches SemiBold asset
+                    fontSize: 48,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 2.0,
                   ),
                 )
-                .animate()
-                .fadeIn(delay: 500.ms, duration: 800.ms)
-                .moveY(begin: 10, end: 0, curve: Curves.easeOutQuad),
-          ],
+                  .animate()
+                  .fadeIn(duration: 600.ms)
+                  .moveY(begin: 10, end: 0, curve: Curves.easeOutQuad),
         ),
       ),
     );
   }
 }
+

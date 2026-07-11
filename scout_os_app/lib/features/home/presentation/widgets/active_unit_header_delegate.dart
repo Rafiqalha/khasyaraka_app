@@ -36,7 +36,7 @@ class ActiveUnitHeaderDelegate extends SliverPersistentHeaderDelegate {
       alignment: Alignment.topCenter,
       child: Container(
         color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // Reduced from 8 to 4
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Outer space around the box
         child: Container(
         decoration: BoxDecoration(
           color: color,
@@ -49,7 +49,7 @@ class ActiveUnitHeaderDelegate extends SliverPersistentHeaderDelegate {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6), // Reduced from 12 to 6
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14), // Inner padding (makes the blue box taller)
         margin: const EdgeInsets.only(bottom: 4), 
         child: Row(
           children: [

@@ -1,6 +1,6 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 
 class LoadingOverlay extends StatelessWidget {
   final bool isLoading;
@@ -21,25 +21,26 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Colors.black.withOpacity(0.7),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppColors.graphite,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cyberBlue.withOpacity(0.3)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    GrassSosLoader(color: AppColors.forestGreen),
+                    const TerminalLoading(fontSize: 20),
                     if (message != null) ...[
                       const SizedBox(height: 16),
                       Text(
                         message!,
                         style: const TextStyle(
-                          color: AppColors.textDark,
-                          fontWeight: FontWeight.bold,
+                          color: Colors.white70,
+                          fontSize: 14,
                         ),
                       ),
                     ],
@@ -52,3 +53,4 @@ class LoadingOverlay extends StatelessWidget {
     );
   }
 }
+

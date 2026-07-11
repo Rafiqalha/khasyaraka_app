@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -54,7 +54,7 @@ class _DashboardViewState extends State<_DashboardView> {
           if (viewModel.isBackgroundUpdating)
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: SizedBox(width: 16, height: 16, child: GrassSosLoader(color: Color(0xFF1CB0F6))),
+              child: const SizedBox(width: 24, height: 24, child: TerminalLoading(fontSize: 12)),
             ),
         ],
       ),

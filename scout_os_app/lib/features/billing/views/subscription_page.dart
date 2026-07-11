@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:scout_os_app/features/billing/models/subscription_tier.dart';
@@ -104,7 +104,7 @@ class _SubscriptionPricingPageState extends State<_SubscriptionPricingPage>
         ),
       ),
       body: _isLoading && _currentStatus == null
-          ? const Center(child: GrassSosLoader(color: Color(0xFF7C4DFF)))
+          ? const Center(child: TerminalLoading())
           : Stack(
               children: [
                 // Background glow circles

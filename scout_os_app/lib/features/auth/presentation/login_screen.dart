@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const GrassSosLoader(),
+                        const TerminalLoading(),
                         const SizedBox(height: 24),
                         Text(
                           "MENGHUBUNGKAN...",

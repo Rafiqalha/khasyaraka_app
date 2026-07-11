@@ -56,6 +56,13 @@ class ApiDioProvider {
             );
           }
 
+          // ✅ CRITICAL FIX for Multipart/form-data:
+          // Remove hardcoded application/json if sending FormData
+          if (options.data is FormData) {
+            options.headers.remove('Content-Type');
+            debugPrint('✅ [DIO_INTERCEPTOR] Removed Content-Type for FormData request');
+          }
+
           debugPrint(
             '🔍 [DIO_INTERCEPTOR] Request headers: ${options.headers}',
           );

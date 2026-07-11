@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
@@ -29,9 +29,9 @@ class TopStatsBar extends StatelessWidget {
 
         return Container(
           color: AppColors.deepCharcoal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center, // Rapatkan ke tengah
             children: [
               // 1. COURSE PICKER (REMOVED: Only one Cyber Scout course now)
 
@@ -48,6 +48,8 @@ class TopStatsBar extends StatelessWidget {
                 text: '$streak',
               ),
 
+              const SizedBox(width: 32), // Jarak yang dirapatkan
+
               // 3. XP (Star / Gems)
               _buildStatItem(
                 context,
@@ -61,18 +63,27 @@ class TopStatsBar extends StatelessWidget {
                 text: '$xp',
               ),
 
-              // 4. HEARTS (Lives)
+              const SizedBox(width: 32), // Jarak yang dirapatkan
+
+              // 4. HEARTS (Lives) - UNLIMITED FOR LAUNCH
               _buildStatItem(
                 context,
                 iconWidget: _build3DIcon(
                   icon: FontAwesomeIcons.solidHeart,
-                  faceColor: hearts > 0 ? AppColors.statHeart : AppColors.lockedGrey,
-                  lipColor: hearts > 0 ? AppColors.statHeartDark : AppColors.lockedGreyDark,
+                  faceColor: AppColors.statHeart,
+                  lipColor: AppColors.statHeartDark,
                   shadowColor: Colors.transparent,
                 ),
-                color: hearts > 0 ? AppColors.statHeart : AppColors.lockedGrey,
-                text: hearts < controller.maxHearts ? '$hearts+' : '$hearts',
-                onTap: () => _showAdDialog(context, controller),
+                color: AppColors.statHeart,
+                text: '∞', // Unlimited Hearts
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nyawa tidak terbatas selama masa peluncuran! 🚀'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
               ),
             ],
           ),

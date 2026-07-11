@@ -3,7 +3,7 @@ CREATE TABLE users (
     full_name       VARCHAR(255),
     email           VARCHAR(255) UNIQUE NOT NULL,
     hashed_password VARCHAR(255) NOT NULL,
-    picture_url     VARCHAR(500),
+    picture_url     TEXT,
     total_xp        INTEGER NOT NULL DEFAULT 0,
     hack_level      VARCHAR(50) DEFAULT 'Script Kiddie',
     decrypted_count INTEGER NOT NULL DEFAULT 0,

@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
@@ -14,6 +14,9 @@ import '../widgets/sorting_widget.dart';
 import '../widgets/matching_widget.dart';
 import '../widgets/cipher_rotor_widget.dart';
 import '../widgets/log_anomaly_widget.dart'; // ✅ NEW
+import '../widgets/packet_sweeper_widget.dart'; // ✅ CYBER
+import '../widgets/vuln_spotter_widget.dart'; // ✅ CYBER
+import '../widgets/network_topology_cutter_widget.dart'; // ✅ CYBER
 import 'lesson_result_page.dart';
 import '../widgets/shake_animation.dart'; // ✅ NEW
 import 'package:scout_os_app/core/services/quiz_haptic_service.dart'; // ✅ NEW
@@ -130,7 +133,7 @@ class _QuizPageState extends State<QuizPage> {
             return Scaffold(
               backgroundColor: AppColors.graphite,
               body: const Center(
-                child: GrassSosLoader(color: AppColors.forestGreen),
+                child: const TerminalLoading(fontSize: 24),
               ),
             );
           }
@@ -440,6 +443,55 @@ class _QuizPageState extends State<QuizPage> {
             controller.selectOption(shift);
           },
         );
+
+      case 'packet_sweeper':
+        {
+          final packets = (question.payload['packets'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ?? [];
+          return PacketSweeperWidget(
+            packets: packets,
+            isChecked: controller.isChecked,
+            isCorrect: controller.isCorrect,
+            onSwipeComplete: (decisions) => controller.updateSwipeDecisions(decisions),
+          );
+        }
+
+      case 'vuln_spotter':
+        {
+          final elements = (question.payload['elements'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ?? [];
+          final totalVulns = question.payload['total_vulns'] as int? ?? 1;
+          final description = question.payload['description'] as String? ?? '';
+          return VulnSpotterWidget(
+            description: description,
+            elements: elements,
+            totalVulns: totalVulns,
+            isChecked: controller.isChecked,
+            isCorrect: controller.isCorrect,
+            onVulnsFound: (foundVulns) => controller.updateFoundVulns(foundVulns),
+          );
+        }
+
+      case 'network_cutter':
+        {
+          final nodes = (question.payload['nodes'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ?? [];
+          final edges = (question.payload['edges'] as List<dynamic>?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ?? [];
+          final targetCount = question.payload['target_count'] as int? ?? 1;
+          return NetworkTopologyCutterWidget(
+            nodes: nodes,
+            edges: edges,
+            targetCount: targetCount,
+            isChecked: controller.isChecked,
+            isCorrect: controller.isCorrect,
+            onEdgesCut: (cutEdges) => controller.updateCutEdges(cutEdges),
+          );
+        }
       
       case 'log_anomaly':
         {
@@ -692,7 +744,13 @@ class _QuizPageState extends State<QuizPage> {
             controller.userAnswerString!.isNotEmpty) ||
         (controller.userSortingOrder != null &&
             controller.userSortingOrder!.isNotEmpty) ||
-        hasMatchingAnswer;
+        hasMatchingAnswer ||
+        (controller.userSwipeDecisions != null &&
+            controller.userSwipeDecisions!.isNotEmpty) ||
+        (controller.userFoundVulns != null &&
+            controller.userFoundVulns!.isNotEmpty) ||
+        (controller.userCutEdges != null &&
+            controller.userCutEdges!.isNotEmpty);
 
     final VoidCallback? onPressed =
         hasAnswer && controller.canAnswer && controller.hasHearts

@@ -474,7 +474,7 @@ class ApiUser {
     // Defensive type casting for other fields
     return ApiUser(
       id: id,
-      name: json['name']?.toString() ?? '',
+      name: json['full_name']?.toString() ?? json['name']?.toString() ?? '',
       username: json['username']?.toString() ?? '',
       pictureUrl: json['picture_url']?.toString(),
       isPro: json['is_pro'] == true || json['isPro'] == true,

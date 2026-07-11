@@ -186,9 +186,10 @@ class LeaderboardUser {
 class MyRank {
   final int rank;
   final int xp;
+  final String? avatar;
   final RankInfo rankInfo;
 
-  MyRank({required this.rank, required this.xp, required this.rankInfo});
+  MyRank({required this.rank, required this.xp, this.avatar, required this.rankInfo});
 
   factory MyRank.fromJson(Map<String, dynamic> json) {
     debugPrint('📊 [MY_RANK] Raw JSON: $json');
@@ -244,9 +245,18 @@ class MyRank {
       );
     }
 
+    // Parse avatar/picture_url
+    String? avatarValue;
+    if (json['avatar'] != null) {
+      avatarValue = json['avatar']?.toString();
+    } else if (json['picture_url'] != null) {
+      avatarValue = json['picture_url']?.toString();
+    }
+
     return MyRank(
       rank: rankValue, 
       xp: xpValue,
+      avatar: avatarValue,
       rankInfo: RankInfo.fromJson(json['rank_info']),
     );
   }
@@ -255,6 +265,7 @@ class MyRank {
     return {
       'rank': rank, 
       'xp': xp,
+      'avatar': avatar,
       'rank_info': rankInfo.toJson(),
     };
   }

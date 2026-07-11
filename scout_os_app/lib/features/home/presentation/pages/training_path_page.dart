@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:provider/provider.dart';
@@ -27,8 +27,8 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
   List<double> _unitOffsets = [];
   List<String> _sectionOrder = []; // Track section order for header
 
-  static const double _statsBarHeight = 60.0;
-  static const double _activeHeaderHeight = 80.0;
+  static const double _statsBarHeight = 80.0;
+  static const double _activeHeaderHeight = 110.0;
   static const double _itemHeight = 110.0;
   static const double _dividerHeight = 100.0;
 
@@ -183,7 +183,7 @@ class _TrainingPathPageState extends State<TrainingPathPage> {
           builder: (context, controller, child) {
             if (controller.isLoading) {
               return const Center(
-                child: GrassSosLoader(color: AppColors.primary),
+                child: TerminalLoading(fontSize: 24),
               );
             }
 

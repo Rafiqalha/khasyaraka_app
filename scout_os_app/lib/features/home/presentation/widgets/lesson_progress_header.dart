@@ -106,13 +106,13 @@ class LessonProgressHeader extends StatelessWidget
                       padding: const EdgeInsets.only(top: 3),
                       child: Icon(
                         Icons.favorite_rounded,
-                        color: userHearts > 0 ? const Color(0xFFCC3C3C) : const Color(0xFFCCCCCC),
+                        color: const Color(0xFFCC3C3C), // Always active
                         size: 28,
                       ),
                     ),
                     Icon(
                       Icons.favorite_rounded,
-                      color: userHearts > 0 ? const Color(0xFFFF4B4B) : const Color(0xFFE5E5E5),
+                      color: const Color(0xFFFF4B4B), // Always active
                       size: 28,
                     ),
                     Padding(
@@ -128,10 +128,10 @@ class LessonProgressHeader extends StatelessWidget
               ),
               const SizedBox(width: 4),
               Text(
-                '$userHearts',
+                '∞', // Unlimited Hearts
                 style: TextStyle(
-                  color: userHearts > 0 ? const Color(0xFFFF4B4B) : const Color(0xFFAFAFAF),
-                  fontSize: 18,
+                  color: const Color(0xFFFF4B4B), // Always active
+                  fontSize: 22, // Slightly larger for infinity symbol
                   fontWeight: FontWeight.w800,
                   fontFamily: 'Nunito',
                 ),

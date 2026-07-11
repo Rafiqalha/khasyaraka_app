@@ -1,4 +1,5 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:scout_os_app/features/home/logic/training_controller.dart';
 import 'package:scout_os_app/features/profile/logic/profile_controller.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
 import 'package:scout_os_app/core/config/environment.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import 'package:scout_os_app/features/profile/presentation/pages/settings_page.dart';
@@ -39,7 +41,7 @@ class ProfilePage extends StatelessWidget {
             : Consumer<ProfileController>(
                 builder: (context, controller, _) {
                   if (controller.isLoading) {
-                    return const Center(child: GrassSosLoader());
+                    return const Center(child: TerminalLoading(fontSize: 20));
                   }
                   return _buildInteractiveProfile(context, controller);
                 },
@@ -84,7 +86,7 @@ class ProfilePage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // 4. Heatmap Section
-          _HeatmapSection(streak: profile.streak),
+          _HeatmapSection(streak: profile.streak, activityLog: const []),
 
           // No Menu Section for Read-Only
         ],
@@ -141,7 +143,10 @@ class ProfilePage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // 4. Heatmap Section (Wrapped)
-          _HeatmapSection(streak: controller.streak),
+          _HeatmapSection(
+            streak: controller.streak,
+            activityLog: controller.activityLog,
+          ),
 
           const SizedBox(height: 24),
 
@@ -220,7 +225,7 @@ class _ProfileHeader extends StatelessWidget {
     String? resolvedUrl;
     if (localPhotoPath == null && photoUrl != null && photoUrl!.isNotEmpty) {
       final url = Environment.resolveUrl(photoUrl!);
-      if (url.startsWith('http')) {
+      if (url.startsWith('http') || url.startsWith('data:image')) {
         resolvedUrl = url;
       }
     }
@@ -236,16 +241,31 @@ class _ProfileHeader extends StatelessWidget {
         errorBuilder: (_, __, ___) => _defaultAvatarIcon(),
       );
     } else if (resolvedUrl != null) {
-      avatarContent = Image.network(
-        resolvedUrl,
-        fit: BoxFit.cover,
-        width: 92,
-        height: 92,
-        errorBuilder: (_, error, ___) {
-          debugPrint('⚠️ [PROFILE] Avatar load failed: $error');
-          return _defaultAvatarIcon();
-        },
-      );
+      if (resolvedUrl.startsWith('data:image')) {
+        try {
+          final base64String = resolvedUrl.split(',').last;
+          avatarContent = Image.memory(
+            base64Decode(base64String),
+            fit: BoxFit.cover,
+            width: 92,
+            height: 92,
+            errorBuilder: (_, __, ___) => _defaultAvatarIcon(),
+          );
+        } catch (e) {
+          avatarContent = _defaultAvatarIcon();
+        }
+      } else {
+        avatarContent = Image.network(
+          resolvedUrl,
+          fit: BoxFit.cover,
+          width: 92,
+          height: 92,
+          errorBuilder: (_, error, ___) {
+            debugPrint('⚠️ [PROFILE] Avatar load failed: $error');
+            return _defaultAvatarIcon();
+          },
+        );
+      }
     } else {
       avatarContent = _defaultAvatarIcon();
     }
@@ -263,7 +283,7 @@ class _ProfileHeader extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      displayName,
+                      displayName.isNotEmpty ? displayName : 'Pengguna',
                       style: AppTextStyles.h1.copyWith(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -515,11 +535,7 @@ class _StatsRow extends StatelessWidget {
           child: _Profile3DCard(
             label: 'Streak',
             value: streak.toString(),
-            customIcon: Image.asset(
-              'assets/icons/training/fire.png',
-              height: 28,
-              width: 28,
-            ),
+            customIcon: const FaIcon(FontAwesomeIcons.fire, color: Colors.white, size: 28),
             faceColor: const Color(0xFFFF9600), // Orange
             lipColor: const Color(0xFFE65100), // Dark Orange
           ),
@@ -530,11 +546,7 @@ class _StatsRow extends StatelessWidget {
           child: _Profile3DCard(
             label: 'Total XP',
             value: totalXp.toString(),
-            customIcon: Image.asset(
-              'assets/icons/training/star.png',
-              height: 28,
-              width: 28,
-            ),
+            customIcon: const FaIcon(FontAwesomeIcons.solidStar, color: Colors.white, size: 28),
             faceColor: const Color(0xFF2CB0FA), // Blue
             lipColor: const Color(0xFF0277BD), // Dark Blue
           ),
@@ -545,7 +557,7 @@ class _StatsRow extends StatelessWidget {
           child: _Profile3DCard(
             label: 'Peringkat',
             value: rankBadge,
-            icon: Icons.emoji_events_rounded,
+            customIcon: const FaIcon(FontAwesomeIcons.trophy, color: Colors.white, size: 28),
             faceColor: const Color(0xFF9C27B0), // Purple
             lipColor: const Color(0xFF7B1FA2), // Dark Purple
           ),
@@ -595,10 +607,9 @@ class _Profile3DCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            if (customIcon != null)
-              customIcon!
-            else if (icon != null)
-              Icon(icon, color: Colors.white, size: 28),
+            icon != null
+                ? Icon(icon, color: Colors.white, size: 28)
+                : (customIcon ?? const SizedBox.shrink()),
             const SizedBox(height: 8),
             Text(
               value,
@@ -629,9 +640,10 @@ class _Profile3DCard extends StatelessWidget {
 }
 
 class _HeatmapSection extends StatelessWidget {
-  const _HeatmapSection({required this.streak});
+  const _HeatmapSection({required this.streak, required this.activityLog});
 
   final int streak;
+  final List<String> activityLog;
 
   @override
   Widget build(BuildContext context) {
@@ -669,13 +681,13 @@ class _HeatmapSection extends StatelessWidget {
                   style: AppTextStyles.h3.copyWith(color: Colors.white),
                 ),
                 const Spacer(),
-                const Icon(Icons.history, color: Colors.white70),
+                const FaIcon(FontAwesomeIcons.clockRotateLeft, color: Colors.white70, size: 20),
               ],
             ),
             const SizedBox(height: 16),
-            // Use existing logic for grid drawing
-            _HeatmapGrid(colors: _generateHeatmap()),
-            const SizedBox(height: 12),
+            // Real-time horizontal calendar timeline
+            _TimelineCalendar(activityLog: activityLog),
+            const SizedBox(height: 16),
             Text(
               '🔥 Login $streak hari berturut-turut!',
               style: AppTextStyles.caption.copyWith(
@@ -689,40 +701,102 @@ class _HeatmapSection extends StatelessWidget {
     );
   }
 
-  List<Color> _generateHeatmap() {
-    // Keeping simple mock logic for visual representation
-    return List.generate(7 * 10, (index) {
-      if (index % 5 == 0 || index % 3 == 0)
-        return Colors.white; // Active (White on Green)
-      if (index % 2 == 0) return Colors.white.withOpacity(0.4);
-      return Colors.white.withOpacity(0.1);
-    });
-  }
 }
 
-class _HeatmapGrid extends StatelessWidget {
-  final List<Color> colors;
-  const _HeatmapGrid({required this.colors});
+class _TimelineCalendar extends StatelessWidget {
+  final List<String> activityLog;
+  const _TimelineCalendar({required this.activityLog});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 14, // Denser grid
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
+    final now = DateTime.now();
+    final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final today = DateTime.parse(todayStr);
+
+    // Get last 14 days (including today)
+    final List<DateTime> days = List.generate(14, (index) {
+      return today.subtract(Duration(days: 13 - index));
+    });
+
+    final monthNames = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+    final dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Month & Year header
+        Text(
+          '${monthNames[now.month]} ${now.year}',
+          style: AppTextStyles.h3.copyWith(color: Colors.white, fontSize: 16),
         ),
-        itemCount: colors.length,
-        itemBuilder: (context, index) => Container(
-          decoration: BoxDecoration(
-            color: colors[index],
-            borderRadius: BorderRadius.circular(4),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 70,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: days.length,
+            // Start scrolled to the right (today)
+            controller: ScrollController(initialScrollOffset: 14 * 60.0),
+            itemBuilder: (context, index) {
+              final date = days[index];
+              final dateStr = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+              final isActive = activityLog.contains(dateStr);
+              final isToday = index == 13;
+
+              return Container(
+                width: 52,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: isActive ? Colors.white : Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: isToday ? Border.all(color: Colors.white, width: 2) : null,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      dayNames[date.weekday - 1],
+                      style: TextStyle(
+                        color: isActive ? const Color(0xFF58CC02) : Colors.white70,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    if (isActive)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const FaIcon(FontAwesomeIcons.fire, color: Color(0xFFFF9600), size: 12),
+                          const SizedBox(width: 2),
+                          const Text(
+                            '1',
+                            style: TextStyle(
+                              color: Color(0xFFFF9600),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        '${date.day}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
-      ),
+      ],
     );
   }
 }

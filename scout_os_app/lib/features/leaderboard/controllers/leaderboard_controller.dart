@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:scout_os_app/features/leaderboard/services/leaderboard_repository.dart';
 import 'package:scout_os_app/features/leaderboard/models/leaderboard_model.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
+import 'package:scout_os_app/features/profile/data/repositories/profile_repository.dart';
 
 class LeaderboardController extends ChangeNotifier {
   final LeaderboardRepository _repository;
@@ -18,7 +19,7 @@ class LeaderboardController extends ChangeNotifier {
   LeaderboardData? _leaderboardData;
   String? _currentUserId;
   
-  String _activeCategory = 'rank';
+  String _activeCategory = 'quiz'; // 'quiz' is Normal Mode (XP)
   String _activeScope = 'global';
 
   LeaderboardController({
@@ -83,6 +84,57 @@ class LeaderboardController extends ChangeNotifier {
       debugPrint(
         '✅ [LEADERBOARD] Loaded ${_leaderboardData!.topUsers.length} users from API',
       );
+      
+      // ✅ CRITICAL FALLBACK: Override 0 XP with real XP from user profile
+      if (_leaderboardData != null && _leaderboardData!.myRank != null && _leaderboardData!.myRank!.xp == 0) {
+        try {
+          final profileRepo = ProfileRepository();
+          final userStats = await profileRepo.getUserStats(forceRefresh: false); // Use cached first
+          if (userStats.totalXp > 0) {
+            final oldRank = _leaderboardData!.myRank!;
+            var topUsersList = List<LeaderboardUser>.from(_leaderboardData!.topUsers);
+            final currentUser = await _authRepo.getCurrentUser();
+            
+            final isUserInTopList = topUsersList.any((u) => u.id == currentUser.id.toString());
+            
+            if (!isUserInTopList) {
+               topUsersList.add(
+                 LeaderboardUser(
+                   id: currentUser.id.toString(),
+                   name: currentUser.name,
+                   xp: userStats.totalXp,
+                   rank: oldRank.rank > 0 ? oldRank.rank : 1, 
+                   avatar: currentUser.pictureUrl,
+                   level: 'Siaga', 
+                   rankInfo: oldRank.rankInfo,
+                 )
+               );
+               topUsersList.sort((a, b) => b.xp.compareTo(a.xp));
+               
+               for (int i = 0; i < topUsersList.length; i++) {
+                 final u = topUsersList[i];
+                 topUsersList[i] = LeaderboardUser(
+                   id: u.id, name: u.name, xp: u.xp, rank: i + 1, avatar: u.avatar, level: u.level, rankInfo: u.rankInfo
+                 );
+               }
+            }
+
+            _leaderboardData = LeaderboardData(
+              topUsers: topUsersList,
+              myRank: MyRank(
+                rank: oldRank.rank > 0 ? oldRank.rank : (topUsersList.indexWhere((u) => u.id == currentUser.id.toString()) + 1),
+                xp: userStats.totalXp, // Inject real XP
+                avatar: currentUser.pictureUrl, // Inject avatar
+                rankInfo: oldRank.rankInfo,
+              ),
+            );
+            debugPrint('🔄 [LEADERBOARD] Fallback XP injected: ${userStats.totalXp}');
+          }
+        } catch (e) {
+          debugPrint('⚠️ [LEADERBOARD] Failed to fallback XP: $e');
+        }
+      }
+
       debugPrint('✅ [LEADERBOARD] Controller hashCode: ${hashCode}');
 
       if (_leaderboardData!.myRank != null) {

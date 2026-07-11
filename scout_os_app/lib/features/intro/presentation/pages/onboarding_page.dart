@@ -25,13 +25,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE5E5E5), // Light background for contrast
+      backgroundColor: const Color(0xFF121212), // Dark background
       body: Stack(
         children: [
           PageView(
             controller: _pageController,
             onPageChanged: (index) => setState(() => _currentIndex = index),
-            children: const [_TriSatyaSlide(), _DasaDarmaSlide()],
+            children: const [_LogoSlide(), _PradigiSlide()],
           ),
           Positioned(
             left: 0,
@@ -93,359 +93,46 @@ class _OnboardingPageState extends State<OnboardingPage> {
 }
 
 // ==========================================
-// TRI SATYA SLIDE (Flat 3D Cards)
+// FIRST SLIDE: Pigi Logo
 // ==========================================
-class _TriSatyaSlide extends StatelessWidget {
-  const _TriSatyaSlide();
-
-  void _showExplanation(
-    BuildContext context,
-    String title,
-    String explanation,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) =>
-          _ExplanationSheet(title: title, explanation: explanation),
-    );
-  }
+class _LogoSlide extends StatelessWidget {
+  const _LogoSlide();
 
   @override
   Widget build(BuildContext context) {
-    const deepBrown = Color(0xFF3E2723);
-
     return Container(
-      color: const Color(0xFFF5F5DC), // Bone White
-      child: Stack(
-        children: [
-          // Background Icon
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.05,
-              child: Center(
-                child: Icon(
-                  Icons.back_hand_rounded,
-                  size: 280,
-                  color: deepBrown,
-                ),
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 40, 24, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    "TRI SATYA",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.fredoka(
-                      fontSize: 32,
-                      color: deepBrown,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Demi kehormatanku, aku berjanji akan bersungguh-sungguh:",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.fredoka(
-                      fontSize: 14,
-                      color: deepBrown.withOpacity(0.7),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Interactive Cards
-                  _TriSatyaCard(
-                    number: "1",
-                    text:
-                        "Menjalankan kewajibanku terhadap Tuhan, NKRI, dan mengamalkan Pancasila.",
-                    onTap: () => _showExplanation(
-                      context,
-                      "Kewajiban Utama",
-                      "Seorang Pramuka harus taat beribadah sesuai agama dan setia menjaga keutuhan Negara Kesatuan Republik Indonesia.",
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _TriSatyaCard(
-                    number: "2",
-                    text:
-                        "Menolong sesama hidup dan ikut serta membangun masyarakat.",
-                    onTap: () => _showExplanation(
-                      context,
-                      "Kepedulian Sosial",
-                      "Pramuka selalu siap menolong orang lain tanpa membedakan dan aktif berkontribusi dalam kemajuan lingkungan.",
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _TriSatyaCard(
-                    number: "3",
-                    text: "Menepati Dasa Darma.",
-                    onTap: () => _showExplanation(
-                      context,
-                      "Kode Kehormatan",
-                      "Menjadikan 10 janji Dasa Darma sebagai pedoman moral dalam berpikir, berkata, dan bertindak.",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TriSatyaCard extends StatelessWidget {
-  final String number;
-  final String text;
-  final VoidCallback onTap;
-
-  const _TriSatyaCard({
-    required this.number,
-    required this.text,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              offset: const Offset(0, 4),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Color(0xFFE0F7FA), // Light Blue tint
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                number,
-                style: GoogleFonts.fredoka(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: const Color(0xFF0277BD),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                text,
-                style: GoogleFonts.fredoka(
-                  fontSize: 16,
-                  color: Colors.black87,
-                  height: 1.4,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
+      color: const Color(0xFF121212),
+      child: Center(
+        child: Image.asset(
+          'assets/images/logo/foreground-pigi.png',
+          width: 250,
+          height: 250,
+        ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8)),
       ),
     );
   }
 }
 
 // ==========================================
-// DASA DARMA SLIDE (Scrollable Cards)
+// SECOND SLIDE: Pradigi Text
 // ==========================================
-class _DasaDarmaSlide extends StatelessWidget {
-  const _DasaDarmaSlide();
-
-  void _showExplanation(BuildContext context, int index, String title) {
-    final explanations = [
-      "Beribadah sesuai agama kepercayaan masing-masing.",
-      "Menjaga lingkungan dan menyayangi sesama makhluk hidup.",
-      "Sopan, santun, dan berjiwa ksatria dalam membela kebenaran.",
-      "Menghargai pendapat orang lain dan mengutamakan diskusi.",
-      "Siap membantu orang yang kesusahan dan tabah menghadapi cobaan.",
-      "Selalu semangat, kreatif, dan tidak mudah putus asa.",
-      "Menggunakan waktu dan harta secukupnya, tidak boros.",
-      "Taat aturan, berani karena benar, dan setia pada janji.",
-      "Selalu menjalankan tugas dengan sepenuh hati.",
-      "Jujur dan bersih dalam niat, ucapan, dan perilaku.",
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) =>
-          _ExplanationSheet(title: title, explanation: explanations[index - 1]),
-    );
-  }
+class _PradigiSlide extends StatelessWidget {
+  const _PradigiSlide();
 
   @override
   Widget build(BuildContext context) {
-    const deepBrown = Color(0xFF3E2723);
-    const scoutGold = Color(0xFFFFD600);
-
-    final points = [
-      "Taqwa kepada Tuhan Yang Maha Esa",
-      "Cinta alam dan kasih sayang sesama manusia",
-      "Patriot yang sopan dan ksatria",
-      "Patuh dan suka bermusyawarah",
-      "Rela menolong dan tabah",
-      "Rajin, terampil, dan gembira",
-      "Hemat, cermat, dan bersahaja",
-      "Disiplin, berani, dan setia",
-      "Bertanggung jawab dan dapat dipercaya",
-      "Suci dalam pikiran, perkataan, dan perbuatan",
-    ];
-
     return Container(
-      color: deepBrown,
-      child: Stack(
-        children: [
-          // Background decoration
-          Positioned(
-            top: -50,
-            right: -50,
-            child: Opacity(
-              opacity: 0.1,
-              child: Icon(
-                Icons.verified_user_rounded,
-                size: 300,
-                color: scoutGold,
-              ),
-            ),
+      color: const Color(0xFF121212),
+      child: Center(
+        child: Text(
+          "pradigi",
+          style: GoogleFonts.fredoka(
+            fontSize: 48,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF2196F3), // Blue
+            letterSpacing: 2.0,
           ),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 60),
-              Text(
-                "DASA DARMA",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.fredoka(
-                  fontSize: 32,
-                  color: scoutGold,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Ketuk poin untuk melihat makna",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.fredoka(fontSize: 14, color: Colors.white70),
-              ),
-              const SizedBox(height: 20),
-
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
-                  itemCount: points.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final num = index + 1;
-                    return _DasaItemCard(
-                          index: num,
-                          text: points[index],
-                          onTap: () =>
-                              _showExplanation(context, num, points[index]),
-                        )
-                        .animate(delay: (index * 50).ms)
-                        .fadeIn(duration: 300.ms)
-                        .moveX(begin: 20, end: 0);
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DasaItemCard extends StatelessWidget {
-  const _DasaItemCard({
-    required this.index,
-    required this.text,
-    required this.onTap,
-  });
-
-  final int index;
-  final String text;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              offset: const Offset(0, 4), // 3D Lip
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: Color(0xFF8D6E63), // Brown tint
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                "$index",
-                style: GoogleFonts.fredoka(
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                text,
-                style: GoogleFonts.fredoka(
-                  color: Colors.black87,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
-                ),
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: Colors.black26,
-            ),
-          ],
-        ),
+        ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0),
       ),
     );
   }

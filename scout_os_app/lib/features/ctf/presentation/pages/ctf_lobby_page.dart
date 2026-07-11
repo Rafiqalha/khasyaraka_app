@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scout_os_app/features/ctf/data/repositories/ctf_repository.dart';
 import 'package:scout_os_app/features/ctf/data/models/ctf_models.dart';
@@ -115,7 +116,7 @@ class _CtfLobbyPageState extends State<CtfLobbyPage> {
         centerTitle: true,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF58CC02)))
+          ? const Center(child: TerminalLoading())
           : Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(

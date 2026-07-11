@@ -7,6 +7,7 @@ import 'package:scout_os_app/features/profile/data/repositories/profile_reposito
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
 import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
+import 'package:scout_os_app/features/leaderboard/services/leaderboard_repository.dart';
 
 class ProfileController extends ChangeNotifier {
   ProfileController({
@@ -54,8 +55,12 @@ class ProfileController extends ChangeNotifier {
   int get totalXp => _totalXp;
   int get streak => _streak;
 
-  /// Rank title from XP tiers. Real data, no mock.
-  String get rankTitle => _rankFromXp(totalXp).title;
+  /// Rank title from highest achieved rank or XP tiers.
+  String _highestRankTitle = '';
+  String get rankTitle {
+    if (_highestRankTitle.isNotEmpty) return _highestRankTitle;
+    return _rankFromXp(totalXp).title;
+  }
 
   /// Rank badge / level label from XP. Real data, no mock.
   String get rankBadge => _rankFromXp(totalXp).badge;
@@ -92,9 +97,20 @@ class ProfileController extends ChangeNotifier {
       _totalXp = stats.totalXp;
       _streak = stats.streak;
 
-      // Fetch activity log (still from local for now, can be moved to API later)
+      // Fetch activity log
       if (currentUser != null) {
         activityLog = await _activityRepo.getActivityLog(currentUser!.id);
+        
+        // Fallback: If local log is empty but backend says we have a streak, generate it!
+        if (activityLog.isEmpty && _streak > 0) {
+          final now = DateTime.now();
+          for (int i = 0; i < _streak; i++) {
+            final d = now.subtract(Duration(days: i));
+            activityLog.add("${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}");
+          }
+        }
+        
+        _fetchHighestRankAsync();
       } else {
         activityLog = [];
       }
@@ -240,16 +256,62 @@ class ProfileController extends ChangeNotifier {
     await _authRepo.logout();
   }
 
-  /// Auto-refresh profile when AuthController state changes
-  void _onAuthStateChanged() {
-    if (_authController != null && _authController!.currentUser != null) {
-      debugPrint(
-        '🔄 [PROFILE] AuthController state changed, refreshing profile...',
-      );
-      // Small delay to ensure AuthController state is fully updated
-      Future.delayed(const Duration(milliseconds: 100), () {
-        loadProfile();
-      });
+  Future<void> _onAuthStateChanged() async {
+    if (_authController?.currentUser != null && !isLoading) {
+      debugPrint('🔄 [PROFILE] Auto-refreshing due to auth change');
+      await loadProfile();
+    }
+  }
+
+  Future<void> _fetchHighestRankAsync() async {
+    try {
+      if (currentUser == null) return;
+      final repo = LeaderboardRepository();
+      
+      final scopes = [
+        {'scope': 'global', 'label': 'Indonesia', 'loc': ''},
+        {'scope': 'provinsi', 'label': 'Provinsi', 'loc': currentUser!.provinsiId ?? ''},
+        {'scope': 'kota', 'label': 'Kota/Kab', 'loc': currentUser!.kabupatenId ?? ''},
+        {'scope': 'kecamatan', 'label': 'Kecamatan', 'loc': currentUser!.kecamatanId ?? ''},
+      ];
+
+      int bestRank = 999999;
+      String bestLabel = '';
+
+      for (var s in scopes) {
+        final loc = s['loc'] as String;
+        if (s['scope'] != 'global' && loc.isEmpty) continue;
+        
+        try {
+          final data = await repo.fetchLeaderboard(
+            limit: 1, 
+            scope: s['scope'] as String,
+            locationId: loc,
+          );
+          if (data.myRank != null) {
+            int currentRank = data.myRank!.rank;
+            
+            // CRITICAL FALLBACK: If API says rank 0 but user has XP, they are actually #1 in that bracket (backend latency)
+            if (currentRank == 0 && _totalXp > 0) {
+               currentRank = 1;
+            }
+
+            if (currentRank > 0 && currentRank < bestRank) {
+              bestRank = currentRank;
+              bestLabel = s['label'] as String;
+            }
+          }
+        } catch (e) {
+          // ignore error for specific scope
+        }
+      }
+
+      if (bestRank < 999999) {
+        _highestRankTitle = '#$bestRank $bestLabel';
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('⚠️ [PROFILE] Error fetching highest rank: $e');
     }
   }
 

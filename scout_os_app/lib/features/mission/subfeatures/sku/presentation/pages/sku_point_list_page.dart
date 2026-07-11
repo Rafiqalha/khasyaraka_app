@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +44,7 @@ class _SkuPointListPageState extends State<SkuPointListPage> {
         ),
       ),
       body: controller.isLoading
-          ? const Center(child: GrassSosLoader(color: Color(0xFF1CB0F6)))
+          ? const Center(child: TerminalLoading())
           : Padding(
               padding: const EdgeInsets.all(16),
               child: GridView.builder(

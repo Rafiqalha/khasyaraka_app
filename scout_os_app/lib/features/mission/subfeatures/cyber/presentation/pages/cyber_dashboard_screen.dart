@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -70,7 +70,7 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
         builder: (context, controller, child) {
           if (controller.isLoading) {
             return const Center(
-              child: GrassSosLoader(color: Colors.cyanAccent),
+              child: TerminalLoading(),
             );
           }
 

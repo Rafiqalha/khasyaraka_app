@@ -763,38 +763,9 @@ class TrainingController extends ChangeNotifier {
 
   /// Decrement hearts (for wrong answers, failed lessons, etc.)
   Future<void> decrementHearts({int amount = 1}) async {
-    try {
-      debugPrint('💚 [DECREMENT_HEARTS] Decreasing hearts by $amount...');
-
-      final oldHearts = userHearts;
-      userHearts = (userHearts - amount).clamp(0, maxHearts);
-
-      debugPrint(
-        '💚 [DECREMENT_HEARTS] Hearts changed: $oldHearts → $userHearts',
-      );
-
-      // Update UI immediately (Optimistic)
-      notifyListeners();
-
-      // ✅ SAVE TO CACHE (Critical)
-      await LocalCacheService.put('user_hearts', userHearts);
-
-      // ✅ SYNC TO BACKEND
-      try {
-        final currentUser = await _authRepo.getCurrentUser();
-        if (currentUser.id.isNotEmpty) {
-          await _service.decrementHearts(
-            userId: currentUser.id,
-            amount: amount,
-          );
-          debugPrint('✅ [DECREMENT_HEARTS] Synced to backend');
-        }
-      } catch (e) {
-        debugPrint('⚠️ [DECREMENT_HEARTS] Failed to sync to backend: $e');
-      }
-    } catch (e) {
-      debugPrint('❌ [DECREMENT_HEARTS] Error decrementing hearts: $e');
-    }
+    // UNLIMITED HEARTS MODE FOR LAUNCH
+    debugPrint('💚 [DECREMENT_HEARTS] UNLIMITED MODE: Hearts not decreased');
+    return;
   }
 
   /// Watch Ad to get hearts

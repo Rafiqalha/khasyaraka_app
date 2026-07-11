@@ -33,6 +33,9 @@ class LessonController extends ChangeNotifier {
   String? userAnswerString; // Untuk Input Teks
   List<String>? userSortingOrder; // Untuk Soal Sorting (Drag & Drop)
   Map<String, String>? userMatchingPairs; // Untuk Soal Matching
+  List<bool>? userSwipeDecisions; // Untuk Packet Sweeper
+  Set<int>? userFoundVulns; // Untuk Vulnerability Spotter
+  Set<int>? userCutEdges; // Untuk Network Topology Cutter
 
   // State UI
   bool isChecked = false;
@@ -66,8 +69,7 @@ class LessonController extends ChangeNotifier {
   /// Next level ID unlocked by backend after finishLesson
   String? get lastNextLevelId => _lastNextLevelId;
 
-  bool get hasHearts => userHearts > 0;
-
+  bool get hasHearts => true; // Unlimited Hearts Mode
   double get progress =>
       questions.isEmpty ? 0.0 : (currentQuestionIndex + 1) / questions.length;
 
@@ -146,23 +148,87 @@ class LessonController extends ChangeNotifier {
         // Backend already orders by order field, but we ensure it here as well
         filteredQuestions.sort((a, b) => a.order.compareTo(b.order));
         
-        // INJECT MOCK CIPHER ROTOR QUESTION AT THE FRONT FOR TESTING
-        final mockCipherRotor = TrainingQuestion(
-          id: 'mock-cipher-rotor-123',
+        // INJECT MOCK QUESTIONS FOR 3 NEW CYBER WIDGETS
+        final mockPacketSweeper = TrainingQuestion(
+          id: 'mock-packet-sweeper',
           levelId: cleanLevelId,
-          type: 'cipher_rotor',
-          question: 'Pesan rahasia diterima! Putar roda sandi ke arah yang benar (Shift 3) untuk menemukan kode aslinya.',
+          type: 'packet_sweeper',
+          question: 'Analisis paket jaringan yang masuk. Geser kanan (Aman) atau kiri (Bahaya)!',
           payload: {
-            'encrypted_text': 'KHOOR',
-            'correct_shift': 3,
-            'hint': 'Geser roda sebanyak 3 angka ke depan.'
+            'packets': [
+              {
+                'protocol': 'HTTPS',
+                'source': '192.168.1.10:443',
+                'dest': 'google.com:443',
+                'method': 'GET /search',
+                'payload_preview': 'q=pramuka+khasyaraka',
+                'is_malicious': false,
+                'explanation': 'Request normal',
+              },
+              {
+                'protocol': 'HTTP',
+                'source': '45.33.32.156:1337',
+                'dest': '10.0.0.5:80',
+                'method': 'POST /admin',
+                'payload_preview': 'admin\' OR 1=1--',
+                'is_malicious': true,
+                'explanation': 'SQL Injection attack!',
+              },
+            ]
           },
           xp: 50,
           order: 0,
           isActive: true,
           createdAt: DateTime.now(),
         );
-        filteredQuestions.insert(0, mockCipherRotor);
+
+        final mockVulnSpotter = TrainingQuestion(
+          id: 'mock-vuln-spotter',
+          levelId: cleanLevelId,
+          type: 'vuln_spotter',
+          question: 'Sistem ini memiliki kelemahan. Temukan dan ketuk area yang rentan!',
+          payload: {
+            'scenario': 'login_page',
+            'description': 'Analisis halaman login berikut!',
+            'total_vulns': 2,
+            'elements': [
+              {"label": "Username: admin", "x": 0.15, "y": 0.25, "w": 0.7, "h": 0.08, "is_vuln": true, "vuln_type": "Default credentials"},
+              {"label": "Password: ••••", "x": 0.15, "y": 0.35, "w": 0.7, "h": 0.08, "is_vuln": false},
+              {"label": "http://not-https.com", "x": 0.15, "y": 0.5, "w": 0.7, "h": 0.06, "is_vuln": true, "vuln_type": "No HTTPS"}
+            ]
+          },
+          xp: 50,
+          order: 1,
+          isActive: true,
+          createdAt: DateTime.now(),
+        );
+
+        final mockNetCutter = TrainingQuestion(
+          id: 'mock-net-cutter',
+          levelId: cleanLevelId,
+          type: 'network_cutter',
+          question: 'Intrusi terdeteksi! Potong (ketuk) kabel MERAH untuk menghentikan peretas.',
+          payload: {
+            'target_count': 1,
+            'nodes': [
+              {"id": "router", "label": "Router", "x": 0.5, "y": 0.1},
+              {"id": "switch", "label": "Switch", "x": 0.5, "y": 0.4},
+              {"id": "pc1", "label": "PC-01", "x": 0.2, "y": 0.7},
+              {"id": "pc2", "label": "PC-02 (Infected)", "x": 0.8, "y": 0.7}
+            ],
+            'edges': [
+              {"from": "router", "to": "switch", "malicious": false},
+              {"from": "switch", "to": "pc1", "malicious": false},
+              {"from": "switch", "to": "pc2", "malicious": true}
+            ]
+          },
+          xp: 50,
+          order: 2,
+          isActive: true,
+          createdAt: DateTime.now(),
+        );
+
+        filteredQuestions.insertAll(0, [mockPacketSweeper, mockVulnSpotter, mockNetCutter]);
 
         questions = filteredQuestions;
         debugPrint(
@@ -294,6 +360,30 @@ class LessonController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update swipe decisions for Packet Sweeper
+  void updateSwipeDecisions(List<bool> decisions) {
+    if (isChecked || !canAnswer) return;
+    userSwipeDecisions = decisions;
+    selectedOptionIndex = null;
+    notifyListeners();
+  }
+
+  /// Update found vulnerabilities for Vulnerability Spotter
+  void updateFoundVulns(Set<int> foundVulns) {
+    if (isChecked || !canAnswer) return;
+    userFoundVulns = foundVulns;
+    selectedOptionIndex = null;
+    notifyListeners();
+  }
+
+  /// Update cut edges for Network Topology Cutter
+  void updateCutEdges(Set<int> cutEdges) {
+    if (isChecked || !canAnswer) return;
+    userCutEdges = cutEdges;
+    selectedOptionIndex = null;
+    notifyListeners();
+  }
+
   // ==========================================
   // 3. CHECK ANSWER LOGIC
   // ==========================================
@@ -406,6 +496,52 @@ class LessonController extends ChangeNotifier {
         }
         break;
 
+      case 'packet_sweeper':
+        if (userSwipeDecisions != null) {
+          final packets = (q.payload['packets'] as List<dynamic>?) ?? [];
+          int correctCount = 0;
+          for (int i = 0; i < packets.length && i < userSwipeDecisions!.length; i++) {
+            final isMalicious = (packets[i] as Map)['is_malicious'] as bool? ?? false;
+            final userSaidSafe = userSwipeDecisions![i];
+            if (userSaidSafe == !isMalicious) correctCount++;
+          }
+          // 80% threshold for correct
+          isCorrect = packets.isNotEmpty && (correctCount / packets.length) >= 0.8;
+        }
+        break;
+
+      case 'vuln_spotter':
+        if (userFoundVulns != null) {
+          final elements = (q.payload['elements'] as List<dynamic>?) ?? [];
+          final totalVulns = q.payload['total_vulns'] as int? ?? 1;
+          // Check: found all vulns
+          final actualVulnIndices = <int>{};
+          for (int i = 0; i < elements.length; i++) {
+            if ((elements[i] as Map)['is_vuln'] == true) {
+              actualVulnIndices.add(i);
+            }
+          }
+          isCorrect = userFoundVulns!.containsAll(actualVulnIndices);
+        }
+        break;
+
+      case 'network_cutter':
+        if (userCutEdges != null) {
+          final edges = (q.payload['edges'] as List<dynamic>?) ?? [];
+          // Find all malicious edge indices
+          final maliciousIndices = <int>{};
+          for (int i = 0; i < edges.length; i++) {
+            if ((edges[i] as Map)['malicious'] == true) {
+              maliciousIndices.add(i);
+            }
+          }
+          // Check: user cut all malicious AND didn't cut any safe ones
+          final cutAllMalicious = userCutEdges!.containsAll(maliciousIndices);
+          final noBadCuts = userCutEdges!.every((i) => maliciousIndices.contains(i));
+          isCorrect = cutAllMalicious && noBadCuts;
+        }
+        break;
+
       case 'multiple_choice':
       default:
         // Bandingkan teks pilihan yang dipilih user dengan kunci jawaban
@@ -432,14 +568,10 @@ class LessonController extends ChangeNotifier {
       // ✅ REMOVED: userXp += q.xp; - XP must ONLY come from backend response
       userStreak++;
     } else {
-      // Strict Sync: Decrement hearts directly
-      userHearts = (userHearts - 1).clamp(0, maxHearts);
-
-      // ✅ Critical: Update local cache immediately so TrainingPage sees the change
-      _preserveHeartsLocally();
-
-      // Fire-and-forget: sync hearts decrement to backend
-      _decrementHeartsOnBackend();
+      // UNLIMITED HEARTS MODE
+      // userHearts = (userHearts - 1).clamp(0, maxHearts);
+      // _preserveHeartsLocally();
+      // _decrementHeartsOnBackend();
 
       userStreak = 0;
     }
@@ -666,6 +798,9 @@ class LessonController extends ChangeNotifier {
     userAnswerString = null;
     userSortingOrder = null;
     userMatchingPairs = null;
+    userSwipeDecisions = null;
+    userFoundVulns = null;
+    userCutEdges = null;
     isChecked = false;
     isCorrect = false;
     _lastAnswerTime = null;

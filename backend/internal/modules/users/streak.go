@@ -63,25 +63,32 @@ func UpdateStreakAtomic(db *sqlx.DB, userID int64, userTimezone string) (*Streak
 	if !lastActive.Valid {
 		// First ever lesson completion
 		newStreak = 1
-	} else if lastActive.String == todayUser {
-		// Already completed a lesson today — no change
-		newStreak = streak
-		alreadyCounted = true
 	} else {
-		// Parse last active date to check if it was yesterday
-		lastDate, err := time.ParseInLocation("2006-01-02", lastActive.String, loc)
-		if err != nil {
-			// Can't parse — treat as reset
-			newStreak = 1
+		lastActiveStr := lastActive.String
+		if len(lastActiveStr) > 10 {
+			lastActiveStr = lastActiveStr[:10]
+		}
+
+		if lastActiveStr == todayUser {
+			// Already completed a lesson today — no change
+			newStreak = streak
+			alreadyCounted = true
 		} else {
-			todayDate, _ := time.ParseInLocation("2006-01-02", todayUser, loc)
-			diff := todayDate.Sub(lastDate).Hours() / 24
-			if diff >= 0.5 && diff < 1.5 {
-				// Active yesterday — continue streak
-				newStreak = streak + 1
-			} else {
-				// Missed 1+ full days — reset to 1
+			// Parse last active date to check if it was yesterday
+			lastDate, err := time.ParseInLocation("2006-01-02", lastActiveStr, loc)
+			if err != nil {
+				// Can't parse — treat as reset
 				newStreak = 1
+			} else {
+				todayDate, _ := time.ParseInLocation("2006-01-02", todayUser, loc)
+				diff := todayDate.Sub(lastDate).Hours() / 24
+				if diff >= 0.5 && diff < 1.5 {
+					// Active yesterday — continue streak
+					newStreak = streak + 1
+				} else {
+					// Missed 1+ full days — reset to 1
+					newStreak = 1
+				}
 			}
 		}
 	}

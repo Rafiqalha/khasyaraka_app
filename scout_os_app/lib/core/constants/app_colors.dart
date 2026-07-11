@@ -54,6 +54,7 @@ class AppColors {
   // --- CYBER THEME COLORS ---
   static const Color cyberBlue = Color(0xFF00F0FF); // Cyberpunk blue neon
   static const Color graphite = Color(0xFF16161A); // Dark studio graphite
+  static const Color deepCharcoal = Color(0xFF1E1E24); // Added missing deep charcoal
 
   // --- 3. DUOLINGO-STYLE GAMIFIED UI COLORS ---
 

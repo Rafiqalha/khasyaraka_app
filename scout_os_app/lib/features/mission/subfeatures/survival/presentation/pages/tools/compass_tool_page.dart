@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +71,7 @@ class _CompassToolPageState extends State<CompassToolPage> {
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: GrassSosLoader(color: Colors.white));
+              return const Center(child: TerminalLoading(color: Colors.white));
             }
 
             double? heading = snapshot.data?.heading;

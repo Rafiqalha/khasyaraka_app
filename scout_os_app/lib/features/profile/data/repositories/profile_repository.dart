@@ -276,19 +276,24 @@ class ProfileRepository {
   /// Also invalidates Redis profile cache so leaderboard shows the new photo.
   Future<String> uploadAvatar(File imageFile) async {
     try {
-      debugPrint('📷 [PROFILE] Uploading avatar to server...');
-      final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(
-          imageFile.path,
-          filename: imageFile.path.split('/').last,
-        ),
-      });
-      final response = await _dio.post('/me/avatar', data: formData);
+      debugPrint('📷 [PROFILE] Uploading avatar as base64 to server...');
+      
+      // Convert image to base64
+      final bytes = await imageFile.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      final extension = imageFile.path.split('.').last.toLowerCase();
+      final mimeType = extension == 'png' ? 'png' : (extension == 'jpg' || extension == 'jpeg' ? 'jpeg' : 'png');
+      final dataUrl = 'data:image/$mimeType;base64,$base64Image';
+
+      final response = await _dio.post(
+        '/me/avatar', 
+        data: {'picture_url': dataUrl},
+      );
       final responseData = response.data as Map<String, dynamic>;
       if (responseData['success'] == true && responseData['data'] != null) {
         final data = responseData['data'] as Map<String, dynamic>;
-        final pictureUrl = data['picture_url'] as String? ?? '';
-        debugPrint('✅ [PROFILE] Avatar uploaded: $pictureUrl');
+        final pictureUrl = data['picture_url'] as String? ?? dataUrl;
+        debugPrint('✅ [PROFILE] Avatar uploaded (base64 string shortened): ${pictureUrl.length > 50 ? pictureUrl.substring(0, 50) + '...' : pictureUrl}');
         // Invalidate memory + disk cache
         clearMemoryCache();
         await LocalCacheService.delete(LocalCacheService.keyUserProfile);

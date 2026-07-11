@@ -1,4 +1,5 @@
-  import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+  import 'dart:convert';
+  import 'package:scout_os_app/core/widgets/skeleton_loader.dart';
 
 /// Rank Page — Real-time leaderboard powered by Redis Sorted Sets
 ///
@@ -18,6 +19,7 @@
 import 'package:flutter/material.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
@@ -236,9 +238,9 @@ class _RankPageState extends State<RankPage>
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
         children: [
-          // MODE SELECTOR (Normal vs Ranked)
-          _buildCategoryToggle(controller),
-          const SizedBox(height: 12),
+          // MODE SELECTOR (Normal vs Ranked) - Sembunyikan sementara
+          // _buildCategoryToggle(controller),
+          // const SizedBox(height: 12),
           // SCOPE SELECTOR
           _buildScopeToggle(controller),
         ],
@@ -467,25 +469,11 @@ class _RankPageState extends State<RankPage>
   }
 
   Color _getLevelColor(String level) {
-    if (level.contains('Siaga')) {
-      return const Color(0xFF58CC02); // Green
-    } else if (level.contains('Penggalang')) {
-      return const Color(0xFFFF4B4B); // Red
-    } else if (level.contains('Penegak')) {
-      return const Color(0xFFFFC800); // Yellow
-    }
-    return const Color(0xFF58CC02); // Default
+    return const Color(0xFF58CC02); // Scout Green
   }
 
   Color _getLevelShadowColor(String level) {
-    if (level.contains('Siaga')) {
-      return const Color(0xFF46A302); // Dark Green
-    } else if (level.contains('Penggalang')) {
-      return const Color(0xFFEA2B2B); // Dark Red
-    } else if (level.contains('Penegak')) {
-      return const Color(0xFFE5A500); // Dark Yellow
-    }
-    return const Color(0xFF46A302); // Default
+    return const Color(0xFF46A302); // Dark Green for 3D lip
   }
 
   Widget _buildPodiumSection(List<LeaderboardUser> top3, String category) {
@@ -558,7 +546,7 @@ class _RankPageState extends State<RankPage>
     bool isCenter = false,
     required String category,
   }) {
-    bool isNormalMode = category == 'quiz';
+    bool isNormalMode = true; // HIDE RANK MODE: category == 'quiz';
 
     return GestureDetector(
       onTap: () => _showPublicProfileSheet(context, user.id),
@@ -568,20 +556,9 @@ class _RankPageState extends State<RankPage>
           // AVATAR & NAME
           Column(
             children: [
-              // Avatar with Level Border
-              Container(
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: shadowColor.withOpacity(0.5),
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: _buildAvatar(user, isCenter ? 70 : 55),
+              // Avatar with animated glowing flat golden border
+              AnimatedGlowingAvatar(
+                avatar: _buildAvatar(user, isCenter ? 70 : 55),
               ),
               const SizedBox(height: 8),
 
@@ -674,7 +651,7 @@ class _RankPageState extends State<RankPage>
             padding: const EdgeInsets.only(bottom: 6), // Lip thickness
             child: Container(
               decoration: BoxDecoration(
-                color: color, // Main Color
+                color: color, // Main green face
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
@@ -706,7 +683,7 @@ class _RankPageState extends State<RankPage>
   }
 
   Widget _build3DListItem(LeaderboardUser user, String category) {
-    bool isNormalMode = category == 'quiz';
+    bool isNormalMode = true; // HIDE RANK MODE: category == 'quiz';
     final levelColor = _getLevelColor(user.level);
     final levelShadow = _getLevelShadowColor(user.level);
 
@@ -726,9 +703,8 @@ class _RankPageState extends State<RankPage>
             borderRadius: BorderRadius.circular(16),
             child: Container(
               decoration: BoxDecoration(
-                color: levelColor, // Main Face Color (Green/Red/Yellow)
+                color: levelColor, // Green face
                 borderRadius: BorderRadius.circular(16),
-                // No border needed for solid style, or a slight inner highlight could be added
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -739,7 +715,7 @@ class _RankPageState extends State<RankPage>
                     child: Text(
                       "${user.rank}",
                       style: GoogleFonts.fredoka(
-                        color: Colors.white, // White text on colored bg
+                        color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -752,7 +728,7 @@ class _RankPageState extends State<RankPage>
                   Container(
                     padding: const EdgeInsets.all(2),
                     decoration: const BoxDecoration(
-                      color: Colors.white, // White border for avatar to pop
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                     child: _buildAvatar(user, 48),
@@ -769,7 +745,7 @@ class _RankPageState extends State<RankPage>
                           style: GoogleFonts.nunito(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white, // White text
+                            color: Colors.white,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -797,9 +773,7 @@ class _RankPageState extends State<RankPage>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(
-                          0.2,
-                        ), // Semi-transparent pill
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -853,7 +827,7 @@ class _RankPageState extends State<RankPage>
   }
 
   Widget _buildStickyMeBar(MyRank myRank, String category) {
-    bool isNormalMode = category == 'quiz';
+    bool isNormalMode = true; // HIDE RANK MODE: category == 'quiz';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -868,13 +842,16 @@ class _RankPageState extends State<RankPage>
         ],
       ),
       child: Container(
+        decoration: BoxDecoration(
+          color: _scoutGreenDark, // 3D lip
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.only(bottom: 4), // 3D depth
+        child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: const BoxDecoration(
-          color: _scoutGreen,
+          color: _scoutGreen, // Green face
           borderRadius: BorderRadius.all(Radius.circular(20)),
-          border: Border(
-            bottom: BorderSide(color: _scoutGreenDark, width: 6.0),
-          ),
         ),
         child: Row(
           children: [
@@ -889,6 +866,9 @@ class _RankPageState extends State<RankPage>
               ),
             if (!isNormalMode)
               const SizedBox(width: 16),
+            // Avatar in sticky bar
+            _buildMyRankAvatar(myRank, 36),
+            const SizedBox(width: 12),
             Text(
               "KAMU",
               style: GoogleFonts.fredoka(
@@ -899,12 +879,19 @@ class _RankPageState extends State<RankPage>
             ),
             const Spacer(),
             if (isNormalMode)
-              Text(
-                "${myRank.xp} XP",
-                style: GoogleFonts.fredoka(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "${myRank.xp} XP",
+                  style: GoogleFonts.fredoka(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               )
             else
@@ -943,28 +930,101 @@ class _RankPageState extends State<RankPage>
               ),
           ],
         ),
+        ),
       ),
     );
   }
 
-  Widget _buildAvatar(LeaderboardUser user, double size) {
+  /// Build avatar for MyRank (sticky bar) — supports Base64 & network URLs
+  Widget _buildMyRankAvatar(MyRank myRank, double size) {
+    final avatarUrl = myRank.avatar != null && myRank.avatar!.isNotEmpty
+        ? Environment.resolveUrl(myRank.avatar!)
+        : null;
+
+    Widget imageWidget;
+    if (avatarUrl != null && avatarUrl.startsWith('data:image')) {
+      try {
+        final base64String = avatarUrl.split(',').last;
+        imageWidget = Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.cover,
+          width: size,
+          height: size,
+          errorBuilder: (_, __, ___) => _buildMyRankInitials(size),
+        );
+      } catch (e) {
+        imageWidget = _buildMyRankInitials(size);
+      }
+    } else if (avatarUrl != null) {
+      imageWidget = Image.network(
+        avatarUrl,
+        fit: BoxFit.cover,
+        width: size,
+        height: size,
+        errorBuilder: (_, __, ___) => _buildMyRankInitials(size),
+      );
+    } else {
+      imageWidget = _buildMyRankInitials(size);
+    }
+
     return Container(
       width: size,
       height: size,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(0xFFEEEEEE),
       ),
-      child: ClipOval(
-        child: user.avatar != null && user.avatar!.isNotEmpty
-            ? Image.network(
-                Environment.resolveUrl(user.avatar!),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildInitials(user),
-              )
-            : _buildInitials(user),
+      child: ClipOval(child: imageWidget),
+    );
+  }
+
+  Widget _buildMyRankInitials(double size) {
+    return Center(
+      child: Icon(
+        Icons.person_rounded,
+        color: Colors.white70,
+        size: size * 0.6,
       ),
+    );
+  }
+
+  Widget _buildAvatar(LeaderboardUser user, double size) {
+    final avatarUrl = user.avatar != null && user.avatar!.isNotEmpty
+        ? Environment.resolveUrl(user.avatar!)
+        : null;
+
+    Widget imageWidget;
+    if (avatarUrl != null && avatarUrl.startsWith('data:image')) {
+      try {
+        final base64String = avatarUrl.split(',').last;
+        imageWidget = Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.cover,
+          width: size,
+          height: size,
+          errorBuilder: (_, __, ___) => _buildInitials(user),
+        );
+      } catch (e) {
+        imageWidget = _buildInitials(user);
+      }
+    } else if (avatarUrl != null) {
+      imageWidget = Image.network(
+        avatarUrl,
+        fit: BoxFit.cover,
+        width: size,
+        height: size,
+        errorBuilder: (_, __, ___) => _buildInitials(user),
+      );
+    } else {
+      imageWidget = _buildInitials(user);
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+      ),
+      child: ClipOval(child: imageWidget),
     );
   }
 
@@ -999,7 +1059,7 @@ class _RankPageState extends State<RankPage>
                     top: Radius.circular(24),
                   ),
                 ),
-                child: const Center(child: GrassSosLoader(color: _scoutGreen)),
+                child: Center(child: SkeletonLoader.profile(size: 60)),
               );
             }
 
@@ -1059,26 +1119,18 @@ class _RankPageState extends State<RankPage>
                   const SizedBox(height: 24),
 
                   // Avatar
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: _scoutGreen, width: 3),
-                    ),
-                    child: ClipOval(
-                      child:
-                          profile.pictureUrl != null &&
-                              profile.pictureUrl!.isNotEmpty
-                          ? Image.network(
-                              Environment.resolveUrl(profile.pictureUrl!),
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  _buildInitialsFromStr(
-                                    profile.fullName ?? "?",
-                                  ),
-                            )
-                          : _buildInitialsFromStr(profile.fullName ?? "?"),
+                  AnimatedGlowingAvatar(
+                    avatar: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: ClipOval(
+                        child: _buildProfileAvatarImage(
+                          profile.pictureUrl,
+                          profile.fullName,
+                          80,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -1096,16 +1148,28 @@ class _RankPageState extends State<RankPage>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const FaIcon(
+                        FontAwesomeIcons.fireFlameCurved,
+                        color: Color(0xFFFF9600),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
                       Text(
-                        '🔥 ${profile.streak} Hari',
+                        '${profile.streak} Hari',
                         style: GoogleFonts.nunito(
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFFFF9600),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
+                      const FaIcon(
+                        FontAwesomeIcons.bolt,
+                        color: Color(0xFF2CB0FA),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
                       Text(
-                        '⚡ ${profile.totalXp} XP',
+                        '${profile.totalXp} XP',
                         style: GoogleFonts.nunito(
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF2CB0FA),
@@ -1199,6 +1263,37 @@ class _RankPageState extends State<RankPage>
     );
   }
 
+  Widget _buildProfileAvatarImage(String? url, String? name, double size) {
+    if (url == null || url.isEmpty) {
+      return _buildInitialsFromStr(name ?? "?");
+    }
+
+    final avatarUrl = Environment.resolveUrl(url);
+
+    if (avatarUrl.startsWith('data:image')) {
+      try {
+        final base64String = avatarUrl.split(',').last;
+        return Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.cover,
+          width: size,
+          height: size,
+          errorBuilder: (_, __, ___) => _buildInitialsFromStr(name ?? "?"),
+        );
+      } catch (e) {
+        return _buildInitialsFromStr(name ?? "?");
+      }
+    }
+
+    return Image.network(
+      avatarUrl,
+      fit: BoxFit.cover,
+      width: size,
+      height: size,
+      errorBuilder: (_, __, ___) => _buildInitialsFromStr(name ?? "?"),
+    );
+  }
+
   Widget _buildInitialsFromStr(String name) {
     return Center(
       child: Text(
@@ -1210,5 +1305,98 @@ class _RankPageState extends State<RankPage>
         ),
       ),
     );
+  }
+}
+
+class AnimatedGlowingAvatar extends StatefulWidget {
+  final Widget avatar;
+
+  const AnimatedGlowingAvatar({super.key, required this.avatar});
+
+  @override
+  State<AnimatedGlowingAvatar> createState() => _AnimatedGlowingAvatarState();
+}
+
+class _AnimatedGlowingAvatarState extends State<AnimatedGlowingAvatar> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: _GlowingRingPainter(progress: _controller.value),
+          child: Padding(
+            padding: const EdgeInsets.all(6.0), // Space for the ring and glow
+            child: widget.avatar,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _GlowingRingPainter extends CustomPainter {
+  final double progress;
+
+  _GlowingRingPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width / 2) - 3.0; // Subtract half of stroke width
+
+    final sweepGradient = SweepGradient(
+      startAngle: 0.0,
+      endAngle: 3.141592653589793 * 2,
+      transform: GradientRotation(progress * 3.141592653589793 * 2),
+      colors: const [
+        Color(0xFFFFD700), // Gold
+        Color(0xFFFFA000), // Amber
+        Color(0xFFFFF8E1), // Bright center of light
+        Color(0xFFFFA000), // Amber
+        Color(0xFFFFD700), // Gold
+      ],
+      stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
+    );
+
+    // Draw the glow (shadow)
+    final shadowPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6.0
+      ..shader = sweepGradient.createShader(rect)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0);
+    
+    canvas.drawCircle(center, radius, shadowPaint);
+
+    // Draw the actual border ring
+    final borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..shader = sweepGradient.createShader(rect);
+
+    canvas.drawCircle(center, radius, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GlowingRingPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }

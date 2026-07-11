@@ -1,4 +1,4 @@
-import 'package:scout_os_app/core/widgets/grass_sos_loader.dart';
+import 'package:scout_os_app/core/widgets/terminal_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/controllers/sku_controller.dart';
@@ -49,7 +49,7 @@ class _SkuListViewState extends State<SkuListView> {
         ),
       ),
       body: controller.isLoading
-          ? const Center(child: GrassSosLoader())
+          ? const Center(child: TerminalLoading())
           : GridView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: controller.points.length,
