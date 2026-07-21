@@ -1,0 +1,5 @@
+id: "scout_academy"
+name: "Akademi Pramuka Indonesia"
+version: "1.0.0"
+theme:
+  primary_color: "#6D4C41"
