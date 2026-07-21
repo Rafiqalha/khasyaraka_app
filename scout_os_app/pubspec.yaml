@@ -38,7 +38,10 @@ dependencies:
   provider: ^6.1.2
   get: ^4.6.6
   google_fonts: ^7.0.0
+  intl: ^0.20.2
   google_sign_in: ^6.2.0
+  flutter_code_editor: ^0.3.5
+  highlight: ^0.7.0
   http: ^1.6.0
   dio: ^5.4.0
   cached_network_image: ^3.3.1
@@ -73,6 +76,7 @@ dependencies:
   path_provider: ^2.1.6
   font_awesome_flutter: ^11.0.0
   web_socket_channel: ^3.0.3
+  flutter_riverpod: ^3.3.2
 
 
 dev_dependencies:
@@ -126,13 +130,6 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
-  fonts:
-    - family: Fredoka
-      fonts:
-        - asset: assets/fonts/Fredoka-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Fredoka-SemiBold.ttf
-          weight: 600
   # list giving the asset and other descriptors for the font. For
   # example:
   # fonts:
