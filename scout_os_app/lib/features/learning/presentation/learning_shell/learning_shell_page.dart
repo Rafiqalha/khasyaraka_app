@@ -4,6 +4,11 @@ import '../controllers/journey_controller.dart';
 import '../../domain/models/journey_node.dart';
 import '../pages/pre_assessment_page.dart';
 import '../pages/journey_map_page.dart';
+import '../pages/notebook_page.dart';
+import '../pages/mission_page.dart';
+import '../pages/thinking_page.dart';
+import '../pages/quick_check_page.dart';
+import '../pages/sandbox_page.dart';
 import '../../../../design_system/tokens/colors.dart';
 import '../../../../design_system/tokens/spacing.dart';
 import '../../../../design_system/tokens/typography.dart';
@@ -28,12 +33,15 @@ class LearningShellPage extends ConsumerWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: PradigiSpacing.mobileContentPadding),
-                child: _buildNodeContent(currentNode.type),
+                child: _buildNodeContent(currentNode),
               ),
             ),
             
             // Bottom CTA
-            _buildBottomCTA(context, ref, journeyState),
+            // Note: Some nodes like Mission control their own progress logic, but Shell CTA is a universal fallback/override.
+            // For G1.5, we show it everywhere except maybe inside the Mission or Thinking screen, but keeping it visible is fine for MVP.
+            if (currentNode.type != NodeType.mission && currentNode.type != NodeType.thinking)
+              _buildBottomCTA(context, ref, journeyState),
           ],
         ),
       ),
@@ -73,16 +81,26 @@ class LearningShellPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildNodeContent(NodeType type) {
-    switch (type) {
+  Widget _buildNodeContent(JourneyNode node) {
+    switch (node.type) {
       case NodeType.preAssessment:
         return const PreAssessmentPage();
       case NodeType.journeyMap:
         return const JourneyMapPage();
+      case NodeType.notebook:
+        return NotebookPage(nodeId: node.id);
+      case NodeType.mission:
+        return MissionPage(nodeId: node.id);
+      case NodeType.thinking:
+        return const ThinkingPage();
+      case NodeType.quickCheck:
+        return const QuickCheckPage();
+      case NodeType.sandbox:
+        return const SandboxPage();
       default:
         return Center(
           child: Text(
-            "Node type $type not implemented yet",
+            "Node type ${node.type} not implemented yet",
             style: PradigiTypography.bodySecondary,
           ),
         );
@@ -105,7 +123,6 @@ class LearningShellPage extends ConsumerWidget {
               onPressed: state.hasNext 
                 ? () => ref.read(journeyProvider.notifier).nextNode()
                 : () {
-                    // Complete journey logic
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Journey Complete!")),
                     );
