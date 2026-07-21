@@ -12,7 +12,7 @@ import (
 	"github.com/pradigi/backend/internal/modules/auth"
 	"github.com/pradigi/backend/internal/modules/callbacks"
 	"github.com/pradigi/backend/internal/academies/cyber/arena"
-	"github.com/pradigi/backend/internal/modules/chat"
+	"github.com/pradigi/backend/internal/legacy/chat"
 	"github.com/pradigi/backend/internal/academies/cyber/cyber"
 	"github.com/pradigi/backend/internal/legacy/hearts"
 	"github.com/pradigi/backend/internal/legacy/leaderboard"
