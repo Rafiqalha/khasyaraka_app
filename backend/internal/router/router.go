@@ -8,7 +8,7 @@ import (
 
 	"github.com/pradigi/backend/internal/config"
 	"github.com/pradigi/backend/internal/middleware"
-	"github.com/pradigi/backend/internal/modules/admin"
+	"github.com/pradigi/backend/internal/legacy/admin"
 	"github.com/pradigi/backend/internal/modules/auth"
 	"github.com/pradigi/backend/internal/modules/callbacks"
 	"github.com/pradigi/backend/internal/academies/cyber/arena"
