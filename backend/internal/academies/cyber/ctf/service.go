@@ -8,7 +8,7 @@ import (
 
 	"github.com/pradigi/backend/internal/modules/ai"
 	"github.com/pradigi/backend/internal/academies/cyber/arena"
-	"github.com/pradigi/backend/internal/modules/token"
+	"github.com/pradigi/backend/internal/legacy/token"
 )
 
 type CTFService struct {
