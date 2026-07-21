@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/pradigi/backend/internal/modules/ai"
+	"github.com/pradigi/backend/internal/legacy/ai"
 	"github.com/pradigi/backend/internal/academies/cyber/arena"
 	"github.com/pradigi/backend/internal/legacy/token"
 )

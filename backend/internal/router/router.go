@@ -28,7 +28,7 @@ import (
 	"github.com/pradigi/backend/internal/core/journey"
 	"github.com/pradigi/backend/internal/core/passport"
 	"github.com/pradigi/backend/internal/legacy/token"
-	"github.com/pradigi/backend/internal/modules/ai"
+	"github.com/pradigi/backend/internal/legacy/ai"
 	"github.com/pradigi/backend/internal/academies/cyber/ctf"
 	"github.com/pradigi/backend/internal/studio"
 )
