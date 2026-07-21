@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/journey_controller.dart';
-import '../../domain/models/journey_node.dart';
+import '../../domain/entities/learning_entities.dart';
 import '../pages/pre_assessment_page.dart';
 import '../pages/journey_map_page.dart';
 import '../pages/notebook_page.dart';
@@ -19,7 +19,33 @@ class LearningShellPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final journeyState = ref.watch(journeyProvider);
+
+    if (journeyState.isLoading) {
+      return const Scaffold(
+        backgroundColor: PradigiColors.background,
+        body: Center(child: CircularProgressIndicator(color: PradigiColors.primary)),
+      );
+    }
+
+    if (journeyState.errorMessage != null) {
+      return Scaffold(
+        backgroundColor: PradigiColors.background,
+        body: Center(
+          child: Text(
+            "Error loading journey: ${journeyState.errorMessage}",
+            style: PradigiTypography.body.copyWith(color: PradigiColors.danger),
+          ),
+        ),
+      );
+    }
+
     final currentNode = journeyState.currentNode;
+    if (currentNode == null) {
+      return const Scaffold(
+        backgroundColor: PradigiColors.background,
+        body: Center(child: Text("No content available.", style: PradigiTypography.bodySecondary)),
+      );
+    }
 
     return Scaffold(
       backgroundColor: PradigiColors.background,
@@ -38,8 +64,6 @@ class LearningShellPage extends ConsumerWidget {
             ),
             
             // Bottom CTA
-            // Note: Some nodes like Mission control their own progress logic, but Shell CTA is a universal fallback/override.
-            // For G1.5, we show it everywhere except maybe inside the Mission or Thinking screen, but keeping it visible is fine for MVP.
             if (currentNode.type != NodeType.mission && currentNode.type != NodeType.thinking)
               _buildBottomCTA(context, ref, journeyState),
           ],
@@ -49,7 +73,8 @@ class LearningShellPage extends ConsumerWidget {
   }
 
   Widget _buildProgressHeader(BuildContext context, JourneyState state) {
-    final progress = (state.currentIndex + 1) / state.nodes.length;
+    final totalNodes = state.journey?.nodes.length ?? 1;
+    final progress = (state.currentIndex + 1) / totalNodes;
     
     return Container(
       padding: const EdgeInsets.all(PradigiSpacing.s16),
@@ -73,7 +98,7 @@ class LearningShellPage extends ConsumerWidget {
           ),
           const SizedBox(width: PradigiSpacing.s16),
           Text(
-            "${state.currentIndex + 1}/${state.nodes.length}",
+            "${state.currentIndex + 1}/$totalNodes",
             style: PradigiTypography.caption.copyWith(fontWeight: FontWeight.bold),
           ),
         ],

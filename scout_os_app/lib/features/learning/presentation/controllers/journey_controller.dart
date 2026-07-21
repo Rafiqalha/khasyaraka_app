@@ -1,103 +1,89 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/models/journey_node.dart';
+import '../../domain/entities/learning_entities.dart';
+import '../../domain/repositories/journey_repository.dart';
+import '../../infrastructure/sources/journey_api_client.dart';
+import '../../infrastructure/repositories/journey_repository_impl.dart';
 import '../../../../core/telemetry/telemetry.dart';
 
-// Dummy linear journey for G1.5 Validation with the new priorities
-final _g15Nodes = [
-  const JourneyNode(
-    id: 'n1', 
-    type: NodeType.preAssessment, 
-    title: 'Pre-Assessment',
-    estimatedDuration: Duration(minutes: 2),
-    isRequired: true,
-    telemetryKey: 'g15_pre_assessment',
-  ),
-  const JourneyNode(
-    id: 'n2', 
-    type: NodeType.journeyMap, 
-    title: 'Journey Map',
-    estimatedDuration: Duration(minutes: 1),
-    isRequired: true,
-    telemetryKey: 'g15_journey_map',
-  ),
-  const JourneyNode(
-    id: 'n3', 
-    type: NodeType.notebook, 
-    title: 'What is an Array?',
-    estimatedDuration: Duration(minutes: 3),
-    isRequired: true,
-    telemetryKey: 'g15_notebook_array_intro',
-  ),
-  const JourneyNode(
-    id: 'n4', 
-    type: NodeType.mission, 
-    title: 'Mission: Fix Off-by-One',
-    estimatedDuration: Duration(minutes: 6),
-    isRequired: true,
-    telemetryKey: 'g15_mission_array_oob',
-  ),
-  const JourneyNode(
-    id: 'n5', 
-    type: NodeType.thinking, 
-    title: 'Analyzing Result',
-    estimatedDuration: Duration(seconds: 5),
-    isRequired: true,
-    telemetryKey: 'g15_thinking_array_oob',
-  ),
-  const JourneyNode(
-    id: 'n6', 
-    type: NodeType.quickCheck, 
-    title: 'Quick Check: Array Indexing',
-    estimatedDuration: Duration(minutes: 1),
-    isRequired: true,
-    telemetryKey: 'g15_qc_array_index',
-  ),
-  const JourneyNode(
-    id: 'n7', 
-    type: NodeType.sandbox, 
-    title: 'Sandbox: Array Playground',
-    estimatedDuration: Duration(minutes: 5),
-    isRequired: false,
-    telemetryKey: 'g15_sandbox_array',
-  ),
-];
+// Providers for dependencies (Clean Architecture injection)
+final journeyApiClientProvider = Provider<JourneyApiClient>((ref) {
+  return JourneyApiClient();
+});
+
+final journeyRepositoryProvider = Provider<JourneyRepository>((ref) {
+  final apiClient = ref.watch(journeyApiClientProvider);
+  return JourneyRepositoryImpl(apiClient);
+});
 
 class JourneyState {
-  final List<JourneyNode> nodes;
+  final bool isLoading;
+  final String? errorMessage;
+  final Journey? journey;
   final int currentIndex;
-  
-  JourneyNode get currentNode => nodes[currentIndex];
-  bool get hasNext => currentIndex < nodes.length - 1;
+
+  JourneyNode? get currentNode => journey != null && journey!.nodes.isNotEmpty ? journey!.nodes[currentIndex] : null;
+  bool get hasNext => journey != null && currentIndex < journey!.nodes.length - 1;
 
   const JourneyState({
-    required this.nodes,
-    required this.currentIndex,
+    this.isLoading = true,
+    this.errorMessage,
+    this.journey,
+    this.currentIndex = 0,
   });
 
   JourneyState copyWith({
-    List<JourneyNode>? nodes,
+    bool? isLoading,
+    String? errorMessage,
+    Journey? journey,
     int? currentIndex,
   }) {
     return JourneyState(
-      nodes: nodes ?? this.nodes,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
+      journey: journey ?? this.journey,
       currentIndex: currentIndex ?? this.currentIndex,
     );
   }
 }
 
 class JourneyNotifier extends StateNotifier<JourneyState> {
-  JourneyNotifier() : super(const JourneyState(
-    nodes: [],
-    currentIndex: 0,
-  )) {
-    // Initialize with data
-    state = JourneyState(nodes: _g15Nodes, currentIndex: 0);
-    _emitNodeEntered(state.currentNode);
+  final JourneyRepository _repository;
+
+  JourneyNotifier(this._repository) : super(const JourneyState()) {
+    _loadJourney();
+  }
+
+  Future<void> _loadJourney() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    // Using Result<T> functional pattern
+    final result = await _repository.loadJourney("j_1");
+
+    result.fold(
+      (journey) {
+        state = state.copyWith(
+          isLoading: false,
+          journey: journey,
+          currentIndex: 0,
+        );
+        
+        Telemetry.track(event: JourneyEvent.journeyStarted);
+        if (state.currentNode != null) {
+          _emitNodeEntered(state.currentNode!);
+        }
+      },
+      (error, stackTrace) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: error.toString(),
+        );
+      },
+    );
   }
 
   void nextNode() {
-    if (state.hasNext) {
-      final oldNode = state.currentNode;
+    if (state.hasNext && state.currentNode != null) {
+      final oldNode = state.currentNode!;
       
       Telemetry.track(
         event: JourneyEvent.nodeExited,
@@ -106,7 +92,9 @@ class JourneyNotifier extends StateNotifier<JourneyState> {
       
       state = state.copyWith(currentIndex: state.currentIndex + 1);
       
-      _emitNodeEntered(state.currentNode);
+      if (state.currentNode != null) {
+        _emitNodeEntered(state.currentNode!);
+      }
     } else {
       Telemetry.track(
         event: JourneyEvent.journeyCompleted,
@@ -123,5 +111,6 @@ class JourneyNotifier extends StateNotifier<JourneyState> {
 }
 
 final journeyProvider = StateNotifierProvider<JourneyNotifier, JourneyState>((ref) {
-  return JourneyNotifier();
+  final repo = ref.watch(journeyRepositoryProvider);
+  return JourneyNotifier(repo);
 });
