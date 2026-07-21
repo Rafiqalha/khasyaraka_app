@@ -78,7 +78,7 @@ func (s *Service) verifyGoogleToken(idToken string) (*GoogleUserInfo, error) {
 	return &info, nil
 }
 
-func (s *Service) Register(name, username, password string) (*AuthResponse, error) {
+func (s *Service) Register(name, username, password, countryID, provinsiID, kabupatenID, kecamatanID string) (*AuthResponse, error) {
 	email := username
 
 	existing, err := s.repo.GetByEmail(email)
@@ -94,7 +94,7 @@ func (s *Service) Register(name, username, password string) (*AuthResponse, erro
 		return nil, err
 	}
 
-	user, err := s.repo.Create(email, hashed, name, nil, true)
+	user, err := s.repo.Create(email, hashed, name, nil, true, countryID, provinsiID, kabupatenID, kecamatanID)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (s *Service) GoogleSignIn(idToken string) (*GoogleAuthResponse, error) {
 		return nil, err
 	}
 
-	newUser, err := s.repo.Create(info.Email, hashed, info.Name, &info.Picture, true)
+	newUser, err := s.repo.Create(info.Email, hashed, info.Name, &info.Picture, true, "", "", "", "")
 	if err != nil {
 		return nil, err
 	}

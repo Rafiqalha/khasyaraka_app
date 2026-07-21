@@ -4,36 +4,40 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog"
+	applogger "github.com/pradigi/backend/internal/pkg/logger"
 
 	"github.com/pradigi/backend/internal/config"
 	"github.com/pradigi/backend/internal/middleware"
 	"github.com/pradigi/backend/internal/modules/admin"
 	"github.com/pradigi/backend/internal/modules/auth"
 	"github.com/pradigi/backend/internal/modules/callbacks"
-	"github.com/pradigi/backend/internal/modules/arena"
+	"github.com/pradigi/backend/internal/academies/cyber/arena"
 	"github.com/pradigi/backend/internal/modules/chat"
-	"github.com/pradigi/backend/internal/modules/cyber"
-	"github.com/pradigi/backend/internal/modules/hearts"
+	"github.com/pradigi/backend/internal/academies/cyber/cyber"
+	"github.com/pradigi/backend/internal/legacy/hearts"
 	"github.com/pradigi/backend/internal/modules/leaderboard"
 	"github.com/pradigi/backend/internal/modules/location"
-	"github.com/pradigi/backend/internal/modules/sandi"
-	"github.com/pradigi/backend/internal/modules/sku"
+	"github.com/pradigi/backend/internal/academies/scout/sandi"
+	"github.com/pradigi/backend/internal/academies/scout/sku"
 	"github.com/pradigi/backend/internal/modules/subscription"
-	"github.com/pradigi/backend/internal/modules/survival"
-	"github.com/pradigi/backend/internal/modules/tkk"
+	"github.com/pradigi/backend/internal/academies/scout/survival"
+	"github.com/pradigi/backend/internal/academies/scout/tkk"
+	"github.com/pradigi/backend/internal/marketplace"
 	"github.com/pradigi/backend/internal/modules/training"
 	"github.com/pradigi/backend/internal/modules/users"
+	"github.com/pradigi/backend/internal/core/journey"
+	"github.com/pradigi/backend/internal/core/passport"
 	"github.com/pradigi/backend/internal/modules/token"
 	"github.com/pradigi/backend/internal/modules/ai"
-	"github.com/pradigi/backend/internal/modules/ctf"
+	"github.com/pradigi/backend/internal/academies/cyber/ctf"
+	"github.com/pradigi/backend/internal/studio"
 )
 
-func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logger) *gin.Engine {
+func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(middleware.CORS(cfg.CORSOrigins))
-	r.Use(middleware.Logger(logger))
+	r.Use(middleware.Logger())
 
 	api := r.Group("/api/v1")
 
@@ -61,10 +65,12 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	usersSvc := users.NewService(usersRepo)
 	usersH := users.NewHandler(usersSvc)
 
+	journeyH := journey.NewHandler(".")
+
 	heartsSvc := hearts.NewService(db, rdb)
 	heartsH := hearts.NewHandler(heartsSvc)
 
-	callbacksH := callbacks.NewHandler(heartsSvc, rdb, logger, cfg.Environment)
+	callbacksH := callbacks.NewHandler(heartsSvc, rdb, applogger.Get(), cfg.Environment)
 
 	me := api.Group("/me")
 	me.Use(middleware.Auth(cfg.JWTSecret))
@@ -120,6 +126,31 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	sandiSvc := sandi.NewService(sandiRepo, rdb)
 	sandiH := sandi.NewHandler(sandiSvc)
 
+
+	// Academy Studio (Authoring Ecosystem)
+	studioH := studio.NewHandler()
+	studioGrp := api.Group("/studio")
+	{
+		studioGrp.POST("/commands/update-block", studioH.HandleUpdateBlock)
+		studioGrp.POST("/commands/preview-adaptive", studioH.HandlePreviewAdaptive)
+	}
+
+	// Skill Passport & Credentials
+	passportH := passport.NewHandler()
+	api.GET("/passports/:user_id", passportH.GetPublicPassport)
+	api.GET("/passports/:user_id/evidence/:concept_id", passportH.GetEvidenceExplorer)
+
+	// Marketplace (Package Distribution System)
+	pkgManager := marketplace.NewPackageManager("1.0.0") // Pradigi OS v1.0.0
+	marketH := marketplace.NewHandler(pkgManager)
+	marketGrp := api.Group("/marketplace")
+	{
+		marketGrp.GET("/search", marketH.Search)
+		marketGrp.GET("/packages/:id", marketH.GetPackageDetail)
+		marketGrp.POST("/packages/:id/install", marketH.Install)
+		marketGrp.GET("/installed", marketH.ListInstalled)
+	}
+
 	api.GET("/sandi/types", sandiH.ListTypes)
 	api.GET("/sandi/types/:id", sandiH.GetType)
 
@@ -137,6 +168,11 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, logger zerolog.Logg
 	skuH := sku.NewHandler(skuSvc)
 	api.GET("/sku/points", skuH.ListPoints)
 	api.GET("/sku/points/:id", skuH.GetPoint)
+	
+	// Core Services
+	api.GET("/academies/:id/journeys/:curriculum_id", journeyH.GetAcademyJourney)
+	api.GET("/academies/:id/journeys/:curriculum_id/nodes/:node_id/experience", journeyH.GetAdaptiveExperience)
+	api.POST("/journey/complete-node", journeyH.CompleteNode)
 	
 	// Location
 	locationRepo := location.NewRepository(db)

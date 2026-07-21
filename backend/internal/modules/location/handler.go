@@ -15,8 +15,22 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
+func (h *Handler) GetCountries(c *gin.Context) {
+	countries, err := h.service.GetCountries()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": countries})
+}
+
 func (h *Handler) GetProvinsi(c *gin.Context) {
-	provs := h.service.GetAllProvinsi()
+	countryID := c.Query("country_id")
+	provs, err := h.service.GetProvinsiByCountry(countryID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"data": provs})
 }
 

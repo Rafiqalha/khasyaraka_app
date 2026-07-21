@@ -69,13 +69,15 @@ type LevelResp struct {
 }
 
 type Question struct {
-	ID       string      `json:"id" db:"id"`
-	LevelID  string      `json:"level_id" db:"level_id"`
-	Type     string      `json:"type" db:"type"`
-	Question string      `json:"question" db:"question"`
-	Payload  interface{} `json:"payload" db:"payload"`
-	Xp       int         `json:"xp" db:"xp"`
-	Ord      int         `json:"ord" db:"ord"`
+	ID              string      `json:"id" db:"id"`
+	LevelID         string      `json:"level_id" db:"level_id"`
+	Type            string      `json:"type" db:"type"`
+	Question        string      `json:"question" db:"question"`
+	Payload         interface{} `json:"payload" db:"payload"`
+	Xp              int         `json:"xp" db:"xp"`
+	Ord             int         `json:"ord" db:"ord"`
+	Source          string      `json:"source" db:"source"`
+	DifficultyLevel int         `json:"difficulty_level" db:"difficulty_level"`
 }
 
 type UserProgress struct {
@@ -110,6 +112,12 @@ type ProgressSummary struct {
 	SectionTitle string `json:"section_title" db:"section_title"`
 	Completed    int    `json:"completed" db:"completed"`
 	Total        int    `json:"total" db:"total"`
+}
+
+type ProgressStateResponse struct {
+	Success   bool              `json:"success"`
+	SectionID string            `json:"section_id,omitempty"`
+	Progress  map[string]string `json:"progress"`
 }
 
 type LearningPathResponse struct {

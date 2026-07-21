@@ -16,9 +16,10 @@ type Profile struct {
 	IsPro          bool    `json:"is_pro"`
 	IsSuperuser    bool    `json:"is_superuser" db:"is_superuser"`
 	LocationSet    bool    `json:"location_set" db:"location_set"`
+	ProvinsiID     *string `json:"provinsi_id,omitempty" db:"provinsi_id"`
 	KecamatanID    *string `json:"kecamatan_id,omitempty" db:"kecamatan_id"`
 	KabupatenID    *string `json:"kabupaten_id,omitempty" db:"kabupaten_id"`
-	ProvinsiID     *string `json:"provinsi_id,omitempty" db:"provinsi_id"`
+	CountryID      *string `json:"country_id,omitempty" db:"country_id"`
 	CreatedAt      string  `json:"created_at" db:"created_at"`
 	UpdatedAt      string  `json:"updated_at" db:"updated_at"`
 }

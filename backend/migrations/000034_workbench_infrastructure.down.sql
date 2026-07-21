@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS workbench_dataset_records;
+DROP TABLE IF EXISTS workbench_timeline_events;
+DROP TABLE IF EXISTS workbench_mission_summaries;
+DROP TABLE IF EXISTS workbench_cognitive_states;
+DROP TABLE IF EXISTS workbench_decision_edges;
+DROP TABLE IF EXISTS workbench_decision_nodes;
+DROP TABLE IF EXISTS workbench_decision_graphs;
+DROP TABLE IF EXISTS workbench_cognitive_artifacts;
+DROP TABLE IF EXISTS workbench_environment_snapshots;
+DROP TABLE IF EXISTS workbench_scenarios;
+DROP TABLE IF EXISTS workbench_missions;
+DROP TABLE IF EXISTS workbench_experiments;

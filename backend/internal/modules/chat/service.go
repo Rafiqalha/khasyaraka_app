@@ -7,6 +7,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+var ErrNotRoomMember = errors.New("kamu tidak tergabung di room ini")
+
 type Service struct {
 	repo *Repository
 	hub  *WsHub
@@ -28,7 +30,7 @@ func (s *Service) GetUserRooms(ctx context.Context, userID int64) (*UserChatRoom
 func (s *Service) SendMessage(ctx context.Context, userID, roomID int64, req SendMessageRequest) (*ChatMessage, error) {
 	cleanContent, isClean := ModerateContent(req.Content)
 	if !isClean {
-		return nil, errors.New("pesan tidak sesuai komunitas Pramuka")
+		return nil, errors.New("pesan tidak sesuai standar komunitas")
 	}
 
 	rooms, err := s.repo.GetUserRooms(ctx, userID)
@@ -37,7 +39,11 @@ func (s *Service) SendMessage(ctx context.Context, userID, roomID int64, req Sen
 	}
 	
 	belongsToRoom := false
-	if rooms.Nasional != nil && rooms.Nasional.ID == roomID {
+	if rooms.Global != nil && rooms.Global.ID == roomID {
+		belongsToRoom = true
+	} else if rooms.Negara != nil && rooms.Negara.ID == roomID {
+		belongsToRoom = true
+	} else if rooms.Nasional != nil && rooms.Nasional.ID == roomID {
 		belongsToRoom = true
 	} else if rooms.Provinsi != nil && rooms.Provinsi.ID == roomID {
 		belongsToRoom = true
@@ -48,7 +54,7 @@ func (s *Service) SendMessage(ctx context.Context, userID, roomID int64, req Sen
 	}
 
 	if !belongsToRoom {
-		return nil, errors.New("kamu tidak tergabung di room ini")
+		return nil, ErrNotRoomMember
 	}
 
 	msg, err := s.repo.SendMessage(ctx, roomID, userID, cleanContent, "text")
@@ -68,7 +74,11 @@ func (s *Service) GetMessages(ctx context.Context, userID, roomID int64, beforeI
 	}
 	
 	belongsToRoom := false
-	if rooms.Nasional != nil && rooms.Nasional.ID == roomID {
+	if rooms.Global != nil && rooms.Global.ID == roomID {
+		belongsToRoom = true
+	} else if rooms.Negara != nil && rooms.Negara.ID == roomID {
+		belongsToRoom = true
+	} else if rooms.Nasional != nil && rooms.Nasional.ID == roomID {
 		belongsToRoom = true
 	} else if rooms.Provinsi != nil && rooms.Provinsi.ID == roomID {
 		belongsToRoom = true
@@ -79,7 +89,7 @@ func (s *Service) GetMessages(ctx context.Context, userID, roomID int64, beforeI
 	}
 
 	if !belongsToRoom {
-		return nil, false, errors.New("kamu tidak tergabung di room ini")
+		return nil, false, ErrNotRoomMember
 	}
 
 	msgs, err := s.repo.GetMessages(ctx, roomID, beforeID, limit+1)
@@ -114,6 +124,10 @@ func (s *Service) SendSystemMessage(ctx context.Context, roomID int64, content s
 }
 
 func (s *Service) EnsureRoomsForUser(ctx context.Context, userID int64, kecID, kecName, kabID, kabName, provID, provName string) error {
+	// Global
+	if _, err := s.repo.EnsureRoomExists(ctx, "global", nil, "Chat Global"); err != nil {
+		return err
+	}
 	// Kecamatan
 	if _, err := s.repo.EnsureRoomExists(ctx, "kecamatan", &kecID, "Pramuka "+kecName); err != nil {
 		return err

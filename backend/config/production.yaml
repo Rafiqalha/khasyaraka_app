@@ -1,0 +1,13 @@
+environment: production
+port: "8080"
+database_url: "" # Injected via ENV
+redis_url: "" # Injected via ENV
+jwt_secret: "" # Injected via ENV
+access_token_expire_minutes: 10080 # 7 days
+cors_origins:
+  - "https://pradigi.ai"
+  - "https://app.pradigi.ai"
+gemini_model: "gemini-1.5-pro"
+ai_max_output_tokens: 1000
+ai_temperature: 0.5
+deepseek_model: "deepseek-chat"

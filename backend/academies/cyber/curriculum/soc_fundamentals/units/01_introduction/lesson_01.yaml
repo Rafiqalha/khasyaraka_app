@@ -1,0 +1,27 @@
+id: lesson_01
+title: Log Triage 101
+difficulty: beginner
+competencies:
+  - log_parsing
+  - anomaly_detection
+nodes:
+  - id: n1_theory
+    type: NOTEBOOK
+    title: What are logs?
+    content_ref: "notebook.md"
+  - id: n2_practice
+    type: PRACTICE
+    title: Identify the anomaly
+    content_ref: "practice.yaml"
+  - id: n3_mission
+    type: MISSION
+    title: Suspicious Login Investigation
+    content_ref: "mission.yaml"
+  - id: n4_reflection
+    type: REFLECTION
+    title: Reflect on the incident
+    content_ref: "reflection.md"
+  - id: n5_evidence
+    type: EVIDENCE
+    title: Competency Added
+    content_ref: ""

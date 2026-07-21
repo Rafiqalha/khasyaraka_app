@@ -115,30 +115,39 @@ func (r *Repository) GetMessages(ctx context.Context, roomID int64, beforeID int
 }
 
 func (r *Repository) GetUserRooms(ctx context.Context, userID int64) (*UserChatRooms, error) {
-	var kec, kab, prov sql.NullString
-	err := r.db.QueryRowContext(ctx, `SELECT kecamatan_id, kabupaten_id, provinsi_id FROM users WHERE id = $1`, userID).Scan(&kec, &kab, &prov)
+	var kec, kab, prov, country sql.NullString
+	err := r.db.QueryRowContext(ctx, `SELECT kecamatan_id, kabupaten_id, provinsi_id, country_id FROM users WHERE id = $1`, userID).Scan(&kec, &kab, &prov, &country)
 	if err != nil {
 		return nil, err
 	}
 
 	var rooms UserChatRooms
-	
-	nas, _ := r.GetRoomByWilayah(ctx, "nasional", nil)
+
+	global, _ := r.EnsureRoomExists(ctx, "global", nil, "Chat Global")
+	rooms.Global = global
+
+	if country.Valid && country.String != "" {
+		cID := country.String
+		cRoom, _ := r.EnsureRoomExists(ctx, "country", &cID, "Chat Negara "+cID)
+		rooms.Negara = cRoom
+	}
+
+	nas, _ := r.EnsureRoomExists(ctx, "nasional", nil, "Chat Nasional")
 	rooms.Nasional = nas
 
 	if kec.Valid {
 		kecID := kec.String
-		kRoom, _ := r.GetRoomByWilayah(ctx, "kecamatan", &kecID)
+		kRoom, _ := r.EnsureRoomExists(ctx, "kecamatan", &kecID, "Pramuka Kecamatan "+kecID)
 		rooms.Kecamatan = kRoom
 	}
 	if kab.Valid {
 		kabID := kab.String
-		kRoom, _ := r.GetRoomByWilayah(ctx, "kabupaten", &kabID)
+		kRoom, _ := r.EnsureRoomExists(ctx, "kabupaten", &kabID, "Pramuka Kabupaten "+kabID)
 		rooms.Kabupaten = kRoom
 	}
 	if prov.Valid {
 		provID := prov.String
-		pRoom, _ := r.GetRoomByWilayah(ctx, "provinsi", &provID)
+		pRoom, _ := r.EnsureRoomExists(ctx, "provinsi", &provID, "Pramuka Provinsi "+provID)
 		rooms.Provinsi = pRoom
 	}
 

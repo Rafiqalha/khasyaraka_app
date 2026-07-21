@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS evidences;
+DROP TABLE IF EXISTS validation_reports;
+DROP TABLE IF EXISTS observations;
+DROP TABLE IF EXISTS candidate_snapshots;
+DROP TABLE IF EXISTS candidate_aggregates;
+DROP TABLE IF EXISTS observation_candidates;
+DROP TABLE IF EXISTS prompt_bundle_assets;
+DROP TABLE IF EXISTS prompt_bundles;
+DROP TABLE IF EXISTS prompt_assets;
+DROP TABLE IF EXISTS inference_profiles;
+DROP TABLE IF EXISTS model_registry;

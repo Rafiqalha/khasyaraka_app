@@ -117,8 +117,14 @@ func (h *Handler) GetUnitQuestions(c *gin.Context) {
 
 func (h *Handler) GetLevelQuestions(c *gin.Context) {
 	id := c.Param("id")
+	uid := userIDFromCtx(c)
 
-	questions, err := h.svc.GetQuestionsByLevel(id)
+	var userID int64
+	if uid != nil {
+		userID = *uid
+	}
+
+	questions, err := h.svc.GetPersonalizedQuestions(id, userID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "success": false})
 		return
@@ -171,10 +177,32 @@ func (h *Handler) GetProgress(c *gin.Context) {
 		return
 	}
 
-	summary, err := h.svc.GetProgress(uid)
+	sectionID := c.Query("section_id")
+
+	progress, err := h.svc.GetProgressState(uid, sectionID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": summary})
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"section_id": sectionID,
+		"progress":   progress,
+	})
+}
+
+func (h *Handler) GetIncidents(c *gin.Context) {
+	limit := 20
+	if l := c.Query("limit"); l != "" {
+		if n, err := strconv.Atoi(l); err == nil && n > 0 && n <= 50 {
+			limit = n
+		}
+	}
+	incidents, err := h.svc.GetIncidents(limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": incidents})
 }

@@ -9,67 +9,76 @@ import (
 
 type Config struct {
 	// Server
-	Port        string `mapstructure:"PORT"`
-	Environment string `mapstructure:"ENVIRONMENT"`
+	Port        string `mapstructure:"port"`
+	Environment string `mapstructure:"environment"`
 
 	// Database
-	DatabaseURL string `mapstructure:"DATABASE_URL"`
-
-	// Redis
-	RedisURL string `mapstructure:"REDIS_URL"`
+	DatabaseURL string `mapstructure:"database_url"`
+	RedisURL    string `mapstructure:"redis_url"`
 
 	// JWT
-	JWTSecret              string `mapstructure:"JWT_SECRET"`
-	AccessTokenExpireMins  int    `mapstructure:"ACCESS_TOKEN_EXPIRE_MINUTES"`
+	JWTSecret             string `mapstructure:"jwt_secret"`
+	AccessTokenExpireMins int    `mapstructure:"access_token_expire_minutes"`
 
 	// Google OAuth
-	GoogleClientID string `mapstructure:"GOOGLE_CLIENT_ID"`
-
-	// ImageKit
-	ImageKitPrivateKey  string `mapstructure:"IMAGEKIT_PRIVATE_KEY"`
-	ImageKitPublicKey   string `mapstructure:"IMAGEKIT_PUBLIC_KEY"`
-	ImageKitURL         string `mapstructure:"IMAGEKIT_URL_ENDPOINT"`
+	GoogleClientID string `mapstructure:"google_client_id"`
 
 	// CORS
-	CORSOrigins []string `mapstructure:"CORS_ORIGINS"`
+	CORSOrigins []string `mapstructure:"cors_origins"`
 
-	// AI (Gemini)
-	GeminiAPIKey      string  `mapstructure:"GEMINI_API_KEY"`
-	GeminiModel       string  `mapstructure:"GEMINI_MODEL"`
-	AIMaxOutputTokens int     `mapstructure:"AI_MAX_OUTPUT_TOKENS"`
-	AITemperature     float64 `mapstructure:"AI_TEMPERATURE"`
-
-	// Features
-	EnableTeamMode bool `mapstructure:"ENABLE_TEAM_MODE"`
+	// AI
+	GeminiAPIKey      string  `mapstructure:"gemini_api_key"`
+	GeminiModel       string  `mapstructure:"gemini_model"`
+	AIMaxOutputTokens int     `mapstructure:"ai_max_output_tokens"`
+	AITemperature     float64 `mapstructure:"ai_temperature"`
+	DeepSeekAPIKey    string  `mapstructure:"deepseek_api_key"`
+	DeepSeekModel     string  `mapstructure:"deepseek_model"`
 }
 
 func Load() (*Config, error) {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+
 	v := viper.New()
+	v.SetConfigName(env)
+	v.SetConfigType("yaml")
+	v.AddConfigPath("./config") // Relative to project root
+	v.AddConfigPath("../config") // For tests
 
-	v.SetDefault("PORT", "8080")
-	v.SetDefault("ENVIRONMENT", "development")
-	v.SetDefault("DATABASE_URL", "postgres://scout_admin:scout_password_local@localhost:5433/scout_os?sslmode=disable")
-	v.SetDefault("REDIS_URL", "redis://localhost:6379/0")
-	v.SetDefault("ACCESS_TOKEN_EXPIRE_MINUTES", 52560000)
-	v.SetDefault("CORS_ORIGINS", []string{"*"})
-	
-	v.SetDefault("GEMINI_MODEL", "gemini-1.5-flash")
-	v.SetDefault("AI_MAX_OUTPUT_TOKENS", 300)
-	v.SetDefault("AI_TEMPERATURE", 0.7)
-	v.SetDefault("ENABLE_TEAM_MODE", false)
+	v.AutomaticEnv() // Still allow environment variables to override
 
-	v.AutomaticEnv()
+	if err := v.ReadInConfig(); err != nil {
+		// It's okay if config file isn't found during some tests, we can fallback to env vars
+		fmt.Printf("Warning: error reading config file: %v\n", err)
+	}
 
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("unmarshal config: %w", err)
 	}
 
-	if cfg.JWTSecret == "" {
-		cfg.JWTSecret = os.Getenv("JWT_SECRET")
+	// Environment variable overrides for sensitive data
+	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
+		cfg.JWTSecret = jwtSecret
 	}
-	if cfg.GoogleClientID == "" {
-		cfg.GoogleClientID = os.Getenv("GOOGLE_CLIENT_ID")
+	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
+		cfg.DatabaseURL = dbURL
+	}
+	if geminiKey := os.Getenv("GEMINI_API_KEY"); geminiKey != "" {
+		cfg.GeminiAPIKey = geminiKey
+	}
+	if deepseekKey := os.Getenv("DEEPSEEK_API_KEY"); deepseekKey != "" {
+		cfg.DeepSeekAPIKey = deepseekKey
+	}
+
+	// Set defaults if empty
+	if cfg.Port == "" {
+		cfg.Port = "8080"
+	}
+	if cfg.Environment == "" {
+		cfg.Environment = env
 	}
 
 	return &cfg, nil

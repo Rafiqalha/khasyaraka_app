@@ -1,9 +1,13 @@
 package auth
 
 type RegisterRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	Username    string `json:"username" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	CountryID   string `json:"country_id"`
+	ProvinsiID  string `json:"provinsi_id"`
+	KabupatenID string `json:"kabupaten_id"`
+	KecamatanID string `json:"kecamatan_id"`
 }
 
 type LoginRequest struct {

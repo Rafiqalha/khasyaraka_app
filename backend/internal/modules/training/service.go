@@ -77,6 +77,12 @@ func (s *Service) GetSectionDetail(id string, userID *int64) (*Section, error) {
 				}
 				units[i].Levels = append(units[i].Levels, lr)
 			}
+			// Cascade unlock within this unit
+			for j := 0; j < len(units[i].Levels)-1; j++ {
+				if units[i].Levels[j].Status == "COMPLETED" && units[i].Levels[j+1].Status == "LOCKED" {
+					units[i].Levels[j+1].Status = "AVAILABLE"
+				}
+			}
 		}
 	} else {
 		for i := range units {
@@ -158,20 +164,14 @@ func (s *Service) GetUnitDetail(id string, userID *int64) (*Unit, error) {
 		}
 		u.Levels = append(u.Levels, lr)
 	}
+	// Cascade unlock within this unit
+	for j := 0; j < len(u.Levels)-1; j++ {
+		if u.Levels[j].Status == "COMPLETED" && u.Levels[j+1].Status == "LOCKED" {
+			u.Levels[j+1].Status = "AVAILABLE"
+		}
+	}
 
 	return u, nil
-}
-
-func stripCorrectAnswer(v interface{}) interface{} {
-	m, ok := v.(map[string]interface{})
-	if !ok {
-		return v
-	}
-	delete(m, "correct_answer")
-	for k, val := range m {
-		m[k] = stripCorrectAnswer(val)
-	}
-	return m
 }
 
 func (s *Service) GetLevelQuestions(id string, userID int64) (*Level, []Question, error) {
@@ -183,38 +183,94 @@ func (s *Service) GetLevelQuestions(id string, userID int64) (*Level, []Question
 		return nil, nil, fmt.Errorf("level not found")
 	}
 
-	questions, err := s.repo.GetQuestionsByLevel(id)
+	questions, err := s.GetPersonalizedQuestions(id, userID)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	for i := range questions {
-		questions[i].Payload = stripCorrectAnswer(questions[i].Payload)
 	}
 
 	return l, questions, nil
 }
 
-func (s *Service) GetQuestionsByUnit(unitID string) ([]Question, error) {
-	questions, err := s.repo.GetQuestionsByUnit(unitID)
+func (s *Service) GetPersonalizedQuestions(levelID string, userID int64) ([]Question, error) {
+	minDiff, maxDiff := calculateDifficultyBand(userID, s.repo)
+	if minDiff == 0 {
+		minDiff = 1
+		maxDiff = 3
+	}
+
+	aiQuestions, err := s.repo.GetQuestionsByLevelAndDifficulty(levelID, minDiff, maxDiff, 3)
 	if err != nil {
-		return nil, err
+		aiQuestions = nil
 	}
-	for i := range questions {
-		questions[i].Payload = stripCorrectAnswer(questions[i].Payload)
+
+	staticQuestions, err := s.repo.GetStaticQuestionsByLevel(levelID, 2)
+	if err != nil {
+		staticQuestions = nil
 	}
-	return questions, nil
+
+	totalQuestions := 5
+	result := make([]Question, 0, totalQuestions)
+
+	result = append(result, aiQuestions...)
+
+	remaining := totalQuestions - len(result)
+	if remaining > 0 && len(staticQuestions) > 0 {
+		if remaining > len(staticQuestions) {
+			remaining = len(staticQuestions)
+		}
+		result = append(result, staticQuestions[:remaining]...)
+	}
+
+	if len(result) == 0 {
+		all, err := s.repo.GetQuestionsByLevel(levelID)
+		if err != nil {
+			return nil, fmt.Errorf("fallback questions: %w", err)
+		}
+		return all, nil
+	}
+
+	shuffleQuestions(result)
+	return result, nil
+}
+
+func calculateDifficultyBand(userID int64, repo *Repository) (int, int) {
+	if userID <= 0 {
+		return 1, 3
+	}
+	xp, err := repo.GetUserTotalXP(userID)
+	if err != nil {
+		return 1, 3
+	}
+
+	switch {
+	case xp < 5000:
+		return 1, 3
+	case xp < 20000:
+		return 3, 6
+	case xp < 50000:
+		return 6, 8
+	default:
+		return 8, 10
+	}
+}
+
+func shuffleQuestions(questions []Question) {
+	for i := len(questions) - 1; i > 0; i-- {
+		j := (i * 17) % len(questions)
+		questions[i], questions[j] = questions[j], questions[i]
+	}
+}
+
+func (s *Service) GetIncidents(limit int) ([]Incident, error) {
+	return s.repo.GetIncidents(limit)
+}
+
+func (s *Service) GetQuestionsByUnit(unitID string) ([]Question, error) {
+	return s.repo.GetQuestionsByUnit(unitID)
 }
 
 func (s *Service) GetQuestionsByLevel(levelID string) ([]Question, error) {
-	questions, err := s.repo.GetQuestionsByLevel(levelID)
-	if err != nil {
-		return nil, err
-	}
-	for i := range questions {
-		questions[i].Payload = stripCorrectAnswer(questions[i].Payload)
-	}
-	return questions, nil
+	return s.repo.GetQuestionsByLevel(levelID)
 }
 
 func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*LearningPathResponse, error) {
@@ -285,6 +341,25 @@ func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*L
 				lID := learningUnits[i].Levels[j].ID
 				if status, ok := userProgress[lID]; ok {
 					learningUnits[i].Levels[j].Status = status
+				}
+			}
+		}
+
+		// Cascade unlock: if level N is COMPLETED, level N+1 becomes AVAILABLE
+		for i := range learningUnits {
+			for j := range learningUnits[i].Levels {
+				if learningUnits[i].Levels[j].Status == "COMPLETED" {
+					// Unlock next level in same unit
+					if j+1 < len(learningUnits[i].Levels) {
+						if learningUnits[i].Levels[j+1].Status == "LOCKED" {
+							learningUnits[i].Levels[j+1].Status = "AVAILABLE"
+						}
+					} else if i+1 < len(learningUnits) && len(learningUnits[i+1].Levels) > 0 {
+						// Last level of unit completed, unlock first level of next unit
+						if learningUnits[i+1].Levels[0].Status == "LOCKED" {
+							learningUnits[i+1].Levels[0].Status = "AVAILABLE"
+						}
+					}
 				}
 			}
 		}
@@ -384,6 +459,82 @@ func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (
 
 func (s *Service) GetProgress(userID int64) ([]ProgressSummary, error) {
 	return s.repo.GetProgressSummary(userID)
+}
+
+// GetProgressState returns a flat map of levelId → status across all sections,
+// with cascading unlock: if level N is COMPLETED, level N+1 becomes AVAILABLE.
+func (s *Service) GetProgressState(userID int64, sectionID string) (map[string]string, error) {
+	progress := make(map[string]string)
+
+	var sections []Section
+	if sectionID != "" {
+		sec, err := s.repo.GetSectionByID(sectionID)
+		if err != nil {
+			return nil, err
+		}
+		if sec != nil {
+			sections = []Section{*sec}
+		}
+	} else {
+		courses, err := s.repo.GetActiveCourses()
+		if err != nil {
+			return nil, err
+		}
+		for _, course := range courses {
+			secs, err := s.repo.GetActiveSections(course.ID)
+			if err != nil {
+				return nil, err
+			}
+			sections = append(sections, secs...)
+		}
+	}
+
+	for _, sec := range sections {
+		units, err := s.repo.GetUnitsBySection(sec.ID)
+		if err != nil {
+			continue
+		}
+		var allLevelIDs []string
+		unitLevels := make(map[string][]Level)
+		for _, u := range units {
+			levels, err := s.repo.GetLevelsByUnit(u.ID)
+			if err != nil {
+				continue
+			}
+			unitLevels[u.ID] = levels
+			for _, l := range levels {
+				allLevelIDs = append(allLevelIDs, l.ID)
+			}
+		}
+
+		userProgressMap, err := s.repo.GetUserProgressByLevelIDs(userID, allLevelIDs)
+		if err != nil {
+			continue
+		}
+
+		for _, u := range units {
+			levels := unitLevels[u.ID]
+			// PASS 1: assign base status from user progress
+			for _, l := range levels {
+				status := "LOCKED"
+				if p, ok := userProgressMap[l.ID]; ok {
+					status = p.Status
+				}
+				if l.LevelNumber == 1 && status == "LOCKED" {
+					status = "AVAILABLE"
+				}
+				progress[l.ID] = status
+			}
+			// PASS 2: cascade unlock (separate loop to avoid overwriting)
+			for j := 0; j < len(levels)-1; j++ {
+				if progress[levels[j].ID] == "COMPLETED" && progress[levels[j+1].ID] == "LOCKED" {
+					progress[levels[j+1].ID] = "AVAILABLE"
+				}
+			}
+		}
+	}
+
+	return progress, nil
 }
 
 

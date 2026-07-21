@@ -1,0 +1,57 @@
+apiVersion: "pradigi.io/v1alpha1"
+kind: "WorkspaceDefinition"
+metadata:
+  id: "python_debugging_ws"
+  name: "Python Debugging Workspace"
+  version: "1.0.0"
+  description: "Workspace specifically designed for debugging logical and syntax errors in Python."
+  icon: "bug_report"
+  color: "#3776AB"
+domain:
+  name: "python"
+  adapter: "plugin://python"
+  curriculumPath: "./curriculum"
+  fixturePath: "./fixtures"
+  missionGenerator: "deterministic"
+runtime:
+  driver: "docker"
+  image: "python:3.11-slim"
+  capabilities:
+    - "filesystem"
+    - "network"
+    - "execution"
+tools:
+  - name: "editor"
+    type: "IDE"
+    description: "Built-in Monaco editor for modifying code."
+  - name: "terminal"
+    type: "CLI"
+    description: "Interactive shell connected to the Docker container."
+agents:
+  - role: "mentor"
+    model: "deepseek-reasoner"
+    capabilities: ["Socratic Questioning", "Code Review"]
+ui:
+  panels:
+    - "editor"
+    - "terminal"
+    - "sidebar"
+    - "console"
+permissions:
+  filesystem: true
+  network: false
+  internet: false
+  clipboard: true
+adaptive:
+  supportedStrategies:
+    - "CHALLENGE"
+    - "CONFIDENCE_BUILDING"
+    - "SCAFFOLDING"
+  supportedConstraints:
+    - "MAX_HINTS"
+    - "MAX_RUNS"
+    - "TIME_LIMIT"
+  supportedDifficulty:
+    - "EASY"
+    - "MEDIUM"
+    - "HARD"

@@ -3,6 +3,7 @@ package leaderboard
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,21 @@ func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
+func normalizeScope(scope string) string {
+	switch strings.ToLower(scope) {
+	case "district", "kecamatan":
+		return "kecamatan"
+	case "city", "kota":
+		return "kota"
+	case "province", "provinsi":
+		return "provinsi"
+	case "country", "negara":
+		return "country"
+	default:
+		return "global"
+	}
+}
+
 func (h *Handler) GetTop(c *gin.Context) {
 	limit := 20
 	if l := c.Query("limit"); l != "" {
@@ -23,8 +39,11 @@ func (h *Handler) GetTop(c *gin.Context) {
 		}
 	}
 	category := c.Query("category")
-	scope := c.Query("scope")
-	locationID := c.Query("location_id")
+	scope := normalizeScope(c.Query("scope"))
+	locationID := c.Query("value")
+	if locationID == "" {
+		locationID = c.Query("location_id")
+	}
 
 	entries, err := h.svc.GetTop(category, scope, locationID, limit)
 	if err != nil {
@@ -37,8 +56,11 @@ func (h *Handler) GetTop(c *gin.Context) {
 func (h *Handler) GetRank(c *gin.Context) {
 	uid, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
 	category := c.Query("category")
-	scope := c.Query("scope")
-	locationID := c.Query("location_id")
+	scope := normalizeScope(c.Query("scope"))
+	locationID := c.Query("value")
+	if locationID == "" {
+		locationID = c.Query("location_id")
+	}
 
 	rank, err := h.svc.GetUserRank(uid, category, scope, locationID)
 	if err != nil {

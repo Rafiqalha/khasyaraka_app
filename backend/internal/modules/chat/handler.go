@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -55,6 +56,10 @@ func (h *Handler) GetMessages(c *gin.Context) {
 	msgs, hasMore, err := h.service.GetMessages(c.Request.Context(), userID, roomID, beforeID, limit)
 	if err != nil {
 		fmt.Println("GetMessages Error:", err)
+		if errors.Is(err, ErrNotRoomMember) {
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -87,6 +92,10 @@ func (h *Handler) SendMessage(c *gin.Context) {
 	msg, err := h.service.SendMessage(c.Request.Context(), userID, roomID, req)
 	if err != nil {
 		fmt.Println("SendMessage Error:", err)
+		if errors.Is(err, ErrNotRoomMember) {
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

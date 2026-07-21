@@ -19,6 +19,10 @@ type User struct {
 	IsActive           bool           `db:"is_active"`
 	IsSuperuser        bool           `db:"is_superuser"`
 	MustChangePassword bool           `db:"must_change_password"`
+	CountryID          sql.NullString `db:"country_id"`
+	ProvinsiID         sql.NullString `db:"provinsi_id"`
+	KabupatenID        sql.NullString `db:"kabupaten_id"`
+	KecamatanID        sql.NullString `db:"kecamatan_id"`
 }
 
 type Repository struct {
@@ -53,17 +57,30 @@ func (r *Repository) GetByID(id int64) (*User, error) {
 	return &u, nil
 }
 
-func (r *Repository) Create(email, hashedPassword, fullName string, pictureURL *string, isActive bool) (*User, error) {
+func (r *Repository) Create(email, hashedPassword, fullName string, pictureURL *string, isActive bool, countryID, provinsiID, kabupatenID, kecamatanID string) (*User, error) {
+	countryIDVal := toNullString(countryID)
+	provinsiIDVal := toNullString(provinsiID)
+	kabupatenIDVal := toNullString(kabupatenID)
+	kecamatanIDVal := toNullString(kecamatanID)
+	locationSet := countryID != "" && provinsiID != "" && kabupatenID != "" && kecamatanID != ""
+
 	var id int64
 	err := r.db.QueryRow(
-		`INSERT INTO users (email, hashed_password, full_name, picture_url, is_active)
-		 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-		email, hashedPassword, fullName, pictureURL, isActive,
+		`INSERT INTO users (email, hashed_password, full_name, picture_url, is_active, country_id, provinsi_id, kabupaten_id, kecamatan_id, location_set)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+		email, hashedPassword, fullName, pictureURL, isActive, countryIDVal, provinsiIDVal, kabupatenIDVal, kecamatanIDVal, locationSet,
 	).Scan(&id)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
 	return r.GetByID(id)
+}
+
+func toNullString(s string) sql.NullString {
+	if s == "" {
+		return sql.NullString{Valid: false}
+	}
+	return sql.NullString{String: s, Valid: true}
 }
 
 func (r *Repository) UpdatePictureURL(userID int64, pictureURL string) error {

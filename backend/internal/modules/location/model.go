@@ -13,6 +13,12 @@ type SetLocationRequest struct {
 	KecamatanID string `json:"kecamatan_id" binding:"required"`
 }
 
+type CountryOption struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
 type ProvinsiOption struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`

@@ -4,35 +4,44 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
+	applogger "github.com/pradigi/backend/internal/pkg/logger"
 )
 
-func Logger(logger zerolog.Logger) gin.HandlerFunc {
+func Logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		path := c.Request.URL.Path
+		
+		// Set a default empty request ID if middleware not used
+		reqID, _ := c.Get(RequestIDKey)
+		if reqID == nil {
+			reqID = ""
+		}
 
 		c.Next()
 
 		latency := time.Since(start)
 		status := c.Writer.Status()
 		method := c.Request.Method
+		path := c.Request.URL.Path
+		ip := c.ClientIP()
 
-		var ev *zerolog.Event
+		userID, _ := c.Get("user_id")
+		if userID == nil {
+			userID = ""
+		}
+
+		var ev = applogger.Info()
 		if status >= 500 {
-			ev = logger.Error()
-		} else if status >= 400 {
-			ev = logger.Warn()
-		} else {
-			ev = logger.Info()
+			ev = applogger.Error()
 		}
 
 		ev.
-			Str("method", method).
-			Str("path", path).
+			Str("request_id", reqID.(string)).
+			Str("user_id", userID.(string)).
+			Str("route", method+" "+path).
+			Str("latency", latency.String()).
 			Int("status", status).
-			Dur("latency", latency).
-			Int("size", c.Writer.Size()).
-			Msg("request")
+			Str("ip", ip).
+			Msg("api_request")
 	}
 }

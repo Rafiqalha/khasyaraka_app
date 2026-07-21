@@ -1,0 +1,8 @@
+id: soc_fundamentals
+title: SOC Analyst Fundamentals
+description: "Master the basics of Security Operations Center triage and investigation."
+version: 1.0.0
+units:
+  - id: 01_introduction
+    title: Introduction to SOC
+    description: "Learn what a SOC analyst does and how to read basic logs."

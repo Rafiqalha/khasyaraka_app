@@ -22,7 +22,7 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.svc.Register(req.Name, req.Username, req.Password)
+	resp, err := h.svc.Register(req.Name, req.Username, req.Password, req.CountryID, req.ProvinsiID, req.KabupatenID, req.KecamatanID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "success": false})
 		return

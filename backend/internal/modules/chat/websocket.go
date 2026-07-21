@@ -125,6 +125,12 @@ func (s *Service) ServeWS(c *gin.Context, userID int64) {
 	if rooms.Provinsi != nil {
 		roomChannels = append(roomChannels, fmt.Sprintf("room:%d", rooms.Provinsi.ID))
 	}
+	if rooms.Negara != nil {
+		roomChannels = append(roomChannels, fmt.Sprintf("room:%d", rooms.Negara.ID))
+	}
+	if rooms.Global != nil {
+		roomChannels = append(roomChannels, fmt.Sprintf("room:%d", rooms.Global.ID))
+	}
 	if rooms.Nasional != nil {
 		roomChannels = append(roomChannels, fmt.Sprintf("room:%d", rooms.Nasional.ID))
 	}

@@ -36,5 +36,7 @@ type UserChatRooms struct {
 	Kecamatan *ChatRoom `json:"kecamatan"`
 	Kabupaten *ChatRoom `json:"kabupaten"`
 	Provinsi  *ChatRoom `json:"provinsi"`
+	Negara    *ChatRoom `json:"negara"`
+	Global    *ChatRoom `json:"global"`
 	Nasional  *ChatRoom `json:"nasional"`
 }
