@@ -15,7 +15,7 @@ import (
 	"github.com/pradigi/backend/internal/modules/chat"
 	"github.com/pradigi/backend/internal/academies/cyber/cyber"
 	"github.com/pradigi/backend/internal/legacy/hearts"
-	"github.com/pradigi/backend/internal/modules/leaderboard"
+	"github.com/pradigi/backend/internal/legacy/leaderboard"
 	"github.com/pradigi/backend/internal/modules/location"
 	"github.com/pradigi/backend/internal/academies/scout/sandi"
 	"github.com/pradigi/backend/internal/academies/scout/sku"
