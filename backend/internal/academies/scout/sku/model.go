@@ -1,3 +1,4 @@
+// Deprecated. Replaced by Academy SDK. Will be removed after migration.
 package sku
 
 type SKUPoint struct {

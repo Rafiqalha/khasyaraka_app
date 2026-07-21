@@ -1,3 +1,4 @@
+// Deprecated. Replaced by Academy SDK. Will be removed after migration.
 package ctf
 
 const CTF_ATTACK_SYSTEM_PROMPT = `
