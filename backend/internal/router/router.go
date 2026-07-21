@@ -23,7 +23,7 @@ import (
 	"github.com/pradigi/backend/internal/academies/scout/survival"
 	"github.com/pradigi/backend/internal/academies/scout/tkk"
 	"github.com/pradigi/backend/internal/marketplace"
-	"github.com/pradigi/backend/internal/modules/training"
+	"github.com/pradigi/backend/internal/legacy/training"
 	"github.com/pradigi/backend/internal/modules/users"
 	"github.com/pradigi/backend/internal/core/journey"
 	"github.com/pradigi/backend/internal/core/passport"
