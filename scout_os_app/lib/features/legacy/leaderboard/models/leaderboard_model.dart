@@ -1,0 +1,330 @@
+/// Leaderboard Models
+///
+/// Models for leaderboard API responses matching FastAPI schemas.
+
+import 'package:flutter/foundation.dart';
+
+class RankInfo {
+  final String rankName;
+  final String subTier;
+  final int stars;
+  final int maxStars;
+  final int totalStars;
+
+  RankInfo({
+    required this.rankName,
+    required this.subTier,
+    required this.stars,
+    required this.maxStars,
+    required this.totalStars,
+  });
+
+  factory RankInfo.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return RankInfo(
+        rankName: 'Kasta Siaga',
+        subTier: 'III',
+        stars: 0,
+        maxStars: 3,
+        totalStars: 0,
+      );
+    }
+    return RankInfo(
+      rankName: json['rank_name']?.toString() ?? 'Kasta Siaga',
+      subTier: json['sub_tier']?.toString() ?? 'III',
+      stars: json['stars'] ?? 0,
+      maxStars: json['max_stars'] ?? 3,
+      totalStars: json['total_stars'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'rank_name': rankName,
+      'sub_tier': subTier,
+      'stars': stars,
+      'max_stars': maxStars,
+      'total_stars': totalStars,
+    };
+  }
+}
+
+class LeaderboardUser {
+  final int rank;
+  final String id;
+  final String name;
+  final int xp;
+  final String? avatar;
+  final String level;
+  final String countryId;
+  final RankInfo rankInfo;
+
+  LeaderboardUser({
+    required this.rank,
+    required this.id,
+    required this.name,
+    required this.xp,
+    this.avatar,
+    this.level = 'Siaga',
+    this.countryId = '',
+    required this.rankInfo,
+  });
+
+  factory LeaderboardUser.fromJson(Map<String, dynamic> json) {
+    // Defensive type casting for rank
+    int rankValue;
+    if (json['rank'] is int) {
+      rankValue = json['rank'] as int;
+    } else if (json['rank'] is String) {
+      rankValue = int.tryParse(json['rank'] as String) ?? 0;
+    } else {
+      rankValue = (json['rank'] as num?)?.toInt() ?? 0;
+    }
+
+    // Defensive type casting for id
+    String idValue;
+    if (json['id'] is int) {
+      idValue = json['id'].toString();
+    } else if (json['id'] is String) {
+      idValue = json['id'] as String;
+    } else {
+      idValue = json['id']?.toString() ?? '';
+    }
+
+    // Defensive type casting for name (handle both 'name' and 'full_name')
+    String nameValue =
+        json['name']?.toString() ??
+        json['full_name']?.toString() ??
+        'Unknown User';
+
+    // Defensive type casting for xp (handle both 'xp' and 'total_xp')
+    int xpValue;
+    if (json['xp'] != null) {
+      if (json['xp'] is int) {
+        xpValue = json['xp'] as int;
+      } else if (json['xp'] is String) {
+        xpValue = int.tryParse(json['xp'] as String) ?? 0;
+      } else {
+        xpValue = (json['xp'] as num?)?.toInt() ?? 0;
+      }
+    } else if (json['total_xp'] != null) {
+      // Fallback to total_xp if xp is not present
+      if (json['total_xp'] is int) {
+        xpValue = json['total_xp'] as int;
+      } else if (json['total_xp'] is String) {
+        xpValue = int.tryParse(json['total_xp'] as String) ?? 0;
+      } else {
+        xpValue = (json['total_xp'] as num?)?.toInt() ?? 0;
+      }
+    } else {
+      xpValue = 0;
+    }
+
+    // Defensive type casting for avatar
+    String? avatarValue;
+    if (json['avatar'] != null) {
+      avatarValue = json['avatar']?.toString();
+    } else if (json['picture_url'] != null) {
+      avatarValue = json['picture_url']?.toString();
+    }
+
+    // Parse level or fallback based on XP
+    // Level Inference Logic based on XP (Indonesian Scout Levels)
+    // Siaga: Green
+    // Penggalang: Red
+    // Penegak: Yellow
+    String levelValue;
+    if (json['level'] != null) {
+      levelValue = json['level'].toString();
+    } else {
+      // INFERENCE LOGIC
+      if (xpValue < 100) {
+        levelValue = "Siaga Mula";
+      } else if (xpValue < 200) {
+        levelValue = "Siaga Bantu";
+      } else if (xpValue < 350) {
+        levelValue = "Siaga Tata";
+      } else if (xpValue < 500) {
+        levelValue = "Penggalang Ramu";
+      } else if (xpValue < 750) {
+        levelValue = "Penggalang Rakit";
+      } else if (xpValue < 1000) {
+        levelValue = "Penggalang Terap";
+      } else if (xpValue < 1500) {
+        levelValue = "Penegak Bantara";
+      } else {
+        levelValue = "Penegak Laksana";
+      }
+    }
+
+    debugPrint(
+      '📊 [LEADERBOARD_USER] Parsed: rank=$rankValue, id=$idValue, name=$nameValue, xp=$xpValue, level=$levelValue, avatar=${avatarValue ?? 'null'}',
+    );
+
+    return LeaderboardUser(
+      rank: rankValue,
+      id: idValue,
+      name: nameValue,
+      xp: xpValue,
+      avatar: avatarValue,
+      level: levelValue,
+      countryId: json['country_id']?.toString() ?? '',
+      rankInfo: RankInfo.fromJson(json['rank_info']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'rank': rank,
+      'id': id,
+      'name': name,
+      'xp': xp,
+      'avatar': avatar,
+      'level': level,
+      'country_id': countryId,
+      'rank_info': rankInfo.toJson(),
+    };
+  }
+}
+
+class MyRank {
+  final int rank;
+  final int xp;
+  final String? avatar;
+  final RankInfo rankInfo;
+
+  MyRank({required this.rank, required this.xp, this.avatar, required this.rankInfo});
+
+  factory MyRank.fromJson(Map<String, dynamic> json) {
+    debugPrint('📊 [MY_RANK] Raw JSON: $json');
+
+    // Defensive type casting for rank
+    int rankValue;
+    if (json['rank'] is int) {
+      rankValue = json['rank'] as int;
+    } else if (json['rank'] is String) {
+      rankValue = int.tryParse(json['rank'] as String) ?? 0;
+    } else {
+      rankValue = (json['rank'] as num?)?.toInt() ?? 0;
+    }
+
+    // ✅ CRITICAL: If rank is 0 but should not be, log warning
+    // Only warn if rank is 0 but raw JSON was not null (meaning backend potential issue)
+    if (rankValue == 0 &&
+        json['rank'] != null &&
+        json['xp'] != null &&
+        (json['xp'] as int) > 0) {
+      debugPrint('⚠️ [MY_RANK] WARNING: Parsed rank=0 for user with XP!');
+    }
+
+    // Defensive type casting for xp (handle both 'xp' and 'total_xp')
+    int xpValue;
+    if (json['xp'] != null) {
+      if (json['xp'] is int) {
+        xpValue = json['xp'] as int;
+      } else if (json['xp'] is String) {
+        xpValue = int.tryParse(json['xp'] as String) ?? 0;
+      } else {
+        xpValue = (json['xp'] as num?)?.toInt() ?? 0;
+      }
+    } else if (json['total_xp'] != null) {
+      // Fallback to total_xp if xp is not present
+      if (json['total_xp'] is int) {
+        xpValue = json['total_xp'] as int;
+      } else if (json['total_xp'] is String) {
+        xpValue = int.tryParse(json['total_xp'] as String) ?? 0;
+      } else {
+        xpValue = (json['total_xp'] as num?)?.toInt() ?? 0;
+      }
+    } else {
+      xpValue = 0;
+    }
+
+    debugPrint('📊 [MY_RANK] Parsed: rank=$rankValue, xp=$xpValue');
+
+    // ✅ CRITICAL: Validate rank >= 1 if xp > 0
+    if (xpValue > 0 && rankValue == 0) {
+      debugPrint(
+        '❌ [MY_RANK] ERROR: User has XP=$xpValue but rank=0! This should not happen.',
+      );
+    }
+
+    // Parse avatar/picture_url
+    String? avatarValue;
+    if (json['avatar'] != null) {
+      avatarValue = json['avatar']?.toString();
+    } else if (json['picture_url'] != null) {
+      avatarValue = json['picture_url']?.toString();
+    }
+
+    return MyRank(
+      rank: rankValue, 
+      xp: xpValue,
+      avatar: avatarValue,
+      rankInfo: RankInfo.fromJson(json['rank_info']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'rank': rank, 
+      'xp': xp,
+      'avatar': avatar,
+      'rank_info': rankInfo.toJson(),
+    };
+  }
+}
+
+class LeaderboardData {
+  final List<LeaderboardUser> topUsers;
+  final MyRank? myRank;
+
+  LeaderboardData({required this.topUsers, this.myRank});
+
+  factory LeaderboardData.fromJson(Map<String, dynamic> json) {
+    // Defensive parsing for top_users
+    List<LeaderboardUser> topUsersList = [];
+    if (json['top_users'] != null && json['top_users'] is List) {
+      try {
+        topUsersList = (json['top_users'] as List<dynamic>)
+            .map((item) {
+              try {
+                return LeaderboardUser.fromJson(item as Map<String, dynamic>);
+              } catch (e) {
+                debugPrint(
+                  '⚠️ [LEADERBOARD_DATA] Error parsing user: $e, data: $item',
+                );
+                return null;
+              }
+            })
+            .whereType<LeaderboardUser>()
+            .toList();
+      } catch (e) {
+        debugPrint('⚠️ [LEADERBOARD_DATA] Error parsing top_users list: $e');
+      }
+    }
+
+    // Defensive parsing for my_rank
+    MyRank? myRankValue;
+    if (json['my_rank'] != null) {
+      try {
+        myRankValue = MyRank.fromJson(json['my_rank'] as Map<String, dynamic>);
+      } catch (e) {
+        debugPrint('⚠️ [LEADERBOARD_DATA] Error parsing my_rank: $e');
+      }
+    }
+
+    debugPrint(
+      '📊 [LEADERBOARD_DATA] Parsed: ${topUsersList.length} users, myRank=${myRankValue != null ? 'present' : 'null'}',
+    );
+
+    return LeaderboardData(topUsers: topUsersList, myRank: myRankValue);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'top_users': topUsers.map((user) => user.toJson()).toList(),
+      'my_rank': myRank?.toJson(),
+    };
+  }
+}

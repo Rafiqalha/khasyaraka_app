@@ -5,7 +5,6 @@ import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import 'package:scout_os_app/routes/app_routes.dart';
-import 'package:scout_os_app/features/arena/presentation/pages/arena_home_page.dart';
 
 class MissionDashboardPage extends StatelessWidget {
   const MissionDashboardPage({super.key});
@@ -37,7 +36,6 @@ class MissionDashboardPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ArenaHomePage(),
                       ),
                     );
                   },

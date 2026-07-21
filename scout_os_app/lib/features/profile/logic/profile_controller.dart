@@ -6,8 +6,6 @@ import 'package:scout_os_app/features/profile/data/repositories/activity_reposit
 import 'package:scout_os_app/features/profile/data/repositories/profile_repository.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
-import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
-import 'package:scout_os_app/features/leaderboard/services/leaderboard_repository.dart';
 
 class ProfileController extends ChangeNotifier {
   ProfileController({
@@ -30,7 +28,6 @@ class ProfileController extends ChangeNotifier {
   final ProfileRepository _profileRepo;
   final AuthRepository _authRepo;
   final ActivityRepository _activityRepo = ActivityRepository();
-  LeaderboardController? leaderboardController;
   final AuthController? _authController;
 
   bool isLoading = false;
@@ -266,7 +263,6 @@ class ProfileController extends ChangeNotifier {
   Future<void> _fetchHighestRankAsync() async {
     try {
       if (currentUser == null) return;
-      final repo = LeaderboardRepository();
       
       final scopes = [
         {'scope': 'global', 'label': 'Indonesia', 'loc': ''},

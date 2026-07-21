@@ -6,7 +6,6 @@ import 'package:scout_os_app/features/mission/subfeatures/sku/models/sku_model.d
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_quiz_page.dart';
 
 import 'package:google_fonts/google_fonts.dart';
-import 'package:scout_os_app/features/arena/presentation/pages/arena_home_page.dart';
 import 'package:scout_os_app/core/widgets/duo_button.dart';
 
 class SkuListView extends StatefulWidget {
@@ -127,7 +126,6 @@ class _SkuListViewState extends State<SkuListView> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ArenaHomePage()),
               );
             },
             variant: DuoButtonVariant.red,

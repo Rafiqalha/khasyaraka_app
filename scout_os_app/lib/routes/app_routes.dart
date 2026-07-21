@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/components/main_navigation_scaffold.dart';
 import 'package:scout_os_app/features/home/presentation/pages/training_path_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_main_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_list_view.dart';
@@ -11,11 +12,11 @@ import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/river_tool_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/pedometer_pro_screen.dart';
 import 'package:scout_os_app/features/mission/subfeatures/survival/presentation/pages/tools/morse_touch_screen.dart';
-import 'package:scout_os_app/features/billing/views/subscription_page.dart';
 import 'package:scout_os_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:scout_os_app/features/profile/models/public_profile_model.dart';
 
 class AppRoutes {
+  static const mainNavigation = '/';
   static const trainingMap = '/training-map';
   static const skuMap = '/sku-map';
   static const skuList = '/sku-list';
@@ -36,6 +37,8 @@ class AppRoutes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case mainNavigation:
+        return MaterialPageRoute(builder: (_) => const MainNavigationScaffold());
       case trainingMap:
         return MaterialPageRoute(builder: (_) => const TrainingPathPage());
       case skuMap:
@@ -63,7 +66,6 @@ class AppRoutes {
       case survivalMorse:
         return MaterialPageRoute(builder: (_) => const MorseTouchScreen());
       case subscription:
-        return MaterialPageRoute(builder: (_) => const SubscriptionPage());
       case publicProfile:
         final publicProfileData = settings.arguments as PublicProfileModel?;
         return MaterialPageRoute(
