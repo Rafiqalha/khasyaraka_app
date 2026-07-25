@@ -13,12 +13,12 @@ import (
 
 // DocumentBlock represents a single block in the adaptive notebook/document.
 type DocumentBlock struct {
-	Type     string            `json:"type"`              // markdown, code, adaptive, quiz
-	ID       string            `json:"id,omitempty"`      // For adaptive and quiz blocks
-	Content  string            `json:"content,omitempty"` // For markdown
-	Language string            `json:"language,omitempty"`// For code
-	Fixture  string            `json:"fixture,omitempty"` // For code
-	Data     map[string]string `json:"data,omitempty"`    // Filled by Adaptive Planner
+	Type     string            `json:"type"`               // markdown, code, adaptive, quiz
+	ID       string            `json:"id,omitempty"`       // For adaptive and quiz blocks
+	Content  string            `json:"content,omitempty"`  // For markdown
+	Language string            `json:"language,omitempty"` // For code
+	Fixture  string            `json:"fixture,omitempty"`  // For code
+	Data     map[string]string `json:"data,omitempty"`     // Filled by Adaptive Planner
 }
 
 // GetAdaptiveExperience resolves a Node's document with the adaptation plan and XOE applied.
@@ -31,8 +31,8 @@ func (h *Handler) GetAdaptiveExperience(c *gin.Context) {
 	// 1. Build Session Context (Mocking raw inputs for now)
 	ctxEngine := session_context.NewEngine()
 	sessCtx := ctxEngine.BuildContext("user_1", "journey_1", map[string]interface{}{
-		"focus_score":      70.0,
-		"energy_score":     40.0, // Low energy -> Planner will choose "easy"
+		"focus_score":       70.0,
+		"energy_score":      40.0, // Low energy -> Planner will choose "easy"
 		"available_minutes": 15.0,
 	})
 

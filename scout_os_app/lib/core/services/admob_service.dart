@@ -16,6 +16,10 @@ class AdMobService {
       : 'ca-app-pub-3940256099942544/1712485313'; // Keep iOS Test ID for now
 
   Future<void> initialize() async {
+    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
+      debugPrint('⚠️ [AdMob] Skipping initialization on desktop platform');
+      return;
+    }
     await MobileAds.instance.initialize();
     _loadRewardedAd();
   }

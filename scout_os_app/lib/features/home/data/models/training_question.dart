@@ -9,7 +9,7 @@ class TrainingQuestion {
   final String id;
   final String levelId;
   final String
-  type; // "multiple_choice" | "matching" | "true_false" | "input" | "ordering"
+  type; // cyber tool simulation types: "cipher_rotor" | "packet_sweeper" | "vuln_spotter" | "network_cutter" | "log_anomaly"
   final String question;
   final Map<String, dynamic> payload; // Type-specific structure
   final int xp;
@@ -78,72 +78,7 @@ class TrainingQuestion {
     };
   }
 
-  // ==================== TYPE-SPECIFIC PAYLOAD HELPERS ====================
-  // These helpers make it easier to access payload data, but payload
-  // structure MUST match backend schema exactly.
-
-  /// For multiple_choice: Get options list
-  List<String>? getMultipleChoiceOptions() {
-    if (type != 'multiple_choice') return null;
-    final options = payload['options'] as List<dynamic>?;
-    return options?.map((e) => e.toString()).toList();
-  }
-
-  /// For matching: Get left and right items
-  Map<String, List<String>>? getMatchingItems() {
-    if (type != 'matching') return null;
-    // Backend payload uses `pairs: [{left: ..., right: ...}, ...]`.
-    // Keep backward compatibility with any older payload shapes.
-    final pairs = payload['pairs'];
-    if (pairs is List) {
-      final left = <String>[];
-      final right = <String>[];
-      for (final item in pairs) {
-        if (item is Map) {
-          final l = item['left']?.toString();
-          final r = item['right']?.toString();
-          if (l != null) left.add(l);
-          if (r != null) right.add(r);
-        }
-      }
-      return {'left': left, 'right': right};
-    }
-
-    // Fallback: older shape (left_items/right_items)
-    return {
-      'left':
-          (payload['left_items'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-      'right':
-          (payload['right_items'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-    };
-  }
-
-  /// For true_false: Get statement
-  String? getTrueFalseStatement() {
-    if (type != 'true_false') return null;
-    return payload['statement'] as String?;
-  }
-
-  /// For input: Get placeholder
-  String? getInputPlaceholder() {
-    if (type != 'input') return null;
-    return payload['placeholder'] as String?;
-  }
-
-  /// For ordering: Get items to order
-  List<String>? getOrderingItems() {
-    if (type != 'ordering') return null;
-    final items = payload['items'] as List<dynamic>?;
-    return items?.map((e) => e.toString()).toList();
-  }
 }
-
 /// Question List Response
 /// Matches: GET /training/levels/{id}/questions response
 class QuestionListResponse {

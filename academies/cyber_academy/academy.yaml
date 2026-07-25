@@ -1,0 +1,5 @@
+id: "cyber_academy"
+name: "Cyber Security Academy"
+version: "1.0.0"
+theme:
+  primary_color: "#00E676" # Neon green theme

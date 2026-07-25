@@ -116,24 +116,24 @@ func (r *Repository) SetUserLocation(userID int64, kecamatanID, kabupatenID, pro
 func (r *Repository) GetUserLocation(userID int64) (*UserLocation, error) {
 	var loc UserLocation
 	var kec, kab, prov sql.NullString
-	
+
 	err := r.db.QueryRow(`
 		SELECT kecamatan_id, kabupaten_id, provinsi_id
 		FROM users
 		WHERE id = $1
 	`, userID).Scan(&kec, &kab, &prov)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // User not found, shouldn't happen if auth works
 		}
 		return nil, fmt.Errorf("get user location: %w", err)
 	}
-	
+
 	if !kec.Valid || !kab.Valid || !prov.Valid {
 		return nil, nil // Location not set
 	}
-	
+
 	loc.KecamatanID = kec.String
 	loc.KabupatenID = kab.String
 	loc.ProvinsiID = prov.String

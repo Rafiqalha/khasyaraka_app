@@ -6,7 +6,7 @@ import (
 
 // OrchestrationEngine (XOE) is the "Nervous System" that translates logical Route recommendations
 // into concrete Experience Manifests (UI DSL).
-type OrchestrationEngine struct {}
+type OrchestrationEngine struct{}
 
 func NewOrchestrationEngine() *OrchestrationEngine {
 	return &OrchestrationEngine{}
@@ -21,11 +21,11 @@ func (e *OrchestrationEngine) Orchestrate(journeyID string, route *learning_grap
 
 	// For demonstration, let's build the Scenes based on the recommended assets.
 	// E.g., if route recommends: notebook -> viz -> practice -> mission
-	
+
 	// Scene 1: Introduction (Notebook + Viz)
 	introScene := Scene{
-		ID:    "scene_intro",
-		Title: "Introduction",
+		ID:       "scene_intro",
+		Title:    "Introduction",
 		Sections: []Section{},
 	}
 

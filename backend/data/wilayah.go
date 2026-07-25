@@ -36,14 +36,14 @@ type Kecamatan struct {
 }
 
 var (
-	allProvinsi     []Provinsi
-	allKabupaten    []Kabupaten
-	allKecamatan    []Kecamatan
-	provinsiMap     map[string]*Provinsi
-	kabupatenMap    map[string]*Kabupaten
-	kecamatanMap    map[string]*Kecamatan
-	kabByProvMap    map[string][]Kabupaten
-	kecByKabMap     map[string][]Kecamatan
+	allProvinsi  []Provinsi
+	allKabupaten []Kabupaten
+	allKecamatan []Kecamatan
+	provinsiMap  map[string]*Provinsi
+	kabupatenMap map[string]*Kabupaten
+	kecamatanMap map[string]*Kecamatan
+	kabByProvMap map[string][]Kabupaten
+	kecByKabMap  map[string][]Kecamatan
 )
 
 func init() {

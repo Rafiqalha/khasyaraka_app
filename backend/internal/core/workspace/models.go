@@ -18,12 +18,12 @@ type Workspace struct {
 }
 
 type WorkspaceContext struct {
-	ID              string      `db:"id" json:"id"`
-	WorkspaceID     string      `db:"workspace_id" json:"workspace_id"`
-	ContextType     ContextType `db:"context_type" json:"context_type"`
-	ContextID       string      `db:"context_id" json:"context_id"`
+	ID              string          `db:"id" json:"id"`
+	WorkspaceID     string          `db:"workspace_id" json:"workspace_id"`
+	ContextType     ContextType     `db:"context_type" json:"context_type"`
+	ContextID       string          `db:"context_id" json:"context_id"`
 	Metadata        json.RawMessage `db:"metadata" json:"metadata"`
-	MetadataVersion string      `db:"metadata_version" json:"metadata_version"`
+	MetadataVersion string          `db:"metadata_version" json:"metadata_version"`
 }
 
 type Artifact struct {
@@ -41,8 +41,6 @@ type Artifact struct {
 	CreatedAt          time.Time          `db:"created_at" json:"created_at"`
 	UpdatedAt          time.Time          `db:"updated_at" json:"updated_at"`
 }
-
-
 
 type WorkspaceSnapshot struct {
 	ID          string    `db:"id" json:"id"`

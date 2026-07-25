@@ -18,18 +18,18 @@ import (
 type ConstraintType string
 
 const (
-	ConstraintNoAI          ConstraintType = "NO_AI"
-	ConstraintTimeLimit     ConstraintType = "TIME_LIMIT"
-	ConstraintNoTestModify  ConstraintType = "NO_TEST_MODIFY"
-	ConstraintMaxRuns       ConstraintType = "MAX_RUNS"
-	ConstraintMaxHints      ConstraintType = "MAX_HINTS"
+	ConstraintNoAI           ConstraintType = "NO_AI"
+	ConstraintTimeLimit      ConstraintType = "TIME_LIMIT"
+	ConstraintNoTestModify   ConstraintType = "NO_TEST_MODIFY"
+	ConstraintMaxRuns        ConstraintType = "MAX_RUNS"
+	ConstraintMaxHints       ConstraintType = "MAX_HINTS"
 	ConstraintNoExternalDocs ConstraintType = "NO_EXTERNAL_DOCS"
 )
 
 type Constraint struct {
-	Type      ConstraintType `json:"type"`
-	Value     any            `json:"value"`     // e.g., 20 for TIME_LIMIT (minutes), 3 for MAX_HINTS
-	Enforced  bool           `json:"enforced"`  // Hard constraint (blocks) vs soft (logs only)
+	Type     ConstraintType `json:"type"`
+	Value    any            `json:"value"`    // e.g., 20 for TIME_LIMIT (minutes), 3 for MAX_HINTS
+	Enforced bool           `json:"enforced"` // Hard constraint (blocks) vs soft (logs only)
 }
 
 type ConstraintViolation struct {

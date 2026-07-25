@@ -8,6 +8,7 @@ class PradigiColors {
   // Brand & Functional
   static const Color primary = Color(0xFF2563EB); // Biru netral kuat
   static const Color success = Color(0xFF15803D); // Hijau tenang profesional
+  static const Color successLight = Color(0xFFDCFCE7); // Green 100
   static const Color warning = Color(0xFFD97706); // Amber pekat
   static const Color danger = Color(0xFFDC2626);  // Merah pekat
 
@@ -18,6 +19,10 @@ class PradigiColors {
   // Text
   static const Color textPrimary = Color(0xFF0F172A);   // Slate 900
   static const Color textSecondary = Color(0xFF475569); // Slate 600
+  
+  // Editor
+  static const Color editorBackground = Color(0xFF0F172A); // Slate 950
+  static const Color editorBorder = Color(0xFF334155); // Slate 700
   
   // Borders
   static const Color border = Color(0xFFE2E8F0);        // Slate 200

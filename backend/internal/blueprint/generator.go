@@ -21,9 +21,9 @@ const (
 )
 
 type GeneratedBatch struct {
-	SourceURL    string               `json:"source_url"`
+	SourceURL     string              `json:"source_url"`
 	SourceArticle string              `json:"source_article"`
-	Questions    []GeneratedQuestion  `json:"questions"`
+	Questions     []GeneratedQuestion `json:"questions"`
 }
 
 type GeneratedQuestion struct {

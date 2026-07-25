@@ -9,7 +9,7 @@ import (
 
 // Engine is responsible for verifying competency and behavior against the CredentialManifest
 // and managing the issuance lifecycle.
-type Engine struct {}
+type Engine struct{}
 
 func NewEngine() *Engine {
 	return &Engine{}
@@ -38,7 +38,7 @@ func (e *Engine) EvaluateEligibility(userID string, manifest *CredentialManifest
 
 	// 4. Check Behavior & Evidence (Mocked for now)
 	// if evidenceCount < manifest.Requirements.Evidence.Missions { return false }
-	
+
 	return true, nil
 }
 
@@ -47,7 +47,7 @@ func (e *Engine) EvaluateEligibility(userID string, manifest *CredentialManifest
 func (e *Engine) ProcessClaim(userID string, credentialID string, proj *competency.CompetencyProjection) (*Credential, error) {
 	// 1. Find credential in draft/eligible state (Mocked)
 	cred := &Credential{
-		ID: credentialID,
+		ID:     credentialID,
 		UserID: userID,
 		Status: StatusEligible,
 	}
@@ -59,10 +59,10 @@ func (e *Engine) ProcessClaim(userID string, credentialID string, proj *competen
 	// 2. Build the Assessment Snapshot
 	now := time.Now()
 	snapshot := &AssessmentSnapshot{
-		SnapshotID: "snap_" + now.Format("20060102150405"),
+		SnapshotID:            "snap_" + now.Format("20060102150405"),
 		KnowledgeGraphVersion: "v1.0.0", // from context
-		CompetencyState: proj.Concepts,
-		Timestamp: now,
+		CompetencyState:       proj.Concepts,
+		Timestamp:             now,
 	}
 
 	// 3. Issue Credential

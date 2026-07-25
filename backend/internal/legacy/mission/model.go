@@ -14,11 +14,11 @@ type Mission struct {
 }
 
 type ServerNode struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	IP       string   `json:"ip"`
-	Services []string `json:"services"`
-	IsBreached bool  `json:"is_breached"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	IP         string   `json:"ip"`
+	Services   []string `json:"services"`
+	IsBreached bool     `json:"is_breached"`
 }
 
 type LogEntry struct {
@@ -41,28 +41,28 @@ type FirewallRule struct {
 }
 
 type ActiveProcess struct {
-	PID     int    `json:"pid"`
-	Name    string `json:"name"`
-	User    string `json:"user"`
-	IsThreat bool  `json:"is_threat"`
+	PID      int    `json:"pid"`
+	Name     string `json:"name"`
+	User     string `json:"user"`
+	IsThreat bool   `json:"is_threat"`
 }
 
 type MissionState struct {
-	MissionID        string           `json:"mission_id"`
-	ServerHealth     int              `json:"server_health"`
-	AttackerProgress int              `json:"attacker_progress"`
-	TimeRemaining    int              `json:"time_remaining"`
-	Score            int              `json:"score"`
-	ActiveThreats    []string         `json:"active_threats"`
-	RecentEvents     []string         `json:"recent_events"`
-	Servers          []ServerNode     `json:"servers"`
-	Logs             []LogEntry       `json:"logs"`
-	FirewallRules    []FirewallRule   `json:"firewall_rules"`
-	Processes        []ActiveProcess  `json:"processes"`
-	BreachedServers  []string         `json:"breached_servers"`
-	BlockedIPs       []string         `json:"blocked_ips"`
-	AttackerPersona  string           `json:"attacker_persona"`
-	Phase            string           `json:"phase"`
+	MissionID        string          `json:"mission_id"`
+	ServerHealth     int             `json:"server_health"`
+	AttackerProgress int             `json:"attacker_progress"`
+	TimeRemaining    int             `json:"time_remaining"`
+	Score            int             `json:"score"`
+	ActiveThreats    []string        `json:"active_threats"`
+	RecentEvents     []string        `json:"recent_events"`
+	Servers          []ServerNode    `json:"servers"`
+	Logs             []LogEntry      `json:"logs"`
+	FirewallRules    []FirewallRule  `json:"firewall_rules"`
+	Processes        []ActiveProcess `json:"processes"`
+	BreachedServers  []string        `json:"breached_servers"`
+	BlockedIPs       []string        `json:"blocked_ips"`
+	AttackerPersona  string          `json:"attacker_persona"`
+	Phase            string          `json:"phase"`
 }
 
 type StateTransition struct {
@@ -87,20 +87,20 @@ type MissionAction struct {
 }
 
 type ActionResult struct {
-	Success       bool              `json:"success"`
-	Message       string            `json:"message"`
-	NewState      *MissionState     `json:"new_state"`
+	Success       bool               `json:"success"`
+	Message       string             `json:"message"`
+	NewState      *MissionState      `json:"new_state"`
 	Events        []EnvironmentEvent `json:"events"`
-	ScoreChange   int               `json:"score_change"`
-	MissionStatus string            `json:"mission_status"`
+	ScoreChange   int                `json:"score_change"`
+	MissionStatus string             `json:"mission_status"`
 }
 
 type PersonaConfig struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	AttackSpeed int                 `json:"attack_speed"`
-	Stealth     bool                `json:"stealth"`
-	Vectors     []string            `json:"vectors"`
-	Transitions []StateTransition   `json:"-"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	AttackSpeed int               `json:"attack_speed"`
+	Stealth     bool              `json:"stealth"`
+	Vectors     []string          `json:"vectors"`
+	Transitions []StateTransition `json:"-"`
 }

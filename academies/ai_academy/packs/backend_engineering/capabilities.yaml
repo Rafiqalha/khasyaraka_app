@@ -1,0 +1,13 @@
+capabilities:
+  - id: cap_array_memory
+    name: Array & Memory Allocation
+    description: Understanding contiguous memory and indices.
+    dependencies: []
+  - id: cap_pointer_basics
+    name: Pointer Basics
+    description: Understanding memory addresses and references.
+    dependencies: [cap_array_memory]
+  - id: cap_optimization
+    name: Algorithmic Optimization
+    description: Big O analysis and memory optimization.
+    dependencies: [cap_array_memory, cap_pointer_basics]

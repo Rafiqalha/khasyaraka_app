@@ -1,0 +1,13 @@
+intents:
+  - id: "fast"
+    title: "Fast"
+    description: "Aggressive pace"
+  - id: "balanced"
+    title: "Balanced"
+    description: "Steady progress"
+  - id: "deep"
+    title: "Deep"
+    description: "Comprehensive mastery"
+  - id: "production"
+    title: "Production"
+    description: "Focus on building"

@@ -65,7 +65,7 @@ func (s *service) HandleObservationAccepted(ctx context.Context, evt events.Even
 
 		// 2. Extractor mapping (Mocking Skill string to Node ID)
 		skillNodeID := "node_" + skill.SkillID // mock
-		
+
 		// 3. Create Evidence in GENERATED state
 		validityEnd := time.Now().AddDate(0, 6, 0) // Valid for 6 months
 		ev := Evidence{
@@ -82,10 +82,10 @@ func (s *service) HandleObservationAccepted(ctx context.Context, evt events.Even
 			Weight:        1.0,
 			CreatedAt:     time.Now(),
 		}
-		
+
 		// 4. In reality, check for duplicates (Deduplication using Fingerprint)
 		// For MVP, just save it.
-		
+
 		// 5. Run Conflict Resolution (Mocking as PASS)
 		ev.Status = StatusResolved
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:scout_os_app/design_system/tokens/typography.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
-import 'package:scout_os_app/core/widgets/duo_button.dart';
+import 'package:scout_os_app/features/os/presentation/shell/os_launcher.dart';
 import 'login_screen.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -16,7 +16,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _gudepController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -24,7 +23,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _nameController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
-    _gudepController.dispose();
     super.dispose();
   }
 
@@ -33,9 +31,13 @@ class _RegisterPageState extends State<RegisterPage> {
         _usernameController.text.isEmpty ||
         _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nama, username, dan password wajib diisi.'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: Text(
+            'Name, username, and password are required.',
+            style: PradigiTypography.body.copyWith(color: Colors.white),
+          ),
+          backgroundColor: Colors.black87,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -46,200 +48,246 @@ class _RegisterPageState extends State<RegisterPage> {
       name: _nameController.text,
       username: _usernameController.text,
       password: _passwordController.text,
-      gugusDepan: _gudepController.text,
     );
 
     if (!mounted) return;
 
     if (success) {
+      // Fade transition to HomePage
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const OSLauncher(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 600),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authController.errorMessage ?? 'Gagal register'),
-          backgroundColor: Colors.red,
+          content: Text(
+            authController.errorMessage ?? 'Registration failed',
+            style: PradigiTypography.body.copyWith(color: Colors.white),
+          ),
+          backgroundColor: Colors.black87,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: Consumer<AuthController>(
-        builder: (context, authController, _) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 12),
-                Text(
-                  'Buat Akun Baru',
-                  style: GoogleFonts.poppins(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF00695C),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Scout 4.0 siap menemani petualanganmu.',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.blueGrey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                if (authController.errorMessage != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFCDD2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE57373)),
-                    ),
-                    child: Text(
-                      authController.errorMessage!,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: const Color(0xFFB71C1C),
-                      ),
-                    ),
-                  ),
-                if (authController.errorMessage != null)
-                  const SizedBox(height: 16),
-                _buildDuoInput(
-                  controller: _nameController,
-                  enabled: !authController.isLoading,
-                  labelText: 'Nama Lengkap',
-                  icon: Icons.badge_rounded,
-                ),
-                const SizedBox(height: 16),
-                _buildDuoInput(
-                  controller: _usernameController,
-                  enabled: !authController.isLoading,
-                  labelText: 'Username',
-                  icon: Icons.person_rounded,
-                ),
-                const SizedBox(height: 16),
-                _buildDuoInput(
-                  controller: _passwordController,
-                  enabled: !authController.isLoading,
-                  labelText: 'Password',
-                  icon: Icons.lock_rounded,
-                  isPassword: true,
-                  obscureText: _obscurePassword,
-                  onTogglePassword: () {
-                    setState(() => _obscurePassword = !_obscurePassword);
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildDuoInput(
-                  controller: _gudepController,
-                  enabled: !authController.isLoading,
-                  labelText: 'Gugus Depan (Opsional)',
-                  icon: Icons.flag_rounded,
-                ),
-                const SizedBox(height: 24),
-                if (authController.isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  DuoButton(
-                    text: 'DAFTAR SEKARANG',
-                    variant: DuoButtonVariant.green,
-                    onPressed: _handleRegister,
-                  ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Sudah punya akun? ',
-                      style: GoogleFonts.poppins(
-                        color: Colors.blueGrey.shade600,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const LoginScreen(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Masuk',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFF00695C),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        },
+  Widget _buildMinimalField({
+    required TextEditingController controller,
+    required String label,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    bool enabled = true,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      enabled: enabled,
+      style: PradigiTypography.body.copyWith(color: Colors.black),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: PradigiTypography.bodySecondary.copyWith(color: Colors.grey.shade500),
+        filled: false,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Colors.black, width: 1),
+        ),
+        suffixIcon: suffixIcon,
       ),
     );
   }
 
-  Widget _buildDuoInput({
-    required TextEditingController controller,
-    required bool enabled,
-    required String labelText,
-    required IconData icon,
-    bool isPassword = false,
-    bool? obscureText,
-    VoidCallback? onTogglePassword,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0xFFE5E5E5),
-            offset: Offset(0, 4),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Consumer<AuthController>(
+                  builder: (context, authController, _) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Image.asset(
+                            'assets/images/logo/pradigi-logo-foreground.png',
+                            height: 48,
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            "Initialize Account",
+                            style: PradigiTypography.h2.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 48),
+                          
+                          if (authController.errorMessage != null)
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(bottom: 24),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.red.shade200),
+                              ),
+                              child: Text(
+                                authController.errorMessage!,
+                                style: PradigiTypography.caption.copyWith(
+                                  color: Colors.red.shade700,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            
+                          _buildMinimalField(
+                            controller: _nameController,
+                            label: 'Full Name',
+                            enabled: !authController.isLoading,
+                          ),
+                          const SizedBox(height: 16),
+                          
+                          _buildMinimalField(
+                            controller: _usernameController,
+                            label: 'Username',
+                            enabled: !authController.isLoading,
+                          ),
+                          const SizedBox(height: 16),
+                          
+                          _buildMinimalField(
+                            controller: _passwordController,
+                            label: 'Password',
+                            obscureText: _obscurePassword,
+                            enabled: !authController.isLoading,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                color: Colors.grey.shade400,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                setState(() => _obscurePassword = !_obscurePassword);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF111111),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: authController.isLoading ? null : _handleRegister,
+                            child: Text(
+                              "Create Account",
+                              style: PradigiTypography.body.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Already have an account? ',
+                                style: PradigiTypography.caption.copyWith(color: Colors.grey.shade500),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                        return FadeTransition(opacity: animation, child: child);
+                                      },
+                                      transitionDuration: const Duration(milliseconds: 300),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Sign In',
+                                  style: PradigiTypography.caption.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          
+          Consumer<AuthController>(
+            builder: (context, controller, child) {
+              if (controller.isLoading) {
+                return Container(
+                  color: Colors.white.withOpacity(0.9),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Creating workspace...",
+                          style: PradigiTypography.caption.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ],
-      ),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        obscureText: obscureText ?? false,
-        style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: GoogleFonts.nunito(
-            color: Colors.grey.shade500,
-            fontWeight: FontWeight.w700,
-          ),
-          prefixIcon: Icon(icon, color: Colors.grey),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    (obscureText ?? false)
-                        ? Icons.visibility_off_rounded
-                        : Icons.visibility_rounded,
-                    color: Colors.grey.shade500,
-                  ),
-                  onPressed: onTogglePassword,
-                )
-              : null,
-          border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
       ),
     );
   }

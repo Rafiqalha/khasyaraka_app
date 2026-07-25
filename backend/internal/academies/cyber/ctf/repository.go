@@ -175,7 +175,7 @@ func (r *PostgresCTFRepository) SubmitPatchAnswer(ctx context.Context, challenge
 		WHERE id = (SELECT team_id FROM ctf_patch_challenges WHERE id = $1)
 	`
 	_, _ = r.db.ExecContext(ctx, teamQuery, challengeID, answer, timeTaken)
-	
+
 	return nil
 }
 

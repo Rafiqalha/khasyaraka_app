@@ -14,11 +14,11 @@ import (
 
 // ActivityEvent is a simplified view of a Learning Activity for pattern detection.
 type ActivityEvent struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"`      // "RUN_CODE", "SAVE_FILE", "ASK_MENTOR", "COMPILE", etc.
-	Actor     string    `json:"actor"`     // "USER", "COMPILER", "MENTOR", "SYSTEM"
+	ID        string         `json:"id"`
+	Type      string         `json:"type"`  // "RUN_CODE", "SAVE_FILE", "ASK_MENTOR", "COMPILE", etc.
+	Actor     string         `json:"actor"` // "USER", "COMPILER", "MENTOR", "SYSTEM"
 	Payload   map[string]any `json:"payload"`
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time      `json:"timestamp"`
 }
 
 // PatternDetector analyzes sequences of events and extracts cognitive patterns.
@@ -151,13 +151,13 @@ func (d *PatternDetector) detectRepeatedExecution(events []ActivityEvent) []Cogn
 	// Flush remaining streak
 	if streak >= 3 {
 		patterns = append(patterns, CognitivePattern{
-			ID:          ulid.Make().String(),
-			PatternType: PatternRepeatedExecution,
-			Frequency:   streak,
+			ID:             ulid.Make().String(),
+			PatternType:    PatternRepeatedExecution,
+			Frequency:      streak,
 			SourceEventIDs: streakIDs,
-			Confidence:  0.9,
-			StartedAt:   streakStart,
-			EndedAt:     events[len(events)-1].Timestamp,
+			Confidence:     0.9,
+			StartedAt:      streakStart,
+			EndedAt:        events[len(events)-1].Timestamp,
 		})
 	}
 	return patterns

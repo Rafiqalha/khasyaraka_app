@@ -6,7 +6,7 @@ import (
 
 // Engine acts as the layer between Raw Evidence and the Competency Engine.
 // It analyzes executions to identify specific knowledge gaps.
-type Engine struct {}
+type Engine struct{}
 
 func NewEngine() *Engine {
 	return &Engine{}

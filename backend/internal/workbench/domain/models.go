@@ -13,10 +13,10 @@ import (
 // ===========================
 
 type Experiment struct {
-	ID          string          `db:"id" json:"id"`
-	Title       string          `db:"title" json:"title"`
-	Description string          `db:"description" json:"description"`
-	EpochID     string          `db:"epoch_id" json:"epoch_id"`
+	ID          string `db:"id" json:"id"`
+	Title       string `db:"title" json:"title"`
+	Description string `db:"description" json:"description"`
+	EpochID     string `db:"epoch_id" json:"epoch_id"`
 	// Research Metadata
 	Hypothesis    *string         `db:"hypothesis" json:"hypothesis,omitempty"`
 	Variables     json.RawMessage `db:"variables" json:"variables,omitempty"`
@@ -39,14 +39,14 @@ type MissionCapabilityRequirement struct {
 }
 
 type Mission struct {
-	ID           string          `db:"id" json:"id"`
-	ExperimentID *string         `db:"experiment_id" json:"experiment_id,omitempty"`
-	Title        string          `db:"title" json:"title"`
-	Narrative    string          `db:"narrative" json:"narrative"`
-	Domain       string          `db:"domain" json:"domain"` // "python", "cybersecurity", "sql"
-	Difficulty   string          `db:"difficulty" json:"difficulty"` // EASY, MEDIUM, HARD, EXPERT
-	AIBudget     int             `db:"ai_budget" json:"ai_budget"` // Max AI calls allowed
-	TimeLimitSec *int            `db:"time_limit_seconds" json:"time_limit_seconds,omitempty"`
+	ID           string  `db:"id" json:"id"`
+	ExperimentID *string `db:"experiment_id" json:"experiment_id,omitempty"`
+	Title        string  `db:"title" json:"title"`
+	Narrative    string  `db:"narrative" json:"narrative"`
+	Domain       string  `db:"domain" json:"domain"`         // "python", "cybersecurity", "sql"
+	Difficulty   string  `db:"difficulty" json:"difficulty"` // EASY, MEDIUM, HARD, EXPERT
+	AIBudget     int     `db:"ai_budget" json:"ai_budget"`   // Max AI calls allowed
+	TimeLimitSec *int    `db:"time_limit_seconds" json:"time_limit_seconds,omitempty"`
 	// Capability Declaration - NOT tool specification
 	RequiredCapabilities json.RawMessage `db:"required_capabilities" json:"required_capabilities"`
 	// Evaluation Contract
@@ -60,12 +60,12 @@ type Mission struct {
 // ===========================
 
 type Scenario struct {
-	ID              string          `db:"id" json:"id"`
-	MissionID       string          `db:"mission_id" json:"mission_id"`
-	Title           string          `db:"title" json:"title"`
+	ID               string          `db:"id" json:"id"`
+	MissionID        string          `db:"mission_id" json:"mission_id"`
+	Title            string          `db:"title" json:"title"`
 	InitialStateJSON json.RawMessage `db:"initial_state_json" json:"initial_state_json"`
-	Constraints     json.RawMessage `db:"constraints" json:"constraints,omitempty"`
-	CreatedAt       time.Time       `db:"created_at" json:"created_at"`
+	Constraints      json.RawMessage `db:"constraints" json:"constraints,omitempty"`
+	CreatedAt        time.Time       `db:"created_at" json:"created_at"`
 }
 
 // ===========================
@@ -163,12 +163,12 @@ const (
 )
 
 type CognitiveState struct {
-	ID             string              `db:"id" json:"id"`
-	SessionID      string              `db:"session_id" json:"session_id"`
-	State          CognitiveStateValue `db:"state" json:"state"`
+	ID             string               `db:"id" json:"id"`
+	SessionID      string               `db:"session_id" json:"session_id"`
+	State          CognitiveStateValue  `db:"state" json:"state"`
 	PreviousState  *CognitiveStateValue `db:"previous_state" json:"previous_state,omitempty"`
-	TriggerEvent   string              `db:"trigger_event" json:"trigger_event"`
-	TransitionedAt time.Time           `db:"transitioned_at" json:"transitioned_at"`
+	TriggerEvent   string               `db:"trigger_event" json:"trigger_event"`
+	TransitionedAt time.Time            `db:"transitioned_at" json:"transitioned_at"`
 }
 
 // ===========================
@@ -177,25 +177,25 @@ type CognitiveState struct {
 // ===========================
 
 type MissionSummary struct {
-	ID         string    `db:"id" json:"id"`
-	SessionID  string    `db:"session_id" json:"session_id"`
-	MissionID  string    `db:"mission_id" json:"mission_id"`
+	ID        string `db:"id" json:"id"`
+	SessionID string `db:"session_id" json:"session_id"`
+	MissionID string `db:"mission_id" json:"mission_id"`
 	// Metrics
-	CompileCount   int    `db:"compile_count" json:"compile_count"`
-	RunCount       int    `db:"run_count" json:"run_count"`
-	AICalls        int    `db:"ai_calls" json:"ai_calls"`
-	HintCount      int    `db:"hint_count" json:"hint_count"`
-	ArtifactCount  int    `db:"artifact_count" json:"artifact_count"`
-	DurationSeconds int   `db:"duration_seconds" json:"duration_seconds"`
-	Outcome        string `db:"outcome" json:"outcome"` // "Solved", "Solved with AI", "Abandoned"
+	CompileCount    int    `db:"compile_count" json:"compile_count"`
+	RunCount        int    `db:"run_count" json:"run_count"`
+	AICalls         int    `db:"ai_calls" json:"ai_calls"`
+	HintCount       int    `db:"hint_count" json:"hint_count"`
+	ArtifactCount   int    `db:"artifact_count" json:"artifact_count"`
+	DurationSeconds int    `db:"duration_seconds" json:"duration_seconds"`
+	Outcome         string `db:"outcome" json:"outcome"` // "Solved", "Solved with AI", "Abandoned"
 	// Narrative
-	MissionDomain       string              `db:"mission_domain" json:"mission_domain"`
-	MissionDifficulty   string              `db:"mission_difficulty" json:"mission_difficulty"`
-	AIBudgetUsed        int                 `db:"ai_budget_used" json:"ai_budget_used"`
+	MissionDomain       string               `db:"mission_domain" json:"mission_domain"`
+	MissionDifficulty   string               `db:"mission_difficulty" json:"mission_difficulty"`
+	AIBudgetUsed        int                  `db:"ai_budget_used" json:"ai_budget_used"`
 	FinalCognitiveState *CognitiveStateValue `db:"final_cognitive_state" json:"final_cognitive_state,omitempty"`
 	// Behavior Summary (The condensed payload for the LLM)
-	BehaviorSummaryJSON json.RawMessage     `db:"behavior_summary_json" json:"behavior_summary,omitempty"`
-	SealedAt            time.Time           `db:"sealed_at" json:"sealed_at"`
+	BehaviorSummaryJSON json.RawMessage `db:"behavior_summary_json" json:"behavior_summary,omitempty"`
+	SealedAt            time.Time       `db:"sealed_at" json:"sealed_at"`
 }
 
 // ===========================

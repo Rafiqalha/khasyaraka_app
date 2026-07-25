@@ -1,9 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:scout_os_app/features/auth/data/auth_repository.dart';
 import 'package:scout_os_app/features/home/data/models/training_question.dart';
 import 'package:scout_os_app/features/home/data/datasources/training_service.dart';
 import 'package:scout_os_app/features/home/logic/training_controller.dart';
 import 'package:scout_os_app/core/services/local_cache_service.dart';
+import 'package:scout_os_app/core/network/api_dio_provider.dart';
 
 class LessonController extends ChangeNotifier {
   // Gunakan Service, bukan Repository (sesuai struktur sebelumnya)
@@ -36,6 +38,21 @@ class LessonController extends ChangeNotifier {
   List<bool>? userSwipeDecisions; // Untuk Packet Sweeper
   Set<int>? userFoundVulns; // Untuk Vulnerability Spotter
   Set<int>? userCutEdges; // Untuk Network Topology Cutter
+
+  // State AI (PradigiResponse)
+  String? aiDialog;
+  String? aiStatus;
+  int computationalScoreChange = 0;
+  int ethicalScoreChange = 0;
+  bool isAiEvaluating = false;
+  bool _hasAiEvaluated = false;
+  String? nextObjective;
+  String? threatMutation;
+  String? adaptiveNarrative;
+  int difficultyAdjustment = 0;
+  String? _previousThreatType;
+  int streakCorrect = 0;
+  int streakWrong = 0;
 
   // State UI
   bool isChecked = false;
@@ -147,88 +164,6 @@ class LessonController extends ChangeNotifier {
         // CRITICAL: Sort by order field to maintain exact sequence from database
         // Backend already orders by order field, but we ensure it here as well
         filteredQuestions.sort((a, b) => a.order.compareTo(b.order));
-        
-        // INJECT MOCK QUESTIONS FOR 3 NEW CYBER WIDGETS
-        final mockPacketSweeper = TrainingQuestion(
-          id: 'mock-packet-sweeper',
-          levelId: cleanLevelId,
-          type: 'packet_sweeper',
-          question: 'Analisis paket jaringan yang masuk. Geser kanan (Aman) atau kiri (Bahaya)!',
-          payload: {
-            'packets': [
-              {
-                'protocol': 'HTTPS',
-                'source': '192.168.1.10:443',
-                'dest': 'google.com:443',
-                'method': 'GET /search',
-                'payload_preview': 'q=pramuka+khasyaraka',
-                'is_malicious': false,
-                'explanation': 'Request normal',
-              },
-              {
-                'protocol': 'HTTP',
-                'source': '45.33.32.156:1337',
-                'dest': '10.0.0.5:80',
-                'method': 'POST /admin',
-                'payload_preview': 'admin\' OR 1=1--',
-                'is_malicious': true,
-                'explanation': 'SQL Injection attack!',
-              },
-            ]
-          },
-          xp: 50,
-          order: 0,
-          isActive: true,
-          createdAt: DateTime.now(),
-        );
-
-        final mockVulnSpotter = TrainingQuestion(
-          id: 'mock-vuln-spotter',
-          levelId: cleanLevelId,
-          type: 'vuln_spotter',
-          question: 'Sistem ini memiliki kelemahan. Temukan dan ketuk area yang rentan!',
-          payload: {
-            'scenario': 'login_page',
-            'description': 'Analisis halaman login berikut!',
-            'total_vulns': 2,
-            'elements': [
-              {"label": "Username: admin", "x": 0.15, "y": 0.25, "w": 0.7, "h": 0.08, "is_vuln": true, "vuln_type": "Default credentials"},
-              {"label": "Password: ••••", "x": 0.15, "y": 0.35, "w": 0.7, "h": 0.08, "is_vuln": false},
-              {"label": "http://not-https.com", "x": 0.15, "y": 0.5, "w": 0.7, "h": 0.06, "is_vuln": true, "vuln_type": "No HTTPS"}
-            ]
-          },
-          xp: 50,
-          order: 1,
-          isActive: true,
-          createdAt: DateTime.now(),
-        );
-
-        final mockNetCutter = TrainingQuestion(
-          id: 'mock-net-cutter',
-          levelId: cleanLevelId,
-          type: 'network_cutter',
-          question: 'Intrusi terdeteksi! Potong (ketuk) kabel MERAH untuk menghentikan peretas.',
-          payload: {
-            'target_count': 1,
-            'nodes': [
-              {"id": "router", "label": "Router", "x": 0.5, "y": 0.1},
-              {"id": "switch", "label": "Switch", "x": 0.5, "y": 0.4},
-              {"id": "pc1", "label": "PC-01", "x": 0.2, "y": 0.7},
-              {"id": "pc2", "label": "PC-02 (Infected)", "x": 0.8, "y": 0.7}
-            ],
-            'edges': [
-              {"from": "router", "to": "switch", "malicious": false},
-              {"from": "switch", "to": "pc1", "malicious": false},
-              {"from": "switch", "to": "pc2", "malicious": true}
-            ]
-          },
-          xp: 50,
-          order: 2,
-          isActive: true,
-          createdAt: DateTime.now(),
-        );
-
-        filteredQuestions.insertAll(0, [mockPacketSweeper, mockVulnSpotter, mockNetCutter]);
 
         questions = filteredQuestions;
         debugPrint(
@@ -394,94 +329,8 @@ class LessonController extends ChangeNotifier {
     final q = currentQuestion!;
     isCorrect = false;
 
-    // Logika Pengecekan Berdasarkan Tipe Soal Backend
+    // Logika Pengecekan Berdasarkan Tipe Soal
     switch (q.type) {
-      case 'sorting':
-        // Bandingkan urutan user dengan urutan asli di payload['items']
-        // Backend mengirim items dalam urutan BENAR. Frontend mengacaknya.
-        if (userSortingOrder != null) {
-          final correctOrder = List<String>.from(q.payload['items'] ?? []);
-          // Bandingkan list string secara presisi
-          isCorrect = _compareLists(userSortingOrder!, correctOrder);
-        }
-        break;
-
-      case 'fill_blank':
-      case 'input':
-      case 'text_input':
-        if (userAnswerString != null) {
-          final correct = q.payload['correct_answer']?.toString() ?? '';
-          final caseSensitive = q.payload['case_sensitive'] == true;
-          final user = userAnswerString ?? '';
-          isCorrect = caseSensitive
-              ? user.trim() == correct.trim()
-              : _normalizeText(user) == _normalizeText(correct);
-        }
-        break;
-
-      case 'word_bank':
-      case 'arrange_words':
-        if (userAnswerString != null) {
-          final correctOrder = List<String>.from(
-            q.payload['correct_order'] ?? q.payload['words'] ?? [],
-          );
-          final userWords = _splitWords(userAnswerString ?? '');
-          isCorrect = _compareLists(
-            userWords.map(_normalizeText).toList(),
-            correctOrder.map(_normalizeText).toList(),
-          );
-        }
-        break;
-
-      case 'matching':
-        if (userMatchingPairs != null) {
-          final pairs = List<Map<String, dynamic>>.from(
-            q.payload['pairs'] ?? [],
-          );
-          bool allMatch = true;
-
-          debugPrint(
-            '🔍 [CHECK_MATCHING] Validating payload pairs against user answers:',
-          );
-
-          for (final pair in pairs) {
-            final left = pair['left']?.toString().trim() ?? '';
-            final right = pair['right']?.toString().trim() ?? '';
-            // ✅ Hot Reload: Matching debug added
-
-            // Get user's answer for this left key (also trimmed)
-            final userRight = userMatchingPairs?[left]?.trim();
-            // Fallback: iterate user map to find key match if trimming differs slightly
-            final userRightFallback = userMatchingPairs?.entries
-                .firstWhere(
-                  (e) => e.key.trim() == left,
-                  orElse: () => const MapEntry('', ''),
-                )
-                .value
-                .trim();
-
-            final actualUserRight =
-                userRight ??
-                (userRightFallback?.isNotEmpty == true
-                    ? userRightFallback
-                    : null);
-
-            debugPrint(
-              '   - Key: "$left" | Expected: "$right" | User: "${actualUserRight ?? 'NULL'}"',
-            );
-
-            if (actualUserRight != right) {
-              debugPrint('     ❌ MISMATCH!');
-              allMatch = false;
-              // Don't break immediately so we can see other mismatches in debug
-            }
-          }
-          isCorrect = allMatch;
-        } else {
-          debugPrint('❌ [CHECK_MATCHING] userMatchingPairs is NULL');
-        }
-        break;
-
       case 'cipher_rotor':
         if (selectedOptionIndex != null) {
           final correctShift = q.payload['correct_shift'] as int?;
@@ -505,7 +354,6 @@ class LessonController extends ChangeNotifier {
             final userSaidSafe = userSwipeDecisions![i];
             if (userSaidSafe == !isMalicious) correctCount++;
           }
-          // 80% threshold for correct
           isCorrect = packets.isNotEmpty && (correctCount / packets.length) >= 0.8;
         }
         break;
@@ -513,8 +361,6 @@ class LessonController extends ChangeNotifier {
       case 'vuln_spotter':
         if (userFoundVulns != null) {
           final elements = (q.payload['elements'] as List<dynamic>?) ?? [];
-          final totalVulns = q.payload['total_vulns'] as int? ?? 1;
-          // Check: found all vulns
           final actualVulnIndices = <int>{};
           for (int i = 0; i < elements.length; i++) {
             if ((elements[i] as Map)['is_vuln'] == true) {
@@ -528,57 +374,214 @@ class LessonController extends ChangeNotifier {
       case 'network_cutter':
         if (userCutEdges != null) {
           final edges = (q.payload['edges'] as List<dynamic>?) ?? [];
-          // Find all malicious edge indices
           final maliciousIndices = <int>{};
           for (int i = 0; i < edges.length; i++) {
             if ((edges[i] as Map)['malicious'] == true) {
               maliciousIndices.add(i);
             }
           }
-          // Check: user cut all malicious AND didn't cut any safe ones
           final cutAllMalicious = userCutEdges!.containsAll(maliciousIndices);
           final noBadCuts = userCutEdges!.every((i) => maliciousIndices.contains(i));
           isCorrect = cutAllMalicious && noBadCuts;
         }
         break;
 
-      case 'multiple_choice':
       default:
-        // Bandingkan teks pilihan yang dipilih user dengan kunci jawaban
-        if (selectedOptionIndex != null) {
-          final options = List<String>.from(q.payload['options'] ?? []);
-          if (selectedOptionIndex! < options.length) {
-            final userSelectedText = options[selectedOptionIndex!];
-            final correctAnswerText = q.payload['correct_answer'];
-            isCorrect = userSelectedText == correctAnswerText;
-          }
-        }
         break;
     }
 
-    // Update Score & Hearts
-    // ✅ CRITICAL: XP is NOT calculated here - it comes from backend response only
+    // Update Score
     if (isCorrect) {
       score++;
-      // ✅ CRITICAL: Track question ID if answered correctly
       if (!correctQuestionIds.contains(q.id)) {
         correctQuestionIds.add(q.id);
-        debugPrint('✅ [CHECK_ANSWER] Added correct question ID: ${q.id}');
       }
-      // ✅ REMOVED: userXp += q.xp; - XP must ONLY come from backend response
       userStreak++;
     } else {
-      // UNLIMITED HEARTS MODE
-      // userHearts = (userHearts - 1).clamp(0, maxHearts);
-      // _preserveHeartsLocally();
-      // _decrementHeartsOnBackend();
-
       userStreak = 0;
     }
 
     isChecked = true;
     showFeedback = true;
     notifyListeners();
+
+    // Fire AI evaluation for cyber tool types
+    final cyberTypes = ['cipher_rotor', 'packet_sweeper', 'vuln_spotter', 'network_cutter', 'log_anomaly'];
+    if (cyberTypes.contains(q.type) && !_hasAiEvaluated) {
+      _evaluateWithAI(q);
+    }
+  }
+
+  Future<void> _evaluateWithAI(TrainingQuestion q) async {
+    if (_hasAiEvaluated) return;
+    _hasAiEvaluated = true;
+
+    isAiEvaluating = true;
+    notifyListeners();
+
+    try {
+      final dio = ApiDioProvider.getDio();
+      final userPayload = _buildUserPayload(q);
+
+      final response = await dio.post(
+        '/game/play',
+        data: {
+          'question_id': q.id,
+          'tool_type': q.type,
+          'user_payload': userPayload,
+          'history': <Map<String, String>>[],
+          'session_score': score,
+          'streak_correct': streakCorrect,
+          'streak_wrong': streakWrong,
+          'previous_threat': _previousThreatType ?? '',
+        },
+        options: Options(
+          receiveTimeout: const Duration(seconds: 45),
+          sendTimeout: const Duration(seconds: 15),
+        ),
+      );
+
+      final data = response.data;
+      if (data is Map && data['success'] == true && data['data'] != null) {
+        final aiResponse = data['data']['ai_response'];
+        if (aiResponse is Map) {
+          aiDialog = aiResponse['dialog_ai']?.toString();
+          aiStatus = aiResponse['status_simulasi']?.toString();
+          computationalScoreChange = (aiResponse['computational_score_change'] as num?)?.toInt() ?? 0;
+          ethicalScoreChange = (aiResponse['ethical_score_change'] as num?)?.toInt() ?? 0;
+          nextObjective = aiResponse['next_objective']?.toString();
+          threatMutation = aiResponse['threat_mutation']?.toString();
+          adaptiveNarrative = aiResponse['adaptive_narrative']?.toString();
+          difficultyAdjustment = (aiResponse['difficulty_adjustment'] as num?)?.toInt() ?? 0;
+
+          if (aiStatus == 'berhasil') {
+            isCorrect = true;
+            streakCorrect++;
+            streakWrong = 0;
+            if (!correctQuestionIds.contains(q.id)) {
+              correctQuestionIds.add(q.id);
+            }
+          } else if (aiStatus == 'gagal') {
+            isCorrect = false;
+            streakWrong++;
+            streakCorrect = 0;
+          }
+
+          _previousThreatType = q.type;
+
+          debugPrint('[AI] status: $aiStatus, next: $nextObjective, mutation: $threatMutation, difficulty: $difficultyAdjustment');
+        }
+      }
+    } catch (e) {
+      debugPrint('[AI] evaluation failed (using local fallback): $e');
+      aiDialog = null;
+      aiStatus = null;
+    } finally {
+      isAiEvaluating = false;
+      notifyListeners();
+    }
+  }
+
+  Map<String, dynamic> _buildUserPayload(TrainingQuestion q) {
+    switch (q.type) {
+      case 'cipher_rotor':
+        return {
+          'encrypted_text': q.payload['encrypted_text'],
+          'correct_shift': q.payload['correct_shift'],
+          'user_shift': selectedOptionIndex,
+          'decrypted_text': _decryptCaesar(
+            q.payload['encrypted_text']?.toString() ?? '',
+            selectedOptionIndex ?? 0,
+          ),
+        };
+
+      case 'log_anomaly':
+        return {
+          'lines': q.payload['lines'],
+          'correct_index': q.payload['correct_index'],
+          'selected_index': selectedOptionIndex,
+        };
+
+      case 'packet_sweeper':
+        {
+          final packets = q.payload['packets'] as List<dynamic>? ?? [];
+          final decisions = <Map<String, dynamic>>[];
+          for (int i = 0; i < packets.length; i++) {
+            final p = packets[i] as Map;
+            decisions.add({
+              'index': i,
+              'protocol': p['protocol'],
+              'src_ip': p['src_ip'],
+              'dst_ip': p['dst_ip'],
+              'is_malicious': p['is_malicious'] ?? false,
+              'user_said_safe': i < (userSwipeDecisions?.length ?? 0)
+                  ? userSwipeDecisions![i]
+                  : false,
+            });
+          }
+          return {'packets': decisions};
+        }
+
+      case 'vuln_spotter':
+        {
+          final elements = q.payload['elements'] as List<dynamic>? ?? [];
+          final vulnsFound = userFoundVulns ?? <int>{};
+          final missedVulns = <int>{};
+          for (int i = 0; i < elements.length; i++) {
+            if ((elements[i] as Map)['is_vuln'] == true && !vulnsFound.contains(i)) {
+              missedVulns.add(i);
+            }
+          }
+          return {
+            'elements_scanned': elements.length,
+            'vulns_found': vulnsFound.toList(),
+            'vulns_missed': missedVulns.toList(),
+            'total_vulns': q.payload['total_vulns'],
+          };
+        }
+
+      case 'network_cutter':
+        {
+          final edges = q.payload['edges'] as List<dynamic>? ?? [];
+          final cut = userCutEdges ?? <int>{};
+          final maliciousCut = <int>{};
+          final safeCut = <int>{};
+          for (int i = 0; i < edges.length; i++) {
+            if (cut.contains(i)) {
+              if ((edges[i] as Map)['malicious'] == true) {
+                maliciousCut.add(i);
+              } else {
+                safeCut.add(i);
+              }
+            }
+          }
+          return {
+            'total_edges': edges.length,
+            'edges_cut': cut.toList(),
+            'malicious_cut': maliciousCut.toList(),
+            'safe_cut_by_mistake': safeCut.toList(),
+          };
+        }
+
+      default:
+        return q.payload;
+    }
+  }
+
+  String _decryptCaesar(String text, int shift) {
+    final buffer = StringBuffer();
+    for (var code in text.runes) {
+      final char = String.fromCharCode(code);
+      if (RegExp(r'[a-zA-Z]').hasMatch(char)) {
+        final isUpper = char == char.toUpperCase();
+        final base = isUpper ? 65 : 97;
+        final decoded = (code - base - shift + 26) % 26 + base;
+        buffer.write(String.fromCharCode(decoded));
+      } else {
+        buffer.write(char);
+      }
+    }
+    return buffer.toString();
   }
 
   /// Save hearts to local cache to keep TrainingController in sync
@@ -630,26 +633,7 @@ class LessonController extends ChangeNotifier {
     });
   }
 
-  // Helper untuk membandingkan 2 List String
-  bool _compareLists(List<String> list1, List<String> list2) {
-    if (list1.length != list2.length) return false;
-    for (int i = 0; i < list1.length; i++) {
-      if (list1[i] != list2[i]) return false;
-    }
-    return true;
-  }
-
-  String _normalizeText(String input) {
-    return input.trim().toLowerCase();
-  }
-
-  List<String> _splitWords(String input) {
-    return input
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty)
-        .toList();
-  }
+  // Helper untuk Caesar decrypt
 
   // ==========================================
   // 4. NAVIGATION
@@ -804,6 +788,12 @@ class LessonController extends ChangeNotifier {
     isChecked = false;
     isCorrect = false;
     _lastAnswerTime = null;
+    aiDialog = null;
+    aiStatus = null;
+    computationalScoreChange = 0;
+    ethicalScoreChange = 0;
+    isAiEvaluating = false;
+    _hasAiEvaluated = false;
   }
 
   void exitLesson() {

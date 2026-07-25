@@ -23,16 +23,16 @@ type Service interface {
 }
 
 type service struct {
-	repo        Repository
-	publisher   events.Publisher
-	scheduler   Scheduler
+	repo      Repository
+	publisher events.Publisher
+	scheduler Scheduler
 }
 
 func NewService(repo Repository, publisher events.Publisher, sched Scheduler) Service {
 	return &service{
-		repo:        repo,
-		publisher:   publisher,
-		scheduler:   sched,
+		repo:      repo,
+		publisher: publisher,
+		scheduler: sched,
 	}
 }
 
@@ -53,25 +53,25 @@ func (s *service) HandleEvidenceResolved(ctx context.Context, evt events.Event) 
 
 	// 1. Queue projection job via Scheduler instead of direct computation
 	// Using Contribution as the immutable bridge
-	err := s.scheduler.QueueJob(ctx, evt.Metadata.UserID, PriorityNormal, "Evidence Resolved: " + ev.ID)
+	err := s.scheduler.QueueJob(ctx, evt.Metadata.UserID, PriorityNormal, "Evidence Resolved: "+ev.ID)
 	if err != nil {
 		return err
 	}
-	
+
 	// Create contribution
 	c := CompetencyContribution{
-		ID: ulid.Make().String(),
-		UserID: evt.Metadata.UserID,
-		EvidenceID: ev.ID,
-		SkillNodeID: ev.SkillNodeID,
+		ID:                 ulid.Make().String(),
+		UserID:             evt.Metadata.UserID,
+		EvidenceID:         ev.ID,
+		SkillNodeID:        ev.SkillNodeID,
 		KnowledgeLineageID: "dummy_lineage", // Will be extracted from metadata
-		Kind: DeltaObservation,
-		Magnitude: ev.Strength,
-		Confidence: 1.0,
-		Weight: ev.Weight,
-		CreatedAt: time.Now(),
+		Kind:               DeltaObservation,
+		Magnitude:          ev.Strength,
+		Confidence:         1.0,
+		Weight:             ev.Weight,
+		CreatedAt:          time.Now(),
 	}
-	
+
 	if err := s.repo.SaveContribution(ctx, c); err != nil {
 		return err
 	}

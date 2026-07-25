@@ -7,7 +7,7 @@ import (
 
 // RouteEngine computes the optimal path to reach a specific learning goal.
 // While Adaptive Planner sets the goal, RouteEngine plots the exact turn-by-turn path.
-type RouteEngine struct {}
+type RouteEngine struct{}
 
 func NewRouteEngine() *RouteEngine {
 	return &RouteEngine{}
@@ -18,7 +18,7 @@ func NewRouteEngine() *RouteEngine {
 func (re *RouteEngine) ComputeRoute(goalConceptID string, compProj *competency.CompetencyProjection, sessCtx *session_context.SessionContext) *RouteRecommendation {
 	// Look up the goal concept in the projection
 	state, exists := compProj.Concepts[goalConceptID]
-	
+
 	route := &RouteRecommendation{
 		GoalConceptID: goalConceptID,
 	}

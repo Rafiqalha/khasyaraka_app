@@ -9,7 +9,7 @@ class JourneyMapPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: PradigiSpacing.desktopMaxWidth),
+        constraints: const BoxConstraints(maxWidth: PradigiSpacing.contentMaxWidth),
         child: JourneyCard(
           title: "Arrays",
           estimatedTime: "45 mins total",
@@ -18,9 +18,6 @@ class JourneyMapPage extends StatelessWidget {
             JourneyNodeItem(title: "Quick Check", status: JourneyNodeStatus.locked),
             JourneyNodeItem(title: "Mission", status: JourneyNodeStatus.locked),
           ],
-          onContinue: () {
-            // Handled by shell CTA
-          },
         ),
       ),
     );

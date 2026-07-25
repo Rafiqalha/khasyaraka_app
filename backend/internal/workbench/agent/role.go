@@ -6,15 +6,15 @@ import "context"
 // Agents are not hardcoded classes — they are dynamically configured via Role.
 // Creating a new persona is as simple as writing a new Role config.
 type Role struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`         // "Python Debugging Mentor"
-	Persona     string            `json:"persona"`      // "MENTOR", "QA_ENGINEER", "REVIEWER", "ATTACKER"
-	Goals       string            `json:"goals"`        // "Guide the user to find the bug themselves"
-	Knowledge   []string          `json:"knowledge"`    // ["python", "debugging", "stack traces"]
-	Behavior    string            `json:"behavior"`     // "Socratic: ask questions, don't give answers directly"
-	PromptBundle string           `json:"prompt_bundle"` // System prompt template
-	Permissions []string          `json:"permissions"`  // ["read_code", "read_terminal", "suggest_hint"]
-	Config      map[string]string `json:"config"`       // Extra config (temperature, max_tokens, etc.)
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`          // "Python Debugging Mentor"
+	Persona      string            `json:"persona"`       // "MENTOR", "QA_ENGINEER", "REVIEWER", "ATTACKER"
+	Goals        string            `json:"goals"`         // "Guide the user to find the bug themselves"
+	Knowledge    []string          `json:"knowledge"`     // ["python", "debugging", "stack traces"]
+	Behavior     string            `json:"behavior"`      // "Socratic: ask questions, don't give answers directly"
+	PromptBundle string            `json:"prompt_bundle"` // System prompt template
+	Permissions  []string          `json:"permissions"`   // ["read_code", "read_terminal", "suggest_hint"]
+	Config       map[string]string `json:"config"`        // Extra config (temperature, max_tokens, etc.)
 }
 
 // RoleRegistry manages available Agent Roles.
@@ -27,12 +27,12 @@ func NewRoleRegistry() *RoleRegistry {
 
 	// Seed with default roles
 	reg.Register(Role{
-		ID:       "python_mentor",
-		Name:     "Python Debugging Mentor",
-		Persona:  "MENTOR",
-		Goals:    "Guide the user to find and fix the bug themselves. Never give the direct answer.",
+		ID:        "python_mentor",
+		Name:      "Python Debugging Mentor",
+		Persona:   "MENTOR",
+		Goals:     "Guide the user to find and fix the bug themselves. Never give the direct answer.",
 		Knowledge: []string{"python", "debugging", "stack_traces", "common_pitfalls"},
-		Behavior: "Socratic method. Ask guiding questions. Celebrate small wins. If user is blocked 3+ times, give a more direct hint.",
+		Behavior:  "Socratic method. Ask guiding questions. Celebrate small wins. If user is blocked 3+ times, give a more direct hint.",
 		PromptBundle: `You are a warm, encouraging Python debugging mentor named "Kak Digi".
 You are helping a student debug a broken Python program.
 
@@ -58,12 +58,12 @@ CURRENT ERROR:
 	})
 
 	reg.Register(Role{
-		ID:       "python_qa",
-		Name:     "QA Engineer",
-		Persona:  "QA_ENGINEER",
-		Goals:    "Report bugs found in the user's code. Act like a demanding but fair QA.",
+		ID:        "python_qa",
+		Name:      "QA Engineer",
+		Persona:   "QA_ENGINEER",
+		Goals:     "Report bugs found in the user's code. Act like a demanding but fair QA.",
 		Knowledge: []string{"python", "testing", "edge_cases", "error_handling"},
-		Behavior: "Professional and precise. Report bugs with clear reproduction steps. Don't suggest fixes.",
+		Behavior:  "Professional and precise. Report bugs with clear reproduction steps. Don't suggest fixes.",
 		PromptBundle: `You are a meticulous QA Engineer named "QA Bot".
 You are testing a student's Python code for bugs.
 
@@ -85,12 +85,12 @@ TEST RESULTS:
 	})
 
 	reg.Register(Role{
-		ID:       "code_reviewer",
-		Name:     "Senior Code Reviewer",
-		Persona:  "REVIEWER",
-		Goals:    "Review code quality. Approve or reject with reasoning.",
+		ID:        "code_reviewer",
+		Name:      "Senior Code Reviewer",
+		Persona:   "REVIEWER",
+		Goals:     "Review code quality. Approve or reject with reasoning.",
 		Knowledge: []string{"python", "clean_code", "best_practices", "code_review"},
-		Behavior: "Firm but educational. Point out issues with reasoning. Approve when quality is sufficient.",
+		Behavior:  "Firm but educational. Point out issues with reasoning. Approve when quality is sufficient.",
 		PromptBundle: `You are a senior code reviewer.
 Review the following code change and provide feedback.
 

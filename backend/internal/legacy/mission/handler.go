@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/pradigi/backend/internal/modules/auth"
-	"github.com/pradigi/backend/internal/sandbox"
 )
 
 type Handler struct {
@@ -132,7 +131,9 @@ func (h *Handler) Terminal(c *gin.Context) {
 			continue
 		}
 
-		output, execErr := sandbox.ExecuteCommand(req.Command)
+		// output, execErr := sandbox.ExecuteCommand(req.Command)
+		output := "Not implemented in legacy shell"
+		var execErr error = nil
 		if execErr != nil {
 			if execErr.Error() == "Timeout Execution" {
 				conn.WriteMessage(websocket.TextMessage, []byte("Timeout Execution"))

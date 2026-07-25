@@ -381,7 +381,7 @@ func (c ReverseCipher) Decrypt(ciphertext string, _ string) (string, error) {
 // --- Random Substitution ---
 
 type SubstitutionCipher struct {
-	key     string
+	key string
 }
 
 const substitutionAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

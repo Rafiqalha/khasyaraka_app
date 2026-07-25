@@ -1,8 +1,8 @@
 package http
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type ErrorDetail struct {

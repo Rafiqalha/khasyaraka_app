@@ -16,48 +16,48 @@ import (
 // activityToSemantic maps raw event types to semantic node types.
 var activityToSemantic = map[string]CognitiveIntent{
 	// Exploration
-	"OPEN_FILE":           IntentExplore,
-	"READ_DOCS":           IntentExplore,
-	"EnvironmentChanged":  IntentExplore,
+	"OPEN_FILE":          IntentExplore,
+	"READ_DOCS":          IntentExplore,
+	"EnvironmentChanged": IntentExplore,
 
 	// Hypothesis (editing = proposing a fix)
-	"SAVE_FILE":           IntentHypothesis,
-	"ArtifactCreated":     IntentHypothesis,
-	"ArtifactModified":    IntentHypothesis,
+	"SAVE_FILE":        IntentHypothesis,
+	"ArtifactCreated":  IntentHypothesis,
+	"ArtifactModified": IntentHypothesis,
 
 	// Verification (running = testing hypothesis)
-	"RUN_CODE":            IntentValidate,
-	"ToolExecuted":        IntentValidate,
-	"RUN_TESTS":           IntentValidate,
+	"RUN_CODE":     IntentValidate,
+	"ToolExecuted": IntentValidate,
+	"RUN_TESTS":    IntentValidate,
 
 	// Failure
-	"COMPILE_ERROR":       IntentFailure,
-	"RUNTIME_ERROR":       IntentFailure,
-	"TEST_FAILED":         IntentFailure,
+	"COMPILE_ERROR": IntentFailure,
+	"RUNTIME_ERROR": IntentFailure,
+	"TEST_FAILED":   IntentFailure,
 
 	// Delegation (asking for help)
-	"ASK_MENTOR":          IntentDelegation,
-	"AgentRequested":      IntentDelegation,
-	"AgentResponded":      IntentDelegation,
+	"ASK_MENTOR":     IntentDelegation,
+	"AgentRequested": IntentDelegation,
+	"AgentResponded": IntentDelegation,
 
 	// Confirmation
-	"ObjectiveCompleted":  IntentValidate, // Or create IntentConfirmation
-	"MissionCompleted":    IntentValidate,
+	"ObjectiveCompleted": IntentValidate, // Or create IntentConfirmation
+	"MissionCompleted":   IntentValidate,
 
 	// Abandonment
-	"MissionAbandoned":    IntentExplore, // Mapped fallback
+	"MissionAbandoned": IntentExplore, // Mapped fallback
 }
 
 // edgeRelations determines the semantic relationship based on consecutive node types.
 var edgeRelations = map[[2]CognitiveIntent]string{
-	{IntentHypothesis, IntentValidate}:  "LEADS_TO",
-	{IntentValidate, IntentFailure}:     "DISPROVES",
-	{IntentValidate, IntentOptimize}:    "CONFIRMS",
-	{IntentFailure, IntentHypothesis}:   "TRIGGERS",
-	{IntentFailure, IntentDelegation}:   "TRIGGERS",
+	{IntentHypothesis, IntentValidate}:   "LEADS_TO",
+	{IntentValidate, IntentFailure}:      "DISPROVES",
+	{IntentValidate, IntentOptimize}:     "CONFIRMS",
+	{IntentFailure, IntentHypothesis}:    "TRIGGERS",
+	{IntentFailure, IntentDelegation}:    "TRIGGERS",
 	{IntentDelegation, IntentHypothesis}: "LEADS_TO",
-	{IntentExplore, IntentHypothesis}:   "LEADS_TO",
-	{IntentFailure, IntentExplore}:      "TRIGGERS",
+	{IntentExplore, IntentHypothesis}:    "LEADS_TO",
+	{IntentFailure, IntentExplore}:       "TRIGGERS",
 }
 
 type SemanticGraphBuilder struct{}

@@ -64,8 +64,11 @@ class AuthRepository {
 
       // Handle authentication errors (401)
       if (statusCode == 401) {
+        final errorMessage = _extractErrorMessage(e.response?.data);
         throw AuthException(
-          'Username atau password salah.',
+          errorMessage.isNotEmpty && errorMessage != 'Terjadi kesalahan.'
+              ? errorMessage
+              : 'Username atau password salah. Silakan periksa kembali atau daftar akun baru.',
           statusCode: statusCode,
         );
       }
@@ -118,6 +121,7 @@ class AuthRepository {
     required String username,
     required String password,
     String? gugusDepan,
+    String? countryId,
   }) async {
     try {
       final response = await _dio.post(
@@ -128,6 +132,8 @@ class AuthRepository {
           'password': password,
           if (gugusDepan != null && gugusDepan.isNotEmpty)
             'gugus_depan': gugusDepan.trim(),
+          if (countryId != null && countryId.isNotEmpty)
+            'country_id': countryId,
         },
       );
 
@@ -442,6 +448,7 @@ class ApiUser {
   final String? kecamatanId;
   final String? kabupatenId;
   final String? provinsiId;
+  final String? countryId;
 
   ApiUser({
     required this.id,
@@ -454,6 +461,7 @@ class ApiUser {
     this.kecamatanId,
     this.kabupatenId,
     this.provinsiId,
+    this.countryId,
   });
 
   factory ApiUser.fromJson(Map<String, dynamic> json) {
@@ -483,6 +491,7 @@ class ApiUser {
       kecamatanId: json['kecamatan_id']?.toString(),
       kabupatenId: json['kabupaten_id']?.toString(),
       provinsiId: json['provinsi_id']?.toString(),
+      countryId: json['country_id']?.toString(),
     );
   }
 }

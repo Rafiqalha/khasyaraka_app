@@ -1,17 +1,14 @@
 import 'package:scout_os_app/core/widgets/terminal_loading.dart';
+import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scout_os_app/core/constants/app_colors.dart';
 import 'package:scout_os_app/core/widgets/duo_button.dart';
 import '../../logic/lesson_controller.dart';
 import '../../logic/training_controller.dart';
 import '../widgets/lesson_progress_header.dart';
-import '../widgets/duolingo_option_button.dart';
-import '../widgets/arrange_words_widget.dart';
-import '../widgets/listening_widget.dart';
-import '../widgets/input_text_widget.dart';
-import '../widgets/sorting_widget.dart';
-import '../widgets/matching_widget.dart';
 import '../widgets/cipher_rotor_widget.dart';
 import '../widgets/log_anomaly_widget.dart'; // ✅ NEW
 import '../widgets/packet_sweeper_widget.dart'; // ✅ CYBER
@@ -337,6 +334,8 @@ class _QuizPageState extends State<QuizPage> {
             ),
             body: Stack(
               children: [
+                // Matrix background canvas
+                Positioned.fill(child: CustomPaint(painter: _MatrixBgPainter())),
                 Column(
                   children: [
                     Expanded(
@@ -376,6 +375,15 @@ class _QuizPageState extends State<QuizPage> {
                       isCorrect: controller.isCorrect,
                       correctAnswer: _getCorrectAnswerText(controller),
                       onContinue: () => controller.nextQuestion(),
+                      aiDialog: controller.aiDialog,
+                      aiStatus: controller.aiStatus,
+                      computationalScoreChange: controller.computationalScoreChange,
+                      ethicalScoreChange: controller.ethicalScoreChange,
+                      isAiEvaluating: controller.isAiEvaluating,
+                      nextObjective: controller.nextObjective,
+                      threatMutation: controller.threatMutation,
+                      adaptiveNarrative: controller.adaptiveNarrative,
+                      difficultyAdjustment: controller.difficultyAdjustment,
                     ),
                   ),
               ],
@@ -392,33 +400,18 @@ class _QuizPageState extends State<QuizPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E24), // Dark card background
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: const Color(0xFF161B22),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Listening type: audio URL is in payload
-          if (question.type == 'listening')
-            Builder(
-              builder: (context) {
-                final audioUrl = question.payload['audio_url'] as String?;
-                if (audioUrl != null && audioUrl.isNotEmpty) {
-                  return ListeningWidget(audioUrl: audioUrl);
-                }
-                return const SizedBox.shrink();
-              },
-            ),
           // Question text (always show)
           Text(
             question.question,
+            maxLines: 8,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -511,188 +504,6 @@ class _QuizPageState extends State<QuizPage> {
           );
         }
 
-      case 'multiple_choice':
-        {
-          final options = question.getMultipleChoiceOptions() ?? [];
-          final correctAnswer = question.payload['correct_answer'] as String?;
-          // Check if user answered wrong (to highlight correct)
-          final userAnsweredWrong =
-              controller.isChecked &&
-              controller.selectedOptionIndex != null &&
-              options[controller.selectedOptionIndex!] != correctAnswer;
-
-          return Column(
-            children: options.asMap().entries.map((entry) {
-              final index = entry.key;
-              final option = entry.value;
-              final isCorrect =
-                  correctAnswer != null && option == correctAnswer;
-
-              return DuolingoOptionButton(
-                text: option,
-                index: index,
-                isSelected: controller.selectedOptionIndex == index,
-                isChecked: controller.isChecked,
-                isCorrectAnswer: isCorrect,
-                showCorrectHighlight: userAnsweredWrong,
-                onTap: () => controller.selectOption(index),
-              );
-            }).toList(),
-          );
-        }
-
-      case 'sorting':
-      case 'ordering':
-        {
-          final items =
-              question.getOrderingItems() ??
-              (question.payload['items'] as List<dynamic>?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              [];
-          return SortingWidget(
-            items: items,
-            isChecked: controller.isChecked,
-            isCorrect: controller.isCorrect,
-            onOrderChanged: (order) => controller.updateSortingOrder(order),
-          );
-        }
-
-      case 'word_bank':
-      case 'arrange_words':
-        {
-          // Get words from payload
-          final words =
-              (question.payload['words'] as List<dynamic>?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              (question.payload['items'] as List<dynamic>?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              [];
-
-          // Get correct answer for display
-          final correctOrder =
-              (question.payload['correct_order'] as List<dynamic>?)
-                  ?.map((e) => e.toString())
-                  .toList();
-          final correctAnswer = correctOrder?.join(" ");
-
-          return ArrangeWordsWidget(
-            words: words,
-            onAnswerChanged: (answer) => controller.updateStringAnswer(answer),
-            isChecked: controller.isChecked,
-            isCorrect: controller.isCorrect,
-            correctAnswer: correctAnswer,
-          );
-        }
-
-      case 'fill_blank':
-      case 'input':
-      case 'text_input':
-        {
-          // Get correct answer from payload (for display after check)
-          final correctAnswer = question.payload['correct_answer'] as String?;
-          return InputTextWidget(
-            initialValue: controller.userAnswerString,
-            onAnswerChanged: (answer) => controller.updateStringAnswer(answer),
-            isChecked: controller.isChecked,
-            isCorrect: controller.isCorrect,
-            correctAnswer: correctAnswer,
-          );
-        }
-
-      case 'matching':
-        {
-          final matchingData = question.getMatchingItems();
-          if (matchingData == null) {
-            return const Text('Data matching tidak valid');
-          }
-
-          // Convert to pairs format expected by MatchingWidget
-          final pairs = <Map<String, String>>[];
-          final leftItems = matchingData['left'] ?? [];
-          final rightItems = matchingData['right'] ?? [];
-
-          for (int i = 0; i < leftItems.length && i < rightItems.length; i++) {
-            pairs.add({'left': leftItems[i], 'right': rightItems[i]});
-          }
-
-          return MatchingWidget(
-            pairs: pairs,
-            isChecked: controller.isChecked,
-            isCorrect: controller.isCorrect,
-            onAnswerChanged: (pairs) => controller.updateMatchingAnswer(pairs),
-          );
-        }
-
-      case 'listening':
-        {
-          // Listening: options are in payload (skip first if it's audio URL)
-          final options =
-              (question.payload['options'] as List<dynamic>?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              [];
-          final correctAnswer = question.payload['correct_answer'] as String?;
-          final userAnsweredWrong =
-              controller.isChecked &&
-              controller.selectedOptionIndex != null &&
-              options[controller.selectedOptionIndex!] != correctAnswer;
-
-          return Column(
-            children: options.asMap().entries.map((entry) {
-              final index = entry.key;
-              final option = entry.value;
-              final isCorrect =
-                  correctAnswer != null && option == correctAnswer;
-
-              return DuolingoOptionButton(
-                text: option,
-                index: index,
-                isSelected: controller.selectedOptionIndex == index,
-                isChecked: controller.isChecked,
-                isCorrectAnswer: isCorrect,
-                showCorrectHighlight: userAnsweredWrong,
-                onTap: () => controller.selectOption(index),
-              );
-            }).toList(),
-          );
-        }
-
-      case 'true_false':
-        {
-          final options = ['Benar', 'Salah'];
-          final correctAnswer = question.payload['correct_answer'] as bool?;
-          // Check if user answered wrong
-          final correctIndex = correctAnswer == true ? 0 : 1;
-          final userAnsweredWrong =
-              controller.isChecked &&
-              controller.selectedOptionIndex != null &&
-              controller.selectedOptionIndex != correctIndex;
-
-          return Column(
-            children: options.asMap().entries.map((entry) {
-              final index = entry.key;
-              final option = entry.value;
-              // Map boolean to text
-              final isCorrect =
-                  (correctAnswer == true && option == 'Benar') ||
-                  (correctAnswer == false && option == 'Salah');
-
-              return DuolingoOptionButton(
-                text: option,
-                index: index,
-                isSelected: controller.selectedOptionIndex == index,
-                isChecked: controller.isChecked,
-                isCorrectAnswer: isCorrect,
-                showCorrectHighlight: userAnsweredWrong,
-                onTap: () => controller.selectOption(index),
-              );
-            }).toList(),
-          );
-        }
-
       default:
         return Text('Tipe pertanyaan tidak didukung: ${question.type}');
     }
@@ -703,18 +514,7 @@ class _QuizPageState extends State<QuizPage> {
     final q = controller.currentQuestion;
     if (q == null) return null;
 
-    // Extract correct answer text based on type
-    if (q.type == 'multiple_choice' ||
-        q.type == 'listening' ||
-        q.type == 'true_false' ||
-        q.type == 'log_anomaly') {
-      return q.payload['correct_answer']?.toString();
-    } else if (q.type == 'arrange_words' || q.type == 'word_bank') {
-      final correctOrder = (q.payload['correct_order'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList();
-      return correctOrder?.join(" ");
-    } else if (q.type == 'input' || q.type == 'text_input') {
+    if (q.type == 'log_anomaly') {
       return q.payload['correct_answer']?.toString();
     }
 
@@ -724,27 +524,8 @@ class _QuizPageState extends State<QuizPage> {
   /// Button "Periksa" (Check)
   /// Only shown when feedback is NOT yet visible
   Widget _buildCheckButton(LessonController controller) {
-    // For matching: require ALL pairs filled, not just one
-    bool hasMatchingAnswer = false;
-    if (controller.userMatchingPairs != null &&
-        controller.userMatchingPairs!.isNotEmpty) {
-      final q = controller.currentQuestion;
-      if (q != null && q.type == 'matching') {
-        final pairs = q.payload['pairs'] as List? ?? [];
-        hasMatchingAnswer =
-            controller.userMatchingPairs!.length >= pairs.length;
-      } else {
-        hasMatchingAnswer = true;
-      }
-    }
-
     final hasAnswer =
         controller.selectedOptionIndex != null ||
-        (controller.userAnswerString != null &&
-            controller.userAnswerString!.isNotEmpty) ||
-        (controller.userSortingOrder != null &&
-            controller.userSortingOrder!.isNotEmpty) ||
-        hasMatchingAnswer ||
         (controller.userSwipeDecisions != null &&
             controller.userSwipeDecisions!.isNotEmpty) ||
         (controller.userFoundVulns != null &&
@@ -757,15 +538,7 @@ class _QuizPageState extends State<QuizPage> {
         ? () {
             controller.checkAnswer();
             if (controller.isCorrect) {
-              final type = controller.currentQuestion?.type;
-              final isChoiceBased =
-                  type == 'multiple_choice' ||
-                  type == 'true_false' ||
-                  type == 'listening';
-
-              if (!isChoiceBased) {
-                QuizHapticService.correctFeedback();
-              }
+              QuizHapticService.correctFeedback();
             } else {
               QuizHapticService.wrongFeedback();
               _shakeKey.currentState?.shake(); // 📳 Shake input
@@ -775,53 +548,32 @@ class _QuizPageState extends State<QuizPage> {
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E24), // Dark container for cyber theme
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: Color(0xFF161B22),
+        border: Border(top: BorderSide(color: Color(0xFF30363D))),
       ),
       child: SizedBox(
         width: double.infinity,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: onPressed != null
-                ? [
-                    const BoxShadow(
-                      color: AppColors.duoSuccessShadow,
-                      offset: Offset(0, 4),
-                      blurRadius: 0,
-                    ),
-                  ]
-                : null,
-          ),
-          child: ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: onPressed != null
-                  ? AppColors.duoSuccess
-                  : Colors.grey.shade300,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.grey.shade300,
-              disabledForegroundColor: Colors.grey.shade500,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 0,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF161B22),
+            foregroundColor: const Color(0xFF3FB950),
+            disabledBackgroundColor: const Color(0xFF161B22),
+            disabledForegroundColor: const Color(0xFF30363D),
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: onPressed != null ? const Color(0xFF30363D) : const Color(0xFF21262D)),
             ),
-            child: const Text(
-              "PERIKSA",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
+            elevation: 0,
+          ),
+          child: Text(
+            "[ RUN SYSTEM SECURITY AUDIT ]",
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
             ),
           ),
         ),
@@ -888,4 +640,27 @@ class _QuizPageState extends State<QuizPage> {
       ),
     );
   }
+}
+
+class _MatrixBgPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = const Color(0xFF3FB950).withOpacity(0.025);
+    final rng = Random(42);
+    for (double y = 0; y < size.height; y += 18) {
+      for (double x = 0; x < size.width; x += 14) {
+        if (rng.nextDouble() < 0.3) {
+          final text = String.fromCharCode(rng.nextInt(2) + 48);
+          final tp = TextPainter(
+            text: TextSpan(text: text, style: TextStyle(color: paint.color, fontSize: 10, fontFamily: 'JetBrainsMono')),
+            textDirection: ui.TextDirection.ltr,
+          )..layout();
+          tp.paint(canvas, Offset(x, y));
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }

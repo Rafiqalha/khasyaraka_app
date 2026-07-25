@@ -103,10 +103,10 @@ func (s *MissionState) handleBlockIP(action MissionAction) ActionResult {
 		s.Phase = "mitigation"
 		s.ServerHealth += 10
 		return ActionResult{
-			Success: true,
-			Message: "✅ Attacker IP 192.168.1.105 blocked. Attack stalled. +60s added.",
-			NewState: s,
-			Events:  []EnvironmentEvent{{Type: "block_success", Severity: "info", Message: "IP 192.168.1.105 blocked — attack stalled", SourceIP: ip}},
+			Success:     true,
+			Message:     "✅ Attacker IP 192.168.1.105 blocked. Attack stalled. +60s added.",
+			NewState:    s,
+			Events:      []EnvironmentEvent{{Type: "block_success", Severity: "info", Message: "IP 192.168.1.105 blocked — attack stalled", SourceIP: ip}},
 			ScoreChange: 25,
 		}
 	}
@@ -116,10 +116,10 @@ func (s *MissionState) handleBlockIP(action MissionAction) ActionResult {
 		s.Score -= 30
 		s.TimeRemaining -= 90
 		return ActionResult{
-			Success:   false,
-			Message:   "❌ BLOCKED WEB SERVER ITSELF! 500 users disconnected. CEO angry.",
-			NewState:  s,
-			Events:    []EnvironmentEvent{{Type: "block_fail", Severity: "critical", Message: "CRITICAL: Blocked own server IP — 500 users disconnected", SourceIP: ip}},
+			Success:     false,
+			Message:     "❌ BLOCKED WEB SERVER ITSELF! 500 users disconnected. CEO angry.",
+			NewState:    s,
+			Events:      []EnvironmentEvent{{Type: "block_fail", Severity: "critical", Message: "CRITICAL: Blocked own server IP — 500 users disconnected", SourceIP: ip}},
 			ScoreChange: -30,
 		}
 	}
@@ -162,10 +162,10 @@ func (s *MissionState) handleInspectLog(action MissionAction) ActionResult {
 	for _, l := range s.Logs {
 		if l.ID == int(id) {
 			return ActionResult{
-				Success: true,
-				Message: fmt.Sprintf("Log %d inspected: %s", l.ID, l.Message),
+				Success:  true,
+				Message:  fmt.Sprintf("Log %d inspected: %s", l.ID, l.Message),
 				NewState: s,
-				Events:   []EnvironmentEvent{{
+				Events: []EnvironmentEvent{{
 					Type:     "inspect",
 					Severity: "info",
 					Message:  fmt.Sprintf("[%s] %s %s %d — %s", l.Timestamp, l.Server, l.Service, l.Status, l.Message),

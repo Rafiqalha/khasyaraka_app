@@ -22,7 +22,7 @@ func NewOrchestrator() *Orchestrator {
 // StartJourney creates a new journey and unlocks the first node.
 func (o *Orchestrator) StartJourney(userID, curriculumID, firstNodeID string) (*Journey, error) {
 	journeyID := ulid.Make().String()
-	
+
 	o.appendEvent(JourneyEvent{
 		JourneyID: journeyID,
 		Type:      EventJourneyStarted,

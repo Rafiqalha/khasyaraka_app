@@ -52,18 +52,18 @@ func (r *repository) UpsertCapability(cap *LearnerCapability) error {
 			updated_at = NOW()
 		RETURNING id
 	`
-	
+
 	// NamedQuery is used to return the ID if needed for logs
 	rows, err := r.db.NamedQuery(query, cap)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
-	
+
 	if rows.Next() {
 		err = rows.Scan(&cap.ID)
 	}
-	
+
 	return err
 }
 

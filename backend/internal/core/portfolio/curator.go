@@ -16,7 +16,7 @@ type AutoCurator interface {
 	CurateEvidence(ctx context.Context, evidencePayload []byte) (*CuratedAsset, error)
 }
 
-type curator struct {}
+type curator struct{}
 
 func NewAutoCurator() AutoCurator {
 	return &curator{}
@@ -25,7 +25,7 @@ func NewAutoCurator() AutoCurator {
 func (c *curator) CurateEvidence(ctx context.Context, evidencePayload []byte) (*CuratedAsset, error) {
 	// For MVP, simulate AI curation of evidence into a portfolio asset.
 	// In reality: Ask AI to generate a polished title/description from the raw Evidence.
-	
+
 	asset := &CuratedAsset{
 		AssetID:     "asset_123",
 		Title:       "Built an API using Golang",

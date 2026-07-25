@@ -289,13 +289,13 @@ func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*L
 
 	var allLevelIDs []string
 	learningUnits := make([]LearningUnit, len(units))
-	
+
 	for i, u := range units {
 		levels, err := s.repo.GetLevelsByUnit(u.ID)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		levelResps := make([]LevelResp, len(levels))
 		for j, l := range levels {
 			allLevelIDs = append(allLevelIDs, l.ID)
@@ -314,7 +314,7 @@ func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*L
 				levelResps[j].Status = "AVAILABLE"
 			}
 		}
-		
+
 		learningUnits[i] = LearningUnit{
 			ID:          u.ID,
 			SectionID:   sectionID,
@@ -334,7 +334,7 @@ func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*L
 		for _, up := range progressMap {
 			userProgress[up.LevelID] = up.Status
 		}
-		
+
 		// Update statuses in the response tree
 		for i := range learningUnits {
 			for j := range learningUnits[i].Levels {
@@ -375,10 +375,10 @@ func (s *Service) GetLearningPathForSection(sectionID string, userID *int64) (*L
 
 // SubmitResult holds the result of a level submission including streak info.
 type SubmitResult struct {
-	Score         int                 `json:"score"`
-	Correct       int                 `json:"correct"`
-	XpEarned      int                 `json:"xp"`
-	Streak        *users.StreakResult  `json:"streak,omitempty"`
+	Score    int                 `json:"score"`
+	Correct  int                 `json:"correct"`
+	XpEarned int                 `json:"xp"`
+	Streak   *users.StreakResult `json:"streak,omitempty"`
 }
 
 func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (map[string]interface{}, error) {
@@ -398,12 +398,12 @@ func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (
 	// Calculate XP earned purely from correct_question_ids to prevent manipulation
 	correct := 0
 	xpEarned := 0
-	
+
 	correctIDs := make(map[string]bool)
 	for _, id := range req.CorrectQuestionIDs {
 		correctIDs[id] = true
 	}
-	
+
 	for _, q := range questions {
 		if correctIDs[q.ID] {
 			correct++
@@ -435,19 +435,19 @@ func (s *Service) SubmitLevel(userID int64, levelID string, req SubmitRequest) (
 	if err == nil {
 		streakResult = sr
 	}
-	
+
 	// Create result map that matches the Python backend response expected by Flutter
 	result := map[string]interface{}{
-		"success": true,
-		"level_id": levelID,
-		"status": "COMPLETED",
-		"score": score,
+		"success":         true,
+		"level_id":        levelID,
+		"status":          "COMPLETED",
+		"score":           score,
 		"correct_answers": correct,
 		"total_questions": total,
-		"xp_earned": xpEarned,
-		"total_xp": 0, // In full app we might fetch updated user total_xp here
+		"xp_earned":       xpEarned,
+		"total_xp":        0, // In full app we might fetch updated user total_xp here
 	}
-	
+
 	if streakResult != nil {
 		result["streak"] = streakResult.Streak
 		result["longest_streak"] = streakResult.LongestStreak
@@ -536,5 +536,3 @@ func (s *Service) GetProgressState(userID int64, sectionID string) (map[string]s
 
 	return progress, nil
 }
-
-

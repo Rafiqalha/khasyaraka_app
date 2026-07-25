@@ -17,7 +17,7 @@ class PradigiTheme {
         error: PradigiColors.danger,
         onError: PradigiColors.surface,
       ),
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: PradigiTypography.h1,
         displayMedium: PradigiTypography.h2,
         displaySmall: PradigiTypography.h3,
@@ -35,15 +35,15 @@ class PradigiTheme {
             horizontal: PradigiSpacing.s24,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(PradigiRadius.r16),
+            borderRadius: BorderRadius.circular(PradigiRadius.r14),
           ),
           elevation: 0,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: PradigiColors.surface,
-        elevation: 1, // subtle elevation as per design system
-        shadowColor: PradigiColors.textPrimary.withValues(alpha: 0.04), // soft shadow
+        elevation: 0, // Flat workspace feel
+        shadowColor: PradigiColors.textPrimary.withValues(alpha: 0.02), // 2% opacity
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(PradigiRadius.r16),
           side: const BorderSide(color: PradigiColors.border, width: 1),
@@ -85,6 +85,54 @@ class PradigiTheme {
           borderRadius: BorderRadius.circular(PradigiRadius.r16),
         ),
         behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      colorScheme: const ColorScheme.dark(
+        primary: PradigiColors.primary,
+        onPrimary: PradigiColors.surface,
+        surface: Color(0xFF1E1E1E),
+        onSurface: Colors.white,
+        error: PradigiColors.danger,
+        onError: Colors.white,
+      ),
+      textTheme: TextTheme(
+        displayLarge: PradigiTypography.h1,
+        displayMedium: PradigiTypography.h2,
+        displaySmall: PradigiTypography.h3,
+        bodyLarge: PradigiTypography.body,
+        bodyMedium: PradigiTypography.bodySecondary,
+        labelLarge: PradigiTypography.caption,
+      ).apply(bodyColor: Colors.white, displayColor: Colors.white),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: PradigiColors.primary,
+          foregroundColor: PradigiColors.surface,
+          textStyle: PradigiTypography.body.copyWith(fontWeight: FontWeight.w600, color: PradigiColors.surface),
+          padding: const EdgeInsets.symmetric(
+            vertical: PradigiSpacing.s16,
+            horizontal: PradigiSpacing.s24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(PradigiRadius.r14),
+          ),
+          elevation: 0,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF1E1E1E),
+        elevation: 0,
+        shadowColor: Colors.white.withValues(alpha: 0.05),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(PradigiRadius.r16),
+          side: const BorderSide(color: Color(0xFF333333), width: 1),
+        ),
+        margin: EdgeInsets.zero,
       ),
     );
   }

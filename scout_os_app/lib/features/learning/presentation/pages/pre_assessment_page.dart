@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../design_system/tokens/radius.dart';
 import '../../../../design_system/tokens/typography.dart';
 import '../../../../design_system/tokens/spacing.dart';
 import '../../../../design_system/tokens/colors.dart';
@@ -10,7 +11,7 @@ class PreAssessmentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: PradigiSpacing.desktopMaxWidth),
+        constraints: const BoxConstraints(maxWidth: PradigiSpacing.contentMaxWidth),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,7 +32,7 @@ class PreAssessmentPage extends StatelessWidget {
               padding: const EdgeInsets.all(PradigiSpacing.s32),
               decoration: BoxDecoration(
                 color: PradigiColors.surface,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(PradigiRadius.r16),
                 border: Border.all(color: PradigiColors.border),
               ),
               child: const Text(

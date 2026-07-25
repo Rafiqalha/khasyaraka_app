@@ -1,78 +1,82 @@
-import 'dart:collection';
+import 'package:uuid/uuid.dart';
+import 'episode_recorder.dart';
 
-enum JourneyEvent {
-  journeyStarted,
-  nodeEntered,
-  nodeExited,
-  continuePressed,
+enum CognitiveEvent {
+  // Raw Interactions
+  codeChanged,
+  focusLost,
+  focusGained,
+  clipboardCopied,
+  clipboardPasted,
+  textSelected,
+  
+  // Cognitive Boundaries
+  thinkingStarted,
+  thinkingPaused,
+  thinkingResumed,
   hintOpened,
-  missionRun,
-  missionPassed,
-  missionFailed,
-  reflectionSubmitted,
-  journeyCompleted,
+  hintIgnored,
+  
+  // Actions
+  undo,
+  redo,
+  compile,
+  compileSuccess,
+  compileFailed,
+  run,
+  testPassed,
+  testFailed,
+  
+  // Activity Lifecycle
+  activityStarted,
+  activityCompleted,
 }
 
-class TelemetryEvent {
-  final JourneyEvent event;
-  final Map<String, dynamic> metadata;
+class RawInteractionEvent {
+  final String id;
+  final String eventType;
   final DateTime timestamp;
+  final int durationMs;
+  final Map<String, dynamic> payload;
 
-  TelemetryEvent({
-    required this.event,
-    Map<String, dynamic>? metadata,
-  })  : metadata = metadata ?? const {},
-        timestamp = DateTime.now();
+  RawInteractionEvent({
+    String? id,
+    required this.eventType,
+    DateTime? timestamp,
+    this.durationMs = 0,
+    this.payload = const {},
+  })  : id = id ?? const Uuid().v4(),
+        timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
-        'event': event.name,
-        'metadata': metadata,
+        'id': id,
+        'event_type': eventType,
         'timestamp': timestamp.toIso8601String(),
+        'duration_ms': durationMs,
+        'payload': payload,
       };
 }
 
-/// Core telemetry abstraction for G1.5 Validation using a Queue.
-/// Provides offline resiliency and batch flushing.
 class Telemetry {
-  static final Queue<TelemetryEvent> _queue = Queue<TelemetryEvent>();
-
   static void track({
-    required JourneyEvent event,
-    Map<String, dynamic>? metadata,
+    required CognitiveEvent event,
+    Map<String, dynamic> payload = const {},
+    int durationMs = 0,
   }) {
-    final telemetryEvent = TelemetryEvent(event: event, metadata: metadata);
-    _queue.add(telemetryEvent);
+    final rawEvent = RawInteractionEvent(
+      eventType: event.name,
+      payload: payload,
+      durationMs: durationMs,
+    );
     
-    // In G1.5, we still print for debug visibility
-    // ignore: avoid_print
-    print("[TELEMETRY QUEUED] ${telemetryEvent.timestamp.toIso8601String()} | ${event.name} | Metadata: $metadata");
-    
-    // Attempt to flush if queue gets large or immediately based on logic
-    if (_queue.length >= 5) {
-      flush();
-    }
+    EpisodeRecorder.instance.recordEvent(rawEvent);
   }
 
-  /// Flushes the queue to the backend.
-  /// If offline, events remain in the queue.
-  static Future<void> flush() async {
-    if (_queue.isEmpty) return;
-    
-    // Simulate network check and flush
-    final eventsToFlush = _queue.toList();
-    _queue.clear();
-    
-    try {
-      // TODO: Replace with actual backend HTTP POST via TelemetryApiClient
-      // await apiClient.postEvents(eventsToFlush);
-      
-      // ignore: avoid_print
-      print("[TELEMETRY FLUSHED] Successfully flushed ${eventsToFlush.length} events to backend.");
-    } catch (e) {
-      // If network fails, re-queue events to prevent data loss
-      _queue.addAll(eventsToFlush);
-      // ignore: avoid_print
-      print("[TELEMETRY FLUSH FAILED] Re-queued ${eventsToFlush.length} events.");
-    }
+  static void trackSnapshot(String type, Map<String, dynamic> data) {
+    EpisodeRecorder.instance.recordSnapshot(type, data);
+  }
+
+  static void trackReflection(String question, String answer) {
+    EpisodeRecorder.instance.recordReflection(question, answer);
   }
 }

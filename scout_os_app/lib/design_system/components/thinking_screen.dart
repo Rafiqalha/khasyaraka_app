@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../tokens/colors.dart';
 import '../tokens/typography.dart';
@@ -16,67 +17,115 @@ class ThinkingCheckItem {
   });
 }
 
-/// A signature component for Pradigi: Thinking Screen.
+/// A signature component for Pradigi: Thinking Overlay.
 /// 
 /// Replaces generic loading spinners. Gives the impression of an analytical machine at work.
-class ThinkingScreen extends StatelessWidget {
+/// Designed to be overlaid on top of the current screen (e.g. Mission Editor)
+class ThinkingOverlay extends StatelessWidget {
   final String title;
   final List<ThinkingCheckItem> checkItems;
   final String statusMessage;
+  final Widget? evidenceCard;
+  final Widget? competencyToast;
+  final int progress;
 
-  const ThinkingScreen({
+  const ThinkingOverlay({
     super.key,
-    this.title = "Analyzing your solution...",
+    this.title = "Analyzing Runtime...",
     required this.checkItems,
     required this.statusMessage,
+    this.evidenceCard,
+    this.competencyToast,
+    this.progress = 0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.all(PradigiSpacing.s32),
-        decoration: BoxDecoration(
-          color: PradigiColors.surface,
-          borderRadius: BorderRadius.circular(PradigiRadius.r16),
-          boxShadow: [
-            BoxShadow(
-              color: PradigiColors.textPrimary.withValues(alpha: 0.04),
-              blurRadius: 10,
-              spreadRadius: 2,
-            )
-          ],
-          border: Border.all(color: PradigiColors.border),
+    // Determine what to show in the center based on presence of evidence/competency
+    Widget centerContent;
+    if (competencyToast != null) {
+      centerContent = competencyToast!;
+    } else if (evidenceCard != null) {
+      centerContent = evidenceCard!;
+    } else {
+      centerContent = _buildChecklist();
+    }
+
+    return Stack(
+      children: [
+        // Background Blur + Opacity
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              color: PradigiColors.background.withValues(alpha: 0.85),
+            ),
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: PradigiTypography.h2),
-            const SizedBox(height: PradigiSpacing.s24),
-            
-            // Checklist Items
-            ...checkItems.map((item) => _buildCheckItem(item)),
-            
-            const SizedBox(height: PradigiSpacing.s24),
-            const Divider(),
-            const SizedBox(height: PradigiSpacing.s16),
-            
-            // Status Message (e.g. "Updating competency...")
-            Row(
-              children: [
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: PradigiColors.primary),
+        
+        // Content
+        Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.05),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
                 ),
-                const SizedBox(width: PradigiSpacing.s16),
-                Text(statusMessage, style: PradigiTypography.caption.copyWith(color: PradigiColors.primary)),
-              ],
-            )
-          ],
+              );
+            },
+            child: centerContent,
+          ),
         ),
+      ],
+    );
+  }
+  
+  Widget _buildChecklist() {
+    return Container(
+      key: const ValueKey("checklist"),
+      constraints: const BoxConstraints(maxWidth: 400),
+      padding: const EdgeInsets.all(PradigiSpacing.s32),
+      decoration: BoxDecoration(
+        color: PradigiColors.surface,
+        borderRadius: BorderRadius.circular(PradigiRadius.r16),
+        border: Border.all(color: PradigiColors.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: PradigiTypography.h2),
+          const SizedBox(height: PradigiSpacing.s24),
+          
+          // Checklist Items
+          ...checkItems.map((item) => _buildCheckItem(item)),
+          
+          const SizedBox(height: PradigiSpacing.s24),
+          const Divider(color: PradigiColors.border),
+          const SizedBox(height: PradigiSpacing.s16),
+          
+          // Status Message & Progress
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(statusMessage, style: PradigiTypography.caption.copyWith(color: PradigiColors.primary)),
+              Text('$progress%', style: PradigiTypography.caption.copyWith(color: PradigiColors.primary, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: PradigiSpacing.s8),
+          LinearProgressIndicator(
+            value: progress / 100.0,
+            backgroundColor: PradigiColors.border,
+            color: PradigiColors.primary,
+            minHeight: 4,
+          )
+        ],
       ),
     );
   }
@@ -102,8 +151,7 @@ class ThinkingScreen extends StatelessWidget {
         textColor = PradigiColors.textPrimary;
         break;
       case ThinkingCheckItemStatus.pending:
-      default:
-        icon = const Icon(Icons.circle_outlined, size: 20, color: PradigiColors.border);
+        icon = const SizedBox(width: 20, height: 20); // Placeholder
         textColor = PradigiColors.textSecondary;
         break;
     }

@@ -8,6 +8,6 @@ var Manifest = engine.Manifest{
 	Publishes:     []string{"observation.saved", "observation.evidence.extracted"},
 	Subscribes:    []string{"activity.aggregated"},
 	DependsOn:     []string{"identity", "session", "learning_activity", "events", "activity_aggregator"},
-	Replayable:    true, // Fully replayable from Candidates
+	Replayable:    true,  // Fully replayable from Candidates
 	SourceOfTruth: false, // Probabilistic Opini
 }

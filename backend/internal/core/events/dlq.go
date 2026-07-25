@@ -31,7 +31,7 @@ func (q *MemoryDLQ) Push(ctx context.Context, event Event, err error) error {
 func (q *MemoryDLQ) GetItems(ctx context.Context) ([]Event, error) {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
-	
+
 	copyItems := make([]Event, len(q.items))
 	copy(copyItems, q.items)
 	return copyItems, nil

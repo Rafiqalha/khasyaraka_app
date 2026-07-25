@@ -9,11 +9,11 @@ type CreateSectionRequest struct {
 }
 
 type UpdateUserRequest struct {
-	FullName      *string `json:"full_name"`
-	IsActive      *bool   `json:"is_active"`
-	IsSuperuser   *bool   `json:"is_superuser"`
-	HackLevel     *string `json:"hack_level"`
-	Timezone      *string `json:"timezone"`
+	FullName    *string `json:"full_name"`
+	IsActive    *bool   `json:"is_active"`
+	IsSuperuser *bool   `json:"is_superuser"`
+	HackLevel   *string `json:"hack_level"`
+	Timezone    *string `json:"timezone"`
 }
 
 type CreateModuleRequest struct {

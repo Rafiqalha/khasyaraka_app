@@ -1,0 +1,26 @@
+concepts:
+  - id: "concept_array"
+    title: "Array"
+    description: "Contiguous block of memory holding identical data types."
+    learning_assets:
+      - id: "asset_array_nb"
+        type: "notebook"
+        reference_id: "array_notebook.md"
+      - id: "asset_array_viz"
+        type: "visualization"
+        reference_id: "array_viz.json"
+      - id: "asset_array_sandbox"
+        type: "sandbox"
+        reference_id: "python_array_env"
+      - id: "asset_array_mission"
+        type: "mission"
+        reference_id: "mission_array_bug_01"
+
+  - id: "concept_iteration"
+    title: "Iteration"
+    description: "Repeating a process to generate a sequence of outcomes."
+
+relations:
+  - source_id: "concept_array"
+    target_id: "concept_iteration"
+    type: "uses"

@@ -174,4 +174,3 @@ func VerifyAdMobSSV(rawQuery []byte) error {
 func verifyECDSASignature(pubKey *ecdsa.PublicKey, hash, sig []byte) bool {
 	return ecdsa.VerifyASN1(pubKey, hash, sig)
 }
-

@@ -5,13 +5,14 @@
 // and emits Workbench Events. No other component may emit events.
 //
 // Flow:
-//   Command → Session Orchestrator → Runtime.Execute() → ExecutionResult
-//                                  → Evaluator.Assess() → ExecutionAssessment
-//                                  → ObjectiveEngine.Check() → ObjectiveStatus
-//                                  → emit WorkbenchEvent (Learning Activity)
-//                                  → update MissionSummary Projection (live)
-//                                  → update CognitiveState FSM
-//                                  → capture SessionSnapshot
+//
+//	Command → Session Orchestrator → Runtime.Execute() → ExecutionResult
+//	                               → Evaluator.Assess() → ExecutionAssessment
+//	                               → ObjectiveEngine.Check() → ObjectiveStatus
+//	                               → emit WorkbenchEvent (Learning Activity)
+//	                               → update MissionSummary Projection (live)
+//	                               → update CognitiveState FSM
+//	                               → capture SessionSnapshot
 package session
 
 import (
@@ -36,10 +37,10 @@ type Orchestrator struct {
 	objectiveEngine *engine.ObjectiveEngine
 	cognitiveFSM    *engine.CognitiveStateFSM
 	// Agent Engine
-	agentFactory    agent.AgentFactory
-	roleRegistry    *agent.RoleRegistry
-	agents          map[string]agent.Agent  // roleID -> active agent instance
-	agentMemories   map[string]agent.AgentMemory
+	agentFactory  agent.AgentFactory
+	roleRegistry  *agent.RoleRegistry
+	agents        map[string]agent.Agent // roleID -> active agent instance
+	agentMemories map[string]agent.AgentMemory
 	// Output channels
 	events    []WorkbenchEvent
 	snapshots []SessionSnapshot

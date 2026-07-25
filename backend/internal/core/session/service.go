@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-
 	"github.com/oklog/ulid/v2"
 	"github.com/pradigi/backend/internal/core/events"
 	"github.com/pradigi/backend/internal/core/session/policies"
@@ -53,13 +52,13 @@ func (s *service) HandleLearningActivity(ctx context.Context, evt events.Event) 
 		s.repo.CreateSession(ctx, *activeSession)
 	} else {
 		// Check Idle Timeout
-		if evt.OccurredAt.Sub(activeSession.StartedAt) > policy.IdleTimeout { 
+		if evt.OccurredAt.Sub(activeSession.StartedAt) > policy.IdleTimeout {
 			// Close old session
 			activeSession.Status = StatusEnded
 			now := s.clock.Now()
 			activeSession.EndedAt = &now
 			s.repo.UpdateSession(ctx, *activeSession)
-			
+
 			// Publish ended
 			s.publishSessionEvent(ctx, EventSessionEnded, *activeSession)
 

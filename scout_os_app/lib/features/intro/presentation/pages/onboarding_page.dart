@@ -101,10 +101,10 @@ class _LogoSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF121212),
+      color: Colors.white,
       child: Center(
         child: Image.asset(
-          'assets/images/logo/foreground-pigi.png',
+          'assets/images/logo/pradigi-logo-foreground.png',
           width: 250,
           height: 250,
         ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8)),
@@ -122,7 +122,7 @@ class _PradigiSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF121212),
+      color: Colors.white,
       child: Center(
         child: Text(
           "pradigi",

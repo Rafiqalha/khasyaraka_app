@@ -130,7 +130,7 @@ func (s *Service) Create1v1Room(user1, user2 int64) (*Room, error) {
 		QTimeSecs:      30,
 		Status:         "playing", // Auto-start
 	}
-	
+
 	now := time.Now()
 	room.StartedAt = &now
 	room.QStartedAt = &now
@@ -190,7 +190,7 @@ func (s *Service) CreateBotMatch(ctx context.Context, userID int64, difficulty s
 
 	// Generate Bot Timestamps
 	botTS := BotTimestamps{Answers: make(map[int]int64)}
-	
+
 	// Default to medium if unknown
 	accuracy := 85
 	minTime := 5

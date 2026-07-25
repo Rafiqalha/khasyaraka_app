@@ -16,16 +16,16 @@ import (
 // ===========================
 
 type ExperimentSummary struct {
-	ExperimentID      string                    `json:"experiment_id"`
-	MissionCount      int                       `json:"mission_count"`
-	CompletedMissions int                       `json:"completed_missions"`
-	AbandonedMissions int                       `json:"abandoned_missions"`
-	TotalCompiles     int                       `json:"total_compiles"`
-	TotalRuns         int                       `json:"total_runs"`
-	TotalAICalls      int                       `json:"total_ai_calls"`
-	TotalDurationSec  int                       `json:"total_duration_sec"`
+	ExperimentID      string                     `json:"experiment_id"`
+	MissionCount      int                        `json:"mission_count"`
+	CompletedMissions int                        `json:"completed_missions"`
+	AbandonedMissions int                        `json:"abandoned_missions"`
+	TotalCompiles     int                        `json:"total_compiles"`
+	TotalRuns         int                        `json:"total_runs"`
+	TotalAICalls      int                        `json:"total_ai_calls"`
+	TotalDurationSec  int                        `json:"total_duration_sec"`
 	DominantCogState  domain.CognitiveStateValue `json:"dominant_cognitive_state"`
-	Observations      []string                  `json:"observations"` // High-level deterministic findings
+	Observations      []string                   `json:"observations"` // High-level deterministic findings
 }
 
 type ExperimentAnalyzer struct{}

@@ -16,16 +16,16 @@ type Observation struct {
 
 // Thought is the internal reasoning step of an Agent.
 type Thought struct {
-	Analysis   string `json:"analysis"`
-	Intent     string `json:"intent"`
+	Analysis   string  `json:"analysis"`
+	Intent     string  `json:"intent"`
 	Confidence float64 `json:"confidence"`
 }
 
 // Response is the outward-facing output of an Agent — emitted as a Workbench Event.
 type Response struct {
 	AgentID    string `json:"agent_id"`
-	AgentRole  string `json:"agent_role"` // "MENTOR", "QA", "COMPILER", "LINTER"
-	Content    string `json:"content"`    // Text, code, log output, etc.
+	AgentRole  string `json:"agent_role"`  // "MENTOR", "QA", "COMPILER", "LINTER"
+	Content    string `json:"content"`     // Text, code, log output, etc.
 	ActionType string `json:"action_type"` // The WorkbenchEventType this emits
 }
 

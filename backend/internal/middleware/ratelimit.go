@@ -1,65 +1,56 @@
 package middleware
 
 import (
+	"context"
+	"fmt"
 	"net/http"
-	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/time/rate"
-	
-	httputil "github.com/pradigi/backend/internal/pkg/http"
+	"github.com/redis/go-redis/v9"
 )
 
-type rateLimiter struct {
-	limiters map[string]*rate.Limiter
-	mu       sync.Mutex
-	rate     rate.Limit
-	burst    int
-}
-
-func newRateLimiter(r rate.Limit, b int) *rateLimiter {
-	return &rateLimiter{
-		limiters: make(map[string]*rate.Limiter),
-		rate:     r,
-		burst:    b,
-	}
-}
-
-func (rl *rateLimiter) getLimiter(ip string) *rate.Limiter {
-	rl.mu.Lock()
-	defer rl.mu.Unlock()
-
-	limiter, exists := rl.limiters[ip]
-	if !exists {
-		limiter = rate.NewLimiter(rl.rate, rl.burst)
-		rl.limiters[ip] = limiter
-	}
-
-	return limiter
-}
-
-// RateLimit creates an in-memory rate limiter based on client IP.
-func RateLimit(requestsPerSecond float64, burst int) gin.HandlerFunc {
-	limiter := newRateLimiter(rate.Limit(requestsPerSecond), burst)
-
-	// Background cleanup of old limiters is omitted for brevity in MVP
-	// For production readiness without Redis, we'd add an eviction mechanism.
-
+// RateLimiter enforces a maximum number of requests per window for a specific UserID.
+func RateLimiter(rdb *redis.Client, maxRequests int, window time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ip := c.ClientIP()
-		l := limiter.getLimiter(ip)
-
-		if !l.Allow() {
-			c.JSON(http.StatusTooManyRequests, httputil.APIResponse{
-				Success: false,
-				Error: &httputil.ErrorDetail{
-					Code:    httputil.CodeTooManyRequests,
-					Message: "Too many requests. Please try again later.",
-				},
-			})
-			c.Abort()
+		if rdb == nil {
+			c.Next()
 			return
 		}
+
+		userID := c.GetString("user_id")
+		if userID == "" {
+			userID = c.GetString("userId")
+		}
+
+		var key string
+		if userID != "" {
+			key = fmt.Sprintf("ratelimit:user:%s:path:%s", userID, c.FullPath())
+		} else {
+			key = fmt.Sprintf("ratelimit:ip:%s:path:%s", c.ClientIP(), c.FullPath())
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		count, err := rdb.Incr(ctx, key).Result()
+		if err != nil {
+			// Fail open on Redis errors
+			c.Next()
+			return
+		}
+
+		if count == 1 {
+			rdb.Expire(ctx, key, window)
+		}
+
+		if int(count) > maxRequests {
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"error": "Rate limit exceeded. Please try again later.",
+			})
+			return
+		}
+
 		c.Next()
 	}
 }

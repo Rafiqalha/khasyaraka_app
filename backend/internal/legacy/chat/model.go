@@ -5,11 +5,11 @@ import (
 )
 
 type ChatRoom struct {
-	ID          int64  `json:"id" db:"id"`
-	RoomType    string `json:"room_type" db:"room_type"`
+	ID          int64   `json:"id" db:"id"`
+	RoomType    string  `json:"room_type" db:"room_type"`
 	WilayahID   *string `json:"wilayah_id" db:"wilayah_id"`
-	Name        string `json:"name" db:"name"`
-	MemberCount int    `json:"member_count" db:"member_count"`
+	Name        string  `json:"name" db:"name"`
+	MemberCount int     `json:"member_count" db:"member_count"`
 }
 
 type ChatMessage struct {

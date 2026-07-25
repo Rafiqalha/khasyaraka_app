@@ -26,7 +26,7 @@ func (s *Service) Create(userID int64, tier, paymentRef, provider string) (*Subs
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Update token tier
 	err = s.tokenService.SetTierFromSubscription(context.Background(), userID, tier)
 	if err != nil {

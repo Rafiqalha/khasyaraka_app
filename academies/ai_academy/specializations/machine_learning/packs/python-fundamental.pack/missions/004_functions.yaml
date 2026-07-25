@@ -1,0 +1,31 @@
+id: python-functions
+type: notebook
+title: "Functions and Scoping"
+estimated_duration: "25m"
+difficulty: intermediate
+depends:
+  - python-control-flow
+objective: "Understand function definitions (def), parameters, return statements, and variable scope."
+instructions: |
+  1. Define a function `calculate_average(scores_list)` that calculates the average of a list of floats.
+  2. Test the function with sample data and verify output.
+knowledge:
+  teaches:
+    - python.functions
+workspace:
+  template:
+    file: functions.py
+    content: |
+      # 004: Functions
+      def calculate_average(scores):
+          if not scores:
+              return 0.0
+          return sum(scores) / len(scores)
+
+      sample_scores = [88.0, 92.5, 79.0, 95.0]
+      print(f"Average score: {calculate_average(sample_scores):.2f}")
+completion:
+  run_tests:
+    minimum_score: 85
+reward:
+  xp: 60

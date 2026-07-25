@@ -37,7 +37,7 @@ func (s *Service) SendMessage(ctx context.Context, userID, roomID int64, req Sen
 	if err != nil {
 		return nil, err
 	}
-	
+
 	belongsToRoom := false
 	if rooms.Global != nil && rooms.Global.ID == roomID {
 		belongsToRoom = true
@@ -72,7 +72,7 @@ func (s *Service) GetMessages(ctx context.Context, userID, roomID int64, beforeI
 	if err != nil {
 		return nil, false, err
 	}
-	
+
 	belongsToRoom := false
 	if rooms.Global != nil && rooms.Global.ID == roomID {
 		belongsToRoom = true
@@ -100,7 +100,7 @@ func (s *Service) GetMessages(ctx context.Context, userID, roomID int64, beforeI
 	hasMore := false
 	if len(msgs) > limit {
 		hasMore = true
-		msgs = msgs[1:] 
+		msgs = msgs[1:]
 	}
 
 	return msgs, hasMore, nil

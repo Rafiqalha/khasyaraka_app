@@ -1,62 +1,75 @@
 import 'package:flutter/material.dart';
+import 'design_tokens.dart';
 
 class AppColors {
   // Private constructor to prevent instantiation
   AppColors._();
 
-  // Primary Color: Tactical/Forest Green
-  static const Color primary = Color(0xFF2E7D32);
+  // Primary Color
+  static const Color primary = AppColorTokens.primary;
 
-  // Secondary Color: Scout Brown
-  static const Color secondary = Color(0xFF795548);
+  // Secondary Color
+  @deprecated
+  static const Color secondary = AppColorTokens.textSecondary;
 
-  // Accent Color: Gold/Amber (Rank features)
-  static const Color accent = Color(0xFFFFC107);
+  // Accent Color
+  @deprecated
+  static const Color accent = AppColorTokens.warning;
 
   // Background Colors
-  // Main Theme Colors for Sci-Fi / Heritage Scout Theme (Flat, Matte, Solid)
   static const Color deepCharcoal = Color(0xFF161616);
   static const Color charcoalSurface = Color(0xFF242424);
   
-  // Diubah sementara dari Ungu ke Cyber Cyan (Neon Blue)
-  static const Color wosmPurple = Color(0xFF00E5FF); // Neon Cyan
-  static const Color wosmPurpleDark = Color(0xFF0097A7); // Dark Cyan
+  @deprecated
+  static const Color wosmPurple = AppColorTokens.info; 
+  @deprecated
+  static const Color wosmPurpleDark = AppColorTokens.primaryDark;
 
-  static const Color scoutBrown = Color(0xFF5D4037);
-  static const Color scoutBrownDark = Color(0xFF3E2723);
+  @deprecated
+  static const Color scoutBrown = AppColorTokens.textSecondary;
+  @deprecated
+  static const Color scoutBrownDark = AppColorTokens.textPrimary;
   
   static const Color lockedGrey = Color(0xFF424242);
   static const Color lockedGreyDark = Color(0xFF212121);
 
-  // Flat 3D Stats Colors (No glow/neon allowed)
-  static const Color statFire = Color(0xFFE65100);
-  static const Color statFireDark = Color(0xFFBF360C);
+  // Flat 3D Stats Colors (Deprecated, mapping to semantic tokens)
+  @deprecated
+  static const Color statFire = AppColorTokens.warning;
+  @deprecated
+  static const Color statFireDark = AppColorTokens.warning;
   
-  static const Color statStar = Color(0xFFF57F17);
-  static const Color statStarDark = Color(0xFFF9A825);
+  @deprecated
+  static const Color statStar = AppColorTokens.warning;
+  @deprecated
+  static const Color statStarDark = AppColorTokens.warning;
   
-  static const Color statHeart = Color(0xFFC62828);
-  static const Color statHeartDark = Color(0xFFB71C1C);
+  @deprecated
+  static const Color statHeart = AppColorTokens.danger;
+  @deprecated
+  static const Color statHeartDark = AppColorTokens.danger;
 
-  static const Color statCourse = Color(0xFF1565C0);
-  static const Color statCourseDark = Color(0xFF0D47A1);
+  @deprecated
+  static const Color statCourse = AppColorTokens.info;
+  @deprecated
+  static const Color statCourseDark = AppColorTokens.primaryDark;
 
   // Background Colors
-  static const Color backgroundLight = deepCharcoal; // Forced dark
+  static const Color backgroundLight = AppColorTokens.background;
   static const Color backgroundDark = deepCharcoal;
 
   // Text Colors
-  static const Color textPrimaryLight = Color(0xFFE0E0E0); // Forced light text for dark background
-  static const Color textPrimaryDark = Color(0xFFE0E0E0); // Light for dark mode
+  static const Color textPrimaryLight = AppColorTokens.textPrimary;
+  static const Color textPrimaryDark = Color(0xFFE0E0E0);
 
   // Functional Colors
-  static const Color danger = Color(0xFFD32F2F); // Red
-  static const Color success = Color(0xFF388E3C); // Green
-  static const Color warning = Color(0xFFFBC02D); // Yellow/Orange
-  static const Color info = Color(0xFF1976D2); // Blue
+  static const Color danger = AppColorTokens.danger;
+  static const Color success = AppColorTokens.success;
+  static const Color warning = AppColorTokens.warning;
+  static const Color info = AppColorTokens.info;
 
-  // Surface Colors (Cards, Sheets, etc.)
-  static const Color surfaceLight = charcoalSurface;
+  // Surface Colors
+  static const Color surfaceLight = AppColorTokens.surface;
   static const Color surfaceDark = charcoalSurface;
 
   /// Helper to get background color based on theme

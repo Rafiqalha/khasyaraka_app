@@ -1,0 +1,18 @@
+id: python-pre-assessment
+type: assessment
+title: "Python Readiness Assessment"
+estimated_duration: "10m"
+difficulty: adaptive
+objective: "Diagnostic evaluation to measure existing proficiency across variables, control flow, functions, and collections."
+instructions: |
+  Complete the diagnostic questions. The Adaptive Planner will personalize your learning path based on your current knowledge vector.
+knowledge_targets:
+  - python.variables
+  - python.control_flow
+  - python.functions
+  - python.collections
+completion:
+  type: assessment
+outputs:
+  - mastery_snapshot
+next: adaptive

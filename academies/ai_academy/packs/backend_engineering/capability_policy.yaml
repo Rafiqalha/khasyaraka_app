@@ -1,0 +1,8 @@
+# Policies for upgrading long-term capability score
+required_evidence:
+  - type: COMPILE_SUCCESS
+  - type: REFLECTION_QUALITY
+    min_score: 0.8
+  - type: COPY_PASTE_RATIO
+    max_value: 0.2
+  - type: TERMINAL_EXPLORATION

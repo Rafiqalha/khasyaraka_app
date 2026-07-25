@@ -1,0 +1,7 @@
+ALTER TABLE learning_goals DROP CONSTRAINT IF EXISTS fk_learning_goal_latest_pack;
+
+DROP TABLE IF EXISTS packs CASCADE;
+DROP TABLE IF EXISTS learning_goals CASCADE;
+DROP TABLE IF EXISTS specializations CASCADE;
+DROP TABLE IF EXISTS domains CASCADE;
+DROP TABLE IF EXISTS academies CASCADE;

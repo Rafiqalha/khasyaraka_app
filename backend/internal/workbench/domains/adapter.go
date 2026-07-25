@@ -27,12 +27,12 @@ type ExecuteResponse struct {
 type DomainAdapter interface {
 	// Initialize prepares the domain adapter for a new mission session.
 	Initialize(ctx context.Context, mission *domain.Mission) error
-	
+
 	// Execute performs an action within the domain.
 	// This abstract method replaces specific methods like RunPython() to ensure
 	// gRPC compatibility.
 	Execute(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error)
-	
+
 	// Teardown cleans up resources after the mission session.
 	Teardown(ctx context.Context, missionID string) error
 }

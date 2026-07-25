@@ -1,0 +1,18 @@
+id: "sandbox_array_exploration"
+title: "Array Exploration"
+language: "python"
+initial_code: |
+  # Try it yourself!
+  # Create an array and access its elements.
+
+  numbers = [5, 7, 2, 9, 1]
+
+  # Print the first element
+  print(numbers[0])
+
+  # Print the last element using negative indexing
+  print(numbers[-1])
+
+  # Print all elements using a loop
+  for i in range(len(numbers)):
+      print(f"Index {i}: {numbers[i]}")

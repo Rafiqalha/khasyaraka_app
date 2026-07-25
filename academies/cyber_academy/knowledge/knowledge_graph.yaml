@@ -1,0 +1,26 @@
+concepts:
+  - id: "concept_log_analysis"
+    title: "Log Analysis"
+    description: "The practice of examining, interpreting, and understanding computer-generated records called logs."
+    learning_assets:
+      - id: "asset_log_nb"
+        type: "notebook"
+        reference_id: "log_notebook.md"
+      - id: "asset_log_viz"
+        type: "visualization"
+        reference_id: "syslog_viz.json"
+      - id: "asset_log_sandbox"
+        type: "sandbox"
+        reference_id: "log_explorer_env"
+      - id: "asset_log_mission"
+        type: "mission"
+        reference_id: "mission_ssh_01"
+
+  - id: "concept_brute_force"
+    title: "Brute Force Attack"
+    description: "A method where attackers submit many passwords or passphrases with the hope of eventually guessing correctly."
+
+relations:
+  - source_id: "concept_brute_force"
+    target_id: "concept_log_analysis"
+    type: "detected_by"

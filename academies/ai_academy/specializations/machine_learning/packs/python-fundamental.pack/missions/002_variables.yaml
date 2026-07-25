@@ -1,0 +1,28 @@
+id: python-variables
+type: notebook
+title: "Variables and Data Types"
+estimated_duration: "20m"
+difficulty: beginner
+objective: "Understand dynamic typing, primitive data types (int, float, str, bool), and input/output in Python."
+instructions: |
+  1. Open main.py in the Editor.
+  2. Declare variables for `student_name` (str), `score` (float), and `is_passed` (bool).
+  3. Print the values using f-strings format.
+knowledge:
+  teaches:
+    - python.variables
+workspace:
+  template:
+    file: main.py
+    content: |
+      # 002: Variables & Data Types
+      student_name = "Pradigi Scout"
+      score = 92.5
+      is_passed = True
+
+      print(f"Student: {student_name}, Score: {score}, Passed: {is_passed}")
+completion:
+  run_tests:
+    minimum_score: 80
+reward:
+  xp: 40

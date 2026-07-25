@@ -16,12 +16,12 @@ const (
 )
 
 type ProjectionJob struct {
-	ID          string    `db:"id" json:"id"`
-	UserID      string    `db:"user_id" json:"user_id"`
-	Priority    Priority  `db:"priority" json:"priority"`
-	Status      string    `db:"status" json:"status"`
-	Reason      string    `db:"reason" json:"reason"`
-	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	ID          string     `db:"id" json:"id"`
+	UserID      string     `db:"user_id" json:"user_id"`
+	Priority    Priority   `db:"priority" json:"priority"`
+	Status      string     `db:"status" json:"status"`
+	Reason      string     `db:"reason" json:"reason"`
+	CreatedAt   time.Time  `db:"created_at" json:"created_at"`
 	ProcessedAt *time.Time `db:"processed_at" json:"processed_at"`
 }
 
@@ -48,7 +48,7 @@ func (s *scheduler) QueueJob(ctx context.Context, userID string, priority Priori
 		Reason:    reason,
 		CreatedAt: time.Time{},
 	}
-	// r.repo.SaveJob(...) 
+	// r.repo.SaveJob(...)
 	_ = job
 	return nil
 }

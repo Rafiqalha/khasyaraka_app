@@ -1,0 +1,24 @@
+id: python_fundamental_ws
+driver: docker
+image: python:3.11-slim
+capabilities:
+  - filesystem
+  - execution
+  - network
+panels:
+  - mission
+  - editor
+  - terminal
+  - mentor
+  - timeline
+files:
+  main.py: |
+    # Python Fundamental Workspace
+    def main():
+        print("Welcome to Python Fundamental on Pradigi Learning OS!")
+
+    if __name__ == "__main__":
+        main()
+commands:
+  run: "python main.py"
+  test: "pytest"

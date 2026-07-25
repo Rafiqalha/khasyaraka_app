@@ -1,7 +1,7 @@
 package session_context
 
 // Engine orchestrates the normalization of various session signals into a clean SessionContext.
-type Engine struct {}
+type Engine struct{}
 
 func NewEngine() *Engine {
 	return &Engine{}

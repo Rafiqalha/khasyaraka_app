@@ -1,11 +1,13 @@
 class Environment {
   // --- BACKEND API CONFIGURATION (FASTAPI + POSTGRESQL) ---
 
-  // Production API URL (Cloud Run)
-  // - Production: https://pradigi-890949539640.asia-southeast2.run.app/api/v1
-  // - Development: http://192.168.100.95:8000/api/v1 (local dev)
-  // static const String baseUrl = 'http://13.228.77.213:8080/api/v1'; // Production
-  static const String apiBaseUrl = 'http://13.212.174.32:8080/api/v1'; // AWS EC2 SERVER
+  /// Base API URL set via --dart-define=API_URL=...
+  /// Example dev run: flutter run --dart-define=API_URL=http://10.0.2.2:8080/api/v1
+  /// Example prod build: flutter build apk --dart-define=API_URL=https://api.pradigi.id/api/v1
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://13.212.174.32:8080/api/v1',
+  );
 
   /// Resolve a URL that may be relative (e.g. /api/v1/users/me/avatar/file.jpg)
   /// to a full URL by prepending the API host.
@@ -17,7 +19,7 @@ class Environment {
   }
 
   // --- NETWORK CONFIGURATION ---
-  static const int connectTimeout = 30000; // 30 seconds
-  static const int receiveTimeout = 30000;
+  static const int connectTimeout = 15000;
+  static const int receiveTimeout = 120000;
   static const bool enableLogging = true; // Set false for production
 }

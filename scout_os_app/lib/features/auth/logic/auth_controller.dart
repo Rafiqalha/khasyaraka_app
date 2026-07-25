@@ -145,6 +145,7 @@ class AuthController extends ChangeNotifier {
     required String username,
     required String password,
     String? gugusDepan,
+    String? countryId,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -156,6 +157,7 @@ class AuthController extends ChangeNotifier {
         username: username,
         password: password,
         gugusDepan: gugusDepan,
+        countryId: countryId,
       );
       _currentUser = response.user;
       _mustChangePassword = response.mustChangePassword;

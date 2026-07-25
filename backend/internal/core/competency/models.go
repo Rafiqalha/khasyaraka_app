@@ -23,12 +23,12 @@ type CompetencyState struct {
 // CompetencyProjection is the fully computed output (including on-the-fly decay)
 // representing the current state of a user's abilities.
 type CompetencyProjection struct {
-	UserID                  string                     `json:"user_id"`
-	Concepts                map[string]CompetencyState `json:"concepts"`
-	WeakConcepts            []string                   `json:"weak_concepts"`
-	StrongConcepts          []string                   `json:"strong_concepts"`
-	PrerequisiteViolations  []string                   `json:"prerequisite_violations"`
-	RecommendedConcepts     []string                   `json:"recommended_concepts"`
-	EstimatedReadiness      float64                    `json:"estimated_readiness"` // 0-100 readiness for current LO
-	NextBestLearningObjective string                   `json:"next_best_learning_objective"`
+	UserID                    string                     `json:"user_id"`
+	Concepts                  map[string]CompetencyState `json:"concepts"`
+	WeakConcepts              []string                   `json:"weak_concepts"`
+	StrongConcepts            []string                   `json:"strong_concepts"`
+	PrerequisiteViolations    []string                   `json:"prerequisite_violations"`
+	RecommendedConcepts       []string                   `json:"recommended_concepts"`
+	EstimatedReadiness        float64                    `json:"estimated_readiness"` // 0-100 readiness for current LO
+	NextBestLearningObjective string                     `json:"next_best_learning_objective"`
 }

@@ -55,7 +55,7 @@ func (s *service) HandleCompetencyProjected(ctx context.Context, evt events.Even
 		UserID:             evt.Metadata.UserID,
 		TriggerType:        "COMPETENCY_UPDATE",
 		TriggerRefID:       &compProj.ID,
-		KnowledgeLineageID: ulid.Make().String(), // For MVP, generate if not passed
+		KnowledgeLineageID: ulid.Make().String(),        // For MVP, generate if not passed
 		EpochID:            compProj.GovernanceBundleID, // Stand-in for Epoch ID
 		Payload:            evt.Payload,
 		CreatedAt:          time.Now(),

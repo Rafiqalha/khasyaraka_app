@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-	
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -163,7 +163,7 @@ func (s *Service) GetRoomState(code string, userID int64) (*RoomState, error) {
 												timeRatio = 0.1
 											}
 											pointsEarned := int(float64(q.Points) * timeRatio)
-											
+
 											botAnsObj := &Answer{
 												RoomID:       room.ID,
 												QuestionID:   q.ID,
@@ -359,7 +359,7 @@ func (s *Service) SubmitAnswer(code string, userID int64, req AnswerRequest) (*A
 
 	// Evaluate answer
 	isCorrect := strings.EqualFold(strings.TrimSpace(req.Answer), q.CorrectAnswer)
-	
+
 	pointsEarned := 0
 	if isCorrect {
 		// Base points (100) + speed bonus

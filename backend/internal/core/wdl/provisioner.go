@@ -34,7 +34,7 @@ func (p *Provisioner) ProvisionAll(rootPath string) error {
 
 		if !info.IsDir() && info.Name() == "workspace.yaml" {
 			log.Printf("Found WDL manifest: %s", path)
-			
+
 			manifest, err := p.parser.ParseFile(path)
 			if err != nil {
 				log.Printf("Failed to parse %s: %v", path, err)

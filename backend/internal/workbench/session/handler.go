@@ -134,9 +134,9 @@ func (h *Handler) SendCommand(c *gin.Context) {
 	events := orch.DrainEvents()
 
 	c.JSON(http.StatusOK, gin.H{
-		"session":  orch.GetSession(),
-		"events":   events,
-		"command":  cmd.ID,
+		"session": orch.GetSession(),
+		"events":  events,
+		"command": cmd.ID,
 	})
 }
 

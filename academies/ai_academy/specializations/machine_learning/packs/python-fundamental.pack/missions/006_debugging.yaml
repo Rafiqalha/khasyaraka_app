@@ -1,0 +1,37 @@
+id: python-debugging
+type: mission
+title: "Syntax & Logic Debugging Mission"
+estimated_duration: "20m"
+difficulty: intermediate
+depends:
+  - python-collections
+objective: "Identify and fix syntax errors, off-by-one errors, and type mismatch bugs in broken Python code."
+instructions: |
+  You are given broken code in broken_code.py.
+  Identify the 3 bugs:
+  1. Missing colon in function definition.
+  2. TypeError when concatenating string and int.
+  3. Off-by-one error in loop index range.
+knowledge:
+  teaches:
+    - python.debugging
+workspace:
+  template:
+    file: broken_code.py
+    content: |
+      # 006: Debugging Mission - Fix the broken code below
+      def calculate_summary(names, scores)
+          summary = []
+          for i in range(len(names) + 1):  # Bug: off by one
+              msg = names[i] + " scored: " + scores[i]  # Bug: type mismatch
+              summary.append(msg)
+          return summary
+validator:
+  hidden_tests:
+    - syntax
+    - logic
+    - edge_case
+completion:
+  hidden_score: 100
+reward:
+  xp: 80

@@ -4,14 +4,16 @@
 // It sits between raw Learning Activities and Reasoning OS.
 //
 // Purpose:
-//   LLM does NOT see 300 raw events.
-//   LLM sees: [RepeatedExecutionPattern, ErrorDrivenIteration, HintCopyBehavior]
+//
+//	LLM does NOT see 300 raw events.
+//	LLM sees: [RepeatedExecutionPattern, ErrorDrivenIteration, HintCopyBehavior]
 //
 // All patterns are DETERMINISTIC. No AI. No LLM.
 // Patterns are extracted from event sequences using finite rules.
 //
 // Pipeline position:
-//   Learning Activity → Decision Graph → **Cognitive Pattern Engine** → Mission Summary → Observation Candidate → Reasoning OS
+//
+//	Learning Activity → Decision Graph → **Cognitive Pattern Engine** → Mission Summary → Observation Candidate → Reasoning OS
 package cognitive_pattern
 
 import "time"
@@ -26,9 +28,9 @@ type PatternType string
 
 const (
 	// Execution Patterns
-	PatternRepeatedExecution PatternType = "REPEATED_EXECUTION"    // Run Run Run Run
-	PatternRapidRetry        PatternType = "RAPID_RETRY"           // Run → Fail → Run → Fail (< 10s intervals)
-	PatternSlowIteration     PatternType = "SLOW_ITERATION"        // Run → long pause → Run
+	PatternRepeatedExecution PatternType = "REPEATED_EXECUTION" // Run Run Run Run
+	PatternRapidRetry        PatternType = "RAPID_RETRY"        // Run → Fail → Run → Fail (< 10s intervals)
+	PatternSlowIteration     PatternType = "SLOW_ITERATION"     // Run → long pause → Run
 
 	// Error Handling Patterns
 	PatternErrorDrivenIteration PatternType = "ERROR_DRIVEN_ITERATION" // Read Error → Edit → Run
@@ -36,10 +38,10 @@ const (
 	PatternStackTraceNavigation PatternType = "STACK_TRACE_NAVIGATION" // Open error → Jump to line → Edit
 
 	// AI Interaction Patterns
-	PatternHintCopy          PatternType = "HINT_COPY_BEHAVIOR"    // Ask Mentor → Copy → Paste → Run
-	PatternHintIgnored       PatternType = "HINT_IGNORED"          // Ask Mentor → no change → Run
-	PatternProgressiveHinting PatternType = "PROGRESSIVE_HINTING"  // Ask Mentor → partial apply → Ask again
-	PatternAIDependency      PatternType = "AI_DEPENDENCY"         // Frequent AI calls relative to own attempts
+	PatternHintCopy           PatternType = "HINT_COPY_BEHAVIOR"  // Ask Mentor → Copy → Paste → Run
+	PatternHintIgnored        PatternType = "HINT_IGNORED"        // Ask Mentor → no change → Run
+	PatternProgressiveHinting PatternType = "PROGRESSIVE_HINTING" // Ask Mentor → partial apply → Ask again
+	PatternAIDependency       PatternType = "AI_DEPENDENCY"       // Frequent AI calls relative to own attempts
 
 	// Strategy Patterns
 	PatternSystematicDebugging PatternType = "SYSTEMATIC_DEBUGGING" // Hypothesis → Test → Observe → Revise
@@ -50,12 +52,12 @@ const (
 
 	// Recovery Patterns
 	PatternRecoveryAfterBlock PatternType = "RECOVERY_AFTER_BLOCK" // Blocked → AI/Docs → Progress
-	PatternPersistence        PatternType = "PERSISTENCE"           // Many failures but continues
+	PatternPersistence        PatternType = "PERSISTENCE"          // Many failures but continues
 	PatternEarlyAbandon       PatternType = "EARLY_ABANDON"        // Few attempts → Abandon
 
 	// Artifact Patterns
 	PatternIncrementalRefinement PatternType = "INCREMENTAL_REFINEMENT" // v1 → v2 → v3 (small diffs)
-	PatternBigBangRewrite       PatternType = "BIG_BANG_REWRITE"       // v1 → v2 (complete rewrite)
+	PatternBigBangRewrite        PatternType = "BIG_BANG_REWRITE"       // v1 → v2 (complete rewrite)
 )
 
 // CognitivePattern is a single detected pattern instance.
@@ -69,9 +71,9 @@ type CognitivePattern struct {
 
 	// Quantitative measurements
 	Frequency       int     `json:"frequency"`        // How many times this pattern occurred
-	AverageInterval float64 `json:"average_interval"`  // Seconds between pattern occurrences
-	Confidence      float64 `json:"confidence"`        // 0.0–1.0 how strongly the data supports this pattern
-	Duration        float64 `json:"duration_seconds"`  // Total time span of this pattern
+	AverageInterval float64 `json:"average_interval"` // Seconds between pattern occurrences
+	Confidence      float64 `json:"confidence"`       // 0.0–1.0 how strongly the data supports this pattern
+	Duration        float64 `json:"duration_seconds"` // Total time span of this pattern
 
 	// Context
 	StartedAt time.Time `json:"started_at"`
@@ -94,7 +96,7 @@ const (
 	IntentUnderstand CognitiveIntent = "UNDERSTAND"
 	IntentMemorize   CognitiveIntent = "MEMORIZE"
 	IntentGeneralize CognitiveIntent = "GENERALIZE"
-	
+
 	// Legacy mappings for backwards compatibility or specific actions
 	IntentHypothesis CognitiveIntent = "HYPOTHESIS"
 	IntentFailure    CognitiveIntent = "FAILURE"
@@ -102,12 +104,12 @@ const (
 )
 
 type SemanticNode struct {
-	ID               string           `json:"id"`
-	SessionID        string           `json:"session_id"`
-	NodeType         CognitiveIntent  `json:"node_type"`
+	ID                string          `json:"id"`
+	SessionID         string          `json:"session_id"`
+	NodeType          CognitiveIntent `json:"node_type"`
 	SourceActivityIDs []string        `json:"source_activity_ids"` // Which raw activities form this node
-	Summary          string           `json:"summary"`             // "User hypothesized off-by-one error"
-	OccurredAt       time.Time        `json:"occurred_at"`
+	Summary           string          `json:"summary"`             // "User hypothesized off-by-one error"
+	OccurredAt        time.Time       `json:"occurred_at"`
 }
 
 type SemanticEdge struct {
@@ -128,13 +130,13 @@ type SemanticDecisionGraph struct {
 // ===========================
 
 type PatternSummary struct {
-	SessionID        string             `json:"session_id"`
-	Patterns         []CognitivePattern `json:"patterns"`
-	DominantStrategy PatternType        `json:"dominant_strategy"`
+	SessionID        string                 `json:"session_id"`
+	Patterns         []CognitivePattern     `json:"patterns"`
+	DominantStrategy PatternType            `json:"dominant_strategy"`
 	SemanticGraph    *SemanticDecisionGraph `json:"semantic_graph,omitempty"`
 	// Aggregated metrics
-	TotalPatterns    int     `json:"total_patterns"`
-	AIReliance       float64 `json:"ai_reliance"`       // 0.0–1.0
-	PersistenceScore float64 `json:"persistence_score"` // 0.0–1.0
-	StrategyDiversity int    `json:"strategy_diversity"` // Number of distinct pattern types
+	TotalPatterns     int     `json:"total_patterns"`
+	AIReliance        float64 `json:"ai_reliance"`        // 0.0–1.0
+	PersistenceScore  float64 `json:"persistence_score"`  // 0.0–1.0
+	StrategyDiversity int     `json:"strategy_diversity"` // Number of distinct pattern types
 }

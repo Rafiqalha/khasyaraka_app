@@ -124,9 +124,6 @@ class _SkuListViewState extends State<SkuListView> {
             text: 'MASUK ARENA',
             onPressed: () {
               Navigator.pop(context);
-              Navigator.push(
-                context,
-              );
             },
             variant: DuoButtonVariant.red,
           ),

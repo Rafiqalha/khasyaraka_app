@@ -50,7 +50,7 @@ func (s *service) HandleSubsystemProjected(ctx context.Context, subsystem string
 
 	// 2. We should fetch the FULL updated context from DB to synthesize correctly.
 	// For MVP, we pass what we have.
-	
+
 	// 3. Synthesize Directive
 	directive, err := s.engine.SynthesizeDirective(ctx, intelCtx)
 	if err != nil {

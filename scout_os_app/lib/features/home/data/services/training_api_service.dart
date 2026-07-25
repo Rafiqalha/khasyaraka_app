@@ -229,6 +229,17 @@ class TrainingApiService {
 
   // ==================== ERROR HANDLING ====================
 
+  /// GET /training/incidents
+  /// Get AI-generated incident cards for dashboard
+  Future<List<dynamic>> getIncidents({int limit = 20}) async {
+    try {
+      final response = await _dio.get('/training/incidents', queryParameters: {'limit': limit});
+      return response.data['data'] as List<dynamic>? ?? [];
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(DioException error) {
     if (error.response != null) {
       // Server responded with error

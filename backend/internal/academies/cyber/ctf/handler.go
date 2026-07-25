@@ -55,7 +55,7 @@ func (h *CTFHandler) SubmitDefense(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid room id"})
 		return
 	}
-	
+
 	// Assuming teamID is passed in header or context in a real scenario
 	// For this test flow, we will parse from query parameter for simplicity since auth context mapping to team might be complex.
 	// Actually we should get from auth, but let's just assume we get team_id from header or context.
@@ -164,7 +164,13 @@ func (h *CTFHandler) SubmitFlag(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"correct":       correct,
 		"score_awarded": scoreAwarded,
-		"message":       func() string { if correct { return "Flag found!" } else { return "Wrong flag!" } }(),
+		"message": func() string {
+			if correct {
+				return "Flag found!"
+			} else {
+				return "Wrong flag!"
+			}
+		}(),
 	})
 }
 
@@ -197,7 +203,13 @@ func (h *CTFHandler) SubmitPatch(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"correct":    correct,
 		"time_bonus": 0, // Simplified, frontend can calculate or get from state
-		"message":    func() string { if correct { return "Patch successful!" } else { return "Wrong patch!" } }(),
+		"message": func() string {
+			if correct {
+				return "Patch successful!"
+			} else {
+				return "Wrong patch!"
+			}
+		}(),
 	})
 }
 

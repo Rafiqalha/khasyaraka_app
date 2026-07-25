@@ -61,7 +61,7 @@ func (s *service) HandleCompetencyDelta(ctx context.Context, evt events.Event) e
 
 	// Simulate Fetching existing events (mocked)
 	existingEvents := []MemoryEvent{}
-	
+
 	// Consolidation Logic
 	var finalMemEvent MemoryEvent
 	consolidatedEvt, isConsolidated := s.consolidator.Consolidate(ctx, candidate, existingEvents)
@@ -91,7 +91,7 @@ func (s *service) HandleCompetencyDelta(ctx context.Context, evt events.Event) e
 			return err
 		}
 	}
-	
+
 	// Emit Memory Event Recorded
 	mePayload, _ := json.Marshal(finalMemEvent)
 	s.publisher.Publish(ctx, events.Event{
@@ -111,16 +111,16 @@ func (s *service) HandleCompetencyDelta(ctx context.Context, evt events.Event) e
 	memState := s.decayEngine.DetermineState(retention, finalMemEvent.Strength)
 
 	proj := MemoryProjection{
-		ID:                 ulid.Make().String(),
-		UserID:             evt.Metadata.UserID,
-		MemoryNodeID:       delta.SkillNodeID,
-		KnowledgeLineageID: candidate.KnowledgeLineageID,
-		EpochID:            candidate.EpochID,
-		RetentionScore:     retention,
-		MemoryState:        string(memState),
+		ID:                  ulid.Make().String(),
+		UserID:              evt.Metadata.UserID,
+		MemoryNodeID:        delta.SkillNodeID,
+		KnowledgeLineageID:  candidate.KnowledgeLineageID,
+		EpochID:             candidate.EpochID,
+		RetentionScore:      retention,
+		MemoryState:         string(memState),
 		ForgettingCurveJSON: []byte(`{"last_reviewed":"now"}`),
-		Status:             "FRESH",
-		ProjectedAt:        time.Now(),
+		Status:              "FRESH",
+		ProjectedAt:         time.Now(),
 	}
 	if err := s.repo.SaveProjection(ctx, proj); err != nil {
 		return err

@@ -42,8 +42,8 @@ func (m *mockClient) Generate(ctx context.Context, prompt string) (*AIResponse, 
 	// Simulate latency
 	time.Sleep(100 * time.Millisecond)
 	return &AIResponse{
-		ID:           "resp_" + time.Now().Format("20060102150405"),
-		Raw:          `{"confidence": 0.85, "summary": "User shows signs of basic understanding.", "skills": [{"skill_id": "problem_solving", "direction": "POSITIVE", "strength": 0.6, "reason": "Tried multiple approaches."}]}`,
+		ID:  "resp_" + time.Now().Format("20060102150405"),
+		Raw: `{"confidence": 0.85, "summary": "User shows signs of basic understanding.", "skills": [{"skill_id": "problem_solving", "direction": "POSITIVE", "strength": 0.6, "reason": "Tried multiple approaches."}]}`,
 		Usage: TokenUsage{
 			PromptTokens:     100,
 			CompletionTokens: 50,

@@ -4,7 +4,8 @@
 // It synthesizes temporal Cognitive Pattern Episodes into stable Behavior Profiles.
 //
 // Pipeline position:
-//   Pattern Detector → Pattern Episodes → **Behavior Synthesizer** → Behavior Profile → Behavior Summary → LLM
+//
+//	Pattern Detector → Pattern Episodes → **Behavior Synthesizer** → Behavior Profile → Behavior Summary → LLM
 package behavior_modeling
 
 import (
@@ -32,10 +33,10 @@ const (
 // ===========================
 
 type BehaviorEvidence struct {
-	PatternType        cognitive_pattern.PatternType `json:"pattern_type"`
-	PatternEpisodeIDs  []string                      `json:"pattern_episode_ids"` // References CognitivePattern.ID
-	Weight             float64                       `json:"weight"`              // How much this pattern contributed
-	Description        string                        `json:"description"`         // "Frequent rapid retries after errors"
+	PatternType       cognitive_pattern.PatternType `json:"pattern_type"`
+	PatternEpisodeIDs []string                      `json:"pattern_episode_ids"` // References CognitivePattern.ID
+	Weight            float64                       `json:"weight"`              // How much this pattern contributed
+	Description       string                        `json:"description"`         // "Frequent rapid retries after errors"
 }
 
 // ===========================
@@ -59,11 +60,11 @@ type BehaviorTrait[T any] struct {
 type StrategyType string
 
 const (
-	StrategySystematic  StrategyType = "SYSTEMATIC"
-	StrategyTrialError  StrategyType = "TRIAL_AND_ERROR"
-	StrategyBottomUp    StrategyType = "BOTTOM_UP"
-	StrategyTopDown     StrategyType = "TOP_DOWN"
-	StrategyDivide      StrategyType = "DIVIDE_AND_CONQUER"
+	StrategySystematic StrategyType = "SYSTEMATIC"
+	StrategyTrialError StrategyType = "TRIAL_AND_ERROR"
+	StrategyBottomUp   StrategyType = "BOTTOM_UP"
+	StrategyTopDown    StrategyType = "TOP_DOWN"
+	StrategyDivide     StrategyType = "DIVIDE_AND_CONQUER"
 )
 
 type StrategyDistribution map[StrategyType]float64
@@ -106,26 +107,26 @@ type BehaviorDiff struct {
 // ===========================
 
 type BehaviorProfile struct {
-	ID                   string         `json:"id"`
-	UserID               string         `json:"user_id"`
-	SessionID            string         `json:"session_id,omitempty"` // Included if window is MISSION
-	Window               BehaviorWindow `json:"window"`
-	
+	ID        string         `json:"id"`
+	UserID    string         `json:"user_id"`
+	SessionID string         `json:"session_id,omitempty"` // Included if window is MISSION
+	Window    BehaviorWindow `json:"window"`
+
 	// Deterministic Identity
-	Version              int       `json:"version"`                 // Auto-increments: v14 -> v15
-	ParentProfileID      string    `json:"parent_profile_id"`       // Links to v14
-	SynthesizerVersion   string    `json:"synthesizer_version"`     // e.g., "v1.2.0" - rules used to build this
-	Fingerprint          string    `json:"fingerprint"`             // Hash(Episodes + SynthVersion + Window)
-	GeneratedAt          time.Time `json:"generated_at"`
+	Version            int       `json:"version"`             // Auto-increments: v14 -> v15
+	ParentProfileID    string    `json:"parent_profile_id"`   // Links to v14
+	SynthesizerVersion string    `json:"synthesizer_version"` // e.g., "v1.2.0" - rules used to build this
+	Fingerprint        string    `json:"fingerprint"`         // Hash(Episodes + SynthVersion + Window)
+	GeneratedAt        time.Time `json:"generated_at"`
 
 	// Behavioral Traits (Dual Dimension: Current vs Baseline)
-	Persistence          BehaviorDimensions `json:"persistence"`          // High, Medium, Low
-	AIDependency         BehaviorDimensions `json:"ai_dependency"`        // High, Low
-	RecoveryCapability   BehaviorDimensions `json:"recovery_capability"`  // Excellent, Poor
-	Strategies           StrategyDimensions `json:"strategies"`
+	Persistence        BehaviorDimensions `json:"persistence"`         // High, Medium, Low
+	AIDependency       BehaviorDimensions `json:"ai_dependency"`       // High, Low
+	RecoveryCapability BehaviorDimensions `json:"recovery_capability"` // Excellent, Poor
+	Strategies         StrategyDimensions `json:"strategies"`
 
 	// Evolution
-	RecentEvolution      *BehaviorDiff      `json:"recent_evolution,omitempty"`
+	RecentEvolution *BehaviorDiff `json:"recent_evolution,omitempty"`
 }
 
 // ===========================
@@ -136,20 +137,20 @@ type BehaviorProfile struct {
 // BehaviorSummary is what actually gets sent to Reasoning OS (via Mission Summary / Observation Candidate).
 // It converts complex distributions and evidence into natural language constraints and highlights.
 type BehaviorSummary struct {
-	PrimaryStrategy      string  `json:"primary_strategy"`       // The dominant strategy (e.g. "Systematic Debugging")
-	StrategyConfidence   float64 `json:"strategy_confidence"`    
-	
+	PrimaryStrategy    string  `json:"primary_strategy"` // The dominant strategy (e.g. "Systematic Debugging")
+	StrategyConfidence float64 `json:"strategy_confidence"`
+
 	// Anomalies / Delta from baseline
-	AnomalyHighlights    []string `json:"anomaly_highlights"`     // e.g. ["Usually Systematic (0.8), but currently TrialAndError (0.7)"]
-	
+	AnomalyHighlights []string `json:"anomaly_highlights"` // e.g. ["Usually Systematic (0.8), but currently TrialAndError (0.7)"]
+
 	// Key Traits
-	PersistenceLevel     string  `json:"persistence_level"`      // "High"
-	AIDependencyLevel    string  `json:"ai_dependency_level"`    // "Low"
-	RecoveryCapability   string  `json:"recovery_capability"`    // "Excellent"
-	
+	PersistenceLevel   string `json:"persistence_level"`   // "High"
+	AIDependencyLevel  string `json:"ai_dependency_level"` // "Low"
+	RecoveryCapability string `json:"recovery_capability"` // "Excellent"
+
 	// Contextual guidance for the LLM
-	LLMContextGuidance   string  `json:"llm_context_guidance"`   // e.g. "User is panicking. Provide emotional scaffolding before technical hints."
-	
+	LLMContextGuidance string `json:"llm_context_guidance"` // e.g. "User is panicking. Provide emotional scaffolding before technical hints."
+
 	// Narrative (Top-level summary)
-	BehaviorNarrative    string  `json:"behavior_narrative"`     // "Pengguna menunjukkan pola debugging berbasis hipotesis..."
+	BehaviorNarrative string `json:"behavior_narrative"` // "Pengguna menunjukkan pola debugging berbasis hipotesis..."
 }

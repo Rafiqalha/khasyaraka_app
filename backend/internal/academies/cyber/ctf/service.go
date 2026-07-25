@@ -7,8 +7,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/pradigi/backend/internal/legacy/ai"
 	"github.com/pradigi/backend/internal/academies/cyber/arena"
+	"github.com/pradigi/backend/internal/legacy/ai"
 	"github.com/pradigi/backend/internal/legacy/token"
 )
 
@@ -244,7 +244,7 @@ func (s *CTFService) SubmitFlag(ctx context.Context, ctfRoomID, attackingTeamID 
 	_ = s.repo.MarkFlagFound(ctx, ctfRoomID, attackingTeamID, defenderTeamID)
 	_ = s.repo.UpdateTeamScore(ctx, ctfRoomID, attackingTeamID, 500)
 	_ = s.repo.UpdatePhase(ctx, ctfRoomID, PhasePatching)
-	
+
 	_ = s.TriggerPatching(ctx, ctfRoomID, defenderTeamID)
 
 	return true, nil
@@ -304,7 +304,7 @@ func (s *CTFService) SubmitPatch(ctx context.Context, ctfRoomID, teamID int64, a
 	}
 
 	_ = s.repo.UpdateTeamScore(ctx, ctfRoomID, teamID, bonus)
-	
+
 	// Determine if we should go back to attack or finish.
 	// If both flags found, finish.
 	teams, _ := s.repo.GetAllCTFTeams(ctx, ctfRoomID)
@@ -378,7 +378,7 @@ func (s *CTFService) GetCTFState(ctx context.Context, ctfRoomID, requestingTeamI
 	}
 
 	logs, _ := s.repo.GetAttackLogs(ctx, ctfRoomID, requestingTeamID)
-	
+
 	// Create safe slice, limit to last 5 logs or all
 	safeLogs := make([]CTFAttackLog, 0)
 	for _, l := range logs {

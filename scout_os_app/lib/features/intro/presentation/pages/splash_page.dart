@@ -31,7 +31,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     // Background gelap sesuai aplikasi
-    const backgroundColor = Color(0xFF16161A); // AppColors.graphite
+    const backgroundColor = Colors.white;
     // Warna biru cyber
     const brandColor = Color(0xFF00F0FF); // AppColors.cyberBlue
 
@@ -45,7 +45,7 @@ class _SplashPageState extends State<SplashPage> {
           child: !_showText
               ? // Scene 1: Logo Pigi
                 Image.asset(
-                  'assets/images/logo/foreground-pigi.png',
+                  'assets/images/logo/pradigi-logo-foreground.png',
                   key: const ValueKey('logo'),
                   width: 250,
                   height: 250,

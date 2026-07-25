@@ -109,7 +109,7 @@ func (s *Service) Register(name, username, password, countryID, provinsiID, kabu
 		TokenType:          "bearer",
 		ID:                 user.ID,
 		Name:               user.FullName.String,
-		Username:            user.Email,
+		Username:           user.Email,
 		IsPro:              false,
 		MustChangePassword: user.MustChangePassword,
 	}, nil
@@ -144,7 +144,7 @@ func (s *Service) Login(username, password string) (*AuthResponse, error) {
 		TokenType:          "bearer",
 		ID:                 user.ID,
 		Name:               user.FullName.String,
-		Username:            user.Email,
+		Username:           user.Email,
 		IsPro:              false,
 		MustChangePassword: user.MustChangePassword,
 	}, nil

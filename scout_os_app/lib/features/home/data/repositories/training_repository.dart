@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/training_path.dart';
 import '../models/training_section.dart';
+import '../models/incident.dart';
 import '../services/training_api_service.dart';
 import 'package:scout_os_app/core/services/local_cache_service.dart';
 import 'package:scout_os_app/core/network/api_dio_provider.dart';
@@ -300,6 +301,22 @@ class TrainingRepository {
       debugPrint('⚠️ [REPO] Failed to fetch progress: $e');
       // Return empty map on failure (Network error) -> UI will handle it (or show error)
       return {};
+    }
+  }
+
+  // ===============================================================
+  // 4. INCIDENT DASHBOARD (AI-GENERATED)
+  // ===============================================================
+
+  Future<List<IncidentModel>> fetchIncidents({int limit = 20}) async {
+    try {
+      final rawList = await _apiService.getIncidents(limit: limit);
+      return rawList
+          .map((json) => IncidentModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('⚠️ [INCIDENT] Failed to fetch incidents: $e');
+      rethrow;
     }
   }
 

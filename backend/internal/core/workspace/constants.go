@@ -50,5 +50,3 @@ const (
 	StorageS3            StorageType = "S3"
 	StorageObjectStorage StorageType = "OBJECT_STORAGE"
 )
-
-

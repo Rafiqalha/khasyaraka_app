@@ -25,9 +25,9 @@ func (e *PythonEvaluator) Domain() string { return "python" }
 // This is pure deterministic logic — no LLM, no AI.
 func (e *PythonEvaluator) Assess(ctx context.Context, result *runtime.ExecutionResult) (*runtime.ExecutionAssessment, error) {
 	assessment := &runtime.ExecutionAssessment{
-		RequestID:  result.RequestID,
-		TimedOut:   result.TimedOut,
-		OOMKilled:  result.OOMKilled,
+		RequestID: result.RequestID,
+		TimedOut:  result.TimedOut,
+		OOMKilled: result.OOMKilled,
 	}
 
 	// Syntax check

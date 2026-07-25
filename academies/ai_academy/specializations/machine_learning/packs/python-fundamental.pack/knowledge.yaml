@@ -1,0 +1,31 @@
+nodes:
+  - id: python.variables
+    name: "Variables and Data Types"
+    target_score: 0.8
+  - id: python.control_flow
+    name: "Control Flow (if/elif/else)"
+    target_score: 0.8
+  - id: python.functions
+    name: "Functions and Parameters"
+    target_score: 0.8
+  - id: python.collections
+    name: "Collections (List, Dict, Set)"
+    target_score: 0.8
+  - id: python.debugging
+    name: "Syntax & Logic Debugging"
+    target_score: 0.85
+  - id: python.project
+    name: "Mini Project: Student Grade Calculator"
+    target_score: 0.9
+
+edges:
+  - from: python.variables
+    to: python.control_flow
+  - from: python.control_flow
+    to: python.functions
+  - from: python.functions
+    to: python.collections
+  - from: python.collections
+    to: python.debugging
+  - from: python.debugging
+    to: python.project

@@ -83,7 +83,7 @@ func (r *Repository) GetMessages(ctx context.Context, roomID int64, beforeID int
 	if limit > 50 {
 		limit = 50
 	}
-	
+
 	query := `
 		SELECT m.id, m.room_id, m.user_id, u.full_name as user_name, COALESCE(u.hack_level, 'Siaga') as user_level, 
 		       m.content, m.msg_type, m.created_at

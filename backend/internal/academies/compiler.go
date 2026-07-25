@@ -6,7 +6,7 @@ import (
 )
 
 // Compiler is the quality gate and packager for an Academy.
-type Compiler struct {}
+type Compiler struct{}
 
 func NewCompiler() *Compiler {
 	return &Compiler{}

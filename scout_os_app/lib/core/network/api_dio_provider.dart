@@ -16,6 +16,7 @@ import 'package:scout_os_app/core/services/secure_storage_service.dart';
 /// - Global logout events
 class ApiDioProvider {
   static Dio? _dioInstance;
+  static String? cachedToken;
   static GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   /// Get or create singleton Dio instance with JWT interceptor.
@@ -41,11 +42,15 @@ class ApiDioProvider {
           final token = await SecureStorageService.getToken();
 
           // Log request details
+          final fullUrl = options.path.startsWith('http://') || options.path.startsWith('https://')
+              ? options.path
+              : '${options.baseUrl}${options.path}';
           debugPrint(
-            '🔍 [DIO_INTERCEPTOR] Request: ${options.method} ${options.baseUrl}${options.path}',
+            '🔍 [DIO_INTERCEPTOR] Request: ${options.method} $fullUrl',
           );
 
           if (token != null && token.isNotEmpty) {
+            cachedToken = token;
             options.headers['Authorization'] = 'Bearer $token';
             debugPrint(
               '✅ [DIO_INTERCEPTOR] Authorization header added: Bearer ${token.substring(0, token.length > 20 ? 20 : token.length)}...',

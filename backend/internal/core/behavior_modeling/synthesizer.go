@@ -34,9 +34,9 @@ func (s *Synthesizer) Synthesize(
 	baselineProfile *BehaviorProfile,
 	patterns []cognitive_pattern.CognitivePattern,
 ) *BehaviorProfile {
-	
+
 	now := time.Now()
-	
+
 	// 1. Calculate Current Dimensions based on new patterns
 	currentPersistence := s.synthesizePersistence(patterns)
 	currentAIDependency := s.synthesizeAIDependency(patterns)
@@ -52,11 +52,11 @@ func (s *Synthesizer) Synthesize(
 		Version:            1,
 		SynthesizerVersion: CurrentSynthesizerVersion,
 		GeneratedAt:        now,
-		
-		Persistence: BehaviorDimensions{Current: currentPersistence},
-		AIDependency: BehaviorDimensions{Current: currentAIDependency},
+
+		Persistence:        BehaviorDimensions{Current: currentPersistence},
+		AIDependency:       BehaviorDimensions{Current: currentAIDependency},
 		RecoveryCapability: BehaviorDimensions{Current: currentRecovery},
-		Strategies: StrategyDimensions{Current: currentStrategies},
+		Strategies:         StrategyDimensions{Current: currentStrategies},
 	}
 
 	if parentProfile != nil {
@@ -103,7 +103,7 @@ func (s *Synthesizer) Synthesize(
 		profile.AIDependency.Baseline = currentAIDependency
 		profile.RecoveryCapability.Baseline = currentRecovery
 		profile.Strategies.Baseline = currentStrategies
-		
+
 		profile.Persistence.Current.Stability = 0.5
 		profile.AIDependency.Current.Stability = 0.5
 		profile.RecoveryCapability.Current.Stability = 0.5
@@ -132,13 +132,13 @@ func (s *Synthesizer) GenerateSummary(profile *BehaviorProfile) *BehaviorSummary
 			primary = st
 		}
 	}
-	
+
 	summary.PrimaryStrategy = string(primary)
 	summary.StrategyConfidence = maxConf * profile.Strategies.Current.Confidence // Combined confidence
 
 	// Detect anomalies (Current != Baseline)
 	if profile.Persistence.Current.Value != profile.Persistence.Baseline.Value {
-		summary.AnomalyHighlights = append(summary.AnomalyHighlights, 
+		summary.AnomalyHighlights = append(summary.AnomalyHighlights,
 			fmt.Sprintf("Persistence changed from %s to %s", profile.Persistence.Baseline.Value, profile.Persistence.Current.Value))
 	}
 
@@ -166,7 +166,7 @@ func (s *Synthesizer) GenerateSummary(profile *BehaviorProfile) *BehaviorSummary
 	}
 
 	// Narrative
-	summary.BehaviorNarrative = fmt.Sprintf("Pengguna menunjukkan pola belajar berbasis %s. Ketika menemui hambatan, kegigihannya %s dan ketergantungan pada AI %s.", 
+	summary.BehaviorNarrative = fmt.Sprintf("Pengguna menunjukkan pola belajar berbasis %s. Ketika menemui hambatan, kegigihannya %s dan ketergantungan pada AI %s.",
 		summary.PrimaryStrategy, summary.PersistenceLevel, summary.AIDependencyLevel)
 
 	return summary
@@ -175,7 +175,7 @@ func (s *Synthesizer) GenerateSummary(profile *BehaviorProfile) *BehaviorSummary
 func (s *Synthesizer) calculateStability(current string, previous string, previousStability float64) float64 {
 	if current == previous {
 		// Increases stability, approaching 1.0
-		return previousStability + (1.0 - previousStability) * 0.2
+		return previousStability + (1.0-previousStability)*0.2
 	}
 	// Decreases stability
 	return previousStability * 0.5
@@ -185,24 +185,24 @@ func (s *Synthesizer) calculateStability(current string, previous string, previo
 
 func (s *Synthesizer) synthesizePersistence(patterns []cognitive_pattern.CognitivePattern) BehaviorTrait[string] {
 	trait := BehaviorTrait[string]{Value: "Medium", Confidence: 0.5} // Default
-	
+
 	var evidence []BehaviorEvidence
 	for _, p := range patterns {
 		if p.PatternType == cognitive_pattern.PatternPersistence {
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence,
-				Description: "Demonstrated persistence after multiple failures",
+				Weight:            p.Confidence,
+				Description:       "Demonstrated persistence after multiple failures",
 			})
 			trait.Value = "High"
 			trait.Confidence = p.Confidence
 		} else if p.PatternType == cognitive_pattern.PatternEarlyAbandon {
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence,
-				Description: "Abandoned mission shortly after starting",
+				Weight:            p.Confidence,
+				Description:       "Abandoned mission shortly after starting",
 			})
 			trait.Value = "Low"
 			trait.Confidence = p.Confidence
@@ -219,19 +219,19 @@ func (s *Synthesizer) synthesizeAIDependency(patterns []cognitive_pattern.Cognit
 	for _, p := range patterns {
 		if p.PatternType == cognitive_pattern.PatternAIDependency {
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence,
-				Description: fmt.Sprintf("High ratio of AI calls to attempts (confidence: %.2f)", p.Confidence),
+				Weight:            p.Confidence,
+				Description:       fmt.Sprintf("High ratio of AI calls to attempts (confidence: %.2f)", p.Confidence),
 			})
 			trait.Value = "High"
 			trait.Confidence = p.Confidence
 		} else if p.PatternType == cognitive_pattern.PatternHintCopy {
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence * 0.5,
-				Description: "Copied hints directly without apparent modification",
+				Weight:            p.Confidence * 0.5,
+				Description:       "Copied hints directly without apparent modification",
 			})
 			// Multiple hint copies increase dependency
 			if len(evidence) > 2 {
@@ -250,10 +250,10 @@ func (s *Synthesizer) synthesizeRecovery(patterns []cognitive_pattern.CognitiveP
 	for _, p := range patterns {
 		if p.PatternType == cognitive_pattern.PatternRecoveryAfterBlock {
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence,
-				Description: "Successfully recovered progress after being blocked",
+				Weight:            p.Confidence,
+				Description:       "Successfully recovered progress after being blocked",
 			})
 			trait.Value = "Excellent"
 			trait.Confidence = p.Confidence
@@ -266,28 +266,28 @@ func (s *Synthesizer) synthesizeRecovery(patterns []cognitive_pattern.CognitiveP
 func (s *Synthesizer) synthesizeStrategies(patterns []cognitive_pattern.CognitivePattern) BehaviorTrait[StrategyDistribution] {
 	dist := make(StrategyDistribution)
 	var evidence []BehaviorEvidence
-	
+
 	// Base distributions
 	sysWeight := 0.0
 	teWeight := 0.0
-	
+
 	for _, p := range patterns {
 		switch p.PatternType {
 		case cognitive_pattern.PatternSystematicDebugging, cognitive_pattern.PatternErrorDrivenIteration, cognitive_pattern.PatternStackTraceNavigation:
 			sysWeight += p.Confidence
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence,
-				Description: "Methodical approach to errors",
+				Weight:            p.Confidence,
+				Description:       "Methodical approach to errors",
 			})
 		case cognitive_pattern.PatternTrialAndError, cognitive_pattern.PatternRapidRetry, cognitive_pattern.PatternRepeatedExecution:
 			teWeight += p.Confidence
 			evidence = append(evidence, BehaviorEvidence{
-				PatternType: p.PatternType,
+				PatternType:       p.PatternType,
 				PatternEpisodeIDs: []string{p.ID},
-				Weight: p.Confidence,
-				Description: "Guess-and-check approach",
+				Weight:            p.Confidence,
+				Description:       "Guess-and-check approach",
 			})
 		}
 	}
@@ -301,15 +301,17 @@ func (s *Synthesizer) synthesizeStrategies(patterns []cognitive_pattern.Cognitiv
 
 	dist[StrategySystematic] = sysWeight / total
 	dist[StrategyTrialError] = teWeight / total
-	
+
 	// Confidence is higher if total evidence weight is high
 	conf := total / 5.0
-	if conf > 0.9 { conf = 0.9 }
-	
+	if conf > 0.9 {
+		conf = 0.9
+	}
+
 	return BehaviorTrait[StrategyDistribution]{
-		Value: dist,
+		Value:      dist,
 		Confidence: conf,
-		Evidence: evidence,
+		Evidence:   evidence,
 	}
 }
 
@@ -317,17 +319,17 @@ func (s *Synthesizer) generateFingerprint(profile *BehaviorProfile, patterns []c
 	// Simple deterministic hash based on Synthesizer Version + Pattern IDs
 	var input string
 	input += profile.SynthesizerVersion + "|" + string(profile.Window) + "|"
-	
+
 	var patternIDs []string
 	for _, p := range patterns {
 		patternIDs = append(patternIDs, p.ID)
 	}
 	sort.Strings(patternIDs)
-	
+
 	for _, id := range patternIDs {
 		input += id + ","
 	}
-	
+
 	hash := sha256.Sum256([]byte(input))
 	return hex.EncodeToString(hash[:])
 }

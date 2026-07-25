@@ -6,23 +6,23 @@ import (
 )
 
 type Room struct {
-	ID               int64      `json:"id" db:"id"`
-	Code             string     `json:"code" db:"code"`
-	HostUserID       int64      `json:"host_user_id" db:"host_user_id"`
-	HostName         string     `json:"host_name,omitempty" db:"host_name"`
-	Title            string     `json:"title" db:"title"`
-	Status           string     `json:"status" db:"status"` // waiting, playing, finished
-	MaxTeams         int        `json:"max_teams" db:"max_teams"`
-	PlayersPerTeam   int        `json:"players_per_team" db:"players_per_team"`
-	TotalQuestions   int        `json:"total_questions" db:"total_questions"`
-	QTimeSecs        int        `json:"q_time_secs" db:"q_time_secs"`
-	CurrentQIndex    int        `json:"current_q_index" db:"current_q_index"`
-	QStartedAt       *time.Time `json:"q_started_at" db:"q_started_at"`
-	StartedAt        *time.Time `json:"started_at" db:"started_at"`
-	FinishedAt       *time.Time `json:"finished_at" db:"finished_at"`
-	CreatedAt        time.Time  `json:"created_at" db:"created_at"`
-	BotAnswerTimestamps []byte  `json:"bot_answer_timestamps" db:"bot_answer_timestamps"`
-	Teams            []Team     `json:"teams,omitempty"`
+	ID                  int64      `json:"id" db:"id"`
+	Code                string     `json:"code" db:"code"`
+	HostUserID          int64      `json:"host_user_id" db:"host_user_id"`
+	HostName            string     `json:"host_name,omitempty" db:"host_name"`
+	Title               string     `json:"title" db:"title"`
+	Status              string     `json:"status" db:"status"` // waiting, playing, finished
+	MaxTeams            int        `json:"max_teams" db:"max_teams"`
+	PlayersPerTeam      int        `json:"players_per_team" db:"players_per_team"`
+	TotalQuestions      int        `json:"total_questions" db:"total_questions"`
+	QTimeSecs           int        `json:"q_time_secs" db:"q_time_secs"`
+	CurrentQIndex       int        `json:"current_q_index" db:"current_q_index"`
+	QStartedAt          *time.Time `json:"q_started_at" db:"q_started_at"`
+	StartedAt           *time.Time `json:"started_at" db:"started_at"`
+	FinishedAt          *time.Time `json:"finished_at" db:"finished_at"`
+	CreatedAt           time.Time  `json:"created_at" db:"created_at"`
+	BotAnswerTimestamps []byte     `json:"bot_answer_timestamps" db:"bot_answer_timestamps"`
+	Teams               []Team     `json:"teams,omitempty"`
 }
 
 type Team struct {
@@ -38,14 +38,14 @@ type Team struct {
 }
 
 type Player struct {
-	ID         int64     `json:"id" db:"id"`
-	TeamID     int64     `json:"team_id" db:"team_id"`
-	RoomID     int64     `json:"room_id" db:"room_id"`
-	UserID     int64     `json:"user_id" db:"user_id"`
-	FullName   string    `json:"full_name,omitempty" db:"full_name"`
-	IsCaptain  bool      `json:"is_captain" db:"is_captain"`
-	Score      int       `json:"score" db:"score"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	ID        int64     `json:"id" db:"id"`
+	TeamID    int64     `json:"team_id" db:"team_id"`
+	RoomID    int64     `json:"room_id" db:"room_id"`
+	UserID    int64     `json:"user_id" db:"user_id"`
+	FullName  string    `json:"full_name,omitempty" db:"full_name"`
+	IsCaptain bool      `json:"is_captain" db:"is_captain"`
+	Score     int       `json:"score" db:"score"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 type Question struct {
@@ -84,11 +84,11 @@ type AnswerRequest struct {
 
 // State response for polling
 type RoomState struct {
-	Status           string             `json:"status"`
-	CurrentQuestion  *QuestionState     `json:"question,omitempty"`
-	Leaderboard      []TeamScore        `json:"leaderboard,omitempty"`
-	MyTeamScore      int                `json:"my_team_score,omitempty"`
-	AlreadyAnswered  bool               `json:"already_answered"`
+	Status          string         `json:"status"`
+	CurrentQuestion *QuestionState `json:"question,omitempty"`
+	Leaderboard     []TeamScore    `json:"leaderboard,omitempty"`
+	MyTeamScore     int            `json:"my_team_score,omitempty"`
+	AlreadyAnswered bool           `json:"already_answered"`
 }
 
 type QuestionState struct {

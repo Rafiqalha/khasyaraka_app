@@ -1,0 +1,34 @@
+id: python-collections
+type: notebook
+title: "Collections (Lists & Dictionaries)"
+estimated_duration: "25m"
+difficulty: intermediate
+depends:
+  - python-functions
+objective: "Master Python built-in data structures: List indexing/slicing, Dictionary key-value pairs, and Set operations."
+instructions: |
+  1. Open collections.py in the Editor.
+  2. Create a dictionary storing student names as keys and score lists as values.
+  3. Iterate over the dictionary and print summary stats.
+knowledge:
+  teaches:
+    - python.collections
+workspace:
+  template:
+    file: collections.py
+    content: |
+      # 005: Collections
+      students = {
+          "Alice": [90, 85, 92],
+          "Bob": [75, 80, 88],
+          "Charlie": [95, 98, 92]
+      }
+
+      for name, scores in students.items():
+          avg = sum(scores) / len(scores)
+          print(f"Student: {name} | Average: {avg:.1f}")
+completion:
+  run_tests:
+    minimum_score: 85
+reward:
+  xp: 70

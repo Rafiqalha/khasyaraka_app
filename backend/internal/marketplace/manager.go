@@ -20,10 +20,10 @@ func NewPackageManager(osVersion string) *PackageManager {
 func (pm *PackageManager) Install(downloadURL string) error {
 	// 1. Download
 	fmt.Printf("Downloading package from %s...\n", downloadURL)
-	
+
 	// Mock parsing manifest from downloaded .pack
 	manifest := PackageManifest{
-		ID: "ai_academy",
+		ID:      "ai_academy",
 		Version: "1.0.0",
 		Engine: struct {
 			Min string `yaml:"min" json:"min"`

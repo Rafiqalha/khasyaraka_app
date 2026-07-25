@@ -29,13 +29,13 @@ func (r *Repository) GetActiveSections(courseID string) ([]Section, error) {
 	var sections []Section
 	query := "SELECT id, course_id, title, description, tier, ord, is_active, created_at FROM training_sections WHERE is_active = TRUE"
 	args := []interface{}{}
-	
+
 	if courseID != "" {
 		query += " AND course_id = $1"
 		args = append(args, courseID)
 	}
 	query += " ORDER BY ord"
-	
+
 	err := r.db.Select(&sections, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("get sections: %w", err)

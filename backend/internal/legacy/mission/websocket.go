@@ -12,9 +12,9 @@ import (
 )
 
 type MissionHub struct {
-	rdb      *redis.Client
-	clients  map[string]map[chan EnvironmentEvent]bool
-	mu       sync.RWMutex
+	rdb     *redis.Client
+	clients map[string]map[chan EnvironmentEvent]bool
+	mu      sync.RWMutex
 }
 
 func NewMissionHub(rdb *redis.Client) *MissionHub {
@@ -61,7 +61,7 @@ func (h *MissionHub) Broadcast(missionID string, event EnvironmentEvent) {
 }
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize: 1024,
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
 		return true

@@ -1,0 +1,7 @@
+# Policies for passing a generated mission
+evaluation:
+  pass_threshold_confidence: 0.85
+  rules:
+    - AI evaluates if the core objective is achieved logically.
+    - Check for edge cases handling.
+    - Code must compile and not contain fatal runtime errors.

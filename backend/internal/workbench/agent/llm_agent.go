@@ -13,10 +13,10 @@ import (
 // It implements the full Observe → Think → Respond → Act → Reflect loop.
 // Used for: Mentor, QA Engineer, Reviewer, Attacker, Interviewer, etc.
 type LLMAgent struct {
-	role       Role
-	memory     AgentMemory
-	llmClient  *ai_agent.Client
-	lastObs    *Observation
+	role        Role
+	memory      AgentMemory
+	llmClient   *ai_agent.Client
+	lastObs     *Observation
 	lastThought *Thought
 }
 

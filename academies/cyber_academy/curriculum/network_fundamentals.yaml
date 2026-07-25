@@ -1,0 +1,13 @@
+id: "curriculum_network_fundamentals"
+title: "Network Fundamentals"
+description: "Understanding network protocols, logs, and basic analysis."
+version: "1.0.0"
+
+units:
+  - id: "unit_log_investigation"
+    title: "Log Investigation"
+    lessons:
+      - id: "lesson_auth_logs"
+        title: "Analyzing Authentication Logs"
+        concept_id: "concept_log_analysis"
+        difficulty: "beginner"

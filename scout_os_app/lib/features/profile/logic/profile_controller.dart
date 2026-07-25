@@ -12,7 +12,6 @@ class ProfileController extends ChangeNotifier {
     ProfileRepository? profileRepo,
     AuthRepository? authRepo,
     TrainingController? trainingController,
-    this.leaderboardController,
     AuthController? authController,
   }) : _profileRepo = profileRepo ?? ProfileRepository(),
        _authRepo = authRepo ?? AuthRepository(),
@@ -218,11 +217,7 @@ class ProfileController extends ChangeNotifier {
   }
 
   void _refreshLeaderboard() {
-    try {
-      leaderboardController?.loadLeaderboard(limit: 50);
-    } catch (e) {
-      debugPrint('⚠️ [PROFILE] Failed to refresh leaderboard: $e');
-    }
+    // Leaderboard handles its own refresh
   }
 
   /// Clear all state for logout - CRITICAL for preventing data leak between users
@@ -261,54 +256,7 @@ class ProfileController extends ChangeNotifier {
   }
 
   Future<void> _fetchHighestRankAsync() async {
-    try {
-      if (currentUser == null) return;
-      
-      final scopes = [
-        {'scope': 'global', 'label': 'Indonesia', 'loc': ''},
-        {'scope': 'provinsi', 'label': 'Provinsi', 'loc': currentUser!.provinsiId ?? ''},
-        {'scope': 'kota', 'label': 'Kota/Kab', 'loc': currentUser!.kabupatenId ?? ''},
-        {'scope': 'kecamatan', 'label': 'Kecamatan', 'loc': currentUser!.kecamatanId ?? ''},
-      ];
-
-      int bestRank = 999999;
-      String bestLabel = '';
-
-      for (var s in scopes) {
-        final loc = s['loc'] as String;
-        if (s['scope'] != 'global' && loc.isEmpty) continue;
-        
-        try {
-          final data = await repo.fetchLeaderboard(
-            limit: 1, 
-            scope: s['scope'] as String,
-            locationId: loc,
-          );
-          if (data.myRank != null) {
-            int currentRank = data.myRank!.rank;
-            
-            // CRITICAL FALLBACK: If API says rank 0 but user has XP, they are actually #1 in that bracket (backend latency)
-            if (currentRank == 0 && _totalXp > 0) {
-               currentRank = 1;
-            }
-
-            if (currentRank > 0 && currentRank < bestRank) {
-              bestRank = currentRank;
-              bestLabel = s['label'] as String;
-            }
-          }
-        } catch (e) {
-          // ignore error for specific scope
-        }
-      }
-
-      if (bestRank < 999999) {
-        _highestRankTitle = '#$bestRank $bestLabel';
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('⚠️ [PROFILE] Error fetching highest rank: $e');
-    }
+    // Legacy rank calculation disabled
   }
 
   @override

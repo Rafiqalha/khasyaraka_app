@@ -202,12 +202,12 @@ type SubmitPatchRequest struct {
 }
 
 type CTFStateResponse struct {
-	Room           CTFRoom             `json:"room"`
-	PhaseTimeLeft  int                 `json:"phase_time_left"` // in seconds
-	MyTeam         CTFTeam             `json:"my_team"`
-	OpponentTeam   CTFTeamPublicView   `json:"opponent_team"`
-	RecentLogs     []CTFAttackLog      `json:"recent_logs"`
-	PatchChallenge *CTFPatchChallenge  `json:"patch_challenge,omitempty"`
+	Room           CTFRoom            `json:"room"`
+	PhaseTimeLeft  int                `json:"phase_time_left"` // in seconds
+	MyTeam         CTFTeam            `json:"my_team"`
+	OpponentTeam   CTFTeamPublicView  `json:"opponent_team"`
+	RecentLogs     []CTFAttackLog     `json:"recent_logs"`
+	PatchChallenge *CTFPatchChallenge `json:"patch_challenge,omitempty"`
 }
 
 type CTFTeamPublicView struct {

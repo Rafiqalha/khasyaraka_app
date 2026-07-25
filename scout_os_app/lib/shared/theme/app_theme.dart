@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
+import 'design_tokens.dart';
 
 class AppTheme {
   AppTheme._();
@@ -69,45 +70,46 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        foregroundColor: AppColors.textPrimaryLight,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: AppTextStyles.h2.copyWith(color: Colors.white),
+        titleTextStyle: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryLight),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           textStyle: AppTextStyles.button,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0, // Flat design token
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.m),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusS),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.charcoalSurface,
+        fillColor: AppColors.surfaceLight,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: AppSpacing.l,
+          vertical: AppSpacing.l,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade700),
+          borderRadius: AppRadius.radiusS,
+          borderSide: const BorderSide(color: AppColorTokens.divider),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade700),
+          borderRadius: AppRadius.radiusS,
+          borderSide: const BorderSide(color: AppColorTokens.divider),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.wosmPurple, width: 2),
+          borderRadius: AppRadius.radiusS,
+          borderSide: const BorderSide(color: AppColorTokens.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadius.radiusS,
           borderSide: const BorderSide(color: AppColors.danger),
         ),
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColorTokens.textTertiary),
       ),
     );
   }
@@ -174,45 +176,46 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.surfaceDark,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        foregroundColor: AppColors.textPrimaryDark,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: AppTextStyles.h2.copyWith(color: Colors.white),
+        titleTextStyle: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryDark),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           textStyle: AppTextStyles.button,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0, // Flat design token
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.m),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusS),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Color(0xFF2C2C2C),
+        fillColor: AppColors.surfaceDark,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: AppSpacing.l,
+          vertical: AppSpacing.l,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade700),
+          borderRadius: AppRadius.radiusS,
+          borderSide: const BorderSide(color: Color(0xFF424242)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade700),
+          borderRadius: AppRadius.radiusS,
+          borderSide: const BorderSide(color: Color(0xFF424242)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.wosmPurple, width: 2),
+          borderRadius: AppRadius.radiusS,
+          borderSide: const BorderSide(color: AppColorTokens.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadius.radiusS,
           borderSide: const BorderSide(color: AppColors.danger),
         ),
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColorTokens.textTertiary),
       ),
     );
   }

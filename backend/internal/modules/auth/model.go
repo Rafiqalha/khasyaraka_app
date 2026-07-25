@@ -50,4 +50,3 @@ type UserResponse struct {
 	FullName string `json:"full_name"`
 	IsActive bool   `json:"is_active"`
 }
-

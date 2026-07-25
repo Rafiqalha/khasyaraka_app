@@ -1,0 +1,13 @@
+experiences:
+  - id: "beginner"
+    title: "Zero experience"
+    description: "I am just starting out"
+  - id: "intermediate"
+    title: "I know the basics"
+    description: "I have some foundational knowledge"
+  - id: "advanced"
+    title: "I've built small projects"
+    description: "I can build functional software"
+  - id: "professional"
+    title: "I'm working professionally"
+    description: "I am employed in the industry"

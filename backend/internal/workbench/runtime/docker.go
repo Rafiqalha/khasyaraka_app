@@ -35,8 +35,8 @@ func (d *DockerRuntime) Info() RuntimeInfo {
 		langs = append(langs, l)
 	}
 	return RuntimeInfo{
-		Name:    "docker",
-		Version: "1.0.0",
+		Name:      "docker",
+		Version:   "1.0.0",
 		Languages: langs,
 		Capabilities: []Capability{
 			CapFilesystem,

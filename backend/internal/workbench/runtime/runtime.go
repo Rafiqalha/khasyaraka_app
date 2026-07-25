@@ -115,21 +115,21 @@ func (r *ExecutionRequest) Fingerprint() string {
 // ===========================
 
 type ExecutionResult struct {
-	RequestID    string `json:"request_id"`
-	Fingerprint  string `json:"fingerprint"`
-	Stdout       string `json:"stdout"`
-	Stderr       string `json:"stderr"`
-	ExitCode     int    `json:"exit_code"`
-	DurationMs   int64  `json:"duration_ms"`
-	MemoryUsedKB int64  `json:"memory_used_kb"`
-	TestsPassed  int    `json:"tests_passed"`
-	TestsFailed  int    `json:"tests_failed"`
-	TestsTotal   int    `json:"tests_total"`
+	RequestID    string       `json:"request_id"`
+	Fingerprint  string       `json:"fingerprint"`
+	Stdout       string       `json:"stdout"`
+	Stderr       string       `json:"stderr"`
+	ExitCode     int          `json:"exit_code"`
+	DurationMs   int64        `json:"duration_ms"`
+	MemoryUsedKB int64        `json:"memory_used_kb"`
+	TestsPassed  int          `json:"tests_passed"`
+	TestsFailed  int          `json:"tests_failed"`
+	TestsTotal   int          `json:"tests_total"`
 	CoveragePct  *float64     `json:"coverage_pct,omitempty"`
 	FilesChanged []FileChange `json:"files_changed,omitempty"`
-	TimedOut     bool   `json:"timed_out"`
-	OOMKilled    bool   `json:"oom_killed"`
-	Error        string `json:"error,omitempty"`
+	TimedOut     bool         `json:"timed_out"`
+	OOMKilled    bool         `json:"oom_killed"`
+	Error        string       `json:"error,omitempty"`
 }
 
 type FileChange struct {
@@ -145,15 +145,15 @@ type FileChange struct {
 // ===========================
 
 type ExecutionAssessment struct {
-	RequestID    string `json:"request_id"`
-	SyntaxValid  bool   `json:"syntax_valid"`
-	RuntimeClean bool   `json:"runtime_clean"`
-	AllTestsPassed bool `json:"all_tests_passed"`
-	TestsPassed  int    `json:"tests_passed"`
-	TestsFailed  int    `json:"tests_failed"`
-	TimedOut     bool   `json:"timed_out"`
-	OOMKilled    bool   `json:"oom_killed"`
-	Summary      string `json:"summary"`
+	RequestID      string `json:"request_id"`
+	SyntaxValid    bool   `json:"syntax_valid"`
+	RuntimeClean   bool   `json:"runtime_clean"`
+	AllTestsPassed bool   `json:"all_tests_passed"`
+	TestsPassed    int    `json:"tests_passed"`
+	TestsFailed    int    `json:"tests_failed"`
+	TimedOut       bool   `json:"timed_out"`
+	OOMKilled      bool   `json:"oom_killed"`
+	Summary        string `json:"summary"`
 }
 
 // ===========================
@@ -174,11 +174,11 @@ const (
 )
 
 type TraceEvent struct {
-	RequestID   string         `json:"request_id"`
-	EventType   TraceEventType `json:"event_type"`
-	Detail      string         `json:"detail,omitempty"`
-	OccurredAt  time.Time      `json:"occurred_at"`
-	RelativeMs  int64          `json:"relative_ms"` // Since execution started
+	RequestID  string         `json:"request_id"`
+	EventType  TraceEventType `json:"event_type"`
+	Detail     string         `json:"detail,omitempty"`
+	OccurredAt time.Time      `json:"occurred_at"`
+	RelativeMs int64          `json:"relative_ms"` // Since execution started
 }
 
 type ExecutionTrace struct {
@@ -204,12 +204,12 @@ type ExecutionTrace struct {
 type RuntimeEventType string
 
 const (
-	RTEventPrepared        RuntimeEventType = "RuntimePrepared"
-	RTEventExecutionStarted  RuntimeEventType = "ExecutionStarted"
-	RTEventOutputProduced    RuntimeEventType = "ExecutionOutputProduced"
+	RTEventPrepared           RuntimeEventType = "RuntimePrepared"
+	RTEventExecutionStarted   RuntimeEventType = "ExecutionStarted"
+	RTEventOutputProduced     RuntimeEventType = "ExecutionOutputProduced"
 	RTEventExecutionCompleted RuntimeEventType = "ExecutionCompleted"
-	RTEventSnapshotCaptured  RuntimeEventType = "SnapshotCaptured"
-	RTEventCleaned           RuntimeEventType = "ExecutionCleaned"
+	RTEventSnapshotCaptured   RuntimeEventType = "SnapshotCaptured"
+	RTEventCleaned            RuntimeEventType = "ExecutionCleaned"
 )
 
 // ===========================
@@ -228,11 +228,11 @@ const (
 )
 
 type PolicyRule struct {
-	Context          ExecutionContext `json:"context"`
-	AllowedRuntimes  []string         `json:"allowed_runtimes"` // runtime names
-	MaxTimeoutSec    int              `json:"max_timeout_sec"`
-	MaxMemoryMB      int              `json:"max_memory_mb"`
-	NetworkAllowed   bool             `json:"network_allowed"`
+	Context         ExecutionContext `json:"context"`
+	AllowedRuntimes []string         `json:"allowed_runtimes"` // runtime names
+	MaxTimeoutSec   int              `json:"max_timeout_sec"`
+	MaxMemoryMB     int              `json:"max_memory_mb"`
+	NetworkAllowed  bool             `json:"network_allowed"`
 }
 
 type ExecutionPolicy interface {

@@ -6,7 +6,7 @@ import (
 )
 
 // Planner generates an AdaptationPlan from a SessionContext.
-type Planner struct {}
+type Planner struct{}
 
 func NewPlanner() *Planner {
 	return &Planner{}

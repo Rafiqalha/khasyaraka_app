@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../tokens/colors.dart';
 import '../tokens/typography.dart';
 import '../tokens/spacing.dart';
-import '../tokens/radius.dart';
+
 
 enum JourneyNodeStatus { locked, active, completed }
 
@@ -23,7 +23,7 @@ class JourneyCard extends StatelessWidget {
   final String title;
   final String estimatedTime;
   final List<JourneyNodeItem> nodes;
-  final VoidCallback onContinue;
+  final VoidCallback? onContinue;
   final String continueText;
   final bool isContinueEnabled;
 
@@ -32,7 +32,7 @@ class JourneyCard extends StatelessWidget {
     required this.title,
     required this.estimatedTime,
     required this.nodes,
-    required this.onContinue,
+    this.onContinue,
     this.continueText = "Continue →",
     this.isContinueEnabled = true,
   });
@@ -64,11 +64,12 @@ class JourneyCard extends StatelessWidget {
             const Divider(),
             const SizedBox(height: PradigiSpacing.s24),
             
-            // Primary Action
-            FilledButton(
-              onPressed: isContinueEnabled ? onContinue : null,
-              child: Text(continueText),
-            ),
+            // Primary Action (Optional, usually handled by shell)
+            if (onContinue != null)
+              FilledButton(
+                onPressed: isContinueEnabled ? onContinue : null,
+                child: Text(continueText),
+              ),
           ],
         ),
       ),
@@ -89,8 +90,7 @@ class JourneyCard extends StatelessWidget {
         iconData = Icons.circle;
         break;
       case JourneyNodeStatus.locked:
-      default:
-        indicatorColor = PradigiColors.border;
+        indicatorColor = PradigiColors.textSecondary;
         iconData = Icons.circle_outlined;
         break;
     }

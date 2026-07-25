@@ -58,9 +58,9 @@ func (s *service) HandleLearningActivity(ctx context.Context, evt events.Event) 
 	// But Aggregator consumes session.updated or relies on Session Engine to inject sessionID.
 	// For simplicity, we assume we extract sessionID from another source, or we aggregate by UserID temporarily.
 	// Ideally, Session Engine tags the Learning Activity with Session ID and re-publishes, or Aggregator reads from DB.
-	
+
 	// Let's assume evt.Metadata["SessionID"] is set by Session Engine before it reaches here.
-	sessionID := evt.Metadata.SessionID 
+	sessionID := evt.Metadata.SessionID
 	if sessionID == "" {
 		// Fallback to UserID as temporary session grouping for MVP if not set
 		sessionID = evt.Metadata.UserID

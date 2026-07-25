@@ -49,51 +49,55 @@ class MissionConsole extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Top Mission Card Info
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(PradigiSpacing.s24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Mission", style: PradigiTypography.caption.copyWith(color: PradigiColors.primary)),
-                const SizedBox(height: PradigiSpacing.s4),
-                Text(missionTitle, style: PradigiTypography.h2),
-                const SizedBox(height: PradigiSpacing.s16),
-                
-                // Meta Info
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildMeta("Estimated", estimatedTime),
-                    _buildMeta("Difficulty", difficulty),
-                    _buildMeta("Concept", concept),
-                  ],
-                ),
-                const SizedBox(height: PradigiSpacing.s24),
-                const Divider(),
-                const SizedBox(height: PradigiSpacing.s24),
-                
-                Text("Objective", style: PradigiTypography.body.copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: PradigiSpacing.s8),
-                Text(objective, style: PradigiTypography.body),
-              ],
-            ),
-          ),
-        ),
-        
+        // Top Mission Info (No Card)
+        Text("MISSION", style: PradigiTypography.caption.copyWith(color: PradigiColors.textSecondary, letterSpacing: 2.0, fontWeight: FontWeight.w600)),
+        const SizedBox(height: PradigiSpacing.s8),
+        Text(missionTitle, style: PradigiTypography.h2),
         const SizedBox(height: PradigiSpacing.s24),
+        
+        // Meta Info
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildMeta("Estimated", estimatedTime),
+            _buildMeta("Difficulty", difficulty),
+            _buildMeta("Concept", concept),
+          ],
+        ),
+        const SizedBox(height: PradigiSpacing.s32),
+        
+        Text("Objective", style: PradigiTypography.body.copyWith(fontWeight: FontWeight.w600)),
+        const SizedBox(height: PradigiSpacing.s8),
+        Text(objective, style: PradigiTypography.body),
+        
+        const SizedBox(height: PradigiSpacing.s32),
         
         // Editor Panel
         Container(
-          height: 300, // Fixed or flexible depending on parent
+          constraints: const BoxConstraints(maxHeight: 220),
           decoration: BoxDecoration(
-            color: PradigiColors.textPrimary, // Dark mode for editor
-            borderRadius: BorderRadius.circular(PradigiRadius.r16),
+            color: PradigiColors.editorBackground,
+            borderRadius: BorderRadius.circular(PradigiRadius.r12),
+            border: Border.all(color: PradigiColors.editorBorder, width: 1),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(PradigiRadius.r16),
-            child: editorWidget,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Fake IDE Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: PradigiSpacing.s16, vertical: PradigiSpacing.s8),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: PradigiColors.editorBorder, width: 1)),
+                ),
+                child: Text("main.py", style: PradigiTypography.caption.copyWith(color: PradigiColors.textSecondary)),
+              ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(PradigiRadius.r12)),
+                  child: editorWidget,
+                ),
+              ),
+            ],
           ),
         ),
         
@@ -116,11 +120,10 @@ class MissionConsole extends StatelessWidget {
         
         // Continue Action
         if (status == MissionConsoleStatus.passed && onContinue != null) ...[
-           const SizedBox(height: PradigiSpacing.s24),
+           const SizedBox(height: PradigiSpacing.s16),
            FilledButton(
-             style: FilledButton.styleFrom(backgroundColor: PradigiColors.success),
              onPressed: onContinue,
-             child: const Text("Continue"),
+             child: const Text("Continue →"),
            ),
         ]
       ],
@@ -132,7 +135,7 @@ class MissionConsole extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: PradigiTypography.caption),
-        const SizedBox(height: PradigiSpacing.s4),
+        const SizedBox(height: PradigiSpacing.s8),
         Text(value, style: PradigiTypography.body.copyWith(fontWeight: FontWeight.w500)),
       ],
     );
@@ -144,19 +147,38 @@ class MissionConsole extends StatelessWidget {
     }
 
     if (status == MissionConsoleStatus.passed) {
-       return Container(
-         padding: const EdgeInsets.all(PradigiSpacing.s24),
-         decoration: BoxDecoration(
-           color: PradigiColors.success.withValues(alpha: 0.1),
-           borderRadius: BorderRadius.circular(PradigiRadius.r16),
-           border: Border.all(color: PradigiColors.success),
-         ),
-         child: Row(
-           children: [
-             const Icon(Icons.check_circle, color: PradigiColors.success),
-             const SizedBox(width: PradigiSpacing.s16),
-             Text("Tests Passed", style: PradigiTypography.body.copyWith(color: PradigiColors.success, fontWeight: FontWeight.bold)),
-           ],
+       return Align(
+         alignment: Alignment.centerLeft,
+         child: Container(
+           width: double.infinity,
+           padding: const EdgeInsets.symmetric(horizontal: PradigiSpacing.s24, vertical: 16),
+           decoration: BoxDecoration(
+             color: PradigiColors.successLight,
+             borderRadius: BorderRadius.circular(PradigiRadius.r16),
+           ),
+           child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Row(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   const Icon(Icons.check_circle, color: PradigiColors.success, size: 24),
+                   const SizedBox(width: PradigiSpacing.s8),
+                   Text("Mission Passed!", style: PradigiTypography.h3.copyWith(color: PradigiColors.success)),
+                 ],
+               ),
+               const SizedBox(height: PradigiSpacing.s16),
+               Row(
+                 children: [
+                   _buildProgressPill("+50 XP", Icons.star, Colors.orange),
+                   const SizedBox(width: PradigiSpacing.s12),
+                   _buildProgressPill("Python Basics +12%", Icons.trending_up, PradigiColors.primary),
+                   const SizedBox(width: PradigiSpacing.s12),
+                   _buildProgressPill("Goal 42%", Icons.flag, Colors.purple),
+                 ],
+               )
+             ],
+           ),
          ),
        );
     }
@@ -193,13 +215,32 @@ class MissionConsole extends StatelessWidget {
           if (expectedOutput != null || receivedOutput != null) ...[
              const SizedBox(height: PradigiSpacing.s16),
              Text("Expected : ${expectedOutput ?? '-'}", style: PradigiTypography.code.copyWith(color: PradigiColors.textPrimary)),
-             const SizedBox(height: PradigiSpacing.s4),
+             const SizedBox(height: PradigiSpacing.s8),
              Text("Received : ${receivedOutput ?? '-'}", style: PradigiTypography.code.copyWith(color: PradigiColors.danger)),
           ],
           if (errorReason != null) ...[
              const SizedBox(height: PradigiSpacing.s16),
              Text(errorReason!, style: PradigiTypography.bodySecondary.copyWith(color: PradigiColors.danger)),
           ]
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressPill(String text, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(PradigiRadius.rFull),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 6),
+          Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12)),
         ],
       ),
     );

@@ -9,10 +9,10 @@ import (
 type Repository interface {
 	SaveContribution(ctx context.Context, c CompetencyContribution) error
 	GetContributions(ctx context.Context, userID, skillNodeID string) ([]CompetencyContribution, error)
-	
+
 	SaveProjection(ctx context.Context, p CompetencyProjection) error
 	GetLatestProjection(ctx context.Context, userID, skillNodeID string) (*CompetencyProjection, error)
-	
+
 	SaveSnapshot(ctx context.Context, s CapabilitySnapshot) error
 }
 

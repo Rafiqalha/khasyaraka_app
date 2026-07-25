@@ -20,19 +20,19 @@ type CompetencyDelta struct {
 // NodeCompletionResult is returned to Flutter after a journey node is completed.
 // It contains the evidence trail and the competency impact.
 type NodeCompletionResult struct {
-	EvidenceID       string            `json:"evidence_id"`
-	DiagnosisStatus  string            `json:"diagnosis_status"` // "passed", "struggling", "failed"
+	EvidenceID       string                   `json:"evidence_id"`
+	DiagnosisStatus  string                   `json:"diagnosis_status"` // "passed", "struggling", "failed"
 	Gaps             []diagnosis.KnowledgeGap `json:"gaps,omitempty"`
-	CompetencyDeltas []CompetencyDelta `json:"competency_deltas"`
-	NewReadiness     float64           `json:"new_readiness"`
-	Timestamp        time.Time         `json:"timestamp"`
+	CompetencyDeltas []CompetencyDelta        `json:"competency_deltas"`
+	NewReadiness     float64                  `json:"new_readiness"`
+	Timestamp        time.Time                `json:"timestamp"`
 }
 
 // LearningLoop orchestrates the closed-loop pipeline:
 // Mission Finished → Evidence → Diagnosis → Competency Update → Passport
 type LearningLoop struct {
-	diagnosisEngine   *diagnosis.Engine
-	competencyEngine  *competency.Engine
+	diagnosisEngine  *diagnosis.Engine
+	competencyEngine *competency.Engine
 }
 
 func NewLearningLoop(
@@ -60,11 +60,11 @@ func (ll *LearningLoop) CompleteNode(userID string, nodeID string, missionPassed
 	// Step 2: Generate Evidence Package
 	// ─────────────────────────────────────────
 	evidencePkg := &evidence.EvidencePackage{
-		ID:                  "ev_" + nodeID + "_" + time.Now().Format("20060102150405"),
-		JourneyID:           "journey_" + userID,
-		NodeID:              nodeID,
-		MissionFingerprint:  nodeID,
-		CreatedAt:           time.Now(),
+		ID:                 "ev_" + nodeID + "_" + time.Now().Format("20060102150405"),
+		JourneyID:          "journey_" + userID,
+		NodeID:             nodeID,
+		MissionFingerprint: nodeID,
+		CreatedAt:          time.Now(),
 	}
 
 	if missionPassed {

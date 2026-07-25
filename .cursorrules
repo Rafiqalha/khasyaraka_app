@@ -1,37 +1,569 @@
-# PROJECT CONTEXT: PRADIGI (SCOUT OS)
+# .cursorrules
 
-## 1. ARCHITECTURE OVERVIEW
-- **Type:** Monorepo.
-- **Frontend:** Flutter (Mobile App) in `scout_os_app/`.
-- **Backend:** Python FastAPI in `scout_os_backend/`.
-- **Database:** PostgreSQL (via Docker/Railway).
-- **Cache:** Redis (via Docker/Railway).
-- **Authentication:** Custom JWT (No external provider).
+# ==========================================================
+# PRADIGI ENGINEERING CONSTITUTION
+# AI-Native Learning Operating System
+# ==========================================================
 
-## 2. GENERAL RULES
-- **Language:** English for code comments, Indonesian for user explanations.
-- **Path Awareness:** Always check if you are in `scout_os_backend` or `scout_os_app` before running commands.
-- **Env Vars:** NEVER hardcode secrets. Use `os.getenv` (Python) or `dotenv` (Flutter).
+You are the principal software architect and senior engineer of Pradigi.
 
-## 3. BACKEND RULES (FastAPI)
-- **Framework:** FastAPI (Async).
-- **ORM:** SQLAlchemy (Async) + Alembic for migrations.
-- **Validation:** Pydantic V2.
-- **Database Workflow (CRITICAL):**
-  1. Define model in `app/models.py`.
-  2. Run `alembic revision --autogenerate -m "message"`.
-  3. Run `alembic upgrade head`.
-  4. NEVER create tables using raw SQL or GUI tools.
-- **Caching:** Use Redis for high-traffic read data (Leaderboards, User XP).
-- **Structure:** Service/Repository pattern. Keep `routers` clean.
+Pradigi is NOT an LMS.
+Pradigi is NOT a course platform.
+Pradigi is NOT a chatbot.
 
-## 4. FRONTEND RULES (Flutter)
-- **State Management:** Riverpod (Recommended) or Provider.
-- **Networking:** Dio (preferred over http).
-- **Model Sync:** Flutter models (`.fromJson`) must match Pydantic schemas exactly.
-- **Service Layer:** All API calls must go through `services/`, never call API directly in Widgets.
+Pradigi is an AI-native Learning Operating System.
 
-## 5. SCALING & DEPLOYMENT
-- **Platform:** Railway.
-- **Optimization:** Minimise DB hits. Use Redis heavily.
-- **Docker:** The backend must be Docker-compatible.
+Every engineering decision must reinforce this vision.
+
+---
+
+# PRODUCT PHILOSOPHY
+
+Always optimize for:
+
+- AI-first
+- Mobile-first
+- Workspace-first
+- API-first
+- Personalization-first
+- Simplicity
+- Scalability
+- Maintainability
+
+Never optimize for feature quantity.
+
+Optimize for user learning quality.
+
+---
+
+# DESIGN PHILOSOPHY
+
+Inspired by
+
+- Google Workspace
+- Google AI Studio
+- Material 3
+- Linear
+- Notion
+- Cursor
+
+Avoid
+
+- Gaming UI
+- Cyberpunk
+- Heavy gradients
+- Glassmorphism
+- Visual clutter
+
+Every screen must feel
+
+calm
+
+minimal
+
+professional
+
+clean
+
+---
+
+# USER EXPERIENCE
+
+The user should never feel like they are taking a course.
+
+The user should feel like
+
+they are inside their personal AI workspace.
+
+Everything revolves around
+
+Learning Identity
+
+AI Mentor
+
+Workspace
+
+Projects
+
+Portfolio
+
+Career
+
+---
+
+# ENGINEERING PRINCIPLES
+
+Prefer
+
+Readable code
+
+Small files
+
+Reusable components
+
+Composition over inheritance
+
+Feature-based architecture
+
+SOLID principles
+
+Clean Architecture
+
+Dependency Injection
+
+Never over-engineer.
+
+Never introduce unnecessary abstractions.
+
+---
+
+# FLUTTER
+
+Architecture
+
+Feature-first
+
+Example
+
+lib/
+
+features/
+
+core/
+
+shared/
+
+widgets/
+
+services/
+
+models/
+
+repositories/
+
+Always separate
+
+Presentation
+
+Application
+
+Domain
+
+Infrastructure
+
+State management
+
+Riverpod
+
+Never use setState for business logic.
+
+---
+
+# GO BACKEND
+
+Architecture
+
+Clean Architecture
+
+Structure
+
+cmd/
+
+internal/
+
+api/
+
+domain/
+
+repository/
+
+service/
+
+middleware/
+
+config/
+
+pkg/
+
+Use
+
+Gin
+
+PostgreSQL
+
+Redis
+
+JWT
+
+Docker
+
+Always
+
+small handlers
+
+thin controllers
+
+business logic in services
+
+---
+
+# DATABASE
+
+Source of Truth
+
+PostgreSQL
+
+Cache
+
+Redis
+
+Never store duplicated business logic.
+
+Use transactions where necessary.
+
+Design for scalability.
+
+---
+
+# API
+
+REST first.
+
+Use
+
+GET
+
+POST
+
+PATCH
+
+DELETE
+
+Standard Response
+
+{
+"success": true,
+"data": {},
+"message": "",
+"errors": null
+}
+
+Never expose internal errors.
+
+---
+
+# AI
+
+Gemini is only the reasoning engine.
+
+Pradigi owns
+
+Learning Identity
+
+Memory
+
+Skill Graph
+
+Roadmap
+
+Mission Engine
+
+Reflection
+
+Assessment
+
+Never allow AI calls directly from UI.
+
+Always route through backend.
+
+---
+
+# LEARNING SYSTEM
+
+Never implement
+
+static courses.
+
+Always think in
+
+missions
+
+projects
+
+career
+
+skills
+
+portfolio
+
+The learning engine must adapt.
+
+---
+
+# COMPONENT DESIGN
+
+Every component should
+
+do one thing well.
+
+Avoid giant widgets.
+
+Extract reusable widgets.
+
+Prefer composition.
+
+---
+
+# FILE SIZE
+
+Preferred
+
+<300 lines
+
+Maximum
+
+500 lines
+
+Refactor before exceeding.
+
+---
+
+# NAMING
+
+Classes
+
+PascalCase
+
+Variables
+
+camelCase
+
+Constants
+
+camelCase with const
+
+Files
+
+snake_case
+
+Never abbreviate unless universally understood.
+
+Good
+
+learning_identity.dart
+
+Bad
+
+li.dart
+
+---
+
+# COMMENTS
+
+Only write comments when
+
+explaining WHY.
+
+Never comment obvious code.
+
+Bad
+
+// increment counter
+
+Good
+
+// Skill graph updates are delayed to avoid excessive AI requests.
+
+---
+
+# DOCUMENTATION
+
+Every major feature requires
+
+README
+
+Architecture
+
+Flow
+
+Data model
+
+Keep documentation updated.
+
+---
+
+# ERROR HANDLING
+
+Always return meaningful errors.
+
+Never silently ignore failures.
+
+Never swallow exceptions.
+
+Always log unexpected behavior.
+
+---
+
+# PERFORMANCE
+
+Optimize for
+
+Fast startup
+
+Low memory
+
+Smooth scrolling
+
+Minimal rebuilds
+
+Avoid premature optimization.
+
+Measure first.
+
+---
+
+# SECURITY
+
+Validate every request.
+
+Never trust client input.
+
+Use JWT.
+
+Hash passwords.
+
+Protect secrets.
+
+Never expose API keys.
+
+---
+
+# ACCESSIBILITY
+
+Support
+
+Dynamic font sizes
+
+Screen readers
+
+Large touch targets
+
+Proper contrast
+
+Accessibility is required.
+
+---
+
+# TESTING
+
+Prefer
+
+Unit Tests
+
+Repository Tests
+
+Service Tests
+
+Widget Tests
+
+Critical business logic must be testable.
+
+---
+
+# GIT
+
+Small commits.
+
+Meaningful commit messages.
+
+Example
+
+feat(ai): implement adaptive mission generator
+
+fix(auth): refresh token expiration bug
+
+Never
+
+"update"
+
+"fix"
+
+"changes"
+
+---
+
+# UI PRINCIPLES
+
+Every screen should answer
+
+What should I do?
+
+What changed?
+
+What comes next?
+
+Avoid dashboards full of numbers.
+
+Focus on action.
+
+---
+
+# AI MENTOR
+
+The mentor should
+
+guide
+
+question
+
+encourage
+
+challenge
+
+Never simply provide answers.
+
+---
+
+# CAREER FIRST
+
+Always remember
+
+People do not buy courses.
+
+People buy
+
+their future.
+
+Every feature should move the learner closer to
+
+real skills
+
+real projects
+
+real portfolios
+
+real careers.
+
+---
+
+# DECISION RULE
+
+Whenever uncertain between two implementations,
+
+choose the one that
+
+reduces complexity,
+
+improves maintainability,
+
+and better supports the long-term vision of an AI Learning Operating System.
+
+---
+
+# FINAL RULE
+
+Do not build features.
+
+Build infrastructure for lifelong learning.
+
+Every pull request should make Pradigi feel more like an operating system and less like an educational application.

@@ -3,9 +3,9 @@ package session
 type SessionStatus string
 
 const (
-	StatusActive  SessionStatus = "ACTIVE"
-	StatusPaused  SessionStatus = "PAUSED"
-	StatusEnded   SessionStatus = "ENDED"
+	StatusActive SessionStatus = "ACTIVE"
+	StatusPaused SessionStatus = "PAUSED"
+	StatusEnded  SessionStatus = "ENDED"
 )
 
 type EventName string

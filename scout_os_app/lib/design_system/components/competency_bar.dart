@@ -44,7 +44,7 @@ class CompetencyBar extends StatelessWidget {
         ),
         
         if (subtitle != null) ...[
-          const SizedBox(height: PradigiSpacing.s4),
+          const SizedBox(height: PradigiSpacing.s8),
           Text(subtitle!, style: PradigiTypography.caption),
         ],
         

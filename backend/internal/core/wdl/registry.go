@@ -11,7 +11,7 @@ type WorkspaceRegistry interface {
 	Register(manifest *WorkspaceManifest) error
 	Get(id string) (*WorkspaceManifest, bool)
 	ListAll() []*WorkspaceManifest
-	
+
 	// Capability Negotiation: Adaptive Engine asks "Who can serve this blueprint?"
 	FindCapableWorkspaces(requiredTools []string, requiredAgents []string) []*WorkspaceManifest
 }
@@ -44,7 +44,7 @@ func (r *InMemoryWorkspaceRegistry) Get(id string) (*WorkspaceManifest, bool) {
 func (r *InMemoryWorkspaceRegistry) ListAll() []*WorkspaceManifest {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	
+
 	var list []*WorkspaceManifest
 	for _, m := range r.workspaces {
 		list = append(list, m)
@@ -55,16 +55,16 @@ func (r *InMemoryWorkspaceRegistry) ListAll() []*WorkspaceManifest {
 func (r *InMemoryWorkspaceRegistry) FindCapableWorkspaces(requiredTools []string, requiredAgents []string) []*WorkspaceManifest {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	
+
 	var capable []*WorkspaceManifest
-	
+
 	for _, m := range r.workspaces {
 		// Check tools
 		toolMap := make(map[string]bool)
 		for _, t := range m.Tools {
 			toolMap[t.Name] = true
 		}
-		
+
 		hasTools := true
 		for _, req := range requiredTools {
 			if !toolMap[req] {
@@ -81,7 +81,7 @@ func (r *InMemoryWorkspaceRegistry) FindCapableWorkspaces(requiredTools []string
 		for _, a := range m.Agents {
 			agentMap[a.Role] = true
 		}
-		
+
 		hasAgents := true
 		for _, req := range requiredAgents {
 			if !agentMap[req] {
@@ -95,6 +95,6 @@ func (r *InMemoryWorkspaceRegistry) FindCapableWorkspaces(requiredTools []string
 
 		capable = append(capable, m)
 	}
-	
+
 	return capable
 }

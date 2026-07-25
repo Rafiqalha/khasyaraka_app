@@ -18,11 +18,11 @@ type VisibilitySettings struct {
 
 // SkillPassport is the aggregated view of a user's entire learning journey and verified credentials.
 type SkillPassport struct {
-	UserID         string                  `json:"user_id"`
-	Visibility     VisibilitySettings      `json:"visibility"`
-	Credentials    []credential.Credential `json:"credentials"`
+	UserID      string                  `json:"user_id"`
+	Visibility  VisibilitySettings      `json:"visibility"`
+	Credentials []credential.Credential `json:"credentials"`
 	// We might only want to export the latest AssessmentSnapshots or a computed Graph
-	CompetencyGraph map[string]interface{} `json:"competency_graph"` 
-	LearningGraph  learning_graph.Graph    `json:"learning_graph"`
-	LastVerified   time.Time               `json:"last_verified"`
+	CompetencyGraph map[string]interface{} `json:"competency_graph"`
+	LearningGraph   learning_graph.Graph   `json:"learning_graph"`
+	LastVerified    time.Time              `json:"last_verified"`
 }

@@ -1,0 +1,13 @@
+capabilities:
+  - id: python_runtime_execution
+    name: "Python 3.11 Execution"
+    enabled: true
+  - id: terminal_pty
+    name: "Interactive PTY Terminal"
+    enabled: true
+  - id: socratic_mentor
+    name: "DeepSeek AI Socratic Mentor"
+    enabled: true
+  - id: evidence_collector
+    name: "Automated Portfolio Evidence Collector"
+    enabled: true

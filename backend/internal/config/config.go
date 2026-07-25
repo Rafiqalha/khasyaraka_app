@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -20,9 +21,6 @@ type Config struct {
 	JWTSecret             string `mapstructure:"jwt_secret"`
 	AccessTokenExpireMins int    `mapstructure:"access_token_expire_minutes"`
 
-	// Google OAuth
-	GoogleClientID string `mapstructure:"google_client_id"`
-
 	// CORS
 	CORSOrigins []string `mapstructure:"cors_origins"`
 
@@ -33,6 +31,9 @@ type Config struct {
 	AITemperature     float64 `mapstructure:"ai_temperature"`
 	DeepSeekAPIKey    string  `mapstructure:"deepseek_api_key"`
 	DeepSeekModel     string  `mapstructure:"deepseek_model"`
+
+	// Security & Proxy
+	TrustedProxies []string `mapstructure:"trusted_proxies"`
 }
 
 func Load() (*Config, error) {
@@ -41,10 +42,14 @@ func Load() (*Config, error) {
 		env = "development"
 	}
 
+	// Attempt to load .env file from root
+	_ = godotenv.Load("../.env")
+	_ = godotenv.Load(".env")
+
 	v := viper.New()
 	v.SetConfigName(env)
 	v.SetConfigType("yaml")
-	v.AddConfigPath("./config") // Relative to project root
+	v.AddConfigPath("./config")  // Relative to project root
 	v.AddConfigPath("../config") // For tests
 
 	v.AutomaticEnv() // Still allow environment variables to override
@@ -79,6 +84,13 @@ func Load() (*Config, error) {
 	}
 	if cfg.Environment == "" {
 		cfg.Environment = env
+	}
+
+	// Fail-fast security validation for Production
+	if cfg.IsProduction() {
+		if len(cfg.JWTSecret) < 32 {
+			return nil, fmt.Errorf("FATAL: JWT_SECRET must be at least 32 characters in production environment")
+		}
 	}
 
 	return &cfg, nil

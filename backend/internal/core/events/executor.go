@@ -50,7 +50,7 @@ func (e *goroutineExecutor) Execute(ctx context.Context, handler Subscriber, eve
 				time.Sleep(delay)
 				continue
 			}
-			
+
 			break // Exhausted retries
 		}
 
@@ -60,9 +60,9 @@ func (e *goroutineExecutor) Execute(ctx context.Context, handler Subscriber, eve
 				Str("event_id", event.ID).
 				Str("event_name", string(event.Name)).
 				Msg("error handling event, moving to DLQ")
-			
+
 			RecordFailed(event.Name)
-			
+
 			if e.dlq != nil {
 				if pushErr := e.dlq.Push(bgCtx, event, err); pushErr != nil {
 					applogger.Error().Err(pushErr).Msg("failed to push to DLQ")

@@ -18,33 +18,33 @@ const (
 )
 
 type WorkspaceManifest struct {
-	APIVersion APIVersion     `yaml:"apiVersion" json:"apiVersion"`
-	Kind       Kind           `yaml:"kind" json:"kind"`
-	Metadata   Metadata       `yaml:"metadata" json:"metadata"`
-	Domain     DomainConfig   `yaml:"domain" json:"domain"`
-	Runtime    RuntimeConfig  `yaml:"runtime" json:"runtime"`
-	Tools      []ToolDef      `yaml:"tools" json:"tools"`
-	Agents     []AgentDef     `yaml:"agents" json:"agents"`
-	UI         UILayout       `yaml:"ui" json:"ui"`
-	Permissions Permissions   `yaml:"permissions" json:"permissions"`
-	Adaptive   AdaptiveConfig `yaml:"adaptive" json:"adaptive"`
+	APIVersion  APIVersion     `yaml:"apiVersion" json:"apiVersion"`
+	Kind        Kind           `yaml:"kind" json:"kind"`
+	Metadata    Metadata       `yaml:"metadata" json:"metadata"`
+	Domain      DomainConfig   `yaml:"domain" json:"domain"`
+	Runtime     RuntimeConfig  `yaml:"runtime" json:"runtime"`
+	Tools       []ToolDef      `yaml:"tools" json:"tools"`
+	Agents      []AgentDef     `yaml:"agents" json:"agents"`
+	UI          UILayout       `yaml:"ui" json:"ui"`
+	Permissions Permissions    `yaml:"permissions" json:"permissions"`
+	Adaptive    AdaptiveConfig `yaml:"adaptive" json:"adaptive"`
 }
 
 type Metadata struct {
-	ID          string `yaml:"id" json:"id"`                     // e.g. "python_debugging"
-	Name        string `yaml:"name" json:"name"`                 // e.g. "Python Debugging Workspace"
-	Version     string `yaml:"version" json:"version"`           // e.g. "1.0.0"
+	ID          string `yaml:"id" json:"id"`           // e.g. "python_debugging"
+	Name        string `yaml:"name" json:"name"`       // e.g. "Python Debugging Workspace"
+	Version     string `yaml:"version" json:"version"` // e.g. "1.0.0"
 	Description string `yaml:"description" json:"description"`
 	Icon        string `yaml:"icon" json:"icon"`
 	Color       string `yaml:"color" json:"color"`
 }
 
 type DomainConfig struct {
-	Name             string `yaml:"name" json:"name"`                           // e.g. "python"
-	Adapter          string `yaml:"adapter" json:"adapter"`                     // e.g. "plugin://python" or "grpc://localhost:50051"
-	CurriculumPath   string `yaml:"curriculumPath" json:"curriculumPath"`       // Relative path to curriculum definitions
-	FixturePath      string `yaml:"fixturePath" json:"fixturePath"`             // Relative path to fixtures
-	MissionGenerator string `yaml:"missionGenerator" json:"missionGenerator"`   // e.g. "deterministic" or "llm_mutator"
+	Name             string `yaml:"name" json:"name"`                         // e.g. "python"
+	Adapter          string `yaml:"adapter" json:"adapter"`                   // e.g. "plugin://python" or "grpc://localhost:50051"
+	CurriculumPath   string `yaml:"curriculumPath" json:"curriculumPath"`     // Relative path to curriculum definitions
+	FixturePath      string `yaml:"fixturePath" json:"fixturePath"`           // Relative path to fixtures
+	MissionGenerator string `yaml:"missionGenerator" json:"missionGenerator"` // e.g. "deterministic" or "llm_mutator"
 }
 
 type RuntimeConfig struct {
@@ -54,8 +54,8 @@ type RuntimeConfig struct {
 }
 
 type ToolDef struct {
-	Name        string `yaml:"name" json:"name"`               // e.g. "editor", "terminal", "wireshark"
-	Type        string `yaml:"type" json:"type"`               // e.g. "IDE", "CLI", "GUI"
+	Name        string `yaml:"name" json:"name"` // e.g. "editor", "terminal", "wireshark"
+	Type        string `yaml:"type" json:"type"` // e.g. "IDE", "CLI", "GUI"
 	Description string `yaml:"description" json:"description"`
 }
 

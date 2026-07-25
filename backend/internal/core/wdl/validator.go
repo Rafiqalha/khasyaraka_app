@@ -57,7 +57,7 @@ func (v *Validator) validateDependency(m *WorkspaceManifest) error {
 	// e.g. Check if requested tools are supported by the runtime capabilities.
 	// In a real system, a "terminal" tool might require the "filesystem" and "network" capability
 	// from the runtime. We simulate that here.
-	
+
 	runtimeCaps := make(map[string]bool)
 	for _, cap := range m.Runtime.Capabilities {
 		runtimeCaps[cap] = true

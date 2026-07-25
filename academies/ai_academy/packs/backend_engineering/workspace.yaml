@@ -1,0 +1,10 @@
+workspace:
+  required:
+    - editor
+    - terminal
+  optional:
+    - browser
+    - analysis
+    - api_tester
+  forbidden:
+    - calculator

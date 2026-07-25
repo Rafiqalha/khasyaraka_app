@@ -1,0 +1,12 @@
+id: "mission_ssh_01"
+title: "Identify the Attacker"
+difficulty: "beginner"
+workspace: "workspace_cyber"
+goal: "Find the IP address that attempted a brute-force attack on the SSH service."
+fixtures:
+  - file: "../../assets/auth.log"
+    type: "text/plain"
+    mount_path: "/var/log/auth.log"
+evaluation:
+  type: "regex"
+  pattern: "192\\.168\\.1\\.100"

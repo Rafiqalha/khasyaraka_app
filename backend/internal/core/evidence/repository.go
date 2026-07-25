@@ -10,7 +10,7 @@ type Repository interface {
 	SaveEvidence(ctx context.Context, e Evidence) error
 	GetEvidence(ctx context.Context, id string) (*Evidence, error)
 	GetEvidencesByObservation(ctx context.Context, obsID string) ([]Evidence, error)
-	
+
 	SaveResolution(ctx context.Context, r EvidenceResolution, relatedEvidenceIDs []string) error
 }
 
@@ -52,19 +52,19 @@ func (r *repository) SaveResolution(ctx context.Context, res EvidenceResolution,
 		return err
 	}
 	defer tx.Rollback()
-	
+
 	q1 := `INSERT INTO evidence_resolutions (id, resolution_type, winning_evidence_id, confidence, reason, created_at)
 	       VALUES (:id, :resolution_type, :winning_evidence_id, :confidence, :reason, :created_at)`
 	if _, err := tx.NamedExecContext(ctx, q1, res); err != nil {
 		return err
 	}
-	
+
 	q2 := `INSERT INTO evidence_resolution_items (resolution_id, evidence_id) VALUES ($1, $2)`
 	for _, eid := range relatedEvidenceIDs {
 		if _, err := tx.ExecContext(ctx, q2, res.ID, eid); err != nil {
 			return err
 		}
 	}
-	
+
 	return tx.Commit()
 }

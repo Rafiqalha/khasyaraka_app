@@ -12,8 +12,8 @@ import (
 )
 
 type GameService struct {
-	db     *sqlx.DB
-	agent  *ai_agent.Agent
+	db    *sqlx.DB
+	agent *ai_agent.Agent
 }
 
 func NewGameService(db *sqlx.DB, agent *ai_agent.Agent) *GameService {
@@ -217,10 +217,18 @@ func (s *GameService) getTeamAverageXP(room *GameRoom, team int) int {
 
 func (s *GameService) getRoomTotalXP(room *GameRoom) int {
 	ids := []int64{}
-	if room.TeamAAttacker != nil { ids = append(ids, *room.TeamAAttacker) }
-	if room.TeamADefender != nil { ids = append(ids, *room.TeamADefender) }
-	if room.TeamBAttacker != nil { ids = append(ids, *room.TeamBAttacker) }
-	if room.TeamBDefender != nil { ids = append(ids, *room.TeamBDefender) }
+	if room.TeamAAttacker != nil {
+		ids = append(ids, *room.TeamAAttacker)
+	}
+	if room.TeamADefender != nil {
+		ids = append(ids, *room.TeamADefender)
+	}
+	if room.TeamBAttacker != nil {
+		ids = append(ids, *room.TeamBAttacker)
+	}
+	if room.TeamBDefender != nil {
+		ids = append(ids, *room.TeamBDefender)
+	}
 
 	if len(ids) == 0 {
 		return 0

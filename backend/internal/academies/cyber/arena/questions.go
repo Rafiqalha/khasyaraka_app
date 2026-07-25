@@ -27,18 +27,18 @@ func GenerateArenaQuestions(roomID int64, count int) []Question {
 			Points:        100,
 		},
 		{
-			QuestionText:  "Apa kepanjangan dari SQL?",
-			QuestionType:  "multiple_choice",
-			Payload:       map[string]interface{}{
+			QuestionText: "Apa kepanjangan dari SQL?",
+			QuestionType: "multiple_choice",
+			Payload: map[string]interface{}{
 				"options": []string{"Structured Query Language", "Simple Question Language", "Strong Query Logic"},
 			},
 			CorrectAnswer: "Structured Query Language",
 			Points:        100,
 		},
 		{
-			QuestionText:  "Di sistem keamanan jaringan, 'DDoS' adalah singkatan dari?",
-			QuestionType:  "multiple_choice",
-			Payload:       map[string]interface{}{
+			QuestionText: "Di sistem keamanan jaringan, 'DDoS' adalah singkatan dari?",
+			QuestionType: "multiple_choice",
+			Payload: map[string]interface{}{
 				"options": []string{"Distributed Denial of Service", "Direct Data on System", "Digital Domain over Server"},
 			},
 			CorrectAnswer: "Distributed Denial of Service",
@@ -59,7 +59,7 @@ func GenerateArenaQuestions(roomID int64, count int) []Question {
 			Points:        100,
 		},
 	}
-	
+
 	// Shuffle and pick `count` questions
 	rand.Shuffle(len(pool), func(i, j int) {
 		pool[i], pool[j] = pool[j], pool[i]

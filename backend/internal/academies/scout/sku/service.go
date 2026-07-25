@@ -147,7 +147,7 @@ func (s *Service) CanUnlockHighestTier(ctx context.Context, userID int64) (bool,
 	if err != nil {
 		return false, 90, err
 	}
-	
+
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	now := time.Now().In(loc)
 
@@ -164,7 +164,7 @@ func (s *Service) CanUnlockHighestTier(ctx context.Context, userID int64) (bool,
 	faDate := firstActive.Time.In(loc)
 	faDateMidnight := time.Date(faDate.Year(), faDate.Month(), faDate.Day(), 0, 0, 0, 0, loc)
 	nowMidnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
-	
+
 	daysSinceFirstActive := int(nowMidnight.Sub(faDateMidnight).Hours() / 24)
 	if daysSinceFirstActive < 0 {
 		daysSinceFirstActive = 0

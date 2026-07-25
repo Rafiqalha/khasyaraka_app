@@ -174,7 +174,7 @@ func (r *Repository) GetQuestionByOrder(roomID int64, qOrder int) (*Question, er
 		FROM arena_questions
 		WHERE room_id = $1 AND q_order = $2
 	`, roomID, qOrder).Scan(&q.ID, &q.RoomID, &q.QOrder, &q.QuestionText, &q.QuestionType, &payloadRaw, &q.CorrectAnswer, &q.Points)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

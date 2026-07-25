@@ -2,14 +2,15 @@
 // It maps the Python debugging domain to the canonical Workbench vocabulary.
 //
 // Structure:
-//   domains/python/
-//     adapter.go       — DomainAdapter implementation
-//     mission/         — Mission definitions
-//     environment/     — Initial environment builders
-//     runtime/         — Python-specific runtime config (delegates to workbench/runtime)
-//     evaluation/      — Python-specific evaluators
-//     fixtures/        — Bug files and test suites (NOT hardcoded in Go)
-//       tests/         — Corresponding test files
+//
+//	domains/python/
+//	  adapter.go       — DomainAdapter implementation
+//	  mission/         — Mission definitions
+//	  environment/     — Initial environment builders
+//	  runtime/         — Python-specific runtime config (delegates to workbench/runtime)
+//	  evaluation/      — Python-specific evaluators
+//	  fixtures/        — Bug files and test suites (NOT hardcoded in Go)
+//	    tests/         — Corresponding test files
 package python
 
 import (

@@ -8,6 +8,7 @@ import '../data/repositories/training_repository.dart';
 import '../data/models/training_path.dart';
 import '../data/models/training_section.dart';
 import '../data/models/training_course.dart';
+import '../data/models/incident.dart';
 import 'package:scout_os_app/features/profile/data/repositories/profile_repository.dart';
 import 'package:scout_os_app/core/services/local_cache_service.dart';
 import '../data/datasources/training_service.dart';
@@ -42,6 +43,10 @@ class TrainingController extends ChangeNotifier {
 
   // Service
   final AdMobService _adMobService = AdMobService();
+
+  List<IncidentModel> incidents = [];
+  bool isIncidentsLoading = false;
+  String? incidentsError;
 
   // REMOVED: Real-time hearts regeneration system (User request: AdMob only)
   // Timer? _heartsTimer;
@@ -318,6 +323,22 @@ class TrainingController extends ChangeNotifier {
 
     // 2. Load User Data (Parallel)
     await Future.wait([loadProgress(), loadUserStats()]);
+  }
+
+  Future<void> loadIncidents({int limit = 20}) async {
+    if (isIncidentsLoading) return;
+    isIncidentsLoading = true;
+    incidentsError = null;
+    notifyListeners();
+
+    try {
+      incidents = await _repository.fetchIncidents(limit: limit);
+    } catch (e) {
+      incidentsError = e.toString();
+    } finally {
+      isIncidentsLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> refresh() async {

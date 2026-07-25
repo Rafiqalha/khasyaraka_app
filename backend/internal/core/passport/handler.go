@@ -7,7 +7,7 @@ import (
 )
 
 // Handler manages the Skill Passport API endpoints
-type Handler struct {}
+type Handler struct{}
 
 func NewHandler() *Handler {
 	return &Handler{}
@@ -29,7 +29,7 @@ func (h *Handler) GetPublicPassport(c *gin.Context) {
 
 	// 2. Fetch data (Mocked)
 	passport := SkillPassport{
-		UserID: "user_rafiq",
+		UserID:     "user_rafiq",
 		Visibility: settings,
 	}
 
@@ -46,7 +46,7 @@ func (h *Handler) GetPublicPassport(c *gin.Context) {
 func (h *Handler) GetEvidenceExplorer(c *gin.Context) {
 	// 1. Validate if user's privacy settings allow showing evidence
 	c.JSON(http.StatusOK, gin.H{
-		"status": "success", 
-		"data": "Mock Evidence Trace: Execution Logs for Bug Fix 01",
+		"status": "success",
+		"data":   "Mock Evidence Trace: Execution Logs for Bug Fix 01",
 	})
 }

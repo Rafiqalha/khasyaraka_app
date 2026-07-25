@@ -13,7 +13,7 @@ class NotebookBlock extends StatelessWidget {
   final Widget? visual;
   final String? microQuestion;
   final String? codeSnippet;
-  final VoidCallback onContinue;
+  final VoidCallback? onContinue;
   final String continueText;
 
   const NotebookBlock({
@@ -23,7 +23,7 @@ class NotebookBlock extends StatelessWidget {
     this.visual,
     this.microQuestion,
     this.codeSnippet,
-    required this.onContinue,
+    this.onContinue,
     this.continueText = "Continue",
   });
 
@@ -92,12 +92,14 @@ class NotebookBlock extends StatelessWidget {
           ),
         ],
 
-        // Primary Action
-        const SizedBox(height: PradigiSpacing.questionToButton),
-        FilledButton(
-          onPressed: onContinue,
-          child: Text(continueText),
-        ),
+        // Primary Action (Optional, usually handled by shell)
+        if (onContinue != null) ...[
+          const SizedBox(height: PradigiSpacing.questionToButton),
+          FilledButton(
+            onPressed: onContinue,
+            child: Text(continueText),
+          ),
+        ]
       ],
     );
   }

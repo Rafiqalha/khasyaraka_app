@@ -142,9 +142,9 @@ func (d *AIAttackerDecision) applyToMission(s *MissionState) {
 	}
 	if d.NewLogContent != "" {
 		s.Logs = append(s.Logs, LogEntry{
-			ID: len(s.Logs) + 1000,
+			ID:        len(s.Logs) + 1000,
 			Timestamp: fmt.Sprintf("%02d:%02d:%02d", 10+s.AttackerProgress/10, s.AttackerProgress*3%60, (s.AttackerProgress*7)%60),
-			Server: d.TargetServerID, SourceIP: "192.168.1.105", Service: d.Target,
+			Server:    d.TargetServerID, SourceIP: "192.168.1.105", Service: d.Target,
 			Status: 401, Message: d.NewLogContent, IsAnomaly: true,
 		})
 	}

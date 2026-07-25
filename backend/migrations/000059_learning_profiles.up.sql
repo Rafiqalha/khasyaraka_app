@@ -1,0 +1,9 @@
+CREATE TABLE learning_profiles (
+    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    goal VARCHAR(100) NOT NULL,
+    experience VARCHAR(100) NOT NULL,
+    endgame VARCHAR(100) NOT NULL,
+    learning_goal_id VARCHAR(50) NOT NULL REFERENCES learning_goals(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

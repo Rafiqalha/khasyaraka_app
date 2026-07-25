@@ -23,9 +23,9 @@ func (h *Handler) Search(c *gin.Context) {
 		"status": "success",
 		"data": []RegistryEntry{
 			{
-				ID: "cyber_academy",
-				Version: "1.0.0",
-				PublisherID: "pradigi_official",
+				ID:               "cyber_academy",
+				Version:          "1.0.0",
+				PublisherID:      "pradigi_official",
 				MinimumOSVersion: "1.0.0",
 			},
 		},
@@ -38,8 +38,8 @@ func (h *Handler) GetPackageDetail(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data": RegistryEntry{
-			ID: c.Param("id"),
-			PublisherID: "pradigi_official",
+			ID:           c.Param("id"),
+			PublisherID:  "pradigi_official",
 			Dependencies: []string{"foundation_os"},
 		},
 	})
@@ -51,7 +51,7 @@ func (h *Handler) Install(c *gin.Context) {
 	id := c.Param("id")
 	// In reality, resolve the download URL from the registry
 	downloadURL := "https://registry.pradigi.id/download/" + id + "/v1.0.0.pack"
-	
+
 	if err := h.PackageManager.Install(downloadURL); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -65,6 +65,6 @@ func (h *Handler) Install(c *gin.Context) {
 func (h *Handler) ListInstalled(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
-		"data": []string{"ai_academy", "cyber_academy"},
+		"data":   []string{"ai_academy", "cyber_academy"},
 	})
 }

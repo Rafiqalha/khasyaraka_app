@@ -3,10 +3,9 @@ import 'package:scout_os_app/features/intro/presentation/pages/splash_page.dart'
 import 'package:scout_os_app/features/intro/presentation/pages/onboarding_page.dart';
 import 'package:scout_os_app/features/auth/presentation/login_screen.dart';
 import 'package:scout_os_app/features/auth/presentation/register_page.dart';
-import 'package:scout_os_app/core/widgets/duo_main_scaffold.dart';
+import 'package:scout_os_app/features/os/presentation/shell/os_launcher.dart';
 import 'package:scout_os_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:scout_os_app/core/services/secure_storage_service.dart';
-import 'package:scout_os_app/features/billing/views/subscription_page.dart';
 
 /// Senior Flutter Architect & Backend Specialist Implementation
 /// AppRouter untuk navigation management dengan auth guards dan deep linking
@@ -51,7 +50,7 @@ class AppRouter {
       case home:
       case '/penegak':
         return _authGuard(
-          builder: (_) => const DuoMainScaffold(),
+          builder: (_) => const OSLauncher(),
           settings: settings,
         );
 
@@ -78,7 +77,7 @@ class AppRouter {
 
       case subscription:
         return _authGuard(
-          builder: (_) => const SubscriptionPage(),
+          builder: (_) => const Scaffold(body: Center(child: Text('Subscription'))),
           settings: settings,
         );
 

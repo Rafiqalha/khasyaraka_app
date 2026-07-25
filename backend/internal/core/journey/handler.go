@@ -56,7 +56,8 @@ func (h *Handler) GetAcademyJourney(c *gin.Context) {
 // CompleteNode is the CRITICAL ENDPOINT that closes the learning loop.
 // When Flutter calls this after a mission/practice/reflection is done,
 // the entire pipeline fires:
-//   Evidence → Diagnosis → Competency Update → Delta Response
+//
+//	Evidence → Diagnosis → Competency Update → Delta Response
 //
 // POST /api/v1/journey/complete-node
 func (h *Handler) CompleteNode(c *gin.Context) {
@@ -81,4 +82,3 @@ func (h *Handler) CompleteNode(c *gin.Context) {
 		"data":   result,
 	})
 }
-

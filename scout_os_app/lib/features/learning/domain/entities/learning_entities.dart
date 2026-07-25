@@ -1,15 +1,18 @@
 // Pure Domain Entities for Learning Client Architecture
 
-class Journey {
+typedef Journey = LearningGoal;
+typedef JourneyNode = RuntimeActivity;
+
+class LearningGoal {
   final String id;
   final String title;
-  final List<JourneyNode> nodes;
+  final List<RuntimeActivity> activities;
   final bool isCompleted;
 
-  const Journey({
+  const LearningGoal({
     required this.id,
     required this.title,
-    required this.nodes,
+    required this.activities,
     this.isCompleted = false,
   });
 }
@@ -18,16 +21,22 @@ enum NodeType {
   preAssessment,
   journeyMap,
   notebook,
-  quickCheck,
-  sandbox,
   mission,
-  thinking,
+  sandbox,
   postAssessment,
   lookingBack,
   passport,
 }
 
-class JourneyNode {
+enum NodeLifecycle {
+  enter,
+  build,
+  interact,
+  complete,
+  exit,
+}
+
+class RuntimeActivity {
   final String id;
   final NodeType type;
   final String title;
@@ -36,7 +45,7 @@ class JourneyNode {
   final bool isRequired;
   final String telemetryKey;
 
-  const JourneyNode({
+  const RuntimeActivity({
     required this.id,
     required this.type,
     required this.title,
@@ -134,3 +143,78 @@ class Passport {
 }
 
 // TelemetryEvent is defined in core/telemetry/telemetry.dart, but conceptually part of the domain.
+
+enum LearningSessionStatus {
+  active,
+  paused,
+  completed,
+  abandoned,
+}
+
+class LearningSession {
+  final String sessionId;
+  final String userId;
+  final String learningGoalId;
+  final String activityId;
+  final DateTime startedAt;
+  final DateTime lastInteractionAt;
+  final String deviceId;
+  final String appVersion;
+  final String platform;
+  final String locale;
+  final Duration elapsedTime;
+  final int attempt;
+  final String telemetrySessionId;
+  final LearningSessionStatus status;
+
+  const LearningSession({
+    required this.sessionId,
+    required this.userId,
+    required this.learningGoalId,
+    required this.activityId,
+    required this.startedAt,
+    required this.lastInteractionAt,
+    required this.deviceId,
+    required this.appVersion,
+    required this.platform,
+    required this.locale,
+    required this.elapsedTime,
+    required this.attempt,
+    required this.telemetrySessionId,
+    required this.status,
+  });
+
+  LearningSession copyWith({
+    String? sessionId,
+    String? userId,
+    String? learningGoalId,
+    String? activityId,
+    DateTime? startedAt,
+    DateTime? lastInteractionAt,
+    String? deviceId,
+    String? appVersion,
+    String? platform,
+    String? locale,
+    Duration? elapsedTime,
+    int? attempt,
+    String? telemetrySessionId,
+    LearningSessionStatus? status,
+  }) {
+    return LearningSession(
+      sessionId: sessionId ?? this.sessionId,
+      userId: userId ?? this.userId,
+      learningGoalId: learningGoalId ?? this.learningGoalId,
+      activityId: activityId ?? this.activityId,
+      startedAt: startedAt ?? this.startedAt,
+      lastInteractionAt: lastInteractionAt ?? this.lastInteractionAt,
+      deviceId: deviceId ?? this.deviceId,
+      appVersion: appVersion ?? this.appVersion,
+      platform: platform ?? this.platform,
+      locale: locale ?? this.locale,
+      elapsedTime: elapsedTime ?? this.elapsedTime,
+      attempt: attempt ?? this.attempt,
+      telemetrySessionId: telemetrySessionId ?? this.telemetrySessionId,
+      status: status ?? this.status,
+    );
+  }
+}

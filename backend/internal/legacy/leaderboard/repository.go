@@ -100,7 +100,7 @@ func (r *Repository) SyncScore(userID int64, category string, score float64) err
 
 func (r *Repository) GetTop(category string, scope string, locationID string, limit int) ([]Entry, error) {
 	key := getRedisKey(category, scope, locationID)
-	
+
 	results, err := r.rdb.ZRevRangeWithScores(context.Background(), key, 0, int64(limit-1)).Result()
 	if err != nil {
 		return nil, fmt.Errorf("redis zrevrange: %w", err)
@@ -143,8 +143,8 @@ func (r *Repository) GetTop(category string, scope string, locationID string, li
 		if !ok {
 			continue
 		}
-		
-		// For rank calculation, we assume total_xp is total stars. 
+
+		// For rank calculation, we assume total_xp is total stars.
 		// If category != rank, we might need a different calculator, but we'll use CalculateRank for all for now or just for rank.
 		var totalStars int
 		if category == "rank" || category == "" {
@@ -152,7 +152,7 @@ func (r *Repository) GetTop(category string, scope string, locationID string, li
 		} else {
 			totalStars = u.TotalXP // Fallback or if total_xp is used differently
 		}
-		
+
 		countryID := ""
 		if u.CountryID.Valid {
 			countryID = u.CountryID.String
@@ -189,7 +189,7 @@ func (r *Repository) GetTop(category string, scope string, locationID string, li
 func (r *Repository) GetUserRank(userID int64, category string, scope string, locationID string) (*UserRank, error) {
 	key := getRedisKey(category, scope, locationID)
 	uidStr := strconv.FormatInt(userID, 10)
-	
+
 	rank, err := r.rdb.ZRevRank(context.Background(), key, uidStr).Result()
 	if err == redis.Nil {
 		return nil, nil

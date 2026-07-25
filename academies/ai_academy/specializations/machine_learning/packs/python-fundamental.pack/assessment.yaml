@@ -1,0 +1,16 @@
+pass_threshold: 0.8
+pre_assessment:
+  id: python-pre-assessment
+  title: "Python Readiness Assessment"
+  adaptive_branching: true
+post_assessment:
+  id: python-post-assessment
+  title: "Python Mastery Assessment"
+  evidence_generation: true
+rubric:
+  variables_weight: 0.15
+  control_flow_weight: 0.15
+  functions_weight: 0.20
+  collections_weight: 0.20
+  debugging_weight: 0.15
+  project_weight: 0.15

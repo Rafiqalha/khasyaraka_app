@@ -1,8 +1,8 @@
 package engine
 
 type Manifest struct {
-	Name       string
-	Version    string
+	Name          string
+	Version       string
 	Publishes     []string
 	Subscribes    []string
 	DependsOn     []string

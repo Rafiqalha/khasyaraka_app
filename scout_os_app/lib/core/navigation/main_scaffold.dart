@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:scout_os_app/shared/theme/app_colors.dart';
 import 'package:scout_os_app/features/home/presentation/pages/training_map_page.dart';
 import 'package:scout_os_app/features/mission/presentation/mission_dashboard_page.dart';
-import 'package:scout_os_app/features/arena/presentation/pages/arena_home_page.dart';
-import 'package:scout_os_app/features/chat/presentation/pages/chat_page.dart';
 import 'package:scout_os_app/features/profile/presentation/pages/profile_page.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -20,8 +18,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   final List<Widget> _pages = [
     const TrainingMapPage(),
     const MissionDashboardPage(),
-    const ArenaHomePage(),
-    const ChatPage(),
+    const Scaffold(body: Center(child: Text('Arena'))),
+    const Scaffold(body: Center(child: Text('Chat'))),
     const ProfilePage(),
   ];
 
@@ -54,7 +52,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           backgroundColor: AppColors.deepCharcoal,
           indicatorColor: AppColors.wosmPurple.withOpacity(0.5),
           elevation: 0,
-          destinations: const [
+          destinations: [
           NavigationDestination(
             icon: Image.asset(
               'assets/icons/navbar/camping-tent.png',

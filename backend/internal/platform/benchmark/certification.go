@@ -15,7 +15,7 @@ type ReplayCertifier interface {
 	Certify(ctx context.Context, epochID string) (*epoch.ReplayCertification, error)
 }
 
-type certifier struct {}
+type certifier struct{}
 
 func NewReplayCertifier() ReplayCertifier {
 	return &certifier{}
@@ -27,7 +27,7 @@ func (c *certifier) Certify(ctx context.Context, epochID string) (*epoch.ReplayC
 	// 1. Replay 100K contributions
 	// 2. Measure determinism
 	// 3. Measure duration
-	
+
 	cert := &epoch.ReplayCertification{
 		EpochID:            epochID,
 		SuccessRate:        1.0,
@@ -38,7 +38,7 @@ func (c *certifier) Certify(ctx context.Context, epochID string) (*epoch.ReplayC
 		EpochMatch:         true,
 		Status:             "CERTIFIED",
 	}
-	
+
 	fmt.Println("Certification Complete: CERTIFIED")
 	return cert, nil
 }

@@ -11,8 +11,8 @@ type Concept struct {
 // LearningAsset acts as an abstraction between a Concept and its implementation (Mission, Notebook).
 type LearningAsset struct {
 	ID          string `json:"id" yaml:"id"`
-	Type        string `json:"type" yaml:"type"` // "notebook", "mission", "simulation", "quiz", "animation"
-	AcademyID   string `json:"academy_id" yaml:"academy_id"` // E.g., "python_academy" or "global"
+	Type        string `json:"type" yaml:"type"`                 // "notebook", "mission", "simulation", "quiz", "animation"
+	AcademyID   string `json:"academy_id" yaml:"academy_id"`     // E.g., "python_academy" or "global"
 	ReferenceID string `json:"reference_id" yaml:"reference_id"` // ID of the actual asset file/record
 }
 
@@ -20,17 +20,17 @@ type LearningAsset struct {
 type RelationType string
 
 const (
-	RelRequires         RelationType = "requires"
-	RelBuildsOn         RelationType = "builds_on"
-	RelExplains         RelationType = "explains"
-	RelUses             RelationType = "uses"
-	RelImplements       RelationType = "implements"
-	RelGeneralizes      RelationType = "generalizes"
-	RelSpecializes      RelationType = "specializes"
-	RelAnalogyOf        RelationType = "analogy_of"
-	RelMisconceptionOf  RelationType = "misconception_of"
-	RelPartOf           RelationType = "part_of"
-	RelExampleOf        RelationType = "example_of"
+	RelRequires        RelationType = "requires"
+	RelBuildsOn        RelationType = "builds_on"
+	RelExplains        RelationType = "explains"
+	RelUses            RelationType = "uses"
+	RelImplements      RelationType = "implements"
+	RelGeneralizes     RelationType = "generalizes"
+	RelSpecializes     RelationType = "specializes"
+	RelAnalogyOf       RelationType = "analogy_of"
+	RelMisconceptionOf RelationType = "misconception_of"
+	RelPartOf          RelationType = "part_of"
+	RelExampleOf       RelationType = "example_of"
 )
 
 // Relation represents a directed edge between two concepts.

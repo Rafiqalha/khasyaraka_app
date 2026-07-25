@@ -10,7 +10,7 @@ import (
 func Logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		
+
 		// Set a default empty request ID if middleware not used
 		reqID, _ := c.Get(RequestIDKey)
 		if reqID == nil {

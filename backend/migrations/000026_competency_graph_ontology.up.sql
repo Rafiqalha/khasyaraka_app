@@ -11,7 +11,7 @@ ADD COLUMN policy_id VARCHAR(26);
 
 -- Refactor Skill Ontology to Identity + Version
 DROP TABLE skill_ontology_relations;
-DROP TABLE skill_ontology_nodes;
+DROP TABLE skill_ontology_nodes CASCADE;
 
 CREATE TABLE skill_ontology_identities (
     id VARCHAR(26) PRIMARY KEY,

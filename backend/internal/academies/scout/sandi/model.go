@@ -2,12 +2,12 @@
 package sandi
 
 type SandiType struct {
-	ID          int64       `json:"id" db:"id"`
-	Codename    string      `json:"codename" db:"codename"`
-	Name        string      `json:"name" db:"name"`
-	Description string      `json:"description" db:"description"`
-	Difficulty  int         `json:"difficulty" db:"difficulty"`
-	Category    string      `json:"category" db:"category"`
+	ID          int64  `json:"id" db:"id"`
+	Codename    string `json:"codename" db:"codename"`
+	Name        string `json:"name" db:"name"`
+	Description string `json:"description" db:"description"`
+	Difficulty  int    `json:"difficulty" db:"difficulty"`
+	Category    string `json:"category" db:"category"`
 }
 
 type SandiQuestion struct {
@@ -32,11 +32,11 @@ type CryptoRequest struct {
 }
 
 type CryptoResponse struct {
-	Result      string `json:"result"`
-	Method      string `json:"method"`
-	TypeName    string `json:"type_name"`
-	Codename    string `json:"codename"`
-	InputLength int    `json:"input_length"`
-	OutputLength int   `json:"output_length"`
-	KeyUsed     string `json:"key_used,omitempty"`
+	Result       string `json:"result"`
+	Method       string `json:"method"`
+	TypeName     string `json:"type_name"`
+	Codename     string `json:"codename"`
+	InputLength  int    `json:"input_length"`
+	OutputLength int    `json:"output_length"`
+	KeyUsed      string `json:"key_used,omitempty"`
 }

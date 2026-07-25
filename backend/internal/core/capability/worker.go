@@ -8,8 +8,8 @@ import (
 
 	"github.com/oklog/ulid/v2"
 
-	applogger "github.com/pradigi/backend/internal/pkg/logger"
 	"github.com/pradigi/backend/internal/core/events"
+	applogger "github.com/pradigi/backend/internal/pkg/logger"
 )
 
 type Worker struct {
@@ -53,14 +53,14 @@ func (w *Worker) Start(ctx context.Context) {
 
 func (w *Worker) processEvent(event EvaluationEvent) {
 	logger := applogger.Get()
-	
+
 	// 1. Feature Extraction
 	features, err := w.extractor.Extract(event)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to extract features from event")
 		return
 	}
-	
+
 	if len(features) == 0 {
 		return // Nothing to evaluate
 	}
@@ -71,7 +71,7 @@ func (w *Worker) processEvent(event EvaluationEvent) {
 		logger.Error().Err(err).Msg("failed to fetch user capabilities")
 		return
 	}
-	
+
 	// Because Evaluator expects []LearnerCapability, we map the response
 	var currentLearnerCaps []LearnerCapability
 	for _, c := range currentCaps {
@@ -82,7 +82,7 @@ func (w *Worker) processEvent(event EvaluationEvent) {
 			EvidenceScore:    c.EvidenceScore,
 		})
 	}
-	
+
 	// 3. Evaluation via AI / Rule Engine
 	updates, err := w.evaluator.Evaluate(features, currentLearnerCaps)
 	if err != nil {
@@ -94,22 +94,22 @@ func (w *Worker) processEvent(event EvaluationEvent) {
 	for _, update := range updates {
 		// Calculate new score based on delta
 		newScore := update.DeltaScore
-		
+
 		err := w.repo.UpsertCapability(&LearnerCapability{
 			UserID:           event.UserID,
 			SkillID:          update.SkillID,
 			ProficiencyScore: newScore, // In real implementation, this would be current + delta
 			EvidenceScore:    0.5,      // Mock evidence update
 		})
-		
+
 		if err == nil {
 			// 5. Publish to Event Engine
 			payload, _ := json.Marshal(map[string]interface{}{
-				"user_id":    event.UserID,
-				"skill_id":   update.SkillID,
-				"delta":      update.DeltaScore,
-				"new_score":  newScore,
-				"old_score":  newScore - update.DeltaScore, // Simplification for now
+				"user_id":   event.UserID,
+				"skill_id":  update.SkillID,
+				"delta":     update.DeltaScore,
+				"new_score": newScore,
+				"old_score": newScore - update.DeltaScore, // Simplification for now
 			})
 
 			pubEvent := events.Event{

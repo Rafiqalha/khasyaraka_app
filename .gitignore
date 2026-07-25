@@ -15,8 +15,15 @@ __pycache__/
 /scout_os_backend/__pycache__/
 /scout_os_backend/.pytest_cache/
 backend/server
+backend/main
+backend/tmp_server
+*.log
+*.txt
 postgres_data/
 
 # Deprecated data files (use modular JSON structure instead)
 scout_os_backend/scout_data.json
 tmp/
+
+# Profiling / heap dumps
+*.hprof

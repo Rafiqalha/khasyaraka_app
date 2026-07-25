@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:scout_os_app/core/services/google_sign_in_service.dart';
 import 'package:scout_os_app/core/services/local_cache_service.dart';
 import 'package:scout_os_app/features/auth/logic/auth_controller.dart';
+import 'package:scout_os_app/features/os/presentation/shell/os_launcher.dart';
 
 class LoginController extends ChangeNotifier {
   final GoogleSignInService _googleService = GoogleSignInService();
@@ -61,12 +62,12 @@ class LoginController extends ChangeNotifier {
         if (authController.mustChangePassword) {
           debugPrint('🚀 [LOGIN] Navigating to change password...');
           Navigator.pushReplacementNamed(context, '/change-password');
-        } else if (authController.currentUser != null && !authController.currentUser!.locationSet) {
-          debugPrint('🚀 [LOGIN] Navigating to location setup...');
-          Navigator.pushReplacementNamed(context, '/location-setup');
         } else {
           debugPrint('🚀 [LOGIN] Navigating to home...');
-          Navigator.pushReplacementNamed(context, '/penegak');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const OSLauncher()),
+          );
         }
       }
     } catch (e) {
@@ -120,12 +121,12 @@ class LoginController extends ChangeNotifier {
         if (authController.mustChangePassword) {
           debugPrint('🚀 [LOGIN] Navigating to change password...');
           Navigator.pushReplacementNamed(context, '/change-password');
-        } else if (authController.currentUser != null && !authController.currentUser!.locationSet) {
-          debugPrint('🚀 [LOGIN] Navigating to location setup...');
-          Navigator.pushReplacementNamed(context, '/location-setup');
         } else {
           debugPrint('🚀 [LOGIN] Navigating to home...');
-          Navigator.pushReplacementNamed(context, '/penegak');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const OSLauncher()),
+          );
         }
       }
     } catch (e) {

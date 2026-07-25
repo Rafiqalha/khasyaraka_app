@@ -1,0 +1,248 @@
+openapi: 3.0.3
+info:
+  title: Pradigi AI Learning OS API
+  description: Canonical API for Pradigi Platform (Identity, Memory, Skill Graph, etc.)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+  - url: https://staging-api.pradigi.ai/api/v1
+    description: Staging server
+  - url: https://api.pradigi.ai/api/v1
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+
+    ErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+          example: NOT_FOUND
+        message:
+          type: string
+          example: Resource not found
+        details:
+          type: object
+
+    LearnerProfile:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        display_name:
+          type: string
+        birth_year:
+          type: integer
+        country:
+          type: string
+        timezone:
+          type: string
+        native_language:
+          type: string
+        preferred_language:
+          type: string
+        education_level:
+          type: string
+        experience_level:
+          type: string
+        career_slug:
+          type: string
+        learning_goal_type:
+          type: string
+        learning_goal_detail:
+          type: string
+        motivation_type:
+          type: string
+        motivation_text:
+          type: string
+        daily_minutes:
+          type: integer
+        prefers_video:
+          type: boolean
+        prefers_text:
+          type: boolean
+        prefers_project:
+          type: boolean
+        prefers_quiz:
+          type: boolean
+        ai_persona:
+          type: string
+        current_stage:
+          type: string
+        persona_version:
+          type: string
+        identity_schema_version:
+          type: string
+        onboarding_completed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CapabilityResponse:
+      type: object
+      properties:
+        skill_id:
+          type: string
+          format: uuid
+        domain_slug:
+          type: string
+        skill_slug:
+          type: string
+        skill_title:
+          type: string
+        proficiency_score:
+          type: integer
+          example: 450
+        normalized_score:
+          type: integer
+          example: 45
+        evidence_score:
+          type: number
+          format: float
+          example: 0.85
+
+security:
+  - bearerAuth: []
+
+paths:
+  /identity/me:
+    get:
+      summary: Get Learner Profile
+      tags:
+        - Identity
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LearnerProfile'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update Learner Profile
+      tags:
+        - Identity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                display_name:
+                  type: string
+                learning_goal_type:
+                  type: string
+                ai_persona:
+                  type: string
+                current_stage:
+                  type: string
+      responses:
+        '200':
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LearnerProfile'
+
+  /identity/onboarding:
+    post:
+      summary: Complete Onboarding
+      tags:
+        - Identity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: object
+                devices:
+                  type: array
+                  items:
+                    type: object
+                interests:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Successfully onboarded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /capabilities/me:
+    get:
+      summary: Get Learner Capabilities
+      tags:
+        - Capability
+      responses:
+        '200':
+          description: Successfully retrieved capabilities
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CapabilityResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

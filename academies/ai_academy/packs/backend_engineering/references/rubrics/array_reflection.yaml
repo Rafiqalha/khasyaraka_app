@@ -1,0 +1,28 @@
+id: "reflection_array_bug_01"
+title: "Reflection — Off-by-One Error"
+questions:
+  - id: "r0_confidence"
+    type: "scale"
+    prompt: "How confident are you that you understand why the bug happened?"
+    scale_min: 1
+    scale_max: 5
+    labels:
+      1: "Not confident at all"
+      3: "Somewhat confident"
+      5: "Completely confident"
+
+  - id: "r1"
+    type: "multiple_choice"
+    prompt: "Why did the original code produce the wrong sum?"
+    options:
+      - "The loop started at index 1, skipping the first element"
+      - "The syntax of the for loop was wrong"
+      - "The variable 'total' was not initialized"
+      - "I'm not sure yet"
+    correct: 0
+    diagnostic_concept: "concept_array"
+
+  - id: "r2"
+    type: "open_ended"
+    prompt: "Explain in your own words: what is an off-by-one error, and how would you avoid it in the future?"
+    min_length: 20

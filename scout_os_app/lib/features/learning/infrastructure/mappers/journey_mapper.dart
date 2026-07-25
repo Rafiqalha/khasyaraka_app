@@ -6,7 +6,7 @@ class JourneyMapper {
     return Journey(
       id: dto.id,
       title: dto.title,
-      nodes: dto.nodes.map((n) => _mapNode(n)).toList(),
+      activities: dto.nodes.map((n) => _mapNode(n)).toList(),
       isCompleted: false, // Default logic
     );
   }
@@ -27,10 +27,8 @@ class JourneyMapper {
       case 'PRE_ASSESSMENT': return NodeType.preAssessment;
       case 'JOURNEY_MAP': return NodeType.journeyMap;
       case 'NOTEBOOK': return NodeType.notebook;
-      case 'QUICK_CHECK': return NodeType.quickCheck;
       case 'SANDBOX': return NodeType.sandbox;
       case 'MISSION': return NodeType.mission;
-      case 'THINKING': return NodeType.thinking;
       case 'POST_ASSESSMENT': return NodeType.postAssessment;
       case 'LOOKING_BACK': return NodeType.lookingBack;
       case 'PASSPORT': return NodeType.passport;

@@ -9,13 +9,13 @@ import (
 type Repository interface {
 	SaveCandidate(ctx context.Context, c ObservationCandidate) error
 	GetCandidate(ctx context.Context, id string) (*ObservationCandidate, error)
-	
+
 	SaveObservation(ctx context.Context, o Observation) error
 	GetObservation(ctx context.Context, id string) (*Observation, error)
-	
+
 	SaveValidationReport(ctx context.Context, r ValidationReport) error
 	SaveEvidence(ctx context.Context, e Evidence) error
-	
+
 	GetPromptBundle(ctx context.Context, name, version string) (*PromptBundle, error)
 	SavePromptBundle(ctx context.Context, p PromptBundle) error
 }

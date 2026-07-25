@@ -3,23 +3,23 @@
 package main
 
 import (
-"fmt"
-"log"
+	"fmt"
+	"log"
 
-"github.com/jmoiron/sqlx"
-_ "github.com/lib/pq"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-db, err := sqlx.Connect("postgres", "host=localhost port=5432 user=pradigi dbname=pradigi password=pradigi sslmode=disable")
-if err != nil {
-log.Fatal(err)
-}
+	db, err := sqlx.Connect("postgres", "host=localhost port=5432 user=pradigi dbname=pradigi password=pradigi sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-var tables []string
-err = db.Select(&tables, "SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
-if err != nil {
-log.Fatal(err)
-}
-fmt.Println("Tables:", tables)
+	var tables []string
+	err = db.Select(&tables, "SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Tables:", tables)
 }

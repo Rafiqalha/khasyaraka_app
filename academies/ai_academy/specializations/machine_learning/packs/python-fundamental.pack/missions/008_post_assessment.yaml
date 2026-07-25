@@ -1,0 +1,20 @@
+id: python-post-assessment
+type: assessment
+title: "Python Mastery Post-Assessment"
+estimated_duration: "15m"
+difficulty: adaptive
+objective: "Evaluate final mastery gain post-learning, measure delta against pre-assessment, and issue portfolio verification evidence."
+knowledge_targets:
+  - python.variables
+  - python.control_flow
+  - python.functions
+  - python.collections
+  - python.debugging
+  - python.project
+completion:
+  type: assessment
+outputs:
+  - final_knowledge_vector
+  - evidence_artifact
+reward:
+  xp: 200

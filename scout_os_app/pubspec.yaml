@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.4+12
+version: 1.1.4+13
 
 environment:
   sdk: ^3.10.4
@@ -77,6 +77,9 @@ dependencies:
   font_awesome_flutter: ^11.0.0
   web_socket_channel: ^3.0.3
   flutter_riverpod: ^3.3.2
+  hive: ^2.2.3
+  connectivity_plus: ^7.3.0
+  uuid: ^4.6.0
 
 
 dev_dependencies:
@@ -90,6 +93,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  mocktail: ^1.0.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -109,9 +113,6 @@ flutter:
     - assets/icons/google/
     - assets/icons/training/
     - assets/icons/navbar/
-    - assets/images/logo.png
-    - assets/images/icon-pradigi.png
-    - assets/images/tunas_kelapa.png
     - assets/audio/morse/beep_short.wav
     - assets/audio/morse/beep_long.wav
     - assets/audio/morse/sos/dot.wav
@@ -151,7 +152,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/logo/foreground-pigi.png"
+  image_path: "assets/images/logo/pradigi-logo-foreground.png"
   min_sdk_android: 21 
-  adaptive_icon_background: "#16161A"
-  adaptive_icon_foreground: "assets/images/logo/foreground-pigi.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo/pradigi-logo-foreground.png"

@@ -10,7 +10,7 @@ class SandboxPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: PradigiSpacing.desktopMaxWidth),
+        constraints: const BoxConstraints(maxWidth: PradigiSpacing.contentMaxWidth),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

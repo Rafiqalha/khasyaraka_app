@@ -6,7 +6,6 @@ import 'package:scout_os_app/shared/theme/app_text_styles.dart';
 import 'package:scout_os_app/features/home/presentation/widgets/glossy_stats_bar.dart';
 import 'package:scout_os_app/features/home/presentation/widgets/lesson_node_widget.dart';
 import 'package:scout_os_app/shared/widgets/shimmer_skeleton.dart';
-import 'package:scout_os_app/features/leaderboard/controllers/leaderboard_controller.dart';
 import '../../logic/training_controller.dart';
 import '../../data/models/training_path.dart';
 import 'quiz_page.dart';
@@ -51,10 +50,6 @@ class _TrainingMapPageState extends State<TrainingMapPage>
       context,
       listen: false,
     );
-    final leaderboardCtrl = Provider.of<LeaderboardController>(
-      context,
-      listen: false,
-    );
 
     setState(() {
       _isLoadingMateri = true;
@@ -85,20 +80,6 @@ class _TrainingMapPageState extends State<TrainingMapPage>
       debugPrint('❌ [MAP] Phase 2 failed: $e');
     }
     if (mounted) setState(() => _isLoadingProgress = false);
-
-    // ── Phase 3: Leaderboard (background, fire & forget) ──
-    leaderboardCtrl
-        .loadLeaderboard(limit: 10)
-        .then((_) {
-          if (mounted) {
-            setState(() => _isLoadingLeaderboard = false);
-            debugPrint('✅ [MAP] Leaderboard loaded (background)');
-          }
-        })
-        .catchError((e) {
-          debugPrint('⚠️ [MAP] Leaderboard failed (non-critical): $e');
-          if (mounted) setState(() => _isLoadingLeaderboard = false);
-        });
   }
 
   @override
@@ -219,126 +200,8 @@ class _TrainingMapPageState extends State<TrainingMapPage>
                     ),
                   ),
 
-                  // ✅ Leaderboard Preview
                   SliverToBoxAdapter(
-                    child: Builder(
-                      builder: (context) {
-                        return Consumer<LeaderboardController>(
-                          builder: (context, leaderCtrl, _) {
-                            if (_isLoadingLeaderboard &&
-                                (leaderCtrl.topUsers.isEmpty)) {
-                              return const SizedBox.shrink(); // Low priority, don't show shimmer if not loaded yet to avoid clutter? Or show simple shimmer?
-                              // Actually user asked for Shimmer. Let's make a mini shimmer or just hide until loaded to keep it clean if it fails.
-                              // But prompt said "Parallel... jadi user melihat konten muncul satu per satu".
-                              // Let's return a simple placeholder or empty for now to not block UI.
-                            }
-
-                            if (leaderCtrl.topUsers.isEmpty)
-                              return const SizedBox.shrink();
-
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey.shade200),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Papan Peringkat',
-                                          style: AppTextStyles.h3.copyWith(
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Lihat Semua >',
-                                          style: AppTextStyles.bodySmall
-                                              .copyWith(
-                                                color: AppColors.primary,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    height: 60,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: math.min(
-                                        leaderCtrl.topUsers.length,
-                                        5,
-                                      ),
-                                      itemBuilder: (context, index) {
-                                        final user = leaderCtrl.topUsers[index];
-                                        return Container(
-                                          margin: const EdgeInsets.only(
-                                            right: 16,
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 20,
-                                                backgroundColor: AppColors
-                                                    .primary
-                                                    .withOpacity(0.1),
-                                                backgroundImage:
-                                                    user.avatar != null
-                                                    ? NetworkImage(user.avatar!)
-                                                    : null,
-                                                child: user.avatar == null
-                                                    ? Text(
-                                                        user.name[0],
-                                                        style: TextStyle(
-                                                          color:
-                                                              AppColors.primary,
-                                                        ),
-                                                      )
-                                                    : null,
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                '#${user.rank}',
-                                                style: AppTextStyles.caption
-                                                    .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    child: const SizedBox.shrink(),
                   ),
 
                   // ✅ SECTION-BASED RENDERING (Lazy Loading support)

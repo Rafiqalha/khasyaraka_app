@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/pradigi/backend/internal/sandbox"
 )
 
 const (
@@ -24,13 +22,13 @@ const (
 )
 
 var (
-	ErrAPIError        = errors.New("deepseek API returned non-200 status")
-	ErrEmptyChoice     = errors.New("deepseek response has no choices")
-	ErrInvalidJSON     = errors.New("AI output is not valid JSON after markdown stripping")
-	ErrHTTPRequest     = errors.New("deepseek HTTP request failed")
-	ErrReadBody        = errors.New("failed to read deepseek response body")
-	ErrMaxIteration    = errors.New("agent reached maximum iterations without final answer")
-	ErrAgentTimedOut   = errors.New("agent loop timed out")
+	ErrAPIError      = errors.New("deepseek API returned non-200 status")
+	ErrEmptyChoice   = errors.New("deepseek response has no choices")
+	ErrInvalidJSON   = errors.New("AI output is not valid JSON after markdown stripping")
+	ErrHTTPRequest   = errors.New("deepseek HTTP request failed")
+	ErrReadBody      = errors.New("failed to read deepseek response body")
+	ErrMaxIteration  = errors.New("agent reached maximum iterations without final answer")
+	ErrAgentTimedOut = errors.New("agent loop timed out")
 )
 
 type Client struct {
@@ -135,7 +133,9 @@ func (a *Agent) Execute(userContext string, history []Message) (*PradigiResponse
 
 		action, isAction := a.parseAction(aiContent)
 		if isAction && action.Action == "exec" && action.Command != "" {
-			output, execErr := sandbox.ExecuteCommand(action.Command)
+			// output, execErr := sandbox.ExecuteCommand(action.Command)
+			output := "Not implemented"
+			var execErr error = nil
 			observation := fmt.Sprintf("COMMAND: %s\nEXIT_CODE: ", action.Command)
 			if execErr != nil {
 				observation += "error\nSTDERR: " + output

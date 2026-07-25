@@ -1,65 +1,30 @@
 import 'package:flutter/material.dart';
+import '../../../../design_system/tokens/colors.dart';
+import '../../../../design_system/tokens/typography.dart';
+import '../../../../design_system/tokens/spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../design_system/components/mission_console.dart';
-import '../../../../core/telemetry/telemetry.dart';
+import '../controllers/mission_controller.dart';
+import '../../../../core/di/providers.dart';
 
-enum MissionState { idle, editing, running, passed, failed, analyzing, completed }
-
-class MissionPage extends ConsumerStatefulWidget {
+class MissionPage extends ConsumerWidget {
   final String nodeId;
   const MissionPage({super.key, required this.nodeId});
 
   @override
-  ConsumerState<MissionPage> createState() => _MissionPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(missionProvider);
+    final notifier = ref.read(missionProvider.notifier);
 
-class _MissionPageState extends ConsumerState<MissionPage> {
-  MissionState _state = MissionState.idle;
-
-  void _runTests() async {
-    setState(() {
-      _state = MissionState.running;
+    // Listen to mission completion
+    ref.listen<MissionState>(missionProvider, (previous, next) {
+      if (next == MissionState.passed) {
+        ref.read(journeyProvider.notifier).completeNode();
+      }
     });
-    
-    Telemetry.track(
-      event: JourneyEvent.missionRun,
-      metadata: {'nodeId': widget.nodeId},
-    );
 
-    // Simulate backend test execution
-    await Future.delayed(const Duration(seconds: 2));
-
-    // Simulate success
-    setState(() {
-      _state = MissionState.passed;
-    });
-    
-    Telemetry.track(
-      event: JourneyEvent.missionPassed,
-      metadata: {'nodeId': widget.nodeId},
-    );
-  }
-
-  void _continueToAnalysis() {
-    // This transitions to "Analyzing" locally or signals the JourneyController to move to the Thinking Screen node.
-    // As per user request, MissionPage should have "Analyzing -> Completed" state, but the user also wants a dedicated Thinking Screen.
-    // The flow: Mission Passed -> Hit Continue -> Transition to next node (Thinking Screen).
-    // Let's just track continuePressed and let the shell handle the actual node switch.
-    Telemetry.track(
-      event: JourneyEvent.continuePressed,
-      metadata: {'nodeId': widget.nodeId, 'action': 'continue_from_mission'},
-    );
-    // The LearningShell's Bottom CTA actually controls the global nextNode(), so the Mission component's continue button can trigger it if we pass a callback, or we hide the shell's CTA and use this one.
-    // For now, we update local state.
-    setState(() {
-      _state = MissionState.completed;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     MissionConsoleStatus consoleStatus;
-    switch (_state) {
+    switch (state) {
       case MissionState.idle:
       case MissionState.editing:
         consoleStatus = MissionConsoleStatus.idle;
@@ -68,7 +33,6 @@ class _MissionPageState extends ConsumerState<MissionPage> {
         consoleStatus = MissionConsoleStatus.running;
         break;
       case MissionState.passed:
-      case MissionState.analyzing:
       case MissionState.completed:
         consoleStatus = MissionConsoleStatus.passed;
         break;
@@ -89,22 +53,20 @@ class _MissionPageState extends ConsumerState<MissionPage> {
             concept: "Iteration",
             editorWidget: GestureDetector(
               onTap: () {
-                if (_state == MissionState.idle) {
-                  setState(() => _state = MissionState.editing);
-                }
+                ref.read(missionProvider.notifier).editCode();
               },
               child: Container(
-                padding: const EdgeInsets.all(16),
-                color: Colors.black87,
+                padding: const EdgeInsets.all(PradigiSpacing.s16),
+                color: PradigiColors.textPrimary,
                 child: Text(
                   "def sum_list(numbers):\n    total = 0\n    for i in range(len(numbers) - 1):\n        total += numbers[i]\n    return total",
-                  style: const TextStyle(color: Colors.white, fontFamily: 'monospace'),
+                  style: PradigiTypography.code.copyWith(color: PradigiColors.surface),
                 ),
               ),
             ),
             status: consoleStatus,
-            onRunTests: _runTests,
-            onContinue: _state == MissionState.passed ? _continueToAnalysis : null,
+            onRunTests: () => notifier.runTests("mock_code"),
+            onContinue: notifier.complete,
           ),
         ),
       ),

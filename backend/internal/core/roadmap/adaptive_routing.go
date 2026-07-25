@@ -14,7 +14,7 @@ type AdaptiveRouter interface {
 	RouteOnCompetencyAchieved(ctx context.Context, skillNodeID string) ([]RoutingAction, error)
 }
 
-type router struct {}
+type router struct{}
 
 func NewAdaptiveRouter() AdaptiveRouter {
 	return &router{}

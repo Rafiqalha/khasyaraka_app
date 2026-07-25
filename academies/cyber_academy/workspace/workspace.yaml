@@ -1,0 +1,10 @@
+id: "workspace_cyber"
+name: "Cyber Operations Center"
+layout:
+  panels:
+    - id: "log_explorer"
+      type: "log_viewer"
+      size: 50
+    - id: "terminal"
+      type: "cli"
+      size: 50

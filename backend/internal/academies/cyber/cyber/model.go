@@ -24,11 +24,11 @@ type Challenge struct {
 }
 
 type ModuleBrief struct {
-	ID          string `json:"id" db:"id"`
-	Title       string `json:"title" db:"title"`
-	Difficulty  int    `json:"difficulty" db:"difficulty"`
-	Challenges  int    `json:"challenges"`
-	Solved      int    `json:"solved"`
+	ID         string `json:"id" db:"id"`
+	Title      string `json:"title" db:"title"`
+	Difficulty int    `json:"difficulty" db:"difficulty"`
+	Challenges int    `json:"challenges"`
+	Solved     int    `json:"solved"`
 }
 
 type LevelProgress struct {

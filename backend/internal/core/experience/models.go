@@ -10,7 +10,7 @@ type Component struct {
 
 // Section represents a logical group of components (e.g., a "Notebook" or a "Workbench").
 type Section struct {
-	Type       string      `json:"type"`       // e.g., "notebook", "workbench"
+	Type       string      `json:"type"` // e.g., "notebook", "workbench"
 	Title      string      `json:"title"`
 	Components []Component `json:"components"`
 }

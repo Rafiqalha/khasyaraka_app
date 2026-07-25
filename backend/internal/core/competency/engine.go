@@ -7,7 +7,7 @@ import (
 )
 
 // Engine calculates the user's current competency state dynamically.
-type Engine struct {}
+type Engine struct{}
 
 func NewEngine() *Engine {
 	return &Engine{}
@@ -27,12 +27,12 @@ func (e *Engine) UpdateFromDiagnosis(userID string, diag *diagnosis.DiagnosisRes
 func (e *Engine) Project(userID string) (*CompetencyProjection, error) {
 	// Mock implementation
 	now := time.Now()
-	
+
 	// Imagine we loaded from DB:
 	// Base understanding of "iteration" was 100 on Jan 1st.
 	// 3 months have passed.
 	// We apply a decay curve here.
-	
+
 	proj := &CompetencyProjection{
 		UserID: userID,
 		Concepts: map[string]CompetencyState{
@@ -55,11 +55,11 @@ func (e *Engine) Project(userID string) (*CompetencyProjection, error) {
 				LastUpdatedAt: now,
 			},
 		},
-		WeakConcepts:            []string{"loop_boundary"},
-		StrongConcepts:          []string{"iteration"},
-		PrerequisiteViolations:  []string{},
-		RecommendedConcepts:     []string{"loop_boundary"},
-		EstimatedReadiness:      65.0,
+		WeakConcepts:              []string{"loop_boundary"},
+		StrongConcepts:            []string{"iteration"},
+		PrerequisiteViolations:    []string{},
+		RecommendedConcepts:       []string{"loop_boundary"},
+		EstimatedReadiness:        65.0,
 		NextBestLearningObjective: "lo_master_loops",
 	}
 

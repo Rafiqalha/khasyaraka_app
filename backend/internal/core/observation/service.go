@@ -74,9 +74,9 @@ func (s *service) HandleActivityAggregated(ctx context.Context, evt events.Event
 		ObservationID: ulid.Make().String(),
 		RawOutput:     aiResp.Raw,
 	}
-	
+
 	err = s.validator.Validate(valCtx)
-	
+
 	status := "VALIDATED"
 	if err != nil {
 		status = "GENERATED" // Didn't pass validation
@@ -109,7 +109,7 @@ func (s *service) HandleActivityAggregated(ctx context.Context, evt events.Event
 		CandidateID:          candidate.ID,
 		PromptBundleID:       bundle.ID,
 		ModelID:              "model_1", // Mock
-		InferenceProfileID:   "prof_1", // Mock
+		InferenceProfileID:   "prof_1",  // Mock
 		InputFingerprint:     inputFingerprint,
 		ExecutionFingerprint: execFingerprint,
 		Status:               status,
@@ -125,7 +125,7 @@ func (s *service) HandleActivityAggregated(ctx context.Context, evt events.Event
 		Provenance:           prov,
 		CreatedAt:            time.Now(),
 	}
-	
+
 	if err := s.repo.SaveObservation(ctx, obs); err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func (s *service) HandleActivityAggregated(ctx context.Context, evt events.Event
 		Priority:      events.PriorityNormal,
 		AggregateType: "Observation",
 		AggregateID:   obs.ID,
-		Payload:       payload, // Wait, payload should ideally be the Observation struct, but Evidence Engine expects ObsPayload. 
+		Payload:       payload, // Wait, payload should ideally be the Observation struct, but Evidence Engine expects ObsPayload.
 		// Actually Evidence Engine expects the skills list, let's inject it into payload for MVP.
 		Metadata: events.Metadata{
 			UserID:       evt.Metadata.UserID,

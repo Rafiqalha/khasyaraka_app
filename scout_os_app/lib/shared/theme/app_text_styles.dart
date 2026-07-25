@@ -1,54 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'app_colors.dart';
+import 'design_tokens.dart';
 
 class AppTextStyles {
   AppTextStyles._();
 
   // Headings
-  static TextStyle h1 = GoogleFonts.fredoka(
-    fontSize: 32,
-    fontWeight: FontWeight.w700, // Bold
-  );
+  @deprecated
+  static TextStyle get h1 => AppTypographyTokens.display;
 
-  static TextStyle h2 = GoogleFonts.fredoka(
-    fontSize: 24,
-    fontWeight: FontWeight.w700,
-  );
+  @deprecated
+  static TextStyle get h2 => AppTypographyTokens.pageHeading;
 
-  static TextStyle h3 = GoogleFonts.fredoka(
-    fontSize: 20,
-    fontWeight: FontWeight.w700,
-  );
+  @deprecated
+  static TextStyle get h3 => AppTypographyTokens.sectionHeading;
 
   // Body Text
-  static TextStyle bodyLarge = GoogleFonts.nunito(
-    fontSize: 16,
-    fontWeight: FontWeight.w700, // Bold for readability like Duolingo
-  );
+  @deprecated
+  static TextStyle get bodyLarge => AppTypographyTokens.bodyStrong;
 
-  static TextStyle bodyMedium = GoogleFonts.nunito(
-    fontSize: 14,
-    fontWeight: FontWeight.w700,
-  );
+  @deprecated
+  static TextStyle get bodyMedium => AppTypographyTokens.body;
 
   // Captions/Labels
-  static TextStyle caption = GoogleFonts.nunito(
-    fontSize: 12,
-    fontWeight: FontWeight.w700,
-    color: Colors.grey,
-  );
+  @deprecated
+  static TextStyle get caption => AppTypographyTokens.caption;
 
   // Buttons
-  static TextStyle button = GoogleFonts.fredoka(
-    fontSize: 14,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 0.5,
-  );
+  @deprecated
+  static TextStyle get button => AppTypographyTokens.bodyStrong;
 
-  // Currency/Points
-  static TextStyle currency = GoogleFonts.fredoka(
-    fontSize: 16,
-    fontWeight: FontWeight.w700,
-  );
+  // Currency/Points (Deprecated gaming element)
+  @deprecated
+  static TextStyle get currency => AppTypographyTokens.metadata;
 }

@@ -1,0 +1,49 @@
+id: python-fundamental.pack
+version: "1.0.0"
+title: "Python Fundamental"
+description: "Master foundational Python programming: variables, control flow, functions, collections, debugging, and real-world projects."
+icon: "code"
+difficulty: "beginner"
+estimated_minutes: 120
+workspace_ref: "python_debugging_ws"
+
+knowledge:
+  nodes:
+    - id: python.variables
+      name: "Variables & Primitive Data Types"
+      target_score: 0.8
+    - id: python.control_flow
+      name: "Control Flow & Conditionals"
+      target_score: 0.8
+    - id: python.functions
+      name: "Functions & Scoping"
+      target_score: 0.8
+    - id: python.collections
+      name: "Collections (Lists & Dictionaries)"
+      target_score: 0.8
+    - id: python.debugging
+      name: "Debugging & Error Remediation"
+      target_score: 0.85
+    - id: python.project
+      name: "Mini Project: Student Grade Calculator"
+      target_score: 0.9
+
+workspace:
+  driver: "docker"
+  image: "python:3.11-slim"
+  capabilities:
+    - "filesystem"
+    - "execution"
+    - "network"
+  panels:
+    - "mission"
+    - "editor"
+    - "terminal"
+    - "mentor"
+    - "timeline"
+
+assessment:
+  pass_threshold: 0.8
+  rubric:
+    pre_assessment: "readiness_diagnostic"
+    post_assessment: "mastery_evaluation"

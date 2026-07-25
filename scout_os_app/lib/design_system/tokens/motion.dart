@@ -1,6 +1,6 @@
-/// Pradigi Design System: Motion
-/// 
-/// "Subtle motion (< 200ms). Cepat, tangkas, tidak bertele-tele."
+import 'package:flutter/animation.dart';
+
 class PradigiMotion {
   static const Duration duration = Duration(milliseconds: 200);
+  static const Curve curve = Curves.easeOutCubic;
 }

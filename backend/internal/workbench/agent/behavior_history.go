@@ -133,8 +133,8 @@ func (m *ExperimentBehaviorHistory) Get(key string) (any, bool) {
 type WorkspaceBehaviorHistory struct {
 	mu    sync.RWMutex
 	store map[string]any
-	
-	TotalExperimentsCompleted int `json:"total_experiments_completed"`
+
+	TotalExperimentsCompleted int      `json:"total_experiments_completed"`
 	CommonPitfalls            []string `json:"common_pitfalls"`
 }
 
@@ -159,7 +159,7 @@ func (m *WorkspaceBehaviorHistory) Get(key string) (any, bool) {
 type GlobalBehaviorHistory struct {
 	mu    sync.RWMutex
 	store map[string]any
-	
+
 	DominantLearningStyle string `json:"dominant_learning_style"`
 }
 

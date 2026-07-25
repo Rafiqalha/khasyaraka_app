@@ -16,8 +16,6 @@ type ArtifactRepository interface {
 	GetArtifact(ctx context.Context, id string) (Artifact, error)
 }
 
-
-
 type SnapshotRepository interface {
 	CreateSnapshot(ctx context.Context, s WorkspaceSnapshot) error
 }
@@ -59,8 +57,6 @@ func (r *repository) GetArtifact(ctx context.Context, id string) (Artifact, erro
 	err := r.db.GetContext(ctx, &a, "SELECT * FROM workspace_artifacts WHERE id = $1", id)
 	return a, err
 }
-
-
 
 func (r *repository) CreateSnapshot(ctx context.Context, s WorkspaceSnapshot) error {
 	query := `

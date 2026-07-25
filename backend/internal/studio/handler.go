@@ -7,7 +7,7 @@ import (
 )
 
 // Handler manages Academy Studio API endpoints
-type Handler struct {}
+type Handler struct{}
 
 func NewHandler() *Handler {
 	return &Handler{}
@@ -46,9 +46,9 @@ func (h *Handler) HandlePreviewAdaptive(c *gin.Context) {
 	// (Implementation mocked for Sprint A8)
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": "success", 
+		"status": "success",
 		"manifest": map[string]interface{}{
-			"type": "mock_adaptive_manifest",
+			"type":    "mock_adaptive_manifest",
 			"persona": cmd.PersonaType,
 		},
 	})

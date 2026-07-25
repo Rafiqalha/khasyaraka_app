@@ -27,7 +27,7 @@ func (h *Handler) CreateWorkspace(c *gin.Context) {
 	}
 
 	// Biasanya Get UserID/TenantID dari JWT Context. Untuk MVP:
-	req.OwnerID = c.GetString("user_id") 
+	req.OwnerID = c.GetString("user_id")
 	if req.OwnerID == "" {
 		req.OwnerID = "anonymous"
 	}

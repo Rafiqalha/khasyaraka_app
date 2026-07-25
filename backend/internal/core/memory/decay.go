@@ -14,7 +14,7 @@ const (
 	StateExpired   MemoryState = "EXPIRED"
 )
 
-type DecayEngine struct {}
+type DecayEngine struct{}
 
 func NewDecayEngine() *DecayEngine {
 	return &DecayEngine{}
@@ -27,7 +27,7 @@ func (d *DecayEngine) CalculateRetention(lastReview time.Time, strength float64)
 	if strength <= 0 {
 		return 0
 	}
-	
+
 	t := time.Since(lastReview).Hours() / 24.0
 	// To prevent immediate drop-off if reviewed just now, if t is very small, R ~ 1.0
 	retention := math.Exp(-t / strength)

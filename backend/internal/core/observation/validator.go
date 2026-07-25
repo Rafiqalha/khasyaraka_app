@@ -115,7 +115,7 @@ func BuildValidationChain() Validator {
 	syntax := NewSyntaxValidator()
 	ontology := NewOntologyValidator()
 	// we could add business and reasoning here
-	
+
 	syntax.Next(ontology)
 	return syntax
 }

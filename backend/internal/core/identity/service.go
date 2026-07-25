@@ -76,7 +76,7 @@ func (s *service) Onboard(userID string, req *OnboardingRequest) error {
 	if err := MapUpdateToModel(&req.Profile, profile); err != nil {
 		return err
 	}
-	
+
 	// Mark as onboarded
 	profile.OnboardingCompleted = true
 

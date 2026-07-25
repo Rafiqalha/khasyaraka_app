@@ -13,10 +13,10 @@ func RequestID() gin.HandlerFunc {
 		if reqID == "" {
 			reqID = uuid.New().String()
 		}
-		
+
 		c.Set(RequestIDKey, reqID)
 		c.Header("X-Request-ID", reqID)
-		
+
 		c.Next()
 	}
 }

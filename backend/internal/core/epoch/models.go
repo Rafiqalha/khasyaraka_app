@@ -24,14 +24,14 @@ type EpochCompatibility struct {
 }
 
 type ReplayCertification struct {
-	ID                  string    `db:"id" json:"id"`
-	EpochID             string    `db:"epoch_id" json:"epoch_id"`
-	SuccessRate         float64   `db:"success_rate" json:"success_rate"`
-	DeterminismScore    float64   `db:"determinism_score" json:"determinism_score"`
-	DurationMs          int       `db:"duration_ms" json:"duration_ms"`
-	ProjectionAccuracy  float64   `db:"projection_accuracy" json:"projection_accuracy"`
-	FingerprintMatch    bool      `db:"fingerprint_match" json:"fingerprint_match"`
-	EpochMatch          bool      `db:"epoch_match" json:"epoch_match"`
-	Status              string    `db:"status" json:"status"` // CERTIFIED, FAILED
-	CreatedAt           time.Time `db:"created_at" json:"created_at"`
+	ID                 string    `db:"id" json:"id"`
+	EpochID            string    `db:"epoch_id" json:"epoch_id"`
+	SuccessRate        float64   `db:"success_rate" json:"success_rate"`
+	DeterminismScore   float64   `db:"determinism_score" json:"determinism_score"`
+	DurationMs         int       `db:"duration_ms" json:"duration_ms"`
+	ProjectionAccuracy float64   `db:"projection_accuracy" json:"projection_accuracy"`
+	FingerprintMatch   bool      `db:"fingerprint_match" json:"fingerprint_match"`
+	EpochMatch         bool      `db:"epoch_match" json:"epoch_match"`
+	Status             string    `db:"status" json:"status"` // CERTIFIED, FAILED
+	CreatedAt          time.Time `db:"created_at" json:"created_at"`
 }

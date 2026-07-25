@@ -1,0 +1,65 @@
+id: python-final-project
+type: project
+title: "Mini Project: Student Grade Calculator"
+estimated_duration: "30m"
+difficulty: advanced
+depends:
+  - python-debugging
+objective: "Build an end-to-end CLI application that inputs student names and scores, evaluates letter grades, calculates class statistics, and prints a formatted report."
+instructions: |
+  1. Open project_main.py in the Editor.
+  2. Implement interactive CLI menu:
+     - Add Student & Score
+     - Display All Student Grades
+     - Show Class Average & Top Performer
+  3. Export summary report as JSON.
+knowledge:
+  teaches:
+    - python.project
+workspace:
+  template:
+    file: project_main.py
+    content: |
+      # 007: Student Grade Calculator Project
+      import json
+
+      class GradeCalculator:
+          def __init__(self):
+              self.records = {}
+
+          def add_student(self, name, score):
+              self.records[name] = score
+
+          def get_grade(self, score):
+              if score >= 90: return 'A'
+              elif score >= 80: return 'B'
+              elif score >= 70: return 'C'
+              else: return 'D'
+
+          def generate_report(self):
+              if not self.records:
+                  return "No records found."
+              
+              total = sum(self.records.values())
+              avg = total / len(self.records)
+              top_student = max(self.records, key=self.records.get)
+              
+              report = {
+                  "total_students": len(self.records),
+                  "class_average": avg,
+                  "top_performer": top_student,
+                  "grades": {name: self.get_grade(s) for name, s in self.records.items()}
+              }
+              return json.dumps(report, indent=2)
+
+      if __name__ == "__main__":
+          calc = GradeCalculator()
+          calc.add_student("Alice", 95)
+          calc.add_student("Bob", 82)
+          print(calc.generate_report())
+validator:
+  test_script: "pytest"
+completion:
+  minimum_score: 90
+reward:
+  xp: 150
