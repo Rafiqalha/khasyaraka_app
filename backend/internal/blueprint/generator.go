@@ -42,7 +42,7 @@ type Generator struct {
 
 func NewGenerator(apiKey, model string) *Generator {
 	if model == "" {
-		model = "deepseek-chat"
+		model = "deepseek-v4-flash"
 	}
 	return &Generator{
 		apiKey: apiKey,

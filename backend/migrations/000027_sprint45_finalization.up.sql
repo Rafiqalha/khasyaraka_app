@@ -1,10 +1,14 @@
 -- Knowledge Lineage ID integration across reasoning pipeline
-ALTER TABLE learning_activities ADD COLUMN knowledge_lineage_id VARCHAR(26);
-ALTER TABLE activity_aggregates ADD COLUMN knowledge_lineage_id VARCHAR(26);
-ALTER TABLE observation_candidates ADD COLUMN knowledge_lineage_id VARCHAR(26);
-ALTER TABLE observations ADD COLUMN knowledge_lineage_id VARCHAR(26);
-ALTER TABLE evidences ADD COLUMN knowledge_lineage_id VARCHAR(26);
-ALTER TABLE competency_projections ADD COLUMN knowledge_lineage_id VARCHAR(26);
+CREATE TABLE IF NOT EXISTS learning_activities (id VARCHAR(26) PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS activity_aggregates (id VARCHAR(26) PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS competency_projections (id VARCHAR(26) PRIMARY KEY);
+
+ALTER TABLE learning_activities ADD COLUMN IF NOT EXISTS knowledge_lineage_id VARCHAR(26);
+ALTER TABLE activity_aggregates ADD COLUMN IF NOT EXISTS knowledge_lineage_id VARCHAR(26);
+ALTER TABLE observation_candidates ADD COLUMN IF NOT EXISTS knowledge_lineage_id VARCHAR(26);
+ALTER TABLE observations ADD COLUMN IF NOT EXISTS knowledge_lineage_id VARCHAR(26);
+ALTER TABLE evidences ADD COLUMN IF NOT EXISTS knowledge_lineage_id VARCHAR(26);
+ALTER TABLE competency_projections ADD COLUMN IF NOT EXISTS knowledge_lineage_id VARCHAR(26);
 
 -- Competency Contributions (Immutable Event translating Evidence)
 CREATE TABLE competency_contributions (

@@ -1,4 +1,4 @@
-CREATE TABLE learning_activities (
+CREATE TABLE IF NOT EXISTS learning_activities (
     id VARCHAR(26) PRIMARY KEY,
     user_id VARCHAR(26) NOT NULL,
     tenant_id VARCHAR(26) NOT NULL,

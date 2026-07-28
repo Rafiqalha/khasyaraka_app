@@ -1,0 +1,30 @@
+missions:
+  - id: mission_network_recon
+    title: "Network Reconnaissance"
+    description: "Pelajari cara memetakan jaringan target menggunakan tools standar."
+    order: 1
+    language: bash
+
+  - id: mission_log_analysis
+    title: "Log Analysis & Anomaly Detection"
+    description: "Analisis log sistem untuk menemukan aktivitas mencurigakan."
+    order: 2
+    language: python
+
+  - id: mission_vuln_scanning
+    title: "Vulnerability Assessment"
+    description: "Identifikasi kelemahan pada layanan jaringan yang berjalan."
+    order: 3
+    language: bash
+
+  - id: mission_incident_response
+    title: "Incident Response Drill"
+    description: "Simulasi penanganan insiden: containment, eradication, recovery."
+    order: 4
+    language: bash
+
+  - id: mission_cryptography_basics
+    title: "Applied Cryptography"
+    description: "Pahami enkripsi, hashing, dan digital signatures melalui praktek langsung."
+    order: 5
+    language: python

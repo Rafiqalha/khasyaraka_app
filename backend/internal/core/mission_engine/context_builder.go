@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pradigi/backend/internal/core/pack"
 	"github.com/pradigi/backend/internal/core/planner"
 )
 
@@ -13,6 +14,7 @@ import (
 // uses to generate a mission without hallucinating.
 type MissionContext struct {
 	Plan              *planner.MissionPlan
+	AIRules           *pack.AIRulesConfig
 	ReferenceConcepts string
 	ReferenceExamples string
 	ReferenceRubrics  string

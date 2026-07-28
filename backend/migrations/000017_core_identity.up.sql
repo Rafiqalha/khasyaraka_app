@@ -1,6 +1,6 @@
 -- 1. Core Identity Table
 CREATE TABLE learner_profiles (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     display_name VARCHAR(100),
     birth_year INT,
     country VARCHAR(100),
@@ -40,7 +40,7 @@ CREATE TABLE learner_profiles (
 -- 2. Device Registry
 CREATE TABLE user_devices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     platform VARCHAR(50),
     os VARCHAR(50),
     capability_score VARCHAR(20),
@@ -50,7 +50,7 @@ CREATE TABLE user_devices (
 -- 3. Relational Preferences
 CREATE TABLE user_interests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     interest VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

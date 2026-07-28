@@ -34,11 +34,11 @@ func healthHandler(db *sqlx.DB, rdb *redis.Client) gin.HandlerFunc {
 			overallStatus = "degraded"
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"status":      overallStatus,
-			"environment": gin.Mode(),
-			"database":    dbStatus,
-			"redis":       redisStatus,
+		c.JSON(http.StatusOK, healthResponse{
+			Status:      overallStatus,
+			Environment: gin.Mode(),
+			Database:    dbStatus,
+			Redis:       redisStatus,
 		})
 	}
 }

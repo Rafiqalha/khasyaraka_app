@@ -4,11 +4,12 @@ package learning_activity
 
 import "github.com/pradigi/backend/internal/core/mission_specification"
 
-// Manifest is an alias for Mission Specification.
-type Manifest = mission_specification.Manifest
+type LearningActivity = mission_specification.LearningActivity
+type ActivityType = mission_specification.ActivityType
 
-// Node represents the old concept of learning activity, alias for MissionNode.
-type Node = mission_specification.Node
-
-// Handler is an alias for the new Mission Specification handler
-type Handler = mission_specification.Handler
+const (
+	ActivityTyping  = mission_specification.ActivityTyping
+	ActivityAIAsk   = mission_specification.ActivityAIAsk
+	ActivityRun     = mission_specification.ActivityRun
+	ActivityCompile = mission_specification.ActivityCompile
+)

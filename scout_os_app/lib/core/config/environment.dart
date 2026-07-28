@@ -6,7 +6,7 @@ class Environment {
   /// Example prod build: flutter build apk --dart-define=API_URL=https://api.pradigi.id/api/v1
   static const String apiBaseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://13.212.174.32:8080/api/v1',
+    defaultValue: 'https://admitted-recreation-serial-xbox.trycloudflare.com/api/v1',
   );
 
   /// Resolve a URL that may be relative (e.g. /api/v1/users/me/avatar/file.jpg)

@@ -28,11 +28,16 @@ services:
     depends_on:
       - db
       - redis
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgresql://postgres:SangatRahasia123!@db:5432/pradigi?sslmode=disable
       - REDIS_URL=redis://redis:6379/0
-      - JWT_SECRET=SangatRahasia123!
+      - JWT_SECRET=pradigi-super-secret-jwt-key-production-2026!
       - PORT=8080
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - APP_ENV=production
     ports:
       - "8080:8080"
 

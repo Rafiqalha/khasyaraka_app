@@ -75,6 +75,8 @@ func (d *DirectorEngine) GenerateBrief(ctx context.Context, userID string, snap 
 
 	// 4. Generate Brief
 	_ = obs
+	_ = an.MasteryRate
+	_ = strat.RecommendedStep
 	return &DirectorBrief{
 		Yesterday:       "Matrix Multiplication & Forward Pass",
 		Today:           strat.TodayFocus,

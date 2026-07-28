@@ -2,6 +2,7 @@ import 'package:scout_os_app/core/network/api_dio_provider.dart';
 import 'package:scout_os_app/core/config/environment.dart';
 import '../models/home_data_model.dart';
 import '../models/academy_tree_model.dart';
+import '../models/os_models.dart';
 
 class OsRemoteDataSource {
   final _dio = ApiDioProvider.getDio();
@@ -11,6 +12,23 @@ class OsRemoteDataSource {
   Future<HomeDataModel> getHomeData() async {
     final res = await _dio.get('$_host/api/v2/os/home');
     return HomeDataModel.fromJson(res.data);
+  }
+
+  Future<List<RegistryDomainModel>> getRegistry() async {
+    final res = await _dio.get('$_host/api/v2/os/registry');
+    return (res.data as List<dynamic>)
+        .map((e) => RegistryDomainModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<PortfolioDataModel> getPortfolio() async {
+    final res = await _dio.get('$_host/api/v2/os/portfolio');
+    return PortfolioDataModel.fromJson(res.data);
+  }
+
+  Future<ProfileDataModel> getProfile() async {
+    final res = await _dio.get('$_host/api/v2/os/profile');
+    return ProfileDataModel.fromJson(res.data);
   }
 
   Future<AcademyTreeModel> getAcademyTree(String academyId) async {
@@ -29,3 +47,4 @@ class OsRemoteDataSource {
     return response.data as Map<String, dynamic>;
   }
 }
+

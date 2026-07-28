@@ -22,6 +22,7 @@ import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/pag
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/pages/sandi_koordinat_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/pages/sandi_and_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/cyber/presentation/pages/sandi_kotak3_page.dart';
+import 'package:scout_os_app/features/os/presentation/pages/pack_missions_page.dart';
 
 /// Cyber Dashboard Screen - Rich 3D Gradient Cards Redesign
 class CyberDashboardScreen extends StatefulWidget {
@@ -78,26 +79,133 @@ class _CyberDashboardScreenState extends State<CyberDashboardScreen> {
             return _buildErrorState(controller);
           }
 
-          if (controller.sandiList.isEmpty) {
-            return const Center(
-              child: Text(
-                'No Tools Available',
-                style: TextStyle(color: Colors.white),
-              ),
-            );
-          }
-
-          return GridView.builder(
+          return ListView(
             padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.9, // Balanced
-            ),
-            itemCount: controller.sandiList.length,
-            itemBuilder: (context, index) {
-              final sandi = controller.sandiList[index];
+            children: [
+              // Pack V2 Banner
+              Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x332563EB),
+                      offset: Offset(0, 6),
+                      blurRadius: 18,
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PackMissionsPage(packId: 'cyber_fundamentals'),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(40),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.stars_rounded, color: Colors.white, size: 28),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'PACK MISI V2',
+                                      style: GoogleFonts.fredoka(
+                                        fontSize: 12,
+                                        color: const Color(0xFF93C5FD),
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text(
+                                        'HOT',
+                                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.black),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Fundamental Keamanan Siber',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '5 Misi Adaptif dengan AI CyberMentor',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.white.withAlpha(200),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Subtitle
+              Text(
+                'SIMULASI & SANDI CYBER',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF64748B),
+                  letterSpacing: 1.1,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Existing Sandi Grid
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.9,
+                ),
+                itemCount: controller.sandiList.length,
+                itemBuilder: (context, index) {
+                  final sandi = controller.sandiList[index];
               return _buildCyberCard(context, sandi, controller);
             },
           );

@@ -1,5 +1,5 @@
 -- 1. Master Tables
-CREATE TABLE domains (
+CREATE TABLE capability_domains (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug VARCHAR(50) UNIQUE NOT NULL,
     title VARCHAR(100) NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE domains (
 
 CREATE TABLE skills (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    domain_id UUID REFERENCES domains(id) ON DELETE CASCADE,
+    domain_id UUID REFERENCES capability_domains(id) ON DELETE CASCADE,
     slug VARCHAR(50) UNIQUE NOT NULL,
     title VARCHAR(100) NOT NULL,
     description TEXT
@@ -17,7 +17,7 @@ CREATE TABLE skills (
 -- 2. Capability Profile (Current State)
 CREATE TABLE learner_capabilities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     skill_id UUID REFERENCES skills(id) ON DELETE CASCADE,
     
     -- High resolution internal score (0-1000)

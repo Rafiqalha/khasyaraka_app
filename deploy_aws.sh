@@ -15,7 +15,10 @@ $SSH_CMD "sudo apt-get update && sudo apt-get install -y docker.io && sudo syste
 echo "Copying backend files to AWS..."
 rsync -avz -e "ssh -o StrictHostKeyChecking=no -i $KEY" --exclude='.git' /home/rafiqalha/projects/khasyaraka/backend/ ubuntu@$IP:~/app/
 
+echo "Copying .env file to AWS..."
+scp -o StrictHostKeyChecking=no -i $KEY /home/rafiqalha/projects/khasyaraka/backend/.env ubuntu@$IP:~/app/.env 2>/dev/null || echo "Warning: No .env file found, API keys must be set manually on the server"
+
 echo "Building and running Docker containers on AWS using docker-compose..."
-$SSH_CMD "sudo apt-get install -y docker-compose-v2 docker-compose && cd ~/app && sudo docker rm -f pradigi-server pradigi-db pradigi-redis || true && sudo docker-compose down || true && sudo docker volume rm app_pgdata || true && sudo docker-compose up -d --build"
+$SSH_CMD "sudo apt-get install -y docker-compose-v2 docker-compose && cd ~/app && sudo docker-compose down || true && sudo docker-compose up -d --build"
 
 echo "Deployment complete!"

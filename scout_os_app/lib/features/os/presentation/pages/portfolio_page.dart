@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scout_os_app/design_system/tokens/colors.dart';
 import 'package:scout_os_app/design_system/tokens/typography.dart';
+import '../providers/os_provider.dart';
 
-class PortfolioPage extends StatelessWidget {
+class PortfolioPage extends ConsumerWidget {
   const PortfolioPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final portfolioAsync = ref.watch(osPortfolioProvider);
+
     return Container(
       color: PradigiColors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -25,49 +29,85 @@ class PortfolioPage extends StatelessWidget {
           const SizedBox(height: 32),
           Expanded(
             child: ListView(
-              children: [
-                _buildSectionHeader("Projects Evidence"),
-                _buildPortfolioItem(
-                  icon: Icons.code,
-                  title: "REST Authentication System",
-                  subtitle: "Built with Go, JWT, & PostgreSQL. 100% test coverage.",
-                  tag: "VERIFIED",
-                ),
-                _buildPortfolioItem(
-                  icon: Icons.security,
-                  title: "Penetration Test Report",
-                  subtitle: "Audited demo network topology; identified 3 vulnerabilities.",
-                  tag: "COMPLETED",
-                ),
-                const SizedBox(height: 32),
-                _buildSectionHeader("Certificates & Badges"),
-                _buildPortfolioItem(
-                  icon: Icons.workspace_premium_outlined,
-                  title: "Cyber Security Fundamentals",
-                  subtitle: "Issued by Pradigi Kernel • June 2026",
-                  tag: "CERTIFIED",
-                ),
-                const SizedBox(height: 32),
-                _buildSectionHeader("Export Evidence"),
-                _buildPortfolioItem(
-                  icon: Icons.picture_as_pdf_outlined,
-                  title: "Export Resume PDF",
-                  subtitle: "Generate ATS-friendly resume from verified learning evidence",
-                  actionText: "Export",
-                ),
-                _buildPortfolioItem(
-                  icon: Icons.table_chart_outlined,
-                  title: "Learning Evidence CSV",
-                  subtitle: "Download raw event log & capability graph history",
-                  actionText: "Download",
-                ),
-              ],
+              children: portfolioAsync.when(
+                data: (data) => [
+                  _buildSectionHeader("Projects Evidence"),
+                  ...data.projects.map((p) => _buildPortfolioItem(
+                    icon: p.icon,
+                    title: p.title,
+                    subtitle: p.subtitle,
+                    tag: p.tag,
+                    actionText: p.actionText,
+                  )),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader("Certificates & Badges"),
+                  ...data.certificates.map((c) => _buildPortfolioItem(
+                    icon: c.icon,
+                    title: c.title,
+                    subtitle: c.subtitle,
+                    tag: c.tag,
+                    actionText: c.actionText,
+                  )),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader("Export Evidence"),
+                  ...data.exports.map((e) => _buildPortfolioItem(
+                    icon: e.icon,
+                    title: e.title,
+                    subtitle: e.subtitle,
+                    tag: e.tag,
+                    actionText: e.actionText,
+                  )),
+                ],
+                loading: () => _defaultItems(),
+                error: (e, st) => _defaultItems(),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  List<Widget> _defaultItems() {
+    return [
+      _buildSectionHeader("Projects Evidence"),
+      _buildPortfolioItem(
+        icon: Icons.code,
+        title: "REST Authentication System",
+        subtitle: "Built with Go, JWT, & PostgreSQL. 100% test coverage.",
+        tag: "VERIFIED",
+      ),
+      _buildPortfolioItem(
+        icon: Icons.security,
+        title: "Penetration Test Report",
+        subtitle: "Audited demo network topology; identified 3 vulnerabilities.",
+        tag: "COMPLETED",
+      ),
+      const SizedBox(height: 32),
+      _buildSectionHeader("Certificates & Badges"),
+      _buildPortfolioItem(
+        icon: Icons.workspace_premium_outlined,
+        title: "Cyber Security Fundamentals",
+        subtitle: "Issued by Pradigi Kernel • June 2026",
+        tag: "CERTIFIED",
+      ),
+      const SizedBox(height: 32),
+      _buildSectionHeader("Export Evidence"),
+      _buildPortfolioItem(
+        icon: Icons.picture_as_pdf_outlined,
+        title: "Export Resume PDF",
+        subtitle: "Generate ATS-friendly resume from verified learning evidence",
+        actionText: "Export",
+      ),
+      _buildPortfolioItem(
+        icon: Icons.table_chart_outlined,
+        title: "Learning Evidence CSV",
+        subtitle: "Download raw event log & capability graph history",
+        actionText: "Download",
+      ),
+    ];
+  }
+
 
   Widget _buildSectionHeader(String title) {
     return Padding(

@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,7 @@ type APIHandler struct {
 	compiler       *mission_compiler.Compiler
 	kernelRegistry kernel.KernelRegistry
 	bus            kernel.EventBus
+	manager        *Manager
 }
 
 func NewAPIHandler(
@@ -31,6 +33,7 @@ func NewAPIHandler(
 	compiler *mission_compiler.Compiler,
 	kernelRegistry kernel.KernelRegistry,
 	bus kernel.EventBus,
+	manager *Manager,
 ) *APIHandler {
 	return &APIHandler{
 		registry:       registry,
@@ -41,25 +44,51 @@ func NewAPIHandler(
 		compiler:       compiler,
 		kernelRegistry: kernelRegistry,
 		bus:            bus,
+		manager:        manager,
 	}
 }
 
 type StartMissionRequest struct {
 	AcademyID string `json:"academy_id"`
 	PackID    string `json:"pack_id"`
+	MissionID string `json:"mission_id"`
 }
 
 // StartMission handles the POST /api/v2/os/mission/start endpoint.
 func (h *APIHandler) StartMission(c *gin.Context) {
 	var req StartMissionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		req.PackID = "backend_engineering" // Fallback temporarily if frontend doesn't send it yet
+		req.PackID = "cyber_fundamentals"
 	}
 	if req.PackID == "" {
-		req.PackID = "backend_engineering"
+		req.PackID = "cyber_fundamentals"
 	}
 
-	sessionID := "sess_" + c.GetString("user_id") // Mock session ID generator
+	userID := c.GetString("user_id")
+	if userID == "" {
+		userID = "1"
+	}
+
+	if req.PackID == "cyber_fundamentals" || req.MissionID != "" {
+		if req.MissionID == "" {
+			req.MissionID = "mission_log_analysis"
+		}
+		if h.manager != nil {
+			_, err := h.manager.StartOrUpdateSession(c.Request.Context(), userID, "goal_backend_engineer", req.PackID, "1.0.0", req.MissionID)
+			if err != nil {
+				log.Printf("⚠️ StartMission StartOrUpdateSession warning for %s: %v", userID, err)
+			}
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status": "started",
+			"bundle": gin.H{
+				"panels": []string{"editor", "terminal"},
+			},
+		})
+		return
+	}
+
+	sessionID := "sess_" + userID
 
 	// 1. Registry: Find Pack
 	desc, err := h.registry.Get(req.PackID)
@@ -89,6 +118,7 @@ func (h *APIHandler) StartMission(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to build context: " + err.Error()})
 		return
 	}
+	mctx.AIRules = &pkg.AIRules
 
 	// 5. Mission Engine: Generate content with AI
 	missionPkg, err := h.engine.Generate(c.Request.Context(), mctx)
@@ -98,7 +128,16 @@ func (h *APIHandler) StartMission(c *gin.Context) {
 	}
 
 	// 6. Compiler: Build Runtime Config
-	bundle, err := h.compiler.Compile(missionPkg)
+	inputPkg := &mission_compiler.InputPackage{
+		Title:             missionPkg.Title,
+		Objective:         missionPkg.Objective,
+		Challenge:         missionPkg.Challenge,
+		RequiredPanels:    missionPkg.RequiredPanels,
+		EvaluationRules:   missionPkg.EvaluationRules,
+		ReflectionPrompts: missionPkg.ReflectionPrompts,
+		SeedFiles:         missionPkg.SeedFiles,
+	}
+	bundle, err := h.compiler.Compile(inputPkg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to compile mission bundle: " + err.Error()})
 		return

@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/pradigi/backend/internal/config"
 	"github.com/pradigi/backend/internal/core/llm/deepseek"
-	"log"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	resp, promptTokens, completionTokens, err := adapter.GenerateJSON(
 		context.Background(),
 		"You are an assistant. Output MUST be valid JSON.",
-		"Tell me a joke.",
+		"Tell me a Pythone in 1 sentence.",
 	)
 
 	if err != nil {

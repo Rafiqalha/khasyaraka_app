@@ -264,3 +264,136 @@ func (h *Handler) ProvisionStream(c *gin.Context) {
 		c.Writer.Flush()
 	}
 }
+
+// GetOSRegistry returns the complete OS Registry of Academies, Specializations, and Blueprint Packs.
+func (h *Handler) GetOSRegistry(c *gin.Context) {
+	registry := []OSRegistryDomain{
+		{
+			ID:    "cyber_academy",
+			Title: "Cyber Security Academy",
+			Icon:  "security_outlined",
+			Specializations: []OSRegistrySpecialization{
+				{
+					ID:        "cyber_analyst",
+					Title:     "Cyber Security Analyst",
+					PackFiles: []string{"Fundamental Keamanan Siber.pack"},
+				},
+			},
+		},
+	}
+	c.JSON(http.StatusOK, registry)
+}
+
+// GetOSPortfolio returns verified artifacts, project outputs, certificates, and learning history.
+func (h *Handler) GetOSPortfolio(c *gin.Context) {
+	resp := OSPortfolioResponse{
+		Projects: []OSPortfolioItem{
+			{
+				Icon:     "code",
+				Title:    "REST Authentication System",
+				Subtitle: "Built with Go, JWT, & PostgreSQL. 100% test coverage.",
+				Tag:      "VERIFIED",
+			},
+			{
+				Icon:     "security",
+				Title:    "Penetration Test Report",
+				Subtitle: "Audited demo network topology; identified 3 vulnerabilities.",
+				Tag:      "COMPLETED",
+			},
+		},
+		Certificates: []OSPortfolioItem{
+			{
+				Icon:     "workspace_premium_outlined",
+				Title:    "Cyber Security Fundamentals",
+				Subtitle: "Issued by Pradigi Kernel • June 2026",
+				Tag:      "CERTIFIED",
+			},
+		},
+		Exports: []OSPortfolioItem{
+			{
+				Icon:       "picture_as_pdf_outlined",
+				Title:      "Export Resume PDF",
+				Subtitle:   "Generate ATS-friendly resume from verified learning evidence",
+				ActionText: "Export",
+			},
+			{
+				Icon:       "table_chart_outlined",
+				Title:      "Learning Evidence CSV",
+				Subtitle:   "Download raw event log & capability graph history",
+				ActionText: "Download",
+			},
+		},
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// GetOSProfile returns identity and learning preferences.
+func (h *Handler) GetOSProfile(c *gin.Context) {
+	userID := c.GetString("user_id")
+	fullName := "Rafiq Alha"
+	email := "rafiq@example.com"
+
+	if userID != "" && h.repo != nil && h.repo.db != nil {
+		var dbName, dbEmail sql.NullString
+		err := h.repo.db.QueryRowContext(c.Request.Context(), "SELECT full_name, email FROM users WHERE id::text = $1 OR email = $1 LIMIT 1", userID).Scan(&dbName, &dbEmail)
+		if err == nil {
+			if dbName.Valid && dbName.String != "" {
+				fullName = dbName.String
+			}
+			if dbEmail.Valid && dbEmail.String != "" {
+				email = dbEmail.String
+			}
+		}
+	}
+
+	resp := OSProfileResponse{
+		Identity: []OSProfileItem{
+			{
+				Icon:     "person",
+				Title:    fullName,
+				Subtitle: "Learner Identity",
+			},
+			{
+				Icon:     "email",
+				Title:    email,
+				Subtitle: "Primary Account Email",
+			},
+		},
+		Preferences: []OSProfileItem{
+			{
+				Icon:     "psychology",
+				Title:    "Visual & Hands-on Learner",
+				Subtitle: "Prefers code sandboxes and interactive flowcharts",
+			},
+			{
+				Icon:     "speed",
+				Title:    "Balanced Pace",
+				Subtitle: "Paced adaptive missions",
+			},
+			{
+				Icon:     "tune",
+				Title:    "AI Mentor Rigor",
+				Subtitle: "High precision & technical feedback",
+			},
+		},
+		Settings: []OSProfileItem{
+			{
+				Icon:     "dark_mode_outlined",
+				Title:    "Theme & Display",
+				Subtitle: "System Default (Light)",
+			},
+			{
+				Icon:     "notifications_none",
+				Title:    "Director Notifications",
+				Subtitle: "Actionable briefings enabled",
+			},
+			{
+				Icon:     "shield_outlined",
+				Title:    "Data Privacy & Memory",
+				Subtitle: "Persistent learner memory active",
+			},
+		},
+	}
+	c.JSON(http.StatusOK, resp)
+}
+

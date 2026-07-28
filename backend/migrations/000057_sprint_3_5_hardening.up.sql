@@ -1,8 +1,10 @@
 -- Drop old tables because this is still unreleased
-DROP TABLE IF EXISTS evidences;
-DROP TABLE IF EXISTS observations;
-DROP TABLE IF EXISTS observation_candidates;
-DROP TABLE IF EXISTS prompt_assets;
+DROP TABLE IF EXISTS evidence_resolution_items CASCADE;
+DROP TABLE IF EXISTS evidence_resolutions CASCADE;
+DROP TABLE IF EXISTS evidences CASCADE;
+DROP TABLE IF EXISTS observations CASCADE;
+DROP TABLE IF EXISTS observation_candidates CASCADE;
+DROP TABLE IF EXISTS prompt_assets CASCADE;
 
 -- Model Registry
 CREATE TABLE model_registry (

@@ -130,12 +130,9 @@ func (h *Handler) StartSession(c *gin.Context) {
 		return
 	}
 
-	// Wait! The user says "StartSession" should start the session based on the profile.
-	// We don't even need PackID or LearningGoalID from the client anymore, because it comes from the Profile.
-	// But let's just keep the old signature and we can pass the hardcoded "goal_ai_eng" and "pack_ai" from Flutter.
-	startNodeID := "mission_sql_1"
-	if req.LearningGoalID == "goal_python_auto" {
-		startNodeID = "mission_python_1"
+	startNodeID := "mission_log_analysis"
+	if req.PackID == "cyber_fundamentals" {
+		startNodeID = "mission_log_analysis"
 	}
 
 	session, err := h.manager.InitializeSession(

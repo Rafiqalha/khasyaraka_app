@@ -1,0 +1,27 @@
+workspace:
+  required:
+    - editor
+    - terminal
+  optional:
+    - browser
+    - notebook
+  forbidden:
+    - calculator
+
+tools:
+  - id: run_code
+    service: sandbox_service
+    method: RunCode
+    description: "Eksekusi kode di sandbox Docker (bash/python)"
+  - id: read_file
+    service: file_service
+    method: ReadFile
+    description: "Baca isi file dari workspace"
+  - id: write_file
+    service: file_service
+    method: WriteFile
+    description: "Tulis atau buat file di workspace"
+  - id: ask_ai
+    service: ai_service
+    method: Ask
+    description: "Tanya CyberMentor untuk mendapatkan petunjuk"

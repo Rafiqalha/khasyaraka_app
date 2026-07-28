@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/pradigi/backend/internal/core/llm"
+	"github.com/pradigi/backend/internal/core/pack"
 )
 
 // MissionPackage is the generated output from the AI.
@@ -33,6 +34,11 @@ func (e *Engine) Generate(ctx context.Context, mctx *MissionContext) (*MissionPa
 	systemPrompt := `You are the Pradigi Mission Engine. Your task is to generate a Mission Package for a student.
 Output MUST be valid JSON matching the exact schema required. Do NOT output markdown or backticks.
 The mission must adhere strictly to the Pedagogy constraints and the Target Capability.`
+
+	if mctx != nil && mctx.AIRules != nil {
+		dynamicRules := pack.BuildSystemPrompt(mctx.AIRules, mctx.Plan.TargetCapability.Name)
+		systemPrompt = systemPrompt + "\n\n" + dynamicRules
+	}
 
 	userPrompt := fmt.Sprintf(`
 Target Capability: %s

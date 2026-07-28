@@ -56,6 +56,14 @@ class _WorkspaceEditorPanelState extends ConsumerState<WorkspaceEditorPanel> {
   }
 
   @override
+  void didUpdateWidget(WorkspaceEditorPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.nodeId != widget.nodeId || oldWidget.initialCode != widget.initialCode) {
+      _codeController.text = widget.initialCode;
+    }
+  }
+
+  @override
   void dispose() {
     _codeController.dispose();
     super.dispose();
@@ -81,73 +89,52 @@ class _WorkspaceEditorPanelState extends ConsumerState<WorkspaceEditorPanel> {
             decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(color: Color(0xFF30363D))),
             ),
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.code, color: Color(0xFF8B949E), size: 16),
-                    const SizedBox(width: 8),
-                    Text(
-                      'main.py',
-                      style: PradigiTypography.caption.copyWith(color: const Color(0xFF8B949E)),
-                    ),
-                  ],
+                Text(
+                  'main.py',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF8B949E),
+                  ),
                 ),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () {
-                         // Ask AI feature
-                      },
-                      icon: const Icon(Icons.auto_awesome, size: 14, color: Color(0xFF8B949E)),
-                      label: Text("Ask AI", style: PradigiTypography.caption.copyWith(color: const Color(0xFF8B949E))),
-                    ),
-                    FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF238636),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                      ),
-                      onPressed: isRunning
-                          ? null
-                          : () {
-                              ref.read(workspaceProvider.notifier).runCode(
-                                    code: _codeController.text,
-                                    language: widget.language,
-                                    sessionId: widget.sessionId,
-                                    nodeId: widget.nodeId,
-                                  );
-                            },
-                      icon: isRunning
-                          ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Icon(Icons.play_arrow, size: 14),
-                      label: Text(isRunning ? "Running" : "Run"),
-                    ),
-                  ],
-                )
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  ),
+                  onPressed: isRunning
+                      ? null
+                      : () {
+                          ref.read(workspaceProvider.notifier).runCode(
+                                code: _codeController.text,
+                                language: widget.language,
+                                sessionId: widget.sessionId,
+                                nodeId: widget.nodeId,
+                              );
+                        },
+                  icon: isRunning
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.play_arrow, size: 14),
+                  label: Text(isRunning ? "Running" : "Run"),
+                ),
               ],
             ),
           ),
           
           // Editor
-          CodeTheme(
-            data: CodeThemeData(styles: monacoTheme),
-            child: Container(
-              color: const Color(0xFF0D1117),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 200, maxHeight: 400),
+          Expanded(
+            child: CodeTheme(
+              data: CodeThemeData(styles: monacoTheme),
+              child: Container(
+                color: const Color(0xFF0D1117),
                 child: SingleChildScrollView(
                   child: Theme(
                     data: Theme.of(context).copyWith(

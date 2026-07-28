@@ -69,7 +69,7 @@ You MUST output strictly in JSON format matching this schema:
 	_, _ = s.db.ExecContext(ctx, `
 		INSERT INTO ai_telemetry (user_id, provider, model_version, tokens_in, tokens_out, latency_ms)
 		VALUES ($1, $2, $3, $4, $5, $6)`,
-		userID, "deepseek", "deepseek-chat", tokensIn, tokensOut, latency,
+		userID, "deepseek", "deepseek-v4-flash", tokensIn, tokensOut, latency,
 	)
 
 	// 4. Cache Insight in Redis

@@ -7,6 +7,7 @@ import 'package:scout_os_app/core/config/environment.dart';
 import 'package:scout_os_app/core/services/secure_storage_service.dart';
 import '../../data/models/home_data_model.dart';
 import '../../data/models/academy_tree_model.dart';
+import '../../data/models/os_models.dart';
 
 final osRemoteDataSourceProvider = Provider<OsRemoteDataSource>((ref) {
   return OsRemoteDataSource();
@@ -22,10 +23,26 @@ final homeDataProvider = FutureProvider<HomeDataModel>((ref) async {
   return repository.getHomeData();
 });
 
+final osRegistryProvider = FutureProvider<List<RegistryDomainModel>>((ref) async {
+  final repository = ref.watch(osRepositoryProvider);
+  return repository.getRegistry();
+});
+
+final osPortfolioProvider = FutureProvider<PortfolioDataModel>((ref) async {
+  final repository = ref.watch(osRepositoryProvider);
+  return repository.getPortfolio();
+});
+
+final osProfileProvider = FutureProvider<ProfileDataModel>((ref) async {
+  final repository = ref.watch(osRepositoryProvider);
+  return repository.getProfile();
+});
+
 final academyTreeProvider = FutureProvider.family<AcademyTreeModel, String>((ref, academyId) async {
   final repository = ref.watch(osRepositoryProvider);
   return repository.getAcademyTree(academyId);
 });
+
 
 final homeSseProvider = StreamProvider.autoDispose<Map<String, dynamic>>((ref) async* {
   final request = http.Request('GET', Uri.parse('${Environment.apiBaseUrl.replaceAll(RegExp(r'/api/v\d+$'), '')}/api/v2/os/stream'));

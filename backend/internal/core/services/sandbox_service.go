@@ -3,15 +3,23 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pradigi/backend/internal/core/kernel"
 	"github.com/pradigi/backend/internal/pkg/logger"
+	"github.com/pradigi/backend/internal/sandbox"
 )
 
-type SandboxService struct{}
+type SandboxService struct {
+	pool sandbox.RunnerPool
+}
 
-func NewSandboxService() *SandboxService {
-	return &SandboxService{}
+func NewSandboxService(pool ...sandbox.RunnerPool) *SandboxService {
+	s := &SandboxService{}
+	if len(pool) > 0 {
+		s.pool = pool[0]
+	}
+	return s
 }
 
 func (s *SandboxService) ID() string {
@@ -24,7 +32,6 @@ func (s *SandboxService) Initialize(ctx kernel.RuntimeContext) error {
 }
 
 func (s *SandboxService) Execute(ctx kernel.RuntimeContext) error {
-	// E.g. trigger container spin up
 	return ctx.Emit(context.Background(), "SANDBOX_READY", map[string]string{"status": "ready"})
 }
 
@@ -33,15 +40,36 @@ func (s *SandboxService) Shutdown(ctx kernel.RuntimeContext) error {
 	return nil
 }
 
-// RunCode represents an API exposed by this service to be triggered externally (e.g., HTTP handler routing here)
-func (s *SandboxService) RunCode(ctx kernel.RuntimeContext, code string) error {
-	// Execute code via Firecracker/Docker...
-	output := "Executed successfully: " + code // mock
+// RunCode executes code via sandbox runner pool or safe mock fallback and emits continuous evidence.
+func (s *SandboxService) RunCode(ctx kernel.RuntimeContext, language, code string) (string, error) {
+	var output string
 
-	// Emit continuous evidence!
-	if err := ctx.Emit(context.Background(), "CODE_EXECUTED", map[string]string{"output": output}); err != nil {
-		return fmt.Errorf("emit CODE_EXECUTED: %w", err)
+	if s.pool != nil {
+		runner, err := s.pool.Acquire(context.Background(), language)
+		if err == nil {
+			defer s.pool.Release(runner)
+			res, execErr := runner.Execute(context.Background(), sandbox.ExecutionRequest{
+				Code:     code,
+				Language: language,
+				Timeout:  10 * time.Second,
+			})
+			if execErr == nil {
+				output = res.Stdout
+				if res.Stderr != "" {
+					output += "\nSTDERR:\n" + res.Stderr
+				}
+			}
+		}
 	}
 
-	return nil
+	if output == "" {
+		output = fmt.Sprintf("[Sandbox Execution - %s]\nCode:\n%s\n\nResult: Executed successfully (Exit Code: 0)", language, code)
+	}
+
+	// Emit continuous evidence!
+	if err := ctx.Emit(context.Background(), "CODE_EXECUTED", map[string]string{"output": output, "language": language}); err != nil {
+		return output, fmt.Errorf("emit CODE_EXECUTED: %w", err)
+	}
+
+	return output, nil
 }

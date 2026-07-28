@@ -34,7 +34,7 @@ class _MissionPreviewPageState extends State<MissionPreviewPage> {
       final dataSource = OsRemoteDataSource();
       await dataSource
           .startMission(
-            packId: 'python-fundamental.pack',
+            packId: 'cyber_fundamentals',
             academyId: widget.academyId,
           )
           .timeout(
@@ -81,36 +81,33 @@ class _MissionPreviewPageState extends State<MissionPreviewPage> {
 
             _buildStatCard(
               'Active Pack Blueprint',
-              'Python Fundamental (python-fundamental.pack v1.0.0)',
+              'Fundamental Keamanan Siber (cyber_fundamentals v1.0.0)',
             ),
             const SizedBox(height: 12),
             _buildStatCard(
               'Estimated Duration',
-              '120 Minutes (8 Adaptive Missions)',
+              '90 Minutes (5 Cyber Missions)',
             ),
             const SizedBox(height: 12),
             _buildStatCard(
               'Initial Step',
-              '001_pre_assessment (Python Readiness Diagnostic)',
+              'mission_network_recon (Network Reconnaissance)',
             ),
             const SizedBox(height: 12),
             _buildStatCard(
               'Workspace Driver & Image',
-              'Docker Container (python:3.11-slim)',
+              'Docker Container (kalilinux/kali-rolling / python:3.11)',
             ),
 
             const SizedBox(height: 24),
             Text('Pack Mission Flow', style: PradigiTypography.h2),
             const SizedBox(height: 12),
 
-            _buildMissionStepTile('1', '001_pre_assessment', 'Readiness Diagnostic & Mastery Baseline'),
-            _buildMissionStepTile('2', '002_variables', 'Variables & Primitive Data Types'),
-            _buildMissionStepTile('3', '003_control_flow', 'Conditionals & Boolean Logic'),
-            _buildMissionStepTile('4', '004_functions', 'Function Definitions & Parameters'),
-            _buildMissionStepTile('5', '005_collections', 'Lists & Dictionaries'),
-            _buildMissionStepTile('6', '006_debugging', 'Syntax & Edge Case Debugging Mission'),
-            _buildMissionStepTile('7', '007_final_project', 'Mini Project: Student Grade Calculator'),
-            _buildMissionStepTile('8', '008_post_assessment', 'Mastery Evaluation & Portfolio Evidence'),
+            _buildMissionStepTile('1', 'mission_network_recon', 'Network Reconnaissance'),
+            _buildMissionStepTile('2', 'mission_log_analysis', 'Log Analysis & Anomaly Detection'),
+            _buildMissionStepTile('3', 'mission_vuln_scanning', 'Vulnerability Assessment'),
+            _buildMissionStepTile('4', 'mission_incident_response', 'Incident Response Drill'),
+            _buildMissionStepTile('5', 'mission_cryptography_basics', 'Applied Cryptography'),
 
             const SizedBox(height: 36),
             SizedBox(

@@ -1,5 +1,5 @@
 -- Drop old evidences table as we are reinventing it in a separate domain
-DROP TABLE IF EXISTS evidences;
+DROP TABLE IF EXISTS evidences CASCADE;
 
 -- Governance Layer
 CREATE TABLE governance_policies (

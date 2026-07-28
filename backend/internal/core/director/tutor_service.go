@@ -27,7 +27,7 @@ type TutorService struct {
 
 func NewTutorService(apiKey string, modelName string) (*TutorService, error) {
 	if modelName == "" || strings.Contains(strings.ToLower(modelName), "gemini") {
-		modelName = "deepseek-coder" // default to deepseek coder
+		modelName = "deepseek-v4-flash" // default to deepseek-v4-flash
 	}
 	return &TutorService{
 		apiKey:     apiKey,

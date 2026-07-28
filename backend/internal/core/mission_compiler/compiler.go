@@ -1,9 +1,5 @@
 package mission_compiler
 
-import (
-	"github.com/pradigi/backend/internal/core/mission_engine"
-)
-
 // MissionBundle is the final executable configuration that the Mission Runtime loads.
 // It is strictly a declarative config.
 type MissionBundle struct {
@@ -21,7 +17,17 @@ type WorkspaceConfig struct {
 	SeedFiles map[string]string `json:"seed_files"`
 }
 
-// Compiler takes the AI-generated MissionPackage and translates it into a deterministic
+type InputPackage struct {
+	Title             string            `json:"title"`
+	Objective         string            `json:"objective"`
+	Challenge         string            `json:"challenge"`
+	RequiredPanels    []string          `json:"required_panels"`
+	EvaluationRules   []string          `json:"evaluation_rules"`
+	ReflectionPrompts []string          `json:"reflection_prompts"`
+	SeedFiles         map[string]string `json:"seed_files"`
+}
+
+// Compiler takes the AI-generated package and translates it into a deterministic
 // MissionBundle that the OS Kernel (Runtime) understands.
 type Compiler struct{}
 
@@ -30,9 +36,7 @@ func NewCompiler() *Compiler {
 }
 
 // Compile takes the generated package and maps it to a strict bundle.
-// This layer is important because it ensures the AI's output is sanitized and mapped
-// to valid system components (e.g., verifying requested panels exist).
-func (c *Compiler) Compile(pkg *mission_engine.MissionPackage) (*MissionBundle, error) {
+func (c *Compiler) Compile(pkg *InputPackage) (*MissionBundle, error) {
 	bundle := &MissionBundle{
 		WorkspaceConfig: WorkspaceConfig{
 			Title:     pkg.Title,

@@ -77,8 +77,14 @@ func Load() (*Config, error) {
 	if deepseekKey := os.Getenv("DEEPSEEK_API_KEY"); deepseekKey != "" {
 		cfg.DeepSeekAPIKey = deepseekKey
 	}
+	if deepseekModel := os.Getenv("DEEPSEEK_MODEL"); deepseekModel != "" {
+		cfg.DeepSeekModel = deepseekModel
+	}
 
 	// Set defaults if empty
+	if cfg.DeepSeekModel == "" {
+		cfg.DeepSeekModel = "deepseek-v4-flash"
+	}
 	if cfg.Port == "" {
 		cfg.Port = "8080"
 	}

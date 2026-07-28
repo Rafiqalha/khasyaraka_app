@@ -14,7 +14,7 @@ import (
 
 const (
 	deepseekEndpoint  = "https://api.deepseek.com/chat/completions"
-	defaultModel      = "deepseek-chat"
+	defaultModel      = "deepseek-v4-flash"
 	requestTimeout    = 30 * time.Second
 	maxTokens         = 2048
 	temperature       = 0.7
@@ -135,13 +135,7 @@ func (a *Agent) Execute(userContext string, history []Message) (*PradigiResponse
 		if isAction && action.Action == "exec" && action.Command != "" {
 			// output, execErr := sandbox.ExecuteCommand(action.Command)
 			output := "Not implemented"
-			var execErr error = nil
-			observation := fmt.Sprintf("COMMAND: %s\nEXIT_CODE: ", action.Command)
-			if execErr != nil {
-				observation += "error\nSTDERR: " + output
-			} else {
-				observation += "0\nOUTPUT:\n" + output
-			}
+			observation := fmt.Sprintf("COMMAND: %s\nEXIT_CODE: 0\nOUTPUT:\n%s", action.Command, output)
 
 			messages = append(messages,
 				Message{Role: "assistant", Content: aiContent},

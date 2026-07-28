@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scout_os_app/design_system/tokens/colors.dart';
 import 'package:scout_os_app/design_system/tokens/typography.dart';
 import 'mission_preview_page.dart';
+import '../providers/os_provider.dart';
 
 class AcademyDomain {
   final String id;
@@ -42,255 +43,16 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
   final List<AcademyDomain> _registryData = [
     AcademyDomain(
-      id: "ai",
-      title: "Artificial Intelligence Academy",
-      icon: Icons.psychology_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "ml_eng",
-          title: "Machine Learning Engineer",
-          packFiles: [
-            "Python Fundamentals.pack",
-            "NumPy.pack",
-            "Pandas.pack",
-            "Statistics.pack",
-            "Linear Algebra.pack",
-            "Calculus.pack",
-            "Data Visualization.pack",
-            "Scikit Learn.pack",
-            "Regression.pack",
-            "Classification.pack",
-            "Clustering.pack",
-            "Feature Engineering.pack",
-            "Model Evaluation.pack",
-            "ML Deployment.pack",
-            "Capstone.pack"
-          ],
-        ),
-        SpecializationRole(
-          id: "dl_eng",
-          title: "Deep Learning Engineer",
-          packFiles: ["PyTorch.pack", "TensorFlow.pack", "Neural Networks.pack", "CNN.pack", "Transformer.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "cv_eng",
-          title: "Computer Vision Engineer",
-          packFiles: ["OpenCV.pack", "Object Detection.pack", "YOLO.pack", "Image Segmentation.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "nlp_eng",
-          title: "NLP Engineer",
-          packFiles: ["Tokenization.pack", "BERT.pack", "Embeddings.pack", "RAG Pipeline.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "llm_eng",
-          title: "LLM Engineer",
-          packFiles: ["Fine-tuning.pack", "LoRA.pack", "LangChain.pack", "Vector DB.pack", "Prompt Architecture.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "mlops_eng",
-          title: "MLOps Engineer",
-          packFiles: ["MLflow.pack", "Kubeflow.pack", "Model Monitoring.pack", "Feature Store.pack", "Capstone.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "cyber",
+      id: "cyber_academy",
       title: "Cyber Security Academy",
       icon: Icons.security_outlined,
       specializations: [
         SpecializationRole(
-          id: "pentest",
-          title: "Penetration Tester",
+          id: "cyber_analyst",
+          title: "Cyber Security Analyst",
           packFiles: [
-            "Linux.pack",
-            "Networking.pack",
-            "Bash.pack",
-            "Python.pack",
-            "Web Security.pack",
-            "SQL Injection.pack",
-            "XSS.pack",
-            "Authentication.pack",
-            "Burp Suite.pack",
-            "Active Directory.pack",
-            "Privilege Escalation.pack",
-            "CTF.pack",
-            "Capstone.pack"
+            "Fundamental Keamanan Siber.pack",
           ],
-        ),
-        SpecializationRole(
-          id: "soc",
-          title: "SOC Analyst",
-          packFiles: ["Syslog.pack", "Wireshark.pack", "SIEM.pack", "Splunk.pack", "Incident Analysis.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "malware",
-          title: "Malware Analyst",
-          packFiles: ["Assembly x86.pack", "Ghidra.pack", "Dynamic Sandbox.pack", "PE Header.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "red_team",
-          title: "Red Team Operator",
-          packFiles: ["C2 Infrastructure.pack", "Phishing Architecture.pack", "Evasion.pack", "Capstone.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "software_eng",
-      title: "Software Engineering Academy",
-      icon: Icons.code_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "backend",
-          title: "Backend Engineer",
-          packFiles: [
-            "HTTP.pack",
-            "REST.pack",
-            "Go.pack",
-            "PostgreSQL.pack",
-            "Authentication.pack",
-            "Authorization.pack",
-            "Caching.pack",
-            "Message Queue.pack",
-            "Docker.pack",
-            "Testing.pack",
-            "Clean Architecture.pack",
-            "Capstone.pack"
-          ],
-        ),
-        SpecializationRole(
-          id: "frontend",
-          title: "Frontend Engineer",
-          packFiles: ["HTML_CSS.pack", "TypeScript.pack", "React.pack", "State Management.pack", "Performance.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "fullstack",
-          title: "Fullstack Engineer",
-          packFiles: ["NodeJS.pack", "NextJS.pack", "Database Indexing.pack", "GraphQL.pack", "CI_CD.pack", "Capstone.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "mobile_eng",
-      title: "Mobile Engineering Academy",
-      icon: Icons.phone_iphone_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "flutter",
-          title: "Flutter Engineer",
-          packFiles: [
-            "Dart.pack",
-            "Widget.pack",
-            "State Management.pack",
-            "Riverpod.pack",
-            "Animation.pack",
-            "Local Database.pack",
-            "REST API.pack",
-            "Clean Architecture.pack",
-            "Firebase.pack",
-            "Capstone.pack"
-          ],
-        ),
-        SpecializationRole(
-          id: "android",
-          title: "Android Native Engineer",
-          packFiles: ["Kotlin.pack", "Jetpack Compose.pack", "Coroutines.pack", "Hilt.pack", "Room.pack", "Capstone.pack"],
-        ),
-        SpecializationRole(
-          id: "ios",
-          title: "iOS Native Engineer",
-          packFiles: ["Swift.pack", "SwiftUI.pack", "Combine.pack", "CoreData.pack", "Capstone.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "startup",
-      title: "Startup Academy",
-      icon: Icons.rocket_launch_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "founder",
-          title: "Startup Founder",
-          packFiles: [
-            "Idea Validation.pack",
-            "Customer Discovery.pack",
-            "MVP.pack",
-            "Product Market Fit.pack",
-            "Metrics.pack",
-            "Pricing.pack",
-            "Fundraising.pack",
-            "Hiring.pack",
-            "Pitch Deck.pack",
-            "Demo Day.pack"
-          ],
-        ),
-        SpecializationRole(
-          id: "pm",
-          title: "Product Manager",
-          packFiles: ["PRD Writing.pack", "User Research.pack", "Wireframing.pack", "Roadmapping.pack", "A_B Testing.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "data_science",
-      title: "Data Science Academy",
-      icon: Icons.insights_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "data_analyst",
-          title: "Data Analyst",
-          packFiles: ["SQL Mastery.pack", "Excel Advanced.pack", "Tableau.pack", "PowerBI.pack", "Data Storytelling.pack"],
-        ),
-        SpecializationRole(
-          id: "data_engineer",
-          title: "Data Engineer",
-          packFiles: ["Spark.pack", "Airflow.pack", "Data Warehouse.pack", "Snowflake.pack", "Kafka.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "devops",
-      title: "DevOps & Cloud Engineering",
-      icon: Icons.cloud_queue_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "devops_engineer",
-          title: "DevOps Engineer",
-          packFiles: ["Linux Administration.pack", "Docker Containerization.pack", "Kubernetes.pack", "Terraform.pack", "Ansible.pack", "GitHub Actions.pack"],
-        ),
-        SpecializationRole(
-          id: "cloud_architect",
-          title: "Cloud Architect",
-          packFiles: ["AWS Core.pack", "GCP Fundamentals.pack", "High Availability.pack", "Cloud Cost Optimization.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "design",
-      title: "UI/UX & Design Academy",
-      icon: Icons.palette_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "ui_designer",
-          title: "UI/UX Designer",
-          packFiles: ["Design System.pack", "Figma Advanced.pack", "User Testing.pack", "Micro Interaction.pack", "Accessibility.pack"],
-        ),
-      ],
-    ),
-    AcademyDomain(
-      id: "cs_math",
-      title: "Computer Science & Mathematics",
-      icon: Icons.calculate_outlined,
-      specializations: [
-        SpecializationRole(
-          id: "cs_foundation",
-          title: "Computer Science Fundamentals",
-          packFiles: ["Data Structures.pack", "Algorithms.pack", "Operating Systems.pack", "Database Systems.pack", "Networking.pack"],
-        ),
-        SpecializationRole(
-          id: "math_foundation",
-          title: "Applied Mathematics",
-          packFiles: ["Calculus.pack", "Linear Algebra.pack", "Probability.pack", "Discrete Math.pack", "Optimization.pack"],
         ),
       ],
     ),
@@ -298,7 +60,23 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredDomains = _registryData.where((domain) {
+    final registryAsync = ref.watch(osRegistryProvider);
+    final activeData = registryAsync.when(
+      data: (models) => models.map((m) => AcademyDomain(
+        id: m.id,
+        title: m.title,
+        icon: m.icon,
+        specializations: m.specializations.map((s) => SpecializationRole(
+          id: s.id,
+          title: s.title,
+          packFiles: s.packFiles,
+        )).toList(),
+      )).toList(),
+      loading: () => _registryData,
+      error: (e, st) => _registryData,
+    );
+
+    final filteredDomains = activeData.where((domain) {
       if (_searchQuery.isEmpty) return true;
       final q = _searchQuery.toLowerCase();
       if (domain.title.toLowerCase().contains(q)) return true;
@@ -428,12 +206,13 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
   }
 
   Widget _buildAcademyDomainNode(AcademyDomain domain) {
-    return Container(
+    return Card(
       margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: PradigiColors.surface,
+      elevation: 0,
+      color: PradigiColors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: PradigiColors.border),
+        side: const BorderSide(color: PradigiColors.border),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -463,12 +242,13 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
   }
 
   Widget _buildSpecializationNode(AcademyDomain domain, SpecializationRole spec) {
-    return Container(
+    return Card(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-      decoration: BoxDecoration(
-        color: PradigiColors.background,
+      elevation: 0,
+      color: PradigiColors.background,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: PradigiColors.border.withOpacity(0.7)),
+        side: const BorderSide(color: PradigiColors.border),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

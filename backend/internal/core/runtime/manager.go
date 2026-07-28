@@ -24,18 +24,18 @@ func (m *Manager) GetCurrentSession(ctx context.Context, userID string) (*Runtim
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			// Auto-initialize default session if user doesn't have one active yet
-			defaultSession, initErr := m.InitializeSession(ctx, userID, "goal_backend_engineer", "backend_engineering", "1.0.0", "mission_sql_1")
+			defaultSession, initErr := m.InitializeSession(ctx, userID, "goal_backend_engineer", "cyber_fundamentals", "1.0.0", "mission_log_analysis")
 			if initErr != nil {
 				log.Printf("⚠️ Auto-initialize session error for %s: %v", userID, initErr)
 				return nil, nil, nil
 			}
-			node, _ := m.packRuntime.GetNode(ctx, "mission_sql_1")
+			node, _ := m.packRuntime.GetNode(ctx, "mission_log_analysis")
 			return defaultSession, node, nil
 		}
 		return nil, nil, err
 	}
 
-	nodeID := "mission_sql_1"
+	nodeID := "mission_log_analysis"
 	if session.CurrentNodeID != nil && *session.CurrentNodeID != "" {
 		nodeID = *session.CurrentNodeID
 	}
@@ -65,6 +65,30 @@ func (m *Manager) InitializeSession(ctx context.Context, userID, goalID, packID,
 	}
 
 	return session, nil
+}
+
+func (m *Manager) StartOrUpdateSession(ctx context.Context, userID, goalID, packID, packVersion, startNodeID string) (*RuntimeSession, error) {
+	session, err := m.repo.GetActiveSession(ctx, userID)
+	if err == nil && session != nil {
+		session.CurrentNodeID = &startNodeID
+		if packID != "" {
+			session.PackID = &packID
+		}
+		if goalID != "" {
+			session.LearningGoalID = &goalID
+		}
+		session.Status = "RUNNING"
+		if updateErr := m.repo.UpdateSession(ctx, session); updateErr != nil {
+			log.Printf("❌ [START_OR_UPDATE_SESSION] UpdateSession failed for user %s: %v", userID, updateErr)
+			return nil, updateErr
+		}
+		log.Printf("✅ [START_OR_UPDATE_SESSION] Updated user %s session to node %s", userID, startNodeID)
+		return session, nil
+	}
+	if goalID == "" {
+		goalID = "goal_backend_engineer"
+	}
+	return m.InitializeSession(ctx, userID, goalID, packID, packVersion, startNodeID)
 }
 
 func (m *Manager) AdvanceNode(ctx context.Context, sessionID, nextNodeID string) error {

@@ -1,0 +1,21 @@
+capabilities:
+  - id: cap_net_recon
+    name: Network Reconnaissance
+    description: Memahami scanning port, IP discovery, dan service enumeration.
+    dependencies: []
+  - id: cap_log_analysis
+    name: Log Analysis
+    description: Membaca log syslog/auth log, menemukan pola intrusi.
+    dependencies: [cap_net_recon]
+  - id: cap_vuln_assess
+    name: Vulnerability Assessment
+    description: Mengidentifikasi kerentanan CVE pada service yang berjalan.
+    dependencies: [cap_net_recon]
+  - id: cap_incident_resp
+    name: Incident Response
+    description: Mengisolasi process berbahaya dan memulihkan akses aman.
+    dependencies: [cap_log_analysis, cap_vuln_assess]
+  - id: cap_crypto
+    name: Applied Cryptography
+    description: Menggunakan hashing (SHA256) dan enkripsi simetris/asimetris.
+    dependencies: []

@@ -64,11 +64,15 @@ func (l *FilesystemLoader) Load(ctx context.Context, descriptor *PackDescriptor)
 	var ws struct {
 		Workspace WorkspaceConfig `yaml:"workspace"`
 		Panels    []string        `yaml:"panels"`
+		Tools     []ToolConfig    `yaml:"tools"`
 	}
 	if err := loadYaml("workspace.yaml", &ws); err != nil {
 		return nil, err
 	}
 	pack.Workspace = ws.Workspace
+	if len(ws.Tools) > 0 {
+		pack.Workspace.Tools = ws.Tools
+	}
 	if len(pack.Workspace.Required) == 0 && len(ws.Panels) > 0 {
 		pack.Workspace.Required = ws.Panels
 	}
@@ -89,6 +93,20 @@ func (l *FilesystemLoader) Load(ctx context.Context, descriptor *PackDescriptor)
 
 	// 6. Load Knowledge
 	if err := loadYaml("knowledge.yaml", &pack.Knowledge); err != nil {
+		return nil, err
+	}
+
+	// 7. Load Missions
+	var missionsData struct {
+		Missions []MissionBlueprint `yaml:"missions"`
+	}
+	if err := loadYaml("missions.yaml", &missionsData); err != nil {
+		return nil, err
+	}
+	pack.Missions = missionsData.Missions
+
+	// 8. Load AI Rules
+	if err := loadYaml("ai_rules.yaml", &pack.AIRules); err != nil {
 		return nil, err
 	}
 

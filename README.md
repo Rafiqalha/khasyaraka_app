@@ -5,13 +5,13 @@ Aplikasi Pramuka digital dengan sistem gamifikasi, pembelajaran interaktif, dan 
 | Stack | Teknologi |
 |-------|-----------|
 | **Backend** | Go 1.22, Gin, sqlx, golang-migrate |
-| **Frontend** | Flutter 3.x, Provider, GetX (routing ONLY), Dio |
+| **Frontend** | Flutter 3.x, Provider, Riverpod, Dio |
 | **Database** | PostgreSQL 15/16 |
 | **Cache** | Redis 7 |
 | **Auth** | JWT (HMAC-SHA256) + bcrypt + Google Sign-In |
-| **AI** | Google Gemini API |
-| **Realtime** | WebSocket (gorilla/websocket) |
-| **Infra** | Docker Compose |
+| **AI Engine** | **DeepSeek V4 Flash** (Primary Mission Engine & Socratic AI Mentor) + Gemini |
+| **Realtime** | WebSocket (gorilla/websocket / asynq) |
+| **Infra** | Docker Compose / Firecracker Sandbox |
 | **Deployment** | AWS EC2 |
 
 ---

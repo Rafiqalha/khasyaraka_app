@@ -138,17 +138,20 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, pool sandbox.Runner
 	{
 		osGrp.GET("/home", academyH.GetHome)
 		osGrp.GET("/stream", academyH.StreamUpdates)
+		osGrp.GET("/registry", academyH.GetOSRegistry)
+		osGrp.GET("/portfolio", academyH.GetOSPortfolio)
+		osGrp.GET("/profile", academyH.GetOSProfile)
 
 		// Pipeline dependencies are now instantiated globally above
 
 		kernelRegistry := kernel.NewRegistry()
-		kernelRegistry.Register(services.NewSandboxService())
+		kernelRegistry.Register(services.NewSandboxService(pool))
 		kernelRegistry.Register(services.NewAIService())
 		kernelRegistry.Register(services.NewKnowledgeService())
 		kernelRegistry.Register(services.NewFileService())
 		kernelRegistry.Register(services.NewNotebookService())
 
-		runtimeAPI := runtime.NewAPIHandler(packRegistry, packLoader, missionPlanner, contextBuilder, engine, compiler, kernelRegistry, bus)
+		runtimeAPI := runtime.NewAPIHandler(packRegistry, packLoader, missionPlanner, contextBuilder, engine, compiler, kernelRegistry, bus, runtimeManager)
 		osGrp.POST("/mission/start", runtimeAPI.StartMission)
 	}
 
@@ -179,6 +182,12 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, pool sandbox.Runner
 		{
 			authCatGrp.POST("/journeys/initialize", catalogH.InitializeJourney)
 		}
+	}
+
+	packH := pack.NewHandler(packRegistry, packLoader)
+	packGrp := v2.Group("/packs")
+	{
+		packH.RegisterRoutes(packGrp)
 	}
 
 	runtimeH := runtime.NewHandler(runtimeManager, bus)
@@ -437,7 +446,7 @@ func New(cfg *config.Config, db *sqlx.DB, rdb *redis.Client, pool sandbox.Runner
 		// Evidence Validator / Submissions (Sprint YC Synchronous Execution)
 		evRepo := evidence_validator.NewRepository(db)
 		evQueue := evidence_validator.NewQueueClientFromClient(asynqClient)
-		tutorSvc, _ := tutor.NewService(cfg.DeepSeekAPIKey, "deepseek-coder")
+		tutorSvc, _ := tutor.NewService(cfg.DeepSeekAPIKey, cfg.DeepSeekModel)
 		evHandler := evidence_validator.NewHandler(evQueue, evRepo, pool, tutorSvc)
 		authAll.POST("/submissions", evHandler.Submit)
 		authAll.GET("/submissions/:id", evHandler.GetStatus)

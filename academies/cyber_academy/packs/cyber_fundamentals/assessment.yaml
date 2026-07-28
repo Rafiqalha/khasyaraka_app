@@ -1,0 +1,6 @@
+evaluation:
+  pass_threshold_confidence: 0.85
+  rules:
+    - AI mengevaluasi apakah objektif utama tercapai secara logis.
+    - Memeriksa penanganan edge cases dan aspek keamanan.
+    - Kode harus dapat dieksekusi tanpa fatal runtime error.

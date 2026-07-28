@@ -212,18 +212,21 @@ class PradigiOSScaffold extends ConsumerWidget {
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Divider(color: PradigiColors.border),
             ),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              leading: const Icon(Icons.play_circle_fill, color: PradigiColors.primary),
-              title: Text("Active: ${activeRuntime.title}", style: PradigiTypography.body.copyWith(fontWeight: FontWeight.bold)),
-              subtitle: Text("Status: ${activeRuntime.status}", style: PradigiTypography.caption),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const WorkspaceShell()),
-                );
-              },
+            Material(
+              color: Colors.transparent,
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                leading: const Icon(Icons.play_circle_fill, color: PradigiColors.primary),
+                title: Text("Active: ${activeRuntime.title}", style: PradigiTypography.body.copyWith(fontWeight: FontWeight.bold)),
+                subtitle: Text("Status: ${activeRuntime.status}", style: PradigiTypography.caption),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const WorkspaceShell()),
+                  );
+                },
+              ),
             ),
           ],
           const SizedBox(height: 32),

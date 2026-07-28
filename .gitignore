@@ -27,3 +27,9 @@ tmp/
 
 # Profiling / heap dumps
 *.hprof
+
+# Security / Credentials protection
+*.pem
+*.jks
+*.keystore
+key.properties

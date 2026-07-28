@@ -17,11 +17,43 @@ type Capability struct {
 	Dependencies []string `json:"dependencies" yaml:"dependencies"`
 }
 
+// ToolConfig defines a capability tool available in the workspace.
+type ToolConfig struct {
+	ID          string `json:"id" yaml:"id"`
+	Service     string `json:"service" yaml:"service"`
+	Method      string `json:"method" yaml:"method"`
+	Description string `json:"description" yaml:"description"`
+}
+
 // WorkspaceConfig specifies what UI panels and tools are required/allowed.
 type WorkspaceConfig struct {
-	Required  []string `json:"required" yaml:"required"`
-	Optional  []string `json:"optional" yaml:"optional"`
-	Forbidden []string `json:"forbidden" yaml:"forbidden"`
+	Required  []string     `json:"required" yaml:"required"`
+	Optional  []string     `json:"optional" yaml:"optional"`
+	Forbidden []string     `json:"forbidden" yaml:"forbidden"`
+	Tools     []ToolConfig `json:"tools,omitempty" yaml:"tools,omitempty"`
+}
+
+// AIRulesConfig defines pedagogical AI behavior, persona, scoring, and escalation.
+type ScoringDimension struct {
+	Name   string  `json:"name" yaml:"name"`
+	Weight float64 `json:"weight" yaml:"weight"`
+}
+
+type ScoringConfig struct {
+	Dimensions []ScoringDimension `json:"dimensions" yaml:"dimensions"`
+}
+
+type EscalationConfig struct {
+	StreakSuccess int `json:"streak_success" yaml:"streak_success"`
+	StreakFail    int `json:"streak_fail" yaml:"streak_fail"`
+}
+
+type AIRulesConfig struct {
+	Persona    string           `json:"persona" yaml:"persona"`
+	Identity   string           `json:"identity" yaml:"identity"`
+	Rules      []string         `json:"rules" yaml:"rules"`
+	Scoring    ScoringConfig    `json:"scoring" yaml:"scoring"`
+	Escalation EscalationConfig `json:"escalation" yaml:"escalation"`
 }
 
 // AssessmentPolicy defines the rules for mission success.
@@ -88,5 +120,6 @@ type Pack struct {
 	CapabilityPolicy CapabilityPolicy
 	Knowledge        KnowledgeConfig
 	Missions         []MissionBlueprint
+	AIRules          AIRulesConfig
 	ReferencesPath   string // URI/Path for the Context Builder to fetch RAG assets
 }

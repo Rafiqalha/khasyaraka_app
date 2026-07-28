@@ -1,0 +1,7 @@
+domain: "Cybersecurity Fundamentals"
+topics:
+  - "Network Scanning (Nmap, Netcat)"
+  - "Linux Syslog & Authentication Logs"
+  - "CVE Vulnerability Assessment"
+  - "Process Containment & Incident Response"
+  - "Hashing & Enkripsi AES/RSA"
