@@ -1,84 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:scout_os_app/design_system/tokens/colors.dart';
 
+/// Pradigi OS Color Constants
+/// 
+/// Unified with PradigiColors single source of truth.
+/// Deprecated scout & cyberpunk color aliases are mapped directly to clean Pradigi palette.
 class AppColors {
-  // --- 1. IDENTITAS KHAS PRAMUKA PENEGAK ---
+  AppColors._();
 
-  // KUNING PENEGAK (Wajib untuk aksen Penegak/Bantara/Laksana)
-  static const Color penegakYellow = Color(
-    0xFFFFD600,
-  ); // Kuning Tegas (Epaulet)
+  // --- Pradigi Core Tokens ---
+  static const Color primary = PradigiColors.primary;
+  static const Color background = PradigiColors.background;
+  static const Color surface = PradigiColors.surface;
+  static const Color textPrimary = PradigiColors.textPrimary;
+  static const Color textSecondary = PradigiColors.textSecondary;
+  static const Color border = PradigiColors.border;
 
-  // COKLAT MUDA (Warna Baju Seragam - Background Aplikasi)
-  static const Color scoutLightBrown = Color(0xFFF0E6D2); // Krem Seragam
+  // --- Semantic States ---
+  static const Color success = PradigiColors.success;
+  static const Color warning = PradigiColors.warning;
+  static const Color danger = PradigiColors.danger;
+  static const Color info = PradigiColors.primary;
 
-  // COKLAT TUA (Warna Celana/Rok - Teks & Header)
-  static const Color scoutDarkBrown = Color(0xFF4E342E); // Coklat Kopi
+  // --- Cyber & Terminal Workspace (Dark Theme) ---
+  static const Color cyberBlue = PradigiColors.primary;
+  static const Color graphite = PradigiColors.editorBackground;
+  static const Color deepCharcoal = PradigiColors.editorBackground;
+  static const Color charcoalSurface = Color(0xFF1E293B);
 
-  // MERAH HASDUK (Aksen, Error, Notifikasi)
-  static const Color hasdukRed = Color(0xFFD32F2F); // Merah Darah
+  // --- Modernized Legacy Mappings (Maintained for non-breaking compatibility) ---
+  static const Color scoutLightBrown = PradigiColors.background;
+  static const Color scoutDarkBrown = PradigiColors.textPrimary;
+  static const Color penegakYellow = PradigiColors.warning;
+  static const Color hasdukRed = PradigiColors.danger;
+  static const Color hasdukWhite = PradigiColors.surface;
+  static const Color pitchBlack = PradigiColors.textPrimary;
 
-  // PUTIH HASDUK (Card Background, Teks di atas Gelap)
-  static const Color hasdukWhite = Color(0xFFFFFFFF); // Putih Bersih
+  static const Color scoutBg = PradigiColors.background;
+  static const Color scoutBrown = PradigiColors.textSecondary;
+  static const Color scoutRed = PradigiColors.danger;
+  static const Color textDark = PradigiColors.textPrimary;
+  static const Color textGrey = PradigiColors.textSecondary;
 
-  // HITAM PEKAT (Outline, Shadow, Teks Kontras)
-  static const Color pitchBlack = Color(0xFF000000); // Hitam Tinta
+  static const Color successGreen = PradigiColors.success;
+  static const Color actionOrange = PradigiColors.warning;
+  static const Color goldBadge = PradigiColors.warning;
+  static const Color forestGreen = PradigiColors.success;
+  static const Color scoutWhite = PradigiColors.surface;
+  static const Color scoutKhaki = PradigiColors.textSecondary;
+  static const Color alertRed = PradigiColors.danger;
+  static const Color wosmPurple = PradigiColors.primary;
 
-  // --- 2. ALIAS UNTUK KOMPATIBILITAS (Agar kode lama tidak error) ---
-  static const Color scoutBg = scoutLightBrown;
-  static const Color scoutBrown = scoutDarkBrown;
-  static const Color scoutRed = hasdukRed;
-  static const Color textDark = pitchBlack;
-  static const Color textGrey = Color(
-    0xFF795548,
-  ); // Coklat pudar untuk teks sekunder
+  // --- Modernized Selection & Feedback Mappings ---
+  static const Color duoSuccess = PradigiColors.success;
+  static const Color duoSuccessShadow = PradigiColors.success;
+  static const Color duoSuccessLight = PradigiColors.successLight;
 
-  // Warna Tambahan Fungsional
-  static const Color successGreen = Color(
-    0xFF388E3C,
-  ); // Tetap butuh hijau untuk "Benar"
-  static const Color actionOrange = Color(0xFFE65100); // Variasi semangat
-  static const Color goldBadge =
-      penegakYellow; // Mapping Emas ke Kuning Penegak
+  static const Color duoError = PradigiColors.danger;
+  static const Color duoErrorShadow = PradigiColors.danger;
+  static const Color duoErrorLight = Color(0xFFFEE2E2);
 
-  // Warna Tambahan untuk Kompatibilitas (digunakan di berbagai file)
-  static const Color forestGreen = Color(
-    0xFF2E7D32,
-  ); // Hijau hutan (untuk success/completed)
-  static const Color scoutWhite = hasdukWhite; // Alias untuk putih
-  static const Color scoutKhaki = Color(0xFFC9B037); // Khaki pramuka
-  static const Color alertRed = hasdukRed; // Alias untuk error/alert
-  static const Color wosmPurple = Color(
-    0xFF6A1B9A,
-  ); // Ungu WOSM (World Organization of the Scout Movement)
-
-  // --- CYBER THEME COLORS ---
-  static const Color cyberBlue = Color(0xFF00F0FF); // Cyberpunk blue neon
-  static const Color graphite = Color(0xFF16161A); // Dark studio graphite
-  static const Color deepCharcoal = Color(0xFF1E1E24); // Added missing deep charcoal
-
-  // --- 3. DUOLINGO-STYLE GAMIFIED UI COLORS ---
-
-  // Success (Correct Answer)
-  static const Color duoSuccess = Color(0xFF58CC02); // Hijau Duolingo
-  static const Color duoSuccessShadow = Color(0xFF46A302); // Shadow hijau
-  static const Color duoSuccessLight = Color(
-    0xFFD7FFB8,
-  ); // Background hijau muda
-
-  // Error (Wrong Answer)
-  static const Color duoError = Color(0xFFFF4B4B); // Merah Duolingo
-  static const Color duoErrorShadow = Color(0xFFEA2B2B); // Shadow merah
-  static const Color duoErrorLight = Color(0xFFFFDFE0); // Background merah muda
-
-  // Neutral & Selection
-  static const Color duoNeutralBorder = Color(
-    0xFFE5E5E5,
-  ); // Border abu-abu default
-  static const Color duoSelectedBorder = Color(
-    0xFF84D8FF,
-  ); // Border biru selected
-  static const Color duoSelectedBg = Color(0xFFDDF4FF); // Background biru muda
-
-  // Button Effects
-  static const Color duoButtonShadow = Color(0xFFCECECE); // Shadow 3D button
+  static const Color duoNeutralBorder = PradigiColors.border;
+  static const Color duoSelectedBorder = PradigiColors.primary;
+  static const Color duoSelectedBg = Color(0xFFEFF6FF);
+  static const Color duoButtonShadow = Colors.transparent;
 }

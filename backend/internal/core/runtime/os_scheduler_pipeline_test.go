@@ -91,9 +91,17 @@ func TestEventDrivenOSSchedulerPipeline(t *testing.T) {
 		t.Fatal("Timeout waiting for OS Event Bus pipeline to reach Flutter subscriber")
 	}
 
-	// Verify scheduler state transitioned to RUNNING
-	if state := scheduler.CurrentState(); state != mission_engine.StateRunning {
-		t.Errorf("Expected scheduler state RUNNING, got %s", state)
+	// Verify scheduler state transitioned to RUNNING (allow async state machine to settle)
+	var finalState mission_engine.MissionState
+	for i := 0; i < 50; i++ {
+		finalState = scheduler.CurrentState()
+		if finalState == mission_engine.StateRunning {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if finalState != mission_engine.StateRunning {
+		t.Errorf("Expected scheduler state RUNNING, got %s", finalState)
 	}
 	t.Logf("Verified OS Scheduler State Machine: %s", scheduler.CurrentState())
 

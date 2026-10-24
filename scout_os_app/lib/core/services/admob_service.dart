@@ -1,61 +1,23 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+/// Reward item representation for simulated or granted rewards
+class RewardItem {
+  final num amount;
+  final String type;
+  const RewardItem(this.amount, this.type);
+}
+
+/// Pradigi OS AdMobService Stub.
+/// 
+/// In Pradigi AI OS, commercial third-party ads are eliminated to maintain a
+/// calm, focused, and distraction-free learning operating system environment.
 class AdMobService {
   static final AdMobService _instance = AdMobService._internal();
   factory AdMobService() => _instance;
   AdMobService._internal();
 
-  RewardedAd? _rewardedAd;
-  bool _isLoading = false;
-
-  // Production Ad Unit ID for Rewarded Ads (Android)
-  final String _adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-5745748999370612/2195527571'
-      : 'ca-app-pub-3940256099942544/1712485313'; // Keep iOS Test ID for now
-
   Future<void> initialize() async {
-    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
-      debugPrint('⚠️ [AdMob] Skipping initialization on desktop platform');
-      return;
-    }
-    await MobileAds.instance.initialize();
-    _loadRewardedAd();
-  }
-
-  void _loadRewardedAd() {
-    if (_isLoading) return;
-
-    // Skip on desktop platforms as google_mobile_ads only supports Android/iOS
-    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
-      debugPrint('⚠️ [AdMob] Skipping ad load on desktop platforms');
-      return;
-    }
-
-    _isLoading = true;
-
-    try {
-      RewardedAd.load(
-        adUnitId: _adUnitId,
-        request: const AdRequest(),
-        rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (ad) {
-            debugPrint('🎬 [AdMob] Rewarded Ad loaded');
-            _rewardedAd = ad;
-            _isLoading = false;
-          },
-          onAdFailedToLoad: (error) {
-            debugPrint('❌ [AdMob] Failed to load Rewarded Ad: ${error.message}');
-            _rewardedAd = null;
-            _isLoading = false;
-          },
-        ),
-      );
-    } catch (e) {
-      debugPrint('❌ [AdMob] Exception loading ad: $e');
-      _isLoading = false;
-    }
+    debugPrint('ℹ️ [Pradigi OS] Commercial ads are disabled in AI OS mode.');
   }
 
   void showRewardedAd({
@@ -63,38 +25,8 @@ class AdMobService {
     VoidCallback? onAdDismissed,
     VoidCallback? onAdFailed,
   }) {
-    if (_rewardedAd == null) {
-      debugPrint('⚠️ [AdMob] Ad not ready yet. Reloading...');
-      _loadRewardedAd();
-      onAdFailed?.call();
-      return;
-    }
-
-    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) => debugPrint('🎬 [AdMob] Ad showed'),
-      onAdDismissedFullScreenContent: (ad) {
-        debugPrint('🎬 [AdMob] Ad dismissed');
-        ad.dispose();
-        _rewardedAd = null;
-        _loadRewardedAd(); // Preload next ad
-        onAdDismissed?.call();
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        debugPrint('❌ [AdMob] Ad failed to show: ${error.message}');
-        ad.dispose();
-        _rewardedAd = null;
-        _loadRewardedAd();
-        onAdFailed?.call();
-      },
-    );
-
-    _rewardedAd!.show(
-      onUserEarnedReward: (ad, reward) {
-        debugPrint(
-          '💰 [AdMob] User earned reward: ${reward.amount} ${reward.type}',
-        );
-        onUserEarnedReward(reward);
-      },
-    );
+    debugPrint('🎁 [Pradigi OS] Reward granted automatically without commercial ad interruption.');
+    onUserEarnedReward(const RewardItem(1, 'hearts'));
+    onAdDismissed?.call();
   }
 }

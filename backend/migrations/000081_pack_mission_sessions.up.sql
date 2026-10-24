@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS pack_mission_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id),
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     pack_id TEXT NOT NULL,
     mission_id TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active',

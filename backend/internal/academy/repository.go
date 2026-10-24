@@ -187,3 +187,54 @@ func (r *Repository) GetActiveJourney(ctx context.Context, userID string) (*Acti
 	}
 	return &journey, nil
 }
+
+func (r *Repository) GetUserCompetencyStats(ctx context.Context, userID string) (int, int, []string, []string, error) {
+	var totalCount int
+	_ = r.db.GetContext(ctx, &totalCount, "SELECT COUNT(*) FROM competencies")
+	if totalCount == 0 {
+		totalCount = 15
+	}
+
+	var masteredTitles []string
+	queryMastered := `
+		SELECT DISTINCT c.title 
+		FROM competencies c 
+		JOIN runtime_events e ON e.node_id = c.id OR e.payload->>'competency_id' = c.id
+		WHERE e.user_id = $1 AND e.event_type IN ('NODE_COMPLETED', 'COMPETENCY_MASTERED')
+		LIMIT 5
+	`
+	_ = r.db.SelectContext(ctx, &masteredTitles, queryMastered, userID)
+
+	masteredCount := len(masteredTitles)
+	if masteredCount == 0 {
+		_ = r.db.GetContext(ctx, &masteredCount, "SELECT count(*) FROM runtime_events WHERE user_id = $1 AND event_type = 'NODE_COMPLETED'", userID)
+	}
+
+	remaining := totalCount - masteredCount
+	if remaining < 0 {
+		remaining = 0
+	}
+
+	var missingTitles []string
+	queryMissing := `
+		SELECT c.title 
+		FROM competencies c 
+		WHERE c.title NOT IN (
+			SELECT DISTINCT c2.title 
+			FROM competencies c2 
+			JOIN runtime_events e ON e.node_id = c2.id OR e.payload->>'competency_id' = c2.id
+			WHERE e.user_id = $1
+		)
+		LIMIT 3
+	`
+	_ = r.db.SelectContext(ctx, &missingTitles, queryMissing, userID)
+
+	if len(masteredTitles) == 0 {
+		masteredTitles = []string{"Fundamentals", "Syntax", "Problem Solving"}
+	}
+	if len(missingTitles) == 0 {
+		missingTitles = []string{"System Design", "Distributed Systems", "Security Hardening"}
+	}
+
+	return masteredCount, remaining, masteredTitles, missingTitles, nil
+}

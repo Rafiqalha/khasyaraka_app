@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:scout_os_app/design_system/tokens/colors.dart';
+import 'package:scout_os_app/design_system/tokens/typography.dart';
 
 class TerminalLoading extends StatefulWidget {
   final Color? color;
@@ -9,7 +10,7 @@ class TerminalLoading extends StatefulWidget {
   const TerminalLoading({
     super.key,
     this.color,
-    this.fontSize = 16,
+    this.fontSize = 14,
   });
 
   @override
@@ -41,15 +42,14 @@ class _TerminalLoadingState extends State<TerminalLoading> {
   @override
   Widget build(BuildContext context) {
     String dots = '.' * _dotCount;
-    // We pad right so the width doesn't jump around
     return SizedBox(
-      width: 100, // Fixed width to prevent jumping
+      width: 100,
       child: Text(
         'Loading$dots',
-        style: GoogleFonts.nunito(
-          color: widget.color ?? const Color(0xFF00F0FF), // Cyber blue default
+        style: PradigiTypography.code.copyWith(
+          color: widget.color ?? PradigiColors.primary,
           fontSize: widget.fontSize,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

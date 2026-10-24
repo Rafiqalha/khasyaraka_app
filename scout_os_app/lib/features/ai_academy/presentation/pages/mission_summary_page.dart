@@ -12,11 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../logic/academy_controller.dart';
 import '../../data/experiment_001_config.dart';
-import '../../../../../shared/theme/design_tokens.dart';
-import '../../../../../shared/components/ai_card.dart';
-import '../../../../../shared/components/ai_button.dart';
-import '../../../../../shared/components/ai_badge.dart';
-import '../../../../../core/config/capability_config.dart';
+import 'package:scout_os_app/shared/theme/design_tokens.dart';
+import 'package:scout_os_app/shared/components/ai_card.dart';
+import 'package:scout_os_app/shared/components/ai_button.dart';
+import 'package:scout_os_app/shared/components/ai_badge.dart';
+import 'package:scout_os_app/core/config/capability_config.dart';
 
 class MissionSummaryPage extends StatelessWidget {
   const MissionSummaryPage({super.key});

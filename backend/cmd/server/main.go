@@ -39,11 +39,6 @@ func main() {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("UPDATE schema_migrations SET dirty = false")
-	if err != nil {
-		logger.Warn().Err(err).Msg("failed to clean dirty schema_migrations")
-	}
-
 	logger.Info().Msg("connected to postgresql")
 
 	var rdb *redis.Client
@@ -72,8 +67,8 @@ func main() {
 		poolConfig := sandbox.PoolConfig{
 			MinIdle:        3,
 			MaxPool:        20,
-			MaxUse:         100,
-			MaxLifetime:    1 * time.Hour,
+			MaxUse:         25,
+			MaxLifetime:    30 * time.Minute,
 			AcquireTimeout: 5 * time.Second,
 		}
 		pool = sandbox.NewWarmPool(context.Background(), poolConfig)

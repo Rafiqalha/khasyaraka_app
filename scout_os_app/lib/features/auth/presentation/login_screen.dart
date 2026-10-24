@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (context, controller, child) {
               if (controller.isLoading) {
                 return Container(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

@@ -1,35 +1,28 @@
 import 'package:flutter/material.dart';
+import '../../design_system/tokens/typography.dart';
 import 'design_tokens.dart';
 
+/// Legacy AppTextStyles compatibility class.
+/// 
+/// Unified with PradigiTypography single source of truth.
 class AppTextStyles {
   AppTextStyles._();
 
   // Headings
-  @deprecated
-  static TextStyle get h1 => AppTypographyTokens.display;
-
-  @deprecated
-  static TextStyle get h2 => AppTypographyTokens.pageHeading;
-
-  @deprecated
-  static TextStyle get h3 => AppTypographyTokens.sectionHeading;
+  static TextStyle get h1 => PradigiTypography.h1;
+  static TextStyle get h2 => PradigiTypography.h2;
+  static TextStyle get h3 => PradigiTypography.h3;
 
   // Body Text
-  @deprecated
-  static TextStyle get bodyLarge => AppTypographyTokens.bodyStrong;
-
-  @deprecated
-  static TextStyle get bodyMedium => AppTypographyTokens.body;
+  static TextStyle get bodyLarge => PradigiTypography.body.copyWith(fontWeight: FontWeight.w600);
+  static TextStyle get bodyMedium => PradigiTypography.body;
 
   // Captions/Labels
-  @deprecated
-  static TextStyle get caption => AppTypographyTokens.caption;
+  static TextStyle get caption => PradigiTypography.caption;
 
   // Buttons
-  @deprecated
-  static TextStyle get button => AppTypographyTokens.bodyStrong;
+  static TextStyle get button => PradigiTypography.body.copyWith(fontWeight: FontWeight.w600);
 
-  // Currency/Points (Deprecated gaming element)
-  @deprecated
-  static TextStyle get currency => AppTypographyTokens.metadata;
+  // Metadata/Currency
+  static TextStyle get currency => PradigiTypography.caption;
 }

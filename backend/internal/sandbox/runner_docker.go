@@ -33,7 +33,13 @@ func NewDockerRunner(ctx context.Context, image string) (*DockerRunner, error) {
 		"--name", name,
 		"--memory", containerMemory,
 		"--cpus", containerCPU,
+		"--pids-limit", "64",
 		"--network", "none",
+		"--read-only",
+		"--security-opt", "no-new-privileges",
+		"--cap-drop", "ALL",
+		"--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
+		"-e", "PYTHONDONTWRITEBYTECODE=1",
 		image,
 		"tail", "-f", "/dev/null",
 	}
@@ -123,6 +129,11 @@ func (r *DockerRunner) Execute(ctx context.Context, req ExecutionRequest) (Execu
 			ImageVersion: r.image,
 		},
 	}
+
+	// Sanitize ephemeral storage to prevent cross-learner pollution
+	cleanCtx, cleanCancel := context.WithTimeout(context.Background(), 2*time.Second)
+	_ = exec.CommandContext(cleanCtx, "docker", "exec", r.id, "sh", "-c", "rm -rf /tmp/*").Run()
+	cleanCancel()
 
 	if err != nil {
 		if execCtx.Err() == context.DeadlineExceeded {

@@ -1,76 +1,61 @@
 import 'package:flutter/material.dart';
+import '../../design_system/tokens/colors.dart';
 import 'design_tokens.dart';
 
+/// Legacy AppColors compatibility class.
+/// 
+/// Unified with PradigiColors single source of truth.
 class AppColors {
-  // Private constructor to prevent instantiation
   AppColors._();
 
   // Primary Color
-  static const Color primary = AppColorTokens.primary;
-
-  // Secondary Color
-  @deprecated
-  static const Color secondary = AppColorTokens.textSecondary;
-
-  // Accent Color
-  @deprecated
-  static const Color accent = AppColorTokens.warning;
+  static const Color primary = PradigiColors.primary;
+  static const Color secondary = PradigiColors.textSecondary;
+  static const Color accent = PradigiColors.warning;
 
   // Background Colors
-  static const Color deepCharcoal = Color(0xFF161616);
-  static const Color charcoalSurface = Color(0xFF242424);
+  static const Color deepCharcoal = PradigiColors.editorBackground;
+  static const Color charcoalSurface = Color(0xFF1E293B);
   
-  @deprecated
-  static const Color wosmPurple = AppColorTokens.info; 
-  @deprecated
-  static const Color wosmPurpleDark = AppColorTokens.primaryDark;
+  static const Color wosmPurple = PradigiColors.primary;
+  static const Color wosmPurpleDark = Color(0xFF1D4ED8);
 
-  @deprecated
-  static const Color scoutBrown = AppColorTokens.textSecondary;
-  @deprecated
-  static const Color scoutBrownDark = AppColorTokens.textPrimary;
+  static const Color scoutBrown = PradigiColors.textSecondary;
+  static const Color scoutBrownDark = PradigiColors.textPrimary;
   
-  static const Color lockedGrey = Color(0xFF424242);
-  static const Color lockedGreyDark = Color(0xFF212121);
+  static const Color lockedGrey = Color(0xFF94A3B8);
+  static const Color lockedGreyDark = Color(0xFF64748B);
 
-  // Flat 3D Stats Colors (Deprecated, mapping to semantic tokens)
-  @deprecated
-  static const Color statFire = AppColorTokens.warning;
-  @deprecated
-  static const Color statFireDark = AppColorTokens.warning;
+  // Stats Colors mapped to clean Pradigi semantic tokens
+  static const Color statFire = PradigiColors.warning;
+  static const Color statFireDark = PradigiColors.warning;
   
-  @deprecated
-  static const Color statStar = AppColorTokens.warning;
-  @deprecated
-  static const Color statStarDark = AppColorTokens.warning;
+  static const Color statStar = PradigiColors.warning;
+  static const Color statStarDark = PradigiColors.warning;
   
-  @deprecated
-  static const Color statHeart = AppColorTokens.danger;
-  @deprecated
-  static const Color statHeartDark = AppColorTokens.danger;
+  static const Color statHeart = PradigiColors.danger;
+  static const Color statHeartDark = PradigiColors.danger;
 
-  @deprecated
-  static const Color statCourse = AppColorTokens.info;
-  @deprecated
-  static const Color statCourseDark = AppColorTokens.primaryDark;
+  static const Color statCourse = PradigiColors.primary;
+  static const Color statCourseDark = Color(0xFF1D4ED8);
 
   // Background Colors
-  static const Color backgroundLight = AppColorTokens.background;
-  static const Color backgroundDark = deepCharcoal;
+  static const Color backgroundLight = PradigiColors.background;
+  static const Color backgroundDark = PradigiColors.editorBackground;
 
   // Text Colors
-  static const Color textPrimaryLight = AppColorTokens.textPrimary;
-  static const Color textPrimaryDark = Color(0xFFE0E0E0);
+  static const Color textPrimaryLight = PradigiColors.textPrimary;
+  static const Color textPrimaryDark = Color(0xFFF1F5F9);
 
   // Functional Colors
-  static const Color danger = AppColorTokens.danger;
-  static const Color success = AppColorTokens.success;
-  static const Color warning = AppColorTokens.warning;
-  static const Color info = AppColorTokens.info;
+  static const Color danger = PradigiColors.danger;
+  static const Color success = PradigiColors.success;
+  static const Color warning = PradigiColors.warning;
+  static const Color info = PradigiColors.primary;
 
   // Surface Colors
-  static const Color surfaceLight = AppColorTokens.surface;
-  static const Color surfaceDark = charcoalSurface;
+  static const Color surfaceLight = PradigiColors.surface;
+  static const Color surfaceDark = Color(0xFF1E293B);
 
   /// Helper to get background color based on theme
   static Color backgroundColor(BuildContext context) {

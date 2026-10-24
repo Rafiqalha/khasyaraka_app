@@ -142,7 +142,7 @@ class PradigiOSScaffold extends ConsumerWidget {
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                color: PradigiColors.primary.withOpacity(0.08),
+                color: PradigiColors.primary.withValues(alpha: 0.08),
                 child: Row(
                   children: [
                     Container(
@@ -259,7 +259,7 @@ class PradigiOSScaffold extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
         decoration: BoxDecoration(
-          color: isSelected ? PradigiColors.border.withOpacity(0.4) : Colors.transparent,
+          color: isSelected ? PradigiColors.border.withValues(alpha: 0.4) : Colors.transparent,
           border: isSelected && !isCompact ? const Border(left: BorderSide(color: PradigiColors.textPrimary, width: 3)) : null,
         ),
         child: Row(

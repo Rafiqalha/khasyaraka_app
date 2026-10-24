@@ -168,7 +168,7 @@ class HomePage extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: PradigiColors.successLight,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: PradigiColors.success.withOpacity(0.3)),
+                border: Border.all(color: PradigiColors.success.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

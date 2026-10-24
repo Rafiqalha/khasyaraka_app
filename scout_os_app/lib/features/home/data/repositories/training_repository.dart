@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/training_path.dart';
 import '../models/training_section.dart';
 import '../models/incident.dart';
@@ -22,7 +21,6 @@ class TrainingRepository {
   final TrainingApiService _apiService = TrainingApiService(
     dio: ApiDioProvider.getDio(),
   );
-  static const String _progressKeyPrefix = 'training_progress_';
 
   // ===============================================================
   // 1. GET LEARNING PATH DATA (REAL API ONLY)
@@ -277,12 +275,10 @@ class TrainingRepository {
 
   /// Fetch user progress from backend
   ///
-  /// Returns: Map<levelId, status>
+  /// Returns: `Map<String, String>` (levelId to status)
   /// Example: {"puk_u1_l1": "COMPLETED", "puk_u1_l2": "UNLOCKED"}
-  /// Fetch user progress from backend
   ///
   /// If sectionId is null, fetches ALL progress (Global).
-  /// Returns: Map<levelId, status>
   /// Example: {"puk_u1_l1": "COMPLETED", "puk_u1_l2": "UNLOCKED"}
   Future<Map<String, String>> fetchUserProgress(
     String userId, {

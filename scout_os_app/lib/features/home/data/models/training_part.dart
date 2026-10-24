@@ -6,6 +6,8 @@
 /// Example:
 /// - BAGIAN 1: Pengetahuan Umum (PUK) → Units 1-5
 /// - BAGIAN 2: Pertolongan Pertama (PPGD) → Units 1-5
+library;
+
 import 'training_path.dart';
 
 class TrainingPart {

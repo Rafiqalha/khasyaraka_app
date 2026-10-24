@@ -44,6 +44,8 @@ class PradigiApp extends StatelessWidget {
     return MaterialApp(
       title: 'Pradigi OS',
       theme: PradigiTheme.lightTheme,
+      darkTheme: PradigiTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const AuthGate(),
       debugShowCheckedModeBanner: false,
     );

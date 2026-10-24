@@ -11,7 +11,8 @@ class QuizHapticService {
   /// Check if device supports vibration
   static Future<bool> hasVibrationSupport() async {
     try {
-      return await Vibration.hasVibrator() ?? false;
+      final hasVibrator = await Vibration.hasVibrator();
+      return hasVibrator == true;
     } catch (e) {
       return false;
     }

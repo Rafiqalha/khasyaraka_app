@@ -12,9 +12,9 @@ import 'package:provider/provider.dart';
 import '../../logic/academy_controller.dart';
 import '../../logic/assessment_engine.dart';
 import '../../data/experiment_001_config.dart';
-import '../../../../../shared/theme/design_tokens.dart';
-import '../../../../../shared/components/ai_card.dart';
-import '../../../../../core/config/capability_config.dart';
+import 'package:scout_os_app/shared/theme/design_tokens.dart';
+import 'package:scout_os_app/shared/components/ai_card.dart';
+import 'package:scout_os_app/core/config/capability_config.dart';
 
 class CapabilityDashboardPage extends StatelessWidget {
   const CapabilityDashboardPage({super.key});

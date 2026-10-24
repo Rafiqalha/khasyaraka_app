@@ -124,7 +124,7 @@ class _Zoo3DCircleState extends State<Zoo3DCircle>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: widget.color.withOpacity(0.5),
+                          color: widget.color.withValues(alpha: 0.5),
                           blurRadius: 20,
                           spreadRadius: 4,
                         ),
@@ -201,7 +201,7 @@ class _Zoo3DCircleState extends State<Zoo3DCircle>
             center: const Alignment(-0.3, -0.4),
             radius: 0.8,
             colors: [
-              Colors.white.withOpacity(0.4),
+              Colors.white.withValues(alpha: 0.4),
               widget.color,
               _shadowColor,
             ],
@@ -209,7 +209,7 @@ class _Zoo3DCircleState extends State<Zoo3DCircle>
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               offset: const Offset(2, 4),
               blurRadius: 6,
             ),

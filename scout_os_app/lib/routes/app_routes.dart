@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../shared/components/main_navigation_scaffold.dart';
+import 'package:scout_os_app/features/os/presentation/shell/os_launcher.dart';
 import 'package:scout_os_app/features/home/presentation/pages/training_path_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_main_page.dart';
 import 'package:scout_os_app/features/mission/subfeatures/sku/views/sku_list_view.dart';
@@ -38,7 +38,7 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case mainNavigation:
-        return MaterialPageRoute(builder: (_) => const MainNavigationScaffold());
+        return MaterialPageRoute(builder: (_) => const OSLauncher());
       case trainingMap:
         return MaterialPageRoute(builder: (_) => const TrainingPathPage());
       case skuMap:

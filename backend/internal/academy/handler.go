@@ -105,9 +105,8 @@ func (h *Handler) GetHome(c *gin.Context) {
 		// Used in older logic
 	}
 
-	// Calculate deterministic state from Runtime Manager (mocked slightly for MVP, but sourced deterministically)
-	masteredCount := 0
-	h.repo.db.GetContext(c.Request.Context(), &masteredCount, "SELECT count(*) FROM runtime_events WHERE user_id = $1 AND event_type = 'NODE_COMPLETED'", userID)
+	// Calculate deterministic state from Runtime Manager & Competency Graph
+	masteredCount, remainingCount, currentUnderstanding, missingCompetencies, _ := h.repo.GetUserCompetencyStats(c.Request.Context(), userID)
 
 	cacheKey := fmt.Sprintf("director:insight:%s", userID)
 	insightBytes, err := h.rdb.Get(c.Request.Context(), cacheKey).Bytes()
@@ -156,9 +155,9 @@ func (h *Handler) GetHome(c *gin.Context) {
 		GoalTitle:              profile.Goal,
 		CurrentNode:            "",
 		MasteredCompetencies:   masteredCount,
-		RemainingCompetencies:  14,
-		CurrentUnderstanding:   []string{"Python", "Functions", "Objects"},
-		MissingCompetencies:    []string{"HTTP", "REST", "Databases"},
+		RemainingCompetencies:  remainingCount,
+		CurrentUnderstanding:   currentUnderstanding,
+		MissingCompetencies:    missingCompetencies,
 		DirectorInsight:        directorInsight,
 		ActiveRuntime:          activeRuntime,
 		KnowledgeUpdateCount:   2,
